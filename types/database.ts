@@ -15,6 +15,7 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
+          is_active: boolean
           name: string
           phone: string | null
           updated_at: string | null
@@ -24,6 +25,7 @@ export type Database = {
           created_at?: string | null
           email: string
           id?: string
+          is_active?: boolean
           name: string
           phone?: string | null
           updated_at?: string | null
@@ -33,6 +35,7 @@ export type Database = {
           created_at?: string | null
           email?: string
           id?: string
+          is_active?: boolean
           name?: string
           phone?: string | null
           updated_at?: string | null
@@ -214,6 +217,7 @@ export type Database = {
           customer_id: string
           description: string | null
           id: string
+          is_active: boolean
           name: string
           status: string
           updated_at: string | null
@@ -223,6 +227,7 @@ export type Database = {
           customer_id: string
           description?: string | null
           id?: string
+          is_active?: boolean
           name: string
           status?: string
           updated_at?: string | null
@@ -232,6 +237,7 @@ export type Database = {
           customer_id?: string
           description?: string | null
           id?: string
+          is_active?: boolean
           name?: string
           status?: string
           updated_at?: string | null
