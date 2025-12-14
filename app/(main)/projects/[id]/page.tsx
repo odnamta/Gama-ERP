@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
+import { PJOStatusBadge } from '@/components/ui/pjo-status-badge'
+import { formatDate } from '@/lib/pjo-utils'
 import { ArrowLeft, Building2, MapPin, Calendar, FolderOpen, FileText, ClipboardList } from 'lucide-react'
 
 interface ProjectDetailPageProps {
@@ -86,7 +88,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
                 <p className="text-sm text-muted-foreground">Created</p>
                 <p className="font-medium">
                   {project.created_at
-                    ? new Date(project.created_at).toLocaleDateString()
+                    ? formatDate(project.created_at)
                     : '-'}
                 </p>
               </div>
@@ -95,29 +97,43 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Proforma Job Orders (PJOs)
-            </CardTitle>
-            <CardDescription>Quotations for this project</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Proforma Job Orders (PJOs)
+              </CardTitle>
+              <CardDescription>Quotations for this project</CardDescription>
+            </div>
+            <Button asChild size="sm">
+              <Link href={`/proforma-jo/new?project_id=${params.id}`}>
+                Add PJO
+              </Link>
+            </Button>
           </CardHeader>
           <CardContent>
             {pjos && pjos.length > 0 ? (
               <div className="space-y-2">
                 {pjos.map((pjo) => (
-                  <div
+                  <Link
                     key={pjo.id}
-                    className="flex items-center justify-between rounded-md border p-3"
+                    href={`/proforma-jo/${pjo.id}`}
+                    className="flex items-center justify-between rounded-md border p-3 hover:bg-muted/50 transition-colors"
                   >
                     <div>
                       <p className="font-medium">{pjo.pjo_number}</p>
                       <p className="text-sm text-muted-foreground">
-                        {pjo.description}
+                        {pjo.jo_date ? formatDate(pjo.jo_date) : '-'}
+                        {pjo.commodity && ` • ${pjo.commodity}`}
                       </p>
                     </div>
-                    <StatusBadge status={pjo.status} />
-                  </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm font-medium">
+                        Rp {pjo.total_revenue?.toLocaleString('id-ID') || '0'}
+                      </span>
+                      <PJOStatusBadge status={pjo.status} />
+                    </div>
+                  </Link>
                 ))}
               </div>
             ) : (

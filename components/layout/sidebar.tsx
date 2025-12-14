@@ -15,11 +15,11 @@ import {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Proforma JO', href: '/pjo', icon: FileText },
-  { name: 'Job Orders', href: '/jo', icon: ClipboardList },
-  { name: 'Invoices', href: '/invoices', icon: Receipt },
   { name: 'Customers', href: '/customers', icon: Users },
   { name: 'Projects', href: '/projects', icon: FolderKanban },
+  { name: 'Proforma JO', href: '/proforma-jo', icon: FileText },
+  { name: 'Job Orders', href: '/job-orders', icon: ClipboardList },
+  { name: 'Invoices', href: '/invoices', icon: Receipt },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
