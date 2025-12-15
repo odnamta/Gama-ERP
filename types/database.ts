@@ -563,6 +563,66 @@ export type Database = {
         }
         Relationships: []
       }
+      user_profiles: {
+        Row: {
+          id: string
+          user_id: string
+          email: string
+          full_name: string | null
+          avatar_url: string | null
+          role: string
+          can_see_revenue: boolean
+          can_see_profit: boolean
+          can_approve_pjo: boolean
+          can_manage_invoices: boolean
+          can_manage_users: boolean
+          can_create_pjo: boolean
+          can_fill_costs: boolean
+          custom_dashboard: string
+          is_active: boolean
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          email: string
+          full_name?: string | null
+          avatar_url?: string | null
+          role?: string
+          can_see_revenue?: boolean
+          can_see_profit?: boolean
+          can_approve_pjo?: boolean
+          can_manage_invoices?: boolean
+          can_manage_users?: boolean
+          can_create_pjo?: boolean
+          can_fill_costs?: boolean
+          custom_dashboard?: string
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          email?: string
+          full_name?: string | null
+          avatar_url?: string | null
+          role?: string
+          can_see_revenue?: boolean
+          can_see_profit?: boolean
+          can_approve_pjo?: boolean
+          can_manage_invoices?: boolean
+          can_manage_users?: boolean
+          can_create_pjo?: boolean
+          can_fill_costs?: boolean
+          custom_dashboard?: string
+          is_active?: boolean
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

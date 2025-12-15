@@ -24,9 +24,11 @@ import { Plus } from 'lucide-react'
 
 interface PJOListClientProps {
   pjos: PJOWithRelations[]
+  canSeeRevenue?: boolean
+  canCreatePJO?: boolean
 }
 
-export function PJOListClient({ pjos }: PJOListClientProps) {
+export function PJOListClient({ pjos, canSeeRevenue = true, canCreatePJO = true }: PJOListClientProps) {
   const { toast } = useToast()
   const [statusFilter, setStatusFilter] = useState('all')
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined)
@@ -82,15 +84,17 @@ export function PJOListClient({ pjos }: PJOListClientProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Proforma Job Orders</h1>
-        <Button asChild>
-          <Link href="/proforma-jo/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Add PJO
-          </Link>
-        </Button>
+        {canCreatePJO && (
+          <Button asChild>
+            <Link href="/proforma-jo/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Add PJO
+            </Link>
+          </Button>
+        )}
       </div>
 
-      <VarianceDashboard pjos={pjos} />
+      {canSeeRevenue && <VarianceDashboard pjos={pjos} />}
 
       <PJOFilters
         statusFilter={statusFilter}
@@ -104,7 +108,7 @@ export function PJOListClient({ pjos }: PJOListClientProps) {
         onClearFilters={handleClearFilters}
       />
 
-      <PJOTable pjos={filteredPJOs} onDelete={handleDeleteClick} />
+      <PJOTable pjos={filteredPJOs} onDelete={handleDeleteClick} canSeeRevenue={canSeeRevenue} />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>

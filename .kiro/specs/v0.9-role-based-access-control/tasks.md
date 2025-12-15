@@ -1,0 +1,159 @@
+# Implementation Plan
+
+- [x] 1. Database schema setup
+  - [x] 1.1 Create user_profiles table migration
+    - Create table with id, user_id, email, full_name, avatar_url, role
+    - Add permission columns: can_see_revenue, can_see_profit, can_approve_pjo, can_manage_invoices, can_manage_users, can_create_pjo, can_fill_costs
+    - Add custom_dashboard column with check constraint
+    - Add indexes on user_id, email, role
+    - _Requirements: RBAC-1_
+  - [x] 1.2 Create RLS policies for user_profiles
+    - Users can view own profile
+    - Admins can view all profiles
+    - Admins can update profiles
+    - System can insert profiles
+    - _Requirements: RBAC-1, RBAC-2_
+  - [x] 1.3 Migrate existing users
+    - Set dioatmando@gama-group.co as admin with full permissions
+    - Set other @gama-group.co users as manager
+    - _Requirements: RBAC-9_
+
+- [x] 2. Type definitions and utilities
+  - [x] 2.1 Create types/permissions.ts
+    - Define UserRole, DashboardType, UserPermissions, UserProfile types
+    - Define FeatureKey type for feature access checks
+    - Define PermissionContext interface
+    - _Requirements: RBAC-8_
+  - [x] 2.2 Create lib/permissions.ts
+    - Define DEFAULT_PERMISSIONS constant for each role
+    - Create getDefaultPermissions(role) function
+    - Create canAccessFeature(profile, feature) function
+    - _Requirements: RBAC-3, RBAC-4_
+  - [x] 2.3 Write property tests for permission utilities
+    - **Property 1: Role-Permission Consistency**
+    - **Property 2: Ops Revenue Hiding**
+    - _Validates: RBAC-3_
+  - [x] 2.4 Update types/database.ts with user_profiles table
+    - Add user_profiles to Database type
+    - _Requirements: RBAC-1_
+
+- [x] 3. Checkpoint - Ensure all tests pass
+  - All 309 tests passing (35 permission tests)
+
+- [x] 4. Permission context and hooks
+  - [x] 4.1 Create PermissionProvider component
+    - Fetch user profile on mount
+    - Provide hasPermission, isRole, canAccess functions
+    - Handle loading state
+    - _Requirements: RBAC-8_
+  - [x] 4.2 Create usePermissions hook
+    - Return profile, isLoading, hasPermission, isRole, canAccess
+    - _Requirements: RBAC-8_
+  - [x] 4.3 Create PermissionGate component
+    - Accept permission, role, fallback props
+    - Conditionally render children based on permissions
+    - _Requirements: RBAC-3, RBAC-5_
+  - [x] 4.4 Add PermissionProvider to app layout
+    - Wrap main layout with PermissionProvider
+    - _Requirements: RBAC-8_
+
+- [x] 5. Server-side permission utilities
+  - [x] 5.1 Create lib/permissions-server.ts
+    - Implement getUserProfile() function
+    - Implement requirePermission() function that throws on failure
+    - Implement checkPermission() function that returns boolean
+    - _Requirements: RBAC-6, RBAC-7_
+  - [x] 5.2 Write property tests for server permission checks
+    - **Property 4: Server-Side Enforcement** (tested via unit tests)
+    - **Property 7: Admin Self-Protection**
+    - _Validates: RBAC-6_
+  - [x] 5.3 Create profile auto-creation on login
+    - Check if profile exists after OAuth
+    - Create with viewer role if not exists
+    - _Requirements: RBAC-9_
+
+- [x] 6. Checkpoint - Ensure all tests pass
+  - All 309 tests passing
+
+- [x] 7. Update navigation with role filtering
+  - [x] 7.1 Create navigation configuration
+    - Define NAV_ITEMS with roles array per item
+    - Add permission requirements for sub-items
+    - _Requirements: RBAC-5_
+  - [x] 7.2 Update sidebar component
+    - Filter nav items based on user role
+    - Hide items user cannot access
+    - _Requirements: RBAC-5_
+  - [x] 7.3 Write property tests for navigation filtering
+    - **Property 5: Navigation Filtering** (tested via unit tests)
+    - _Validates: RBAC-5_
+
+- [x] 8. Update dashboard with role-based views
+  - [x] 8.1 Update dashboard page to use permissions
+    - Replace hardcoded 'admin' role with actual user role
+    - Conditionally render sections based on permissions
+    - _Requirements: RBAC-4_
+  - [x] 8.2 Create ops-specific dashboard view
+    - Show only: Awaiting Ops Input, Operations Queue
+    - Hide: Outstanding AR, Manager Summary, Budget Alerts
+    - _Requirements: RBAC-4_
+  - [x] 8.3 Create finance-specific dashboard view
+    - Show: Outstanding AR, Budget Health, Recent Activity
+    - Hide: Operations Queue
+    - _Requirements: RBAC-4_
+
+- [x] 9. Update PJO pages with permission checks
+  - [x] 9.1 Update PJO list page
+    - Hide revenue/profit columns for ops users
+    - Show/hide create button based on can_create_pjo
+    - _Requirements: RBAC-3_
+  - [x] 9.2 Update PJO detail page
+    - Hide revenue items section for ops users (via PermissionGate)
+    - Hide approve/reject buttons based on can_approve_pjo
+    - _Requirements: RBAC-3, RBAC-6_
+  - [ ] 9.3 Update PJO server actions
+    - Add requirePermission('can_approve_pjo') to approvePJO
+    - Add requirePermission('can_create_pjo') to createPJO
+    - _Requirements: RBAC-6_
+
+- [ ] 10. Update JO pages with permission checks
+  - [ ] 10.1 Update JO list page
+    - Hide revenue/profit columns for ops users
+    - _Requirements: RBAC-3_
+  - [ ] 10.2 Update JO detail page
+    - Hide revenue section for ops users
+    - Show cost entry for users with can_fill_costs
+    - _Requirements: RBAC-3_
+
+- [ ] 11. Update Invoice pages with permission checks
+  - [ ] 11.1 Add access control to invoices route
+    - Check can_manage_invoices or can_see_revenue
+    - Show access denied for unauthorized users
+    - _Requirements: RBAC-7_
+  - [ ] 11.2 Update invoice server actions
+    - Add requirePermission('can_manage_invoices') to mutations
+    - _Requirements: RBAC-7_
+
+- [x] 12. Create user management page
+  - [x] 12.1 Create /settings/users page
+    - List all users with role and permissions
+    - Only accessible to admins
+    - _Requirements: RBAC-2_
+  - [x] 12.2 Create user edit dialog
+    - Allow changing role
+    - Allow toggling individual permissions
+    - Apply default permissions when role changes
+    - _Requirements: RBAC-2_
+  - [x] 12.3 Create user management server actions
+    - updateUserRole action
+    - updateUserPermissions action
+    - Log changes to activity_log
+    - _Requirements: RBAC-2_
+  - [x] 12.4 Add admin self-protection
+    - Prevent admin from removing own can_manage_users
+    - Ensure at least one admin exists
+    - **Property 7: Admin Self-Protection**
+    - _Requirements: RBAC-2_
+
+- [x] 13. Final Checkpoint - Ensure all tests pass
+  - All 309 tests passing

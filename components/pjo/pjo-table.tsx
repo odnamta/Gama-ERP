@@ -19,9 +19,10 @@ import { Badge } from '@/components/ui/badge'
 interface PJOTableProps {
   pjos: PJOWithRelations[]
   onDelete: (pjo: PJOWithRelations) => void
+  canSeeRevenue?: boolean
 }
 
-export function PJOTable({ pjos, onDelete }: PJOTableProps) {
+export function PJOTable({ pjos, onDelete, canSeeRevenue = true }: PJOTableProps) {
   return (
     <div className="rounded-md border">
       <Table>
@@ -31,8 +32,8 @@ export function PJOTable({ pjos, onDelete }: PJOTableProps) {
             <TableHead>Date</TableHead>
             <TableHead>Customer</TableHead>
             <TableHead>Project</TableHead>
-            <TableHead className="text-right">Revenue</TableHead>
-            <TableHead className="text-right">Profit</TableHead>
+            {canSeeRevenue && <TableHead className="text-right">Revenue</TableHead>}
+            {canSeeRevenue && <TableHead className="text-right">Profit</TableHead>}
             <TableHead>Status</TableHead>
             <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
@@ -40,7 +41,7 @@ export function PJOTable({ pjos, onDelete }: PJOTableProps) {
         <TableBody>
           {pjos.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={8} className="h-24 text-center">
+              <TableCell colSpan={canSeeRevenue ? 8 : 6} className="h-24 text-center">
                 No PJOs found. Create your first PJO to get started.
               </TableCell>
             </TableRow>
@@ -76,12 +77,16 @@ export function PJOTable({ pjos, onDelete }: PJOTableProps) {
                     '-'
                   )}
                 </TableCell>
-                <TableCell className="text-right">{formatIDR(pjo.total_revenue)}</TableCell>
-                <TableCell
-                  className={`text-right ${pjo.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}
-                >
-                  {formatIDR(pjo.profit)}
-                </TableCell>
+                {canSeeRevenue && (
+                  <TableCell className="text-right">{formatIDR(pjo.total_revenue)}</TableCell>
+                )}
+                {canSeeRevenue && (
+                  <TableCell
+                    className={`text-right ${pjo.profit >= 0 ? 'text-green-600' : 'text-red-600'}`}
+                  >
+                    {formatIDR(pjo.profit)}
+                  </TableCell>
+                )}
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <PJOStatusBadge status={pjo.status} />
