@@ -8,6 +8,9 @@ const PUBLIC_ROUTES = ['/login', '/auth/callback']
 // Routes restricted from ops users
 const OPS_RESTRICTED_ROUTES = ['/customers', '/invoices', '/settings', '/reports']
 
+// Routes restricted from sales users
+const SALES_RESTRICTED_ROUTES = ['/job-orders', '/invoices', '/settings']
+
 export async function middleware(request: NextRequest) {
   const { supabaseResponse, user } = await updateSession(request)
   const { pathname } = request.nextUrl
@@ -53,8 +56,16 @@ export async function middleware(request: NextRequest) {
         .eq('user_id', user.id)
         .single()
 
-      // Redirect ops users to dashboard
+      // Redirect ops users to dashboard for ops-restricted routes
       if (profile?.role === 'ops') {
+        const dashboardUrl = new URL('/dashboard', request.url)
+        dashboardUrl.searchParams.set('restricted', 'true')
+        return NextResponse.redirect(dashboardUrl)
+      }
+
+      // Redirect sales users to dashboard for sales-restricted routes
+      const isSalesRestrictedRoute = SALES_RESTRICTED_ROUTES.some(route => pathname.startsWith(route))
+      if (profile?.role === 'sales' && isSalesRestrictedRoute) {
         const dashboardUrl = new URL('/dashboard', request.url)
         dashboardUrl.searchParams.set('restricted', 'true')
         return NextResponse.redirect(dashboardUrl)

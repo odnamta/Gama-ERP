@@ -1,8 +1,8 @@
 // Role-Based Access Control Types
 
-export type UserRole = 'admin' | 'manager' | 'ops' | 'finance' | 'viewer'
+export type UserRole = 'admin' | 'manager' | 'ops' | 'finance' | 'sales' | 'viewer'
 
-export type DashboardType = 'admin' | 'manager' | 'ops' | 'finance' | 'viewer' | 'default'
+export type DashboardType = 'admin' | 'manager' | 'ops' | 'finance' | 'sales' | 'viewer' | 'default'
 
 export interface UserPermissions {
   can_see_revenue: boolean

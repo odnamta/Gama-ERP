@@ -381,3 +381,135 @@ export async function fetchFinanceDashboardData(): Promise<FinanceDashboardData>
     recentPayments,
   }
 }
+
+
+/**
+ * Fetch sales dashboard data
+ */
+import {
+  groupPJOsByPipelineStage,
+  filterPendingFollowups,
+  rankCustomersByValue,
+  calculateWinLossData,
+  calculateSalesKPIs,
+  getPeriodDates,
+  getPreviousPeriodDates,
+  filterPJOsByPeriod,
+  type PeriodType,
+  type PipelineStage,
+  type PendingFollowup,
+  type TopCustomer,
+  type WinLossData,
+  type SalesKPIs,
+  type PJOInput,
+  type CustomerPJOInput,
+  type PJOWithCustomer,
+} from '@/lib/sales-dashboard-utils'
+
+export interface SalesDashboardData {
+  kpis: SalesKPIs
+  pipeline: PipelineStage[]
+  pendingFollowups: PendingFollowup[]
+  topCustomers: TopCustomer[]
+  winLossData: WinLossData
+}
+
+export async function fetchSalesDashboardData(
+  periodType: PeriodType = 'this_month',
+  customStart?: Date,
+  customEnd?: Date
+): Promise<SalesDashboardData> {
+  const supabase = await createClient()
+  const currentDate = new Date()
+
+  // Get period dates
+  const period = getPeriodDates(periodType, currentDate, customStart, customEnd)
+  const previousPeriod = getPreviousPeriodDates(period)
+
+  // Fetch PJOs with customer info
+  const { data: pjosData } = await supabase
+    .from('proforma_job_orders')
+    .select(`
+      id,
+      pjo_number,
+      status,
+      estimated_amount,
+      total_revenue_calculated,
+      is_active,
+      created_at,
+      rejection_reason,
+      converted_to_jo,
+      projects(
+        name,
+        customers(id, name)
+      )
+    `)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+
+  // Fetch new customers count for the period
+  const { count: newCustomersCount } = await supabase
+    .from('customers')
+    .select('*', { count: 'exact', head: true })
+    .gte('created_at', period.startDate.toISOString())
+    .lte('created_at', period.endDate.toISOString())
+
+  // Transform PJO data
+  const pjos: PJOInput[] = (pjosData || []).map(pjo => ({
+    id: pjo.id,
+    status: pjo.status,
+    total_estimated_revenue: pjo.estimated_amount,
+    total_revenue_calculated: pjo.total_revenue_calculated,
+    is_active: pjo.is_active,
+    created_at: pjo.created_at,
+    rejection_reason: pjo.rejection_reason,
+    converted_to_jo: pjo.converted_to_jo,
+  }))
+
+  // Transform for pending followups (needs customer name)
+  const pjosWithCustomer: PJOWithCustomer[] = (pjosData || []).map(pjo => {
+    const project = pjo.projects as { name: string; customers: { id: string; name: string } | null } | null
+    return {
+      id: pjo.id,
+      pjo_number: pjo.pjo_number,
+      status: pjo.status,
+      total_estimated_revenue: pjo.estimated_amount,
+      total_revenue_calculated: pjo.total_revenue_calculated,
+      is_active: pjo.is_active,
+      created_at: pjo.created_at,
+      customer_name: project?.customers?.name,
+      projects: project,
+    }
+  })
+
+  // Transform for customer ranking
+  const customerPjos: CustomerPJOInput[] = (pjosData || []).map(pjo => {
+    const project = pjo.projects as { name: string; customers: { id: string; name: string } | null } | null
+    return {
+      customer_id: project?.customers?.id || '',
+      customer_name: project?.customers?.name || 'Unknown',
+      total_estimated_revenue: pjo.estimated_amount,
+      total_revenue_calculated: pjo.total_revenue_calculated,
+      status: pjo.status,
+      created_at: pjo.created_at,
+    }
+  }).filter(pjo => pjo.customer_id) // Filter out PJOs without customer
+
+  // Filter PJOs by period for KPIs
+  const periodPjos = filterPJOsByPeriod(pjos, period)
+
+  // Calculate all metrics
+  const pipeline = groupPJOsByPipelineStage(periodPjos)
+  const pendingFollowups = filterPendingFollowups(pjosWithCustomer, currentDate)
+  const topCustomers = rankCustomersByValue(customerPjos, period, previousPeriod)
+  const winLossData = calculateWinLossData(periodPjos)
+  const kpis = calculateSalesKPIs(periodPjos, newCustomersCount || 0, period)
+
+  return {
+    kpis,
+    pipeline,
+    pendingFollowups,
+    topCustomers,
+    winLossData,
+  }
+}

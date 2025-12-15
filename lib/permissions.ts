@@ -43,6 +43,15 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, UserPermissions> = {
     can_create_pjo: true,
     can_fill_costs: false,
   },
+  sales: {
+    can_see_revenue: true,
+    can_see_profit: false, // Sales sees revenue but not profit margins
+    can_approve_pjo: false,
+    can_manage_invoices: false,
+    can_manage_users: false,
+    can_create_pjo: true,
+    can_fill_costs: false,
+  },
   viewer: {
     can_see_revenue: false,
     can_see_profit: false,
