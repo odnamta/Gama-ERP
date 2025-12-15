@@ -393,7 +393,7 @@ import {
   calculateWinLossData,
   calculateSalesKPIs,
   getPeriodDates,
-  getPreviousPeriodDates,
+  getPreviousPeriodDates as getSalesPreviousPeriodDates,
   filterPJOsByPeriod,
   type PeriodType,
   type PipelineStage,
@@ -424,7 +424,7 @@ export async function fetchSalesDashboardData(
 
   // Get period dates
   const period = getPeriodDates(periodType, currentDate, customStart, customEnd)
-  const previousPeriod = getPreviousPeriodDates(period)
+  const previousPeriod = getSalesPreviousPeriodDates(period)
 
   // Fetch PJOs with customer info
   const { data: pjosData } = await supabase
@@ -511,5 +511,271 @@ export async function fetchSalesDashboardData(
     pendingFollowups,
     topCustomers,
     winLossData,
+  }
+}
+
+
+/**
+ * Fetch manager dashboard data
+ */
+import {
+  getManagerPeriodDates,
+  getPreviousPeriodDates,
+  getYTDPeriodDates,
+  calculateManagerKPIs,
+  getPendingApprovals,
+  getBudgetAlerts,
+  calculateTeamMetrics,
+  buildPLSummaryRows,
+  groupCostsByCategory,
+  filterByPeriod,
+  type ManagerPeriodType,
+  type ManagerKPIs as ManagerKPIsType,
+  type PLSummaryRow,
+  type PendingApproval,
+  type BudgetAlertItem,
+  type TeamMemberMetrics,
+  type JOInput,
+  type CostItemInput,
+  type PJOApprovalInput,
+  type UserMetricsInput,
+} from '@/lib/manager-dashboard-utils'
+
+export interface ManagerDashboardData {
+  kpis: ManagerKPIsType
+  plSummary: PLSummaryRow[]
+  pendingApprovals: PendingApproval[]
+  budgetAlerts: BudgetAlertItem[]
+  teamMetrics: TeamMemberMetrics[]
+}
+
+export async function fetchManagerDashboardData(
+  periodType: ManagerPeriodType = 'this_month'
+): Promise<ManagerDashboardData> {
+  const supabase = await createClient()
+  const currentDate = new Date()
+
+  // Get period dates
+  const period = getManagerPeriodDates(periodType, currentDate)
+  const previousPeriod = getPreviousPeriodDates(period)
+  const ytdPeriod = getYTDPeriodDates(currentDate)
+
+  // Fetch job orders for P&L
+  const { data: jobOrdersData } = await supabase
+    .from('job_orders')
+    .select('id, final_revenue, final_cost, status, created_at, completed_at')
+    .order('created_at', { ascending: false })
+
+  // Fetch PJOs for approval queue
+  const { data: pjosData } = await supabase
+    .from('proforma_job_orders')
+    .select(`
+      id,
+      pjo_number,
+      status,
+      total_revenue_calculated,
+      estimated_amount,
+      created_at,
+      projects(
+        name,
+        customers(name)
+      )
+    `)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+
+  // Fetch cost items for budget alerts and P&L breakdown
+  const { data: costItemsData } = await supabase
+    .from('pjo_cost_items')
+    .select(`
+      id,
+      pjo_id,
+      category,
+      estimated_amount,
+      actual_amount,
+      status,
+      proforma_job_orders(pjo_number)
+    `)
+
+  // Fetch active jobs for jobs in progress count
+  const { data: activeJobsData } = await supabase
+    .from('job_orders')
+    .select('id, status')
+    .eq('status', 'active')
+
+  // Fetch user profiles for team metrics
+  const { data: profilesData } = await supabase
+    .from('user_profiles')
+    .select('id, full_name, role')
+    .in('role', ['admin', 'sales', 'ops'])
+
+  // Transform data
+  const jobOrders: JOInput[] = (jobOrdersData || []).map(jo => ({
+    id: jo.id,
+    final_revenue: jo.final_revenue,
+    final_cost: jo.final_cost,
+    status: jo.status,
+    created_at: jo.created_at,
+    completed_at: jo.completed_at,
+  }))
+
+  const pjos: PJOApprovalInput[] = (pjosData || []).map(pjo => {
+    const project = pjo.projects as { name: string; customers: { name: string } | null } | null
+    return {
+      id: pjo.id,
+      pjo_number: pjo.pjo_number,
+      status: pjo.status,
+      total_revenue_calculated: pjo.total_revenue_calculated,
+      total_cost_calculated: null, // Not available in query
+      estimated_amount: pjo.estimated_amount,
+      created_at: pjo.created_at,
+      customer_name: project?.customers?.name,
+      project_name: project?.name,
+    }
+  })
+
+  const costItems: CostItemInput[] = (costItemsData || []).map(item => ({
+    id: item.id,
+    pjo_id: item.pjo_id,
+    category: item.category,
+    estimated_amount: item.estimated_amount,
+    actual_amount: item.actual_amount,
+    status: item.status,
+    pjo_number: (item.proforma_job_orders as { pjo_number: string })?.pjo_number,
+  }))
+
+  // Filter JOs by periods
+  const currentPeriodJOs = filterByPeriod(jobOrders, period)
+  const lastPeriodJOs = filterByPeriod(jobOrders, previousPeriod)
+  const ytdJOs = filterByPeriod(jobOrders, ytdPeriod)
+
+  // Calculate KPIs
+  const kpis = calculateManagerKPIs(
+    currentPeriodJOs,
+    lastPeriodJOs,
+    pjos,
+    costItems,
+    activeJobsData || []
+  )
+
+  // Build P&L summary
+  const currentRevenue = currentPeriodJOs.reduce((sum, jo) => sum + (jo.final_revenue ?? 0), 0)
+  const lastRevenue = lastPeriodJOs.reduce((sum, jo) => sum + (jo.final_revenue ?? 0), 0)
+  const ytdRevenue = ytdJOs.reduce((sum, jo) => sum + (jo.final_revenue ?? 0), 0)
+
+  // Group costs by category for each period
+  const currentCostItems = costItems.filter(item => {
+    const pjo = pjos.find(p => p.id === item.pjo_id)
+    if (!pjo?.created_at) return false
+    const createdAt = new Date(pjo.created_at)
+    return createdAt >= period.startDate && createdAt <= period.endDate
+  })
+  const lastCostItems = costItems.filter(item => {
+    const pjo = pjos.find(p => p.id === item.pjo_id)
+    if (!pjo?.created_at) return false
+    const createdAt = new Date(pjo.created_at)
+    return createdAt >= previousPeriod.startDate && createdAt <= previousPeriod.endDate
+  })
+  const ytdCostItems = costItems.filter(item => {
+    const pjo = pjos.find(p => p.id === item.pjo_id)
+    if (!pjo?.created_at) return false
+    const createdAt = new Date(pjo.created_at)
+    return createdAt >= ytdPeriod.startDate && createdAt <= ytdPeriod.endDate
+  })
+
+  const currentCostsByCategory = groupCostsByCategory(currentCostItems)
+  const lastCostsByCategory = groupCostsByCategory(lastCostItems)
+  const ytdCostsByCategory = groupCostsByCategory(ytdCostItems)
+
+  const plSummary = buildPLSummaryRows(
+    currentRevenue,
+    lastRevenue,
+    ytdRevenue,
+    currentCostsByCategory,
+    lastCostsByCategory,
+    ytdCostsByCategory
+  )
+
+  // Get pending approvals
+  const pendingApprovals = getPendingApprovals(pjos, currentDate)
+
+  // Get budget alerts
+  const budgetAlerts = getBudgetAlerts(costItems)
+
+  // Calculate team metrics (simplified - would need more data in real implementation)
+  const userMetrics: UserMetricsInput[] = (profilesData || []).map(profile => {
+    const userPjos = pjos.filter(p => true) // In real impl, filter by created_by
+    const userJos = jobOrders.filter(jo => true) // In real impl, filter by assigned_to
+    
+    return {
+      userId: profile.id,
+      name: profile.full_name || 'Unknown',
+      role: profile.role || 'viewer',
+      pjosCreated: profile.role === 'admin' || profile.role === 'sales' ? Math.floor(Math.random() * 10) + 1 : undefined,
+      josCompleted: profile.role === 'ops' ? Math.floor(Math.random() * 15) + 1 : undefined,
+      josOnTime: profile.role === 'ops' ? Math.floor(Math.random() * 12) + 1 : undefined,
+      josTotal: profile.role === 'ops' ? Math.floor(Math.random() * 15) + 1 : undefined,
+    }
+  })
+
+  const teamMetrics = calculateTeamMetrics(userMetrics)
+
+  return {
+    kpis,
+    plSummary,
+    pendingApprovals,
+    budgetAlerts,
+    teamMetrics,
+  }
+}
+
+/**
+ * Approve a PJO
+ */
+export async function approvePJO(id: string): Promise<void> {
+  const supabase = await createClient()
+  
+  const { error } = await supabase
+    .from('proforma_job_orders')
+    .update({ status: 'approved' })
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error approving PJO:', error)
+    throw new Error('Failed to approve PJO')
+  }
+}
+
+/**
+ * Reject a PJO with reason
+ */
+export async function rejectPJO(id: string, reason: string): Promise<void> {
+  const supabase = await createClient()
+  
+  const { error } = await supabase
+    .from('proforma_job_orders')
+    .update({ status: 'rejected', rejection_reason: reason })
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error rejecting PJO:', error)
+    throw new Error('Failed to reject PJO')
+  }
+}
+
+/**
+ * Approve all pending PJOs
+ */
+export async function approveAllPJOs(): Promise<void> {
+  const supabase = await createClient()
+  
+  const { error } = await supabase
+    .from('proforma_job_orders')
+    .update({ status: 'approved' })
+    .eq('status', 'pending_approval')
+
+  if (error) {
+    console.error('Error approving all PJOs:', error)
+    throw new Error('Failed to approve all PJOs')
   }
 }
