@@ -135,7 +135,8 @@ export async function fetchRecentActivity(): Promise<ActivityEntry[]> {
     .order('created_at', { ascending: false })
     .limit(5)
 
-  if (error && Object.keys(error).length > 0) {
+  // Only log actual errors (not empty objects from Supabase)
+  if (error && 'message' in error && error.message) {
     console.error('Error fetching recent activity:', error)
     return []
   }
