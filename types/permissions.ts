@@ -1,8 +1,8 @@
 // Role-Based Access Control Types
 
-export type UserRole = 'admin' | 'manager' | 'ops' | 'finance' | 'sales' | 'viewer'
+export type UserRole = 'owner' | 'admin' | 'manager' | 'ops' | 'finance' | 'sales' | 'viewer'
 
-export type DashboardType = 'admin' | 'manager' | 'ops' | 'finance' | 'sales' | 'viewer' | 'default'
+export type DashboardType = 'owner' | 'admin' | 'manager' | 'ops' | 'finance' | 'sales' | 'viewer' | 'default'
 
 export interface UserPermissions {
   can_see_revenue: boolean
@@ -16,7 +16,7 @@ export interface UserPermissions {
 
 export interface UserProfile {
   id: string
-  user_id: string
+  user_id: string | null  // null for pre-registered users
   email: string
   full_name: string | null
   avatar_url: string | null
@@ -25,6 +25,7 @@ export interface UserProfile {
   is_active: boolean
   created_at: string
   updated_at: string
+  last_login_at: string | null  // track login activity
   // Permissions
   can_see_revenue: boolean
   can_see_profit: boolean

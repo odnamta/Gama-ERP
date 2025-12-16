@@ -82,7 +82,10 @@ export function Sidebar() {
       {profile && (
         <div className="border-t p-4">
           <div className="text-xs text-muted-foreground">
-            Role: <span className="font-medium capitalize">{profile.role}</span>
+            Role:{' '}
+            <span className={`font-medium capitalize ${profile.role === 'owner' ? 'text-amber-600' : ''}`}>
+              {profile.role === 'owner' ? '👑 Owner' : profile.role}
+            </span>
           </div>
         </div>
       )}

@@ -3,7 +3,7 @@ import { updateSession } from '@/lib/supabase/middleware'
 import { createServerClient } from '@supabase/ssr'
 
 // Routes that don't require authentication
-const PUBLIC_ROUTES = ['/login', '/auth/callback']
+const PUBLIC_ROUTES = ['/login', '/auth/callback', '/account-deactivated']
 
 // Routes restricted from ops users
 const OPS_RESTRICTED_ROUTES = ['/customers', '/invoices', '/settings', '/reports']
@@ -29,47 +29,52 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(dashboardUrl)
   }
 
-  // Check if ops user is trying to access restricted routes
-  if (user) {
-    const isRestrictedRoute = OPS_RESTRICTED_ROUTES.some(route => pathname.startsWith(route))
-    
-    if (isRestrictedRoute) {
-      // Create a Supabase client to check user role
-      const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          cookies: {
-            getAll() {
-              return request.cookies.getAll()
-            },
-            setAll() {
-              // We don't need to set cookies here
-            },
+  // Check user profile for role restrictions and active status
+  if (user && !isPublicRoute) {
+    // Create a Supabase client to check user profile
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
           },
-        }
-      )
-
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('role')
-        .eq('user_id', user.id)
-        .single()
-
-      // Redirect ops users to dashboard for ops-restricted routes
-      if (profile?.role === 'ops') {
-        const dashboardUrl = new URL('/dashboard', request.url)
-        dashboardUrl.searchParams.set('restricted', 'true')
-        return NextResponse.redirect(dashboardUrl)
+          setAll() {
+            // We don't need to set cookies here
+          },
+        },
       }
+    )
 
-      // Redirect sales users to dashboard for sales-restricted routes
-      const isSalesRestrictedRoute = SALES_RESTRICTED_ROUTES.some(route => pathname.startsWith(route))
-      if (profile?.role === 'sales' && isSalesRestrictedRoute) {
-        const dashboardUrl = new URL('/dashboard', request.url)
-        dashboardUrl.searchParams.set('restricted', 'true')
-        return NextResponse.redirect(dashboardUrl)
-      }
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('role, is_active')
+      .eq('user_id', user.id)
+      .single()
+
+    // Redirect deactivated users to account-deactivated page
+    if (profile && !profile.is_active && pathname !== '/account-deactivated') {
+      const deactivatedUrl = new URL('/account-deactivated', request.url)
+      return NextResponse.redirect(deactivatedUrl)
+    }
+
+    // Check role-based restrictions
+    const isOpsRestrictedRoute = OPS_RESTRICTED_ROUTES.some(route => pathname.startsWith(route))
+    const isSalesRestrictedRoute = SALES_RESTRICTED_ROUTES.some(route => pathname.startsWith(route))
+
+    // Redirect ops users to dashboard for ops-restricted routes
+    if (profile?.role === 'ops' && isOpsRestrictedRoute) {
+      const dashboardUrl = new URL('/dashboard', request.url)
+      dashboardUrl.searchParams.set('restricted', 'true')
+      return NextResponse.redirect(dashboardUrl)
+    }
+
+    // Redirect sales users to dashboard for sales-restricted routes
+    if (profile?.role === 'sales' && isSalesRestrictedRoute) {
+      const dashboardUrl = new URL('/dashboard', request.url)
+      dashboardUrl.searchParams.set('restricted', 'true')
+      return NextResponse.redirect(dashboardUrl)
     }
   }
 

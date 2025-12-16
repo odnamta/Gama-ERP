@@ -4,6 +4,7 @@ import { FinanceDashboard } from '@/components/dashboard/finance/finance-dashboa
 import { SalesDashboard } from '@/components/dashboard/sales/sales-dashboard'
 import { ManagerDashboard } from '@/components/dashboard/manager/manager-dashboard'
 import { AdminDashboard } from '@/components/dashboard/admin/admin-dashboard'
+import { OwnerDashboard } from '@/components/dashboard/owner-dashboard'
 import {
   fetchDashboardKPIs,
   fetchBudgetAlerts,
@@ -16,13 +17,19 @@ import {
   fetchManagerDashboardData,
   fetchAdminDashboardData,
 } from './actions'
-import { getUserProfile } from '@/lib/permissions-server'
+import { getUserProfile, getOwnerDashboardData } from '@/lib/permissions-server'
 import { getOpsDashboardData } from '@/lib/ops-dashboard-utils'
 
 export default async function DashboardPage() {
   // Get user profile for role-based rendering
   const profile = await getUserProfile()
   const userRole = profile?.role || 'viewer'
+
+  // Render owner dashboard for owner users
+  if (userRole === 'owner') {
+    const ownerData = await getOwnerDashboardData()
+    return <OwnerDashboard data={ownerData} />
+  }
 
   // Render ops-specific dashboard for ops users
   if (userRole === 'ops') {

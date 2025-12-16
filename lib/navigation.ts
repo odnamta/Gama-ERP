@@ -6,6 +6,8 @@ import {
   Briefcase,
   Receipt,
   Settings,
+  BarChart3,
+  Calculator,
   LucideIcon,
 } from 'lucide-react'
 import { UserRole, UserPermissions } from '@/types/permissions'
@@ -33,44 +35,56 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
-    roles: ['admin', 'manager', 'ops', 'finance', 'sales', 'viewer'],
+    roles: ['owner', 'admin', 'manager', 'ops', 'finance', 'sales', 'viewer'],
   },
   {
     title: 'Customers',
     href: '/customers',
     icon: Users,
-    roles: ['admin', 'manager', 'finance', 'sales'],
+    roles: ['owner', 'admin', 'manager', 'finance', 'sales'],
   },
   {
     title: 'Projects',
     href: '/projects',
     icon: FolderKanban,
-    roles: ['admin', 'manager', 'ops', 'finance', 'sales', 'viewer'],
+    roles: ['owner', 'admin', 'manager', 'ops', 'finance', 'sales', 'viewer'],
   },
   {
     title: 'Proforma JO',
     href: '/proforma-jo',
     icon: FileText,
-    roles: ['admin', 'manager', 'ops', 'finance', 'sales'],
+    roles: ['owner', 'admin', 'manager', 'ops', 'finance', 'sales'],
+  },
+  {
+    title: 'Cost Entry',
+    href: '/cost-entry',
+    icon: Calculator,
+    roles: ['owner', 'admin', 'ops'],
   },
   {
     title: 'Job Orders',
     href: '/job-orders',
     icon: Briefcase,
-    roles: ['admin', 'manager', 'ops', 'finance'],
+    roles: ['owner', 'admin', 'manager', 'ops', 'finance'],
   },
   {
     title: 'Invoices',
     href: '/invoices',
     icon: Receipt,
-    roles: ['admin', 'finance'],
+    roles: ['owner', 'admin', 'finance'],
     permission: 'can_manage_invoices',
+  },
+  {
+    title: 'Reports',
+    href: '/reports',
+    icon: BarChart3,
+    roles: ['owner', 'admin', 'manager', 'ops', 'finance', 'sales'],
   },
   {
     title: 'Settings',
     href: '/settings',
     icon: Settings,
-    roles: ['admin'],
+    roles: ['owner', 'admin'],
     children: [
       {
         title: 'Users',
@@ -114,4 +128,20 @@ export function filterNavItems(
       }
       return item
     })
+}
+
+/**
+ * Get the dashboard path for a specific role
+ */
+export function getDashboardPath(role: UserRole): string {
+  const dashboardMap: Record<UserRole, string> = {
+    owner: '/dashboard',
+    admin: '/dashboard',
+    manager: '/dashboard/manager',
+    ops: '/dashboard/ops',
+    finance: '/dashboard/finance',
+    sales: '/dashboard/sales',
+    viewer: '/dashboard',
+  }
+  return dashboardMap[role] || '/dashboard'
 }

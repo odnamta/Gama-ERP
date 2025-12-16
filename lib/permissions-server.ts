@@ -2,10 +2,11 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { UserProfile, UserPermissions, UserRole } from '@/types/permissions'
-import { DEFAULT_PERMISSIONS } from '@/lib/permissions'
+import { DEFAULT_PERMISSIONS, OWNER_EMAIL, isOwnerEmail, getAssignableRoles } from '@/lib/permissions'
 
 /**
  * Get the current user's profile from the database
+ * Also updates last_login_at timestamp
  */
 export async function getUserProfile(): Promise<UserProfile | null> {
   const supabase = await createClient()
@@ -22,6 +23,14 @@ export async function getUserProfile(): Promise<UserProfile | null> {
     .select('*')
     .eq('user_id', user.id)
     .single()
+
+  if (profile) {
+    // Update last_login_at
+    await supabase
+      .from('user_profiles')
+      .update({ last_login_at: new Date().toISOString() })
+      .eq('user_id', user.id)
+  }
 
   return profile as UserProfile | null
 }
@@ -129,6 +138,7 @@ export async function createUserProfile(
 /**
  * Ensure user profile exists, create if not
  * Call this after successful OAuth login
+ * Handles pre-registered users by linking auth to existing profile
  */
 export async function ensureUserProfile(): Promise<UserProfile | null> {
   const supabase = await createClient()
@@ -140,27 +150,88 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
     return null
   }
 
-  // First, try to get existing profile
-  const { data: existingProfile, error: selectError } = await supabase
+  const email = user.email!
+
+  // First, try to get existing profile by user_id
+  const { data: existingProfile } = await supabase
     .from('user_profiles')
     .select('*')
     .eq('user_id', user.id)
     .single()
 
-  // If profile exists, return it (don't overwrite!)
+  // If profile exists with user_id, update last_login and return
   if (existingProfile) {
+    // Check if owner email and ensure owner role
+    if (isOwnerEmail(email) && existingProfile.role !== 'owner') {
+      await supabase
+        .from('user_profiles')
+        .update({
+          role: 'owner',
+          ...DEFAULT_PERMISSIONS.owner,
+          last_login_at: new Date().toISOString(),
+        })
+        .eq('user_id', user.id)
+      
+      return { ...existingProfile, role: 'owner', ...DEFAULT_PERMISSIONS.owner } as UserProfile
+    }
+    
+    await supabase
+      .from('user_profiles')
+      .update({ last_login_at: new Date().toISOString() })
+      .eq('user_id', user.id)
+    
     return existingProfile as UserProfile
   }
 
+  // Check for pre-registered profile by email (user_id is null)
+  const { data: preregisteredProfile } = await supabase
+    .from('user_profiles')
+    .select('*')
+    .eq('email', email)
+    .is('user_id', null)
+    .single()
+
+  if (preregisteredProfile) {
+    // Link auth user to pre-registered profile
+    const fullName = user.user_metadata?.full_name || user.user_metadata?.name || preregisteredProfile.full_name
+    const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || preregisteredProfile.avatar_url
+
+    const { data: linkedProfile, error } = await supabase
+      .from('user_profiles')
+      .update({
+        user_id: user.id,
+        full_name: fullName,
+        avatar_url: avatarUrl,
+        last_login_at: new Date().toISOString(),
+      })
+      .eq('id', preregisteredProfile.id)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error linking pre-registered profile:', error)
+      return null
+    }
+
+    return linkedProfile as UserProfile
+  }
+
   // Profile doesn't exist, create new one
-  const email = user.email!
   let role: UserRole = 'viewer'
   let permissions = DEFAULT_PERMISSIONS.viewer
 
-  if (email === 'dioatmando@gama-group.co') {
-    role = 'admin'
-    permissions = DEFAULT_PERMISSIONS.admin
-  } else if (email.endsWith('@gama-group.co')) {
+  // Owner email gets owner role
+  if (isOwnerEmail(email)) {
+    role = 'owner'
+    permissions = DEFAULT_PERMISSIONS.owner
+  }
+  // Admin for dioatmando (fallback, should be caught by owner check)
+  else if (email === 'dioatmando@gama-group.co') {
+    role = 'owner'
+    permissions = DEFAULT_PERMISSIONS.owner
+  }
+  // Manager for other gama-group.co emails
+  else if (email.endsWith('@gama-group.co')) {
     role = 'manager'
     permissions = DEFAULT_PERMISSIONS.manager
   }
@@ -176,7 +247,8 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
       full_name: fullName || null,
       avatar_url: avatarUrl || null,
       role,
-      custom_dashboard: role === 'admin' ? 'admin' : 'default',
+      custom_dashboard: role === 'owner' ? 'owner' : (role === 'admin' ? 'admin' : 'default'),
+      last_login_at: new Date().toISOString(),
       ...permissions,
     })
     .select()
@@ -191,37 +263,54 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
 }
 
 /**
- * Update a user's role and permissions (admin only)
+ * Update a user's role and permissions (admin/owner only)
+ * Owner role cannot be assigned or modified
  */
 export async function updateUserRole(
   targetUserId: string,
   newRole: UserRole,
   customPermissions?: Partial<UserPermissions>
 ): Promise<{ success: boolean; error?: string }> {
-  // Verify caller is admin
+  // Verify caller has permission to manage users
   const callerProfile = await requirePermission('can_manage_users')
 
   const supabase = await createClient()
+
+  // Prevent assigning owner role
+  if (newRole === 'owner') {
+    return {
+      success: false,
+      error: 'Owner role cannot be assigned',
+    }
+  }
+
+  // Check if target is owner - cannot modify owner
+  const { data: targetProfile } = await supabase
+    .from('user_profiles')
+    .select('role, can_manage_users')
+    .eq('user_id', targetUserId)
+    .single()
+
+  if (targetProfile?.role === 'owner') {
+    return {
+      success: false,
+      error: 'Cannot modify owner account',
+    }
+  }
 
   // Get default permissions for the new role
   const defaultPerms = DEFAULT_PERMISSIONS[newRole]
   const permissions = { ...defaultPerms, ...customPermissions }
 
-  // Prevent removing last admin
+  // Prevent removing last admin (excluding owner from count)
   if (newRole !== 'admin' || !permissions.can_manage_users) {
     const { count } = await supabase
       .from('user_profiles')
       .select('*', { count: 'exact', head: true })
       .eq('can_manage_users', true)
+      .neq('role', 'owner')
 
     if (count === 1) {
-      // Check if we're modifying the only admin
-      const { data: targetProfile } = await supabase
-        .from('user_profiles')
-        .select('can_manage_users')
-        .eq('user_id', targetUserId)
-        .single()
-
       if (targetProfile?.can_manage_users) {
         return {
           success: false,
@@ -276,4 +365,204 @@ export async function getAllUsers(): Promise<UserProfile[]> {
   }
 
   return data as UserProfile[]
+}
+
+
+/**
+ * Create a pre-registered user (owner/admin only)
+ * Creates a profile with user_id=null that will be linked on first login
+ */
+export async function createPreregisteredUser(
+  email: string,
+  fullName: string,
+  role: UserRole,
+  customPermissions?: Partial<UserPermissions>
+): Promise<{ success: boolean; error?: string; profile?: UserProfile }> {
+  // Verify caller has permission to manage users
+  await requirePermission('can_manage_users')
+
+  const supabase = await createClient()
+
+  // Prevent creating owner role
+  if (role === 'owner') {
+    return {
+      success: false,
+      error: 'Owner role cannot be assigned',
+    }
+  }
+
+  // Check if email already exists
+  const { data: existingProfile } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('email', email.toLowerCase())
+    .single()
+
+  if (existingProfile) {
+    return {
+      success: false,
+      error: 'User with this email already exists',
+    }
+  }
+
+  // Get default permissions for the role
+  const defaultPerms = DEFAULT_PERMISSIONS[role]
+  const permissions = { ...defaultPerms, ...customPermissions }
+
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .insert({
+      user_id: null, // Pre-registered, will be linked on first login
+      email: email.toLowerCase(),
+      full_name: fullName || null,
+      avatar_url: null,
+      role,
+      custom_dashboard: 'default',
+      is_active: true,
+      ...permissions,
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error creating pre-registered user:', error)
+    return { success: false, error: error.message }
+  }
+
+  return { success: true, profile: data as UserProfile }
+}
+
+/**
+ * Toggle user active status (owner/admin only)
+ * Cannot deactivate self or owner
+ */
+export async function toggleUserActive(
+  targetProfileId: string,
+  newActiveStatus: boolean
+): Promise<{ success: boolean; error?: string }> {
+  // Verify caller has permission to manage users
+  const callerProfile = await requirePermission('can_manage_users')
+
+  const supabase = await createClient()
+
+  // Get target profile
+  const { data: targetProfile } = await supabase
+    .from('user_profiles')
+    .select('id, user_id, role, email')
+    .eq('id', targetProfileId)
+    .single()
+
+  if (!targetProfile) {
+    return { success: false, error: 'User not found' }
+  }
+
+  // Prevent deactivating owner
+  if (targetProfile.role === 'owner') {
+    return {
+      success: false,
+      error: 'Cannot deactivate owner account',
+    }
+  }
+
+  // Prevent self-deactivation
+  if (targetProfile.user_id === callerProfile.user_id && !newActiveStatus) {
+    return {
+      success: false,
+      error: 'Cannot deactivate your own account',
+    }
+  }
+
+  const { error } = await supabase
+    .from('user_profiles')
+    .update({
+      is_active: newActiveStatus,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', targetProfileId)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  // Log the activity
+  await supabase.from('activity_log').insert({
+    action_type: newActiveStatus ? 'user_activated' : 'user_deactivated',
+    document_type: 'user',
+    document_id: targetProfileId,
+    document_number: targetProfile.email,
+    user_id: callerProfile.user_id,
+    user_name: callerProfile.full_name || callerProfile.email,
+  })
+
+  return { success: true }
+}
+
+/**
+ * Get owner dashboard data
+ */
+export async function getOwnerDashboardData() {
+  await requireRole(['owner'])
+
+  const supabase = await createClient()
+
+  // Get user metrics
+  const { data: users } = await supabase
+    .from('user_profiles')
+    .select('id, role, is_active, user_id, last_login_at, email, full_name')
+
+  const userMetrics = {
+    totalUsers: users?.length || 0,
+    activeUsers: users?.filter(u => u.is_active).length || 0,
+    inactiveUsers: users?.filter(u => !u.is_active).length || 0,
+    pendingUsers: users?.filter(u => u.user_id === null).length || 0,
+    usersByRole: {
+      owner: users?.filter(u => u.role === 'owner').length || 0,
+      admin: users?.filter(u => u.role === 'admin').length || 0,
+      manager: users?.filter(u => u.role === 'manager').length || 0,
+      ops: users?.filter(u => u.role === 'ops').length || 0,
+      finance: users?.filter(u => u.role === 'finance').length || 0,
+      sales: users?.filter(u => u.role === 'sales').length || 0,
+      viewer: users?.filter(u => u.role === 'viewer').length || 0,
+    },
+  }
+
+  // Get recent logins (last 7 days)
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
+  const recentLogins = users
+    ?.filter(u => u.last_login_at && new Date(u.last_login_at) > sevenDaysAgo)
+    .sort((a, b) => new Date(b.last_login_at!).getTime() - new Date(a.last_login_at!).getTime())
+    .slice(0, 10)
+    .map(u => ({
+      id: u.id,
+      email: u.email,
+      fullName: u.full_name,
+      lastLoginAt: u.last_login_at,
+    })) || []
+
+  // Get system KPIs
+  const [pjoCount, joCount, invoiceCount, revenueData] = await Promise.all([
+    supabase.from('proforma_job_orders').select('id', { count: 'exact', head: true }),
+    supabase.from('job_orders').select('id', { count: 'exact', head: true }),
+    supabase.from('invoices').select('id', { count: 'exact', head: true }),
+    supabase.from('job_orders').select('final_revenue, final_cost'),
+  ])
+
+  const totalRevenue = revenueData.data?.reduce((sum, jo) => sum + (jo.final_revenue || 0), 0) || 0
+  const totalCost = revenueData.data?.reduce((sum, jo) => sum + (jo.final_cost || 0), 0) || 0
+
+  const systemKPIs = {
+    totalPJOs: pjoCount.count || 0,
+    totalJOs: joCount.count || 0,
+    totalInvoices: invoiceCount.count || 0,
+    totalRevenue,
+    totalProfit: totalRevenue - totalCost,
+  }
+
+  return {
+    userMetrics,
+    recentLogins,
+    systemKPIs,
+  }
 }

@@ -29,11 +29,12 @@ import {
 } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
 import { UserProfile, UserRole } from '@/types/permissions'
-import { DEFAULT_PERMISSIONS } from '@/lib/permissions'
-import { updateUserRoleAction } from './actions'
-import { Pencil, Shield, ShieldCheck, ShieldX } from 'lucide-react'
+import { DEFAULT_PERMISSIONS, getAssignableRoles, isPendingUser } from '@/lib/permissions'
+import { updateUserRoleAction, createPreregisteredUserAction, toggleUserActiveAction } from './actions'
+import { Pencil, Shield, ShieldCheck, ShieldX, UserPlus, Crown, Clock } from 'lucide-react'
 
 interface UserManagementClientProps {
   users: UserProfile[]
@@ -41,6 +42,7 @@ interface UserManagementClientProps {
 }
 
 const ROLE_LABELS: Record<UserRole, string> = {
+  owner: 'Owner',
   admin: 'Administrator',
   manager: 'Manager',
   ops: 'Operations',
@@ -50,6 +52,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
 }
 
 const ROLE_COLORS: Record<UserRole, string> = {
+  owner: 'bg-amber-100 text-amber-800',
   admin: 'bg-red-100 text-red-800',
   manager: 'bg-blue-100 text-blue-800',
   ops: 'bg-green-100 text-green-800',
@@ -73,8 +76,26 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
     can_fill_costs: false,
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Add user dialog state
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [newUserEmail, setNewUserEmail] = useState('')
+  const [newUserName, setNewUserName] = useState('')
+  const [newUserRole, setNewUserRole] = useState<UserRole>('viewer')
+
+  const assignableRoles = getAssignableRoles()
 
   const handleEditUser = (user: UserProfile) => {
+    // Cannot edit owner
+    if (user.role === 'owner') {
+      toast({
+        title: 'Cannot edit',
+        description: 'Owner account cannot be modified',
+        variant: 'destructive',
+      })
+      return
+    }
+    
     setEditingUser(user)
     setSelectedRole(user.role as UserRole)
     setCustomPermissions({
@@ -90,7 +111,6 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
 
   const handleRoleChange = (role: UserRole) => {
     setSelectedRole(role)
-    // Apply default permissions for the role
     setCustomPermissions(DEFAULT_PERMISSIONS[role])
   }
 
@@ -107,7 +127,7 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
     setIsSubmitting(true)
     try {
       const result = await updateUserRoleAction(
-        editingUser.user_id,
+        editingUser.user_id!,
         selectedRole,
         customPermissions
       )
@@ -137,8 +157,99 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
     }
   }
 
+  const handleAddUser = async () => {
+    if (!newUserEmail) {
+      toast({
+        title: 'Error',
+        description: 'Email is required',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const result = await createPreregisteredUserAction(
+        newUserEmail,
+        newUserName,
+        newUserRole
+      )
+
+      if (result.success) {
+        toast({
+          title: 'User added',
+          description: `${newUserEmail} has been pre-registered. They can now log in.`,
+        })
+        setShowAddDialog(false)
+        setNewUserEmail('')
+        setNewUserName('')
+        setNewUserRole('viewer')
+        router.refresh()
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to add user',
+          variant: 'destructive',
+        })
+      }
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleToggleActive = async (user: UserProfile) => {
+    if (user.role === 'owner') {
+      toast({
+        title: 'Cannot deactivate',
+        description: 'Owner account cannot be deactivated',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setIsSubmitting(true)
+    try {
+      const result = await toggleUserActiveAction(user.id, !user.is_active)
+
+      if (result.success) {
+        toast({
+          title: user.is_active ? 'User deactivated' : 'User activated',
+          description: `${user.full_name || user.email} has been ${user.is_active ? 'deactivated' : 'activated'}.`,
+        })
+        router.refresh()
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to update user status',
+          variant: 'destructive',
+        })
+      }
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <>
+      <div className="flex justify-end mb-4">
+        <Button onClick={() => setShowAddDialog(true)}>
+          <UserPlus className="mr-2 h-4 w-4" />
+          Add User
+        </Button>
+      </div>
+
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -146,13 +257,14 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
               <TableHead>User</TableHead>
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Permissions</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead className="w-[150px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow key={user.id} className={!user.is_active ? 'opacity-50' : ''}>
                 <TableCell className="font-medium">
                   {user.full_name || 'No name'}
                   {user.user_id === currentUserId && (
@@ -164,11 +276,28 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
                   <Badge className={ROLE_COLORS[user.role as UserRole]}>
+                    {user.role === 'owner' && <Crown className="mr-1 h-3 w-3" />}
                     {ROLE_LABELS[user.role as UserRole] || user.role}
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  <div className="flex gap-1">
+                  {isPendingUser(user) ? (
+                    <Badge variant="outline" className="text-orange-600 border-orange-300">
+                      <Clock className="mr-1 h-3 w-3" />
+                      Pending
+                    </Badge>
+                  ) : user.is_active ? (
+                    <Badge variant="outline" className="text-green-600 border-green-300">
+                      Active
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-red-600 border-red-300">
+                      Inactive
+                    </Badge>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1 flex-wrap">
                     {user.can_see_revenue && (
                       <Badge variant="secondary" className="text-xs">
                         Revenue
@@ -181,15 +310,34 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
                     )}
                     {user.can_manage_users && (
                       <Badge variant="secondary" className="text-xs">
-                        Admin
+                        Users
                       </Badge>
                     )}
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Button variant="ghost" size="sm" onClick={() => handleEditUser(user)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    {user.role !== 'owner' && (
+                      <>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleEditUser(user)}
+                          disabled={isSubmitting}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Switch
+                          checked={user.is_active}
+                          onCheckedChange={() => handleToggleActive(user)}
+                          disabled={isSubmitting || user.user_id === currentUserId}
+                        />
+                      </>
+                    )}
+                    {user.role === 'owner' && (
+                      <span className="text-xs text-muted-foreground">Protected</span>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -208,7 +356,6 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* Role Selection */}
             <div className="space-y-2">
               <Label>Role</Label>
               <Select value={selectedRole} onValueChange={(v) => handleRoleChange(v as UserRole)}>
@@ -216,118 +363,44 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="admin">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-red-600" />
-                      Administrator
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="manager">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-blue-600" />
-                      Manager
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="ops">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-green-600" />
-                      Operations
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="finance">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-purple-600" />
-                      Finance
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="viewer">
-                    <div className="flex items-center gap-2">
-                      <ShieldX className="h-4 w-4 text-gray-600" />
-                      Viewer
-                    </div>
-                  </SelectItem>
+                  {assignableRoles.map((role) => (
+                    <SelectItem key={role} value={role}>
+                      <div className="flex items-center gap-2">
+                        {role === 'admin' ? (
+                          <ShieldCheck className="h-4 w-4 text-red-600" />
+                        ) : role === 'viewer' ? (
+                          <ShieldX className="h-4 w-4 text-gray-600" />
+                        ) : (
+                          <Shield className="h-4 w-4 text-blue-600" />
+                        )}
+                        {ROLE_LABELS[role]}
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Custom Permissions */}
             <div className="space-y-4">
               <Label>Custom Permissions</Label>
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="can_see_revenue" className="font-normal">
-                    Can see revenue
-                  </Label>
-                  <Switch
-                    id="can_see_revenue"
-                    checked={customPermissions.can_see_revenue}
-                    onCheckedChange={() => handlePermissionToggle('can_see_revenue')}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="can_see_profit" className="font-normal">
-                    Can see profit
-                  </Label>
-                  <Switch
-                    id="can_see_profit"
-                    checked={customPermissions.can_see_profit}
-                    onCheckedChange={() => handlePermissionToggle('can_see_profit')}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="can_approve_pjo" className="font-normal">
-                    Can approve PJO
-                  </Label>
-                  <Switch
-                    id="can_approve_pjo"
-                    checked={customPermissions.can_approve_pjo}
-                    onCheckedChange={() => handlePermissionToggle('can_approve_pjo')}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="can_create_pjo" className="font-normal">
-                    Can create PJO
-                  </Label>
-                  <Switch
-                    id="can_create_pjo"
-                    checked={customPermissions.can_create_pjo}
-                    onCheckedChange={() => handlePermissionToggle('can_create_pjo')}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="can_fill_costs" className="font-normal">
-                    Can fill costs
-                  </Label>
-                  <Switch
-                    id="can_fill_costs"
-                    checked={customPermissions.can_fill_costs}
-                    onCheckedChange={() => handlePermissionToggle('can_fill_costs')}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="can_manage_invoices" className="font-normal">
-                    Can manage invoices
-                  </Label>
-                  <Switch
-                    id="can_manage_invoices"
-                    checked={customPermissions.can_manage_invoices}
-                    onCheckedChange={() => handlePermissionToggle('can_manage_invoices')}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="can_manage_users" className="font-normal">
-                    Can manage users
-                  </Label>
-                  <Switch
-                    id="can_manage_users"
-                    checked={customPermissions.can_manage_users}
-                    onCheckedChange={() => handlePermissionToggle('can_manage_users')}
-                    disabled={
-                      editingUser?.user_id === currentUserId &&
-                      customPermissions.can_manage_users
-                    }
-                  />
-                </div>
+                {Object.entries(customPermissions).map(([key, value]) => (
+                  <div key={key} className="flex items-center justify-between">
+                    <Label htmlFor={key} className="font-normal">
+                      {key.replace(/_/g, ' ').replace('can ', 'Can ')}
+                    </Label>
+                    <Switch
+                      id={key}
+                      checked={value}
+                      onCheckedChange={() => handlePermissionToggle(key as keyof typeof customPermissions)}
+                      disabled={
+                        key === 'can_manage_users' &&
+                        editingUser?.user_id === currentUserId &&
+                        value
+                      }
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -338,6 +411,66 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
             </Button>
             <Button onClick={handleSave} disabled={isSubmitting}>
               {isSubmitting ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add User Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+            <DialogDescription>
+              Pre-register a user before they log in. They will be able to sign in with Google using this email.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="user@example.com"
+                value={newUserEmail}
+                onChange={(e) => setNewUserEmail(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name (optional)</Label>
+              <Input
+                id="name"
+                placeholder="John Doe"
+                value={newUserName}
+                onChange={(e) => setNewUserName(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Role</Label>
+              <Select value={newUserRole} onValueChange={(v) => setNewUserRole(v as UserRole)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {assignableRoles.map((role) => (
+                    <SelectItem key={role} value={role}>
+                      {ROLE_LABELS[role]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddUser} disabled={isSubmitting}>
+              {isSubmitting ? 'Adding...' : 'Add User'}
             </Button>
           </DialogFooter>
         </DialogContent>

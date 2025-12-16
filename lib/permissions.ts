@@ -3,10 +3,24 @@
 import { UserRole, UserPermissions, UserProfile, FeatureKey } from '@/types/permissions'
 
 /**
+ * Owner email - auto-assigned owner role on login
+ */
+export const OWNER_EMAIL = 'dioatmando@gama-group.co'
+
+/**
  * Default permissions for each role
  * CRITICAL: ops role has can_see_revenue and can_see_profit set to false
  */
 export const DEFAULT_PERMISSIONS: Record<UserRole, UserPermissions> = {
+  owner: {
+    can_see_revenue: true,
+    can_see_profit: true,
+    can_approve_pjo: true,
+    can_manage_invoices: true,
+    can_manage_users: true,
+    can_create_pjo: true,
+    can_fill_costs: true,
+  },
   admin: {
     can_see_revenue: true,
     can_see_profit: true,
@@ -74,12 +88,12 @@ export function getDefaultPermissions(role: UserRole): UserPermissions {
  * Feature access mapping based on permissions
  */
 const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boolean> = {
-  'dashboard.full': (p) => p.can_see_revenue && p.can_see_profit,
+  'dashboard.full': (p) => p.role === 'owner' || (p.can_see_revenue && p.can_see_profit),
   'dashboard.ops': (p) => p.can_fill_costs,
   'dashboard.finance': (p) => p.can_manage_invoices || p.can_see_revenue,
-  'customers.crud': (p) => p.role === 'admin' || p.role === 'manager',
+  'customers.crud': (p) => p.role === 'owner' || p.role === 'admin' || p.role === 'manager',
   'customers.view': (p) => p.role !== 'ops',
-  'projects.crud': (p) => p.role === 'admin' || p.role === 'manager',
+  'projects.crud': (p) => p.role === 'owner' || p.role === 'admin' || p.role === 'manager',
   'projects.view': () => true,
   'pjo.create': (p) => p.can_create_pjo,
   'pjo.view_revenue': (p) => p.can_see_revenue,
@@ -149,4 +163,37 @@ export function canRemoveAdminPermission(
     }
   }
   return { allowed: true }
+}
+
+/**
+ * Get roles that can be assigned through the UI
+ * Owner role cannot be assigned - it's auto-assigned based on email
+ */
+export function getAssignableRoles(): UserRole[] {
+  return ['admin', 'manager', 'ops', 'finance', 'sales', 'viewer']
+}
+
+/**
+ * Check if a user can modify another user's role/permissions
+ * Owner cannot be modified by anyone
+ */
+export function canModifyUser(actorRole: UserRole, targetRole: UserRole): boolean {
+  // Owner cannot be modified by anyone
+  if (targetRole === 'owner') return false
+  // Only owner and admin with can_manage_users can modify users
+  return actorRole === 'owner' || actorRole === 'admin'
+}
+
+/**
+ * Check if email matches the owner email (case-insensitive)
+ */
+export function isOwnerEmail(email: string): boolean {
+  return email.toLowerCase() === OWNER_EMAIL.toLowerCase()
+}
+
+/**
+ * Check if a user profile is pending (pre-registered but not logged in)
+ */
+export function isPendingUser(profile: UserProfile): boolean {
+  return profile.user_id === null
 }

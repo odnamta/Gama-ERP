@@ -1,0 +1,151 @@
+# Implementation Plan
+
+- [x] 1. Update type definitions and permissions
+  - [x] 1.1 Update UserRole type to include 'owner'
+    - Add 'owner' to UserRole union type in `types/permissions.ts`
+    - Update DashboardType to include 'owner'
+    - _Requirements: 1.1, 1.5_
+  - [x] 1.2 Add owner permissions to DEFAULT_PERMISSIONS
+    - Add owner entry with all permissions set to true
+    - Add OWNER_EMAIL constant
+    - Add getAssignableRoles() function that excludes 'owner'
+    - _Requirements: 1.2, 1.5_
+  - [x] 1.3 Write property tests for owner permissions
+    - **Property 2: Owner role exclusion from assignable roles**
+    - **Property 4: Owner permissions completeness**
+    - **Validates: Requirements 1.2, 1.5**
+
+- [x] 2. Database schema updates
+  - [x] 2.1 Apply migration for user_profiles changes
+    - Add last_login_at column
+    - Allow user_id to be nullable
+    - Add unique constraint on email
+    - Update role check constraint to include 'owner'
+    - _Requirements: 2.2, 2.3, 6.3_
+
+- [x] 3. Update authentication flow for owner role
+  - [x] 3.1 Update getUserProfile to handle owner email
+    - Check if email matches OWNER_EMAIL
+    - Auto-assign owner role for matching email
+    - Update last_login_at on login
+    - _Requirements: 1.1_
+  - [x] 3.2 Update profile creation to link pre-registered users
+    - Check for existing profile by email before creating new
+    - Link auth user_id to existing profile if found
+    - _Requirements: 2.3_
+  - [x] 3.3 Write property tests for owner auto-assignment
+    - **Property 1: Owner email auto-assignment**
+    - **Property 8: Profile linking on first login**
+    - **Validates: Requirements 1.1, 2.3**
+
+- [x] 4. Implement owner role protection
+  - [x] 4.1 Add canModifyUser function
+    - Return false if target role is 'owner'
+    - Only owner can modify other users
+    - _Requirements: 1.4_
+  - [x] 4.2 Update updateUserRole to protect owner
+    - Reject modifications to owner role users
+    - Reject attempts to assign owner role
+    - _Requirements: 1.4_
+  - [x] 4.3 Write property tests for owner immutability
+    - **Property 3: Owner role immutability**
+    - **Validates: Requirements 1.4**
+
+- [x] 5. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 6. Implement pre-registration functionality
+  - [x] 6.1 Create createPreregisteredUser function
+    - Validate email doesn't exist
+    - Validate role is not 'owner'
+    - Create profile with user_id=null, is_active=true
+    - _Requirements: 2.2, 2.4_
+  - [x] 6.2 Add isPendingUser helper function
+    - Return true if user_id is null
+    - _Requirements: 2.5_
+  - [x] 6.3 Write property tests for pre-registration
+    - **Property 5: Pre-registration creates inactive-auth profile**
+    - **Property 6: Pre-registration email uniqueness**
+    - **Property 7: Pending user identification**
+    - **Validates: Requirements 2.2, 2.4, 2.5**
+
+- [x] 7. Implement user activation/deactivation
+  - [x] 7.1 Create toggleUserActive function
+    - Prevent self-deactivation
+    - Prevent deactivating owner
+    - Toggle is_active flag
+    - _Requirements: 3.1, 3.3, 3.5_
+  - [x] 7.2 Update middleware to check is_active
+    - Redirect inactive users to /account-deactivated
+    - _Requirements: 3.2_
+  - [x] 7.3 Create account-deactivated page
+    - Display message explaining account is deactivated
+    - Provide logout option
+    - _Requirements: 3.2_
+  - [x] 7.4 Write property tests for activation/deactivation
+    - **Property 9: User deactivation sets is_active false**
+    - **Property 10: Inactive user redirect**
+    - **Property 11: Reactivation preserves role and permissions**
+    - **Property 12: Self-deactivation prevention**
+    - **Validates: Requirements 3.1, 3.2, 3.3, 3.5**
+
+- [x] 8. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 9. Update navigation system
+  - [x] 9.1 Update NAV_ITEMS with owner role
+    - Add 'owner' to all nav item roles arrays
+    - Add Reports menu item
+    - Add Cost Entry menu item for owner, admin, ops
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
+  - [x] 9.2 Add getDashboardPath function
+    - Map each role to its dashboard path
+    - Owner and admin go to /dashboard
+    - Others redirect to role-specific paths
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
+  - [x] 9.3 Write property tests for navigation
+    - **Property 13: Owner navigation completeness**
+    - **Property 14: Role-based navigation filtering**
+    - **Property 15: Dashboard path mapping**
+    - **Validates: Requirements 4.1-4.6, 5.1-5.6**
+
+- [x] 10. Update user management UI
+  - [x] 10.1 Update UserManagementClient for owner features
+    - Add "Add User" button for pre-registration
+    - Add active/inactive toggle
+    - Show "Pending" badge for pre-registered users
+    - Hide edit button for owner role users
+    - _Requirements: 2.1, 2.5, 3.4_
+  - [x] 10.2 Create AddUserDialog component
+    - Form with email, full name, role, permissions
+    - Call createPreregisteredUser on submit
+    - _Requirements: 2.1_
+  - [x] 10.3 Update role selector to use getAssignableRoles
+    - Exclude owner from dropdown options
+    - _Requirements: 1.2_
+
+- [x] 11. Implement owner dashboard
+  - [x] 11.1 Create owner dashboard data fetching
+    - Fetch user metrics (total, active, inactive, by role, pending)
+    - Fetch recent logins (last 7 days)
+    - Fetch system KPIs (PJOs, JOs, Invoices, Revenue)
+    - _Requirements: 6.1, 6.2, 6.3, 6.4_
+  - [x] 11.2 Create OwnerDashboard component
+    - Display user metrics cards
+    - Display recent login activity table
+    - Display system KPIs
+    - Add quick links to user management and reports
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+  - [x] 11.3 Update dashboard page routing
+    - Check user role and render appropriate dashboard
+    - Redirect non-owner/admin roles to their dashboards
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6_
+
+- [x] 12. Update sidebar component
+  - [x] 12.1 Update Sidebar to show role indicator
+    - Display "Owner" for owner role
+    - Keep existing role display for others
+    - _Requirements: 4.1_
+
+- [x] 13. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

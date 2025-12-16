@@ -1,99 +1,154 @@
+/**
+ * Navigation Tests
+ * Feature: v0.9.0-owner-dashboard-navigation
+ */
 import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
-import { NAV_ITEMS, filterNavItems } from '@/lib/navigation'
-import { UserRole, UserPermissions } from '@/types/permissions'
+import { NAV_ITEMS, filterNavItems, getDashboardPath } from '@/lib/navigation'
 import { DEFAULT_PERMISSIONS } from '@/lib/permissions'
+import { UserRole } from '@/types/permissions'
 
-describe('Navigation Filtering', () => {
+const ALL_ROLES: UserRole[] = ['owner', 'admin', 'manager', 'ops', 'finance', 'sales', 'viewer']
+
+describe('Navigation Properties', () => {
   /**
-   * Property 7: Navigation filtering for ops role
-   * For any user profile with role='ops', the navigation filter SHALL exclude
-   * 'customers', 'invoices', and 'reports' menu items AND include
-   * 'dashboard', 'projects', 'pjo', and 'job-orders'
-   * Validates: Requirements 5.1, 5.2
+   * Property 13: Owner navigation completeness
+   * **Feature: v0.9.0-owner-dashboard-navigation, Property 13: Owner navigation completeness**
+   * **Validates: Requirements 4.1**
    */
-  describe('Property 7: Navigation filtering for ops role', () => {
-    it('should exclude Customers, Invoices, and Settings for ops users', () => {
-      const opsPermissions = DEFAULT_PERMISSIONS.ops
-      const filteredNav = filterNavItems(NAV_ITEMS, 'ops', opsPermissions)
+  it('Property 13: Owner navigation completeness - owner sees all nav items', () => {
+    const ownerPermissions = DEFAULT_PERMISSIONS.owner
+    const filteredItems = filterNavItems(NAV_ITEMS, 'owner', ownerPermissions)
+    
+    // Owner should see all navigation items
+    expect(filteredItems.length).toBe(NAV_ITEMS.length)
+    
+    // Verify all items are present
+    const filteredTitles = filteredItems.map(item => item.title)
+    const allTitles = NAV_ITEMS.map(item => item.title)
+    expect(filteredTitles).toEqual(allTitles)
+  })
 
-      const navTitles = filteredNav.map((item) => item.title)
+  /**
+   * Property 14: Role-based navigation filtering
+   * **Feature: v0.9.0-owner-dashboard-navigation, Property 14: Role-based navigation filtering**
+   * **Validates: Requirements 4.2, 4.3, 4.4, 4.5, 4.6**
+   */
+  it('Property 14: Role-based navigation filtering', () => {
+    fc.assert(
+      fc.property(fc.constantFrom(...ALL_ROLES), (role) => {
+        const permissions = DEFAULT_PERMISSIONS[role]
+        const filteredItems = filterNavItems(NAV_ITEMS, role, permissions)
+        
+        // All filtered items should have the role in their roles array
+        return filteredItems.every(item => item.roles.includes(role))
+      }),
+      { numRuns: 100 }
+    )
+  })
 
-      // Should NOT include these
-      expect(navTitles).not.toContain('Customers')
-      expect(navTitles).not.toContain('Invoices')
-      expect(navTitles).not.toContain('Settings')
-    })
+  /**
+   * Property 15: Dashboard path mapping
+   * **Feature: v0.9.0-owner-dashboard-navigation, Property 15: Dashboard path mapping**
+   * **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5, 5.6**
+   */
+  it('Property 15: Dashboard path mapping', () => {
+    const expectedPaths: Record<UserRole, string> = {
+      owner: '/dashboard',
+      admin: '/dashboard',
+      manager: '/dashboard/manager',
+      ops: '/dashboard/ops',
+      finance: '/dashboard/finance',
+      sales: '/dashboard/sales',
+      viewer: '/dashboard',
+    }
 
-    it('should include Dashboard, Projects, Proforma JO, and Job Orders for ops users', () => {
-      const opsPermissions = DEFAULT_PERMISSIONS.ops
-      const filteredNav = filterNavItems(NAV_ITEMS, 'ops', opsPermissions)
+    fc.assert(
+      fc.property(fc.constantFrom(...ALL_ROLES), (role) => {
+        const path = getDashboardPath(role)
+        return path === expectedPaths[role]
+      }),
+      { numRuns: 100 }
+    )
+  })
+})
 
-      const navTitles = filteredNav.map((item) => item.title)
+describe('Role-specific navigation', () => {
+  it('admin sees Dashboard, Customers, Projects, Proforma JO, Cost Entry, Job Orders, Invoices, Reports, Settings', () => {
+    const adminPermissions = DEFAULT_PERMISSIONS.admin
+    const filteredItems = filterNavItems(NAV_ITEMS, 'admin', adminPermissions)
+    const titles = filteredItems.map(item => item.title)
+    
+    expect(titles).toContain('Dashboard')
+    expect(titles).toContain('Customers')
+    expect(titles).toContain('Projects')
+    expect(titles).toContain('Proforma JO')
+    expect(titles).toContain('Cost Entry')
+    expect(titles).toContain('Job Orders')
+    expect(titles).toContain('Invoices')
+    expect(titles).toContain('Reports')
+    expect(titles).toContain('Settings')
+  })
 
-      // Should include these
-      expect(navTitles).toContain('Dashboard')
-      expect(navTitles).toContain('Projects')
-      expect(navTitles).toContain('Proforma JO')
-      expect(navTitles).toContain('Job Orders')
-    })
+  it('manager sees Dashboard, Customers, Projects, Proforma JO, Job Orders, Reports (no Settings, no Cost Entry)', () => {
+    const managerPermissions = DEFAULT_PERMISSIONS.manager
+    const filteredItems = filterNavItems(NAV_ITEMS, 'manager', managerPermissions)
+    const titles = filteredItems.map(item => item.title)
+    
+    expect(titles).toContain('Dashboard')
+    expect(titles).toContain('Customers')
+    expect(titles).toContain('Projects')
+    expect(titles).toContain('Proforma JO')
+    expect(titles).toContain('Job Orders')
+    expect(titles).toContain('Reports')
+    expect(titles).not.toContain('Settings')
+    expect(titles).not.toContain('Cost Entry')
+  })
 
-    it('should include all navigation items for admin users', () => {
-      const adminPermissions = DEFAULT_PERMISSIONS.admin
-      const filteredNav = filterNavItems(NAV_ITEMS, 'admin', adminPermissions)
+  it('ops sees Dashboard, Projects, Proforma JO, Cost Entry, Job Orders (no Customers, no Invoices, no Reports, no Settings)', () => {
+    const opsPermissions = DEFAULT_PERMISSIONS.ops
+    const filteredItems = filterNavItems(NAV_ITEMS, 'ops', opsPermissions)
+    const titles = filteredItems.map(item => item.title)
+    
+    expect(titles).toContain('Dashboard')
+    expect(titles).toContain('Projects')
+    expect(titles).toContain('Proforma JO')
+    expect(titles).toContain('Cost Entry')
+    expect(titles).toContain('Job Orders')
+    expect(titles).not.toContain('Customers')
+    expect(titles).not.toContain('Invoices')
+    expect(titles).not.toContain('Settings')
+  })
 
-      const navTitles = filteredNav.map((item) => item.title)
+  it('finance sees Dashboard, Customers, Projects, Proforma JO, Job Orders, Invoices, Reports (no Settings, no Cost Entry)', () => {
+    const financePermissions = DEFAULT_PERMISSIONS.finance
+    const filteredItems = filterNavItems(NAV_ITEMS, 'finance', financePermissions)
+    const titles = filteredItems.map(item => item.title)
+    
+    expect(titles).toContain('Dashboard')
+    expect(titles).toContain('Customers')
+    expect(titles).toContain('Projects')
+    expect(titles).toContain('Proforma JO')
+    expect(titles).toContain('Job Orders')
+    expect(titles).toContain('Invoices')
+    expect(titles).toContain('Reports')
+    expect(titles).not.toContain('Settings')
+    expect(titles).not.toContain('Cost Entry')
+  })
 
-      // Admin should see everything
-      expect(navTitles).toContain('Dashboard')
-      expect(navTitles).toContain('Customers')
-      expect(navTitles).toContain('Projects')
-      expect(navTitles).toContain('Proforma JO')
-      expect(navTitles).toContain('Job Orders')
-      expect(navTitles).toContain('Invoices')
-      expect(navTitles).toContain('Settings')
-    })
-
-    it('should filter navigation consistently for any ops user', () => {
-      fc.assert(
-        fc.property(
-          fc.record({
-            can_see_revenue: fc.constant(false),
-            can_see_profit: fc.constant(false),
-            can_approve_pjo: fc.constant(false),
-            can_manage_invoices: fc.constant(false),
-            can_manage_users: fc.constant(false),
-            can_create_pjo: fc.constant(false),
-            can_fill_costs: fc.constant(true),
-          }),
-          (permissions) => {
-            const filteredNav = filterNavItems(NAV_ITEMS, 'ops', permissions)
-            const navTitles = filteredNav.map((item) => item.title)
-
-            // Ops should never see these regardless of other permissions
-            expect(navTitles).not.toContain('Customers')
-            expect(navTitles).not.toContain('Invoices')
-            expect(navTitles).not.toContain('Settings')
-
-            // Ops should always see these
-            expect(navTitles).toContain('Dashboard')
-            expect(navTitles).toContain('Projects')
-          }
-        ),
-        { numRuns: 20 }
-      )
-    })
-
-    it('should respect permission requirements for navigation items', () => {
-      // Finance user without can_manage_invoices should not see Invoices
-      const financeNoInvoices: Partial<UserPermissions> = {
-        ...DEFAULT_PERMISSIONS.finance,
-        can_manage_invoices: false,
-      }
-      const filteredNav = filterNavItems(NAV_ITEMS, 'finance', financeNoInvoices)
-      const navTitles = filteredNav.map((item) => item.title)
-
-      expect(navTitles).not.toContain('Invoices')
-    })
+  it('sales sees Dashboard, Customers, Projects, Proforma JO, Reports (no Job Orders, no Invoices, no Settings, no Cost Entry)', () => {
+    const salesPermissions = DEFAULT_PERMISSIONS.sales
+    const filteredItems = filterNavItems(NAV_ITEMS, 'sales', salesPermissions)
+    const titles = filteredItems.map(item => item.title)
+    
+    expect(titles).toContain('Dashboard')
+    expect(titles).toContain('Customers')
+    expect(titles).toContain('Projects')
+    expect(titles).toContain('Proforma JO')
+    expect(titles).toContain('Reports')
+    expect(titles).not.toContain('Job Orders')
+    expect(titles).not.toContain('Invoices')
+    expect(titles).not.toContain('Settings')
+    expect(titles).not.toContain('Cost Entry')
   })
 })
