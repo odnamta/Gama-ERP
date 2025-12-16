@@ -12,6 +12,7 @@ import {
   endOfYear,
   subMonths,
   subQuarters,
+  format,
 } from 'date-fns'
 
 /**
@@ -136,4 +137,11 @@ export function dateRangeToParams(range: DateRange): string {
   const start = range.startDate.toISOString().split('T')[0]
   const end = range.endDate.toISOString().split('T')[0]
   return `start=${start}&end=${end}`
+}
+
+/**
+ * Format date for display (DD/MM/YYYY)
+ */
+export function formatDate(date: Date | string): string {
+  return format(new Date(date), 'dd/MM/yyyy')
 }

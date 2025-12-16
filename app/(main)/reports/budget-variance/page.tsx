@@ -14,7 +14,11 @@ import { getDateRangeForPreset, parseDateRangeFromParams, formatCurrency } from 
 import { createClient } from '@/lib/supabase/client'
 import { DateRange, BudgetVarianceReportData, BudgetVarianceItem, ReportColumn, RowHighlight } from '@/types/reports'
 
-const columns: ReportColumn<BudgetVarianceItem>[] = [
+interface BudgetVarianceDisplayItem extends Omit<BudgetVarianceItem, 'variancePercentage'> {
+  variancePercentage: string
+}
+
+const columns: ReportColumn<BudgetVarianceDisplayItem>[] = [
   { key: 'pjoNumber', header: 'PJO Number', width: '150px' },
   { key: 'customerName', header: 'Customer' },
   { key: 'estimatedTotal', header: 'Estimated', align: 'right', format: 'currency' },
@@ -93,11 +97,11 @@ export default function BudgetVarianceReportPage() {
     fetchReportData(range)
   }
 
-  const handleRowClick = (row: BudgetVarianceItem) => {
+  const handleRowClick = (row: BudgetVarianceDisplayItem) => {
     router.push(`/pjo/${row.pjoId}`)
   }
 
-  const getRowHighlight = (row: BudgetVarianceItem): RowHighlight => {
+  const getRowHighlight = (row: BudgetVarianceDisplayItem): RowHighlight => {
     if (row.hasWarning) return 'warning'
     return null
   }

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { FileText, FileCheck, Truck, Receipt, DollarSign, FolderPlus } from 'lucide-react'
 import { type AdminKPIs } from '@/lib/admin-dashboard-utils'
-import { formatCurrency } from '@/lib/pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 
 interface AdminKPICardsProps {
   kpis: AdminKPIs

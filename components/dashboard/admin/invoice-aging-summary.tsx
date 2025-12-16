@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { AlertTriangle, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { type AgingBucket } from '@/lib/admin-dashboard-utils'
-import { formatCurrency } from '@/lib/pjo-utils'
+import { formatIDR } from '@/lib/pjo-utils'
 
 interface InvoiceAgingSummaryProps {
   buckets: AgingBucket[]
@@ -70,7 +70,7 @@ export function InvoiceAgingSummary({ buckets, isLoading }: InvoiceAgingSummaryP
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Invoice Aging</CardTitle>
         <span className="text-sm text-muted-foreground">
-          Total: {formatCurrency(totalUnpaid)}
+          Total: {formatIDR(totalUnpaid)}
         </span>
       </CardHeader>
       <CardContent>
@@ -94,7 +94,7 @@ export function InvoiceAgingSummary({ buckets, isLoading }: InvoiceAgingSummaryP
                   {bucket.count} invoice{bucket.count !== 1 ? 's' : ''}
                 </span>
                 <span className={`font-semibold ${BUCKET_TEXT_COLORS[bucket.label]}`}>
-                  {formatCurrency(bucket.totalAmount)}
+                  {formatIDR(bucket.totalAmount)}
                 </span>
               </div>
             </Link>

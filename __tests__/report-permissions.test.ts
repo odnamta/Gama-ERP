@@ -94,14 +94,42 @@ describe('Report Permissions', () => {
       expect(categories.has('sales')).toBe(false)
     })
 
-    it('sales should see sales reports and revenue-customer', () => {
+    it('sales should see sales reports and revenue-by-customer', () => {
       const salesReports = getVisibleReports('sales')
       const reportIds = salesReports.map(r => r.id)
       
       expect(reportIds).toContain('quotation-conversion')
       expect(reportIds).toContain('revenue-customer')
+      expect(reportIds).toContain('revenue-by-customer')
+      expect(reportIds).toContain('sales-pipeline')
+      expect(reportIds).toContain('customer-acquisition')
       expect(reportIds).not.toContain('profit-loss')
       expect(reportIds).not.toContain('ar-aging')
+    })
+
+    /**
+     * **Feature: v0.10.1-reports-phase2, Property 24: Role-based report access (Phase 2)**
+     * For any user role and Phase 2 report configuration, the visible reports should exactly
+     * match those where the role is included in the report's allowedRoles array.
+     * **Validates: Requirements 13.1, 13.2, 13.3, 13.4, 13.5**
+     */
+    it('Phase 2: ops should see operational reports including on-time-delivery and vendor-performance', () => {
+      const opsReports = getVisibleReports('ops')
+      const reportIds = opsReports.map(r => r.id)
+      
+      expect(reportIds).toContain('budget-variance')
+      expect(reportIds).toContain('jo-summary')
+      expect(reportIds).toContain('on-time-delivery')
+      expect(reportIds).toContain('vendor-performance')
+    })
+
+    it('Phase 2: finance should see payment history and outstanding invoices', () => {
+      const financeReports = getVisibleReports('finance')
+      const reportIds = financeReports.map(r => r.id)
+      
+      expect(reportIds).toContain('ar-aging')
+      expect(reportIds).toContain('outstanding-invoices')
+      expect(reportIds).toContain('customer-payment-history')
     })
 
     it('viewer should see no reports', () => {

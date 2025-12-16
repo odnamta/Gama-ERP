@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils'
 import { ReportColumn, RowHighlight, PaginationState } from '@/types/reports'
 import { formatCurrency, formatPercentage, formatNumber } from '@/lib/reports/report-utils'
 
-interface ReportTableProps<T extends Record<string, unknown>> {
+interface ReportTableProps<T> {
   columns: ReportColumn<T>[]
   data: T[]
   pageSize?: number
@@ -25,7 +25,7 @@ interface ReportTableProps<T extends Record<string, unknown>> {
   emptyMessage?: string
 }
 
-export function ReportTable<T extends Record<string, unknown>>({
+export function ReportTable<T extends object>({
   columns,
   data,
   pageSize = 25,
@@ -40,10 +40,10 @@ export function ReportTable<T extends Record<string, unknown>>({
   const endIndex = startIndex + pageSize
   const pageData = data.slice(startIndex, endIndex)
 
-  const formatValue = (value: unknown, format?: ReportColumn<T>['format']): string => {
+  const formatValue = (value: unknown, columnFormat?: ReportColumn<T>['format']): string => {
     if (value === null || value === undefined) return '-'
     
-    switch (format) {
+    switch (columnFormat) {
       case 'currency':
         return formatCurrency(Number(value))
       case 'percentage':
@@ -132,7 +132,7 @@ export function ReportTable<T extends Record<string, unknown>>({
                         column.align === 'center' && 'text-center'
                       )}
                     >
-                      {formatValue(getValue(row, String(column.key)), column.format)}
+                      {formatValue(getValue(row, String(column.key)), column.format as ReportColumn<T>['format'])}
                     </TableCell>
                   ))}
                 </TableRow>

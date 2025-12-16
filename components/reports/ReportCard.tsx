@@ -12,6 +12,10 @@ import {
   DollarSign,
   Settings,
   Receipt,
+  FolderKanban,
+  Truck,
+  CreditCard,
+  UserPlus,
   LucideIcon,
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -31,6 +35,10 @@ const iconMap: Record<string, LucideIcon> = {
   DollarSign,
   Settings,
   Receipt,
+  FolderKanban,
+  Truck,
+  CreditCard,
+  UserPlus,
 }
 
 interface ReportCardProps {
