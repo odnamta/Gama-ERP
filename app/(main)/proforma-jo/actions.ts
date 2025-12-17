@@ -399,7 +399,7 @@ export async function submitForApproval(id: string): Promise<{ error?: string }>
 
   const { data: existingPJO, error: fetchError } = await supabase
     .from('proforma_job_orders')
-    .select('status')
+    .select('status, pjo_number, total_revenue_calculated, created_by, customers(name)')
     .eq('id', id)
     .single()
 
@@ -423,6 +423,20 @@ export async function submitForApproval(id: string): Promise<{ error?: string }>
     return { error: error.message }
   }
 
+  // Send notification to approvers
+  try {
+    const { notifyPjoApprovalRequired } = await import('@/lib/notifications/notification-triggers')
+    await notifyPjoApprovalRequired({
+      id,
+      pjo_number: existingPJO.pjo_number,
+      customer_name: (existingPJO.customers as { name: string } | null)?.name,
+      total_revenue: existingPJO.total_revenue_calculated || undefined,
+      created_by: existingPJO.created_by || undefined,
+    })
+  } catch (e) {
+    console.error('Failed to send approval notification:', e)
+  }
+
   revalidatePath('/proforma-jo')
   revalidatePath(`/proforma-jo/${id}`)
   return {}
@@ -438,7 +452,7 @@ export async function approvePJO(id: string): Promise<{ error?: string }> {
 
   const { data: existingPJO, error: fetchError } = await supabase
     .from('proforma_job_orders')
-    .select('status, pjo_number')
+    .select('status, pjo_number, created_by')
     .eq('id', id)
     .single()
 
@@ -474,6 +488,21 @@ export async function approvePJO(id: string): Promise<{ error?: string }> {
     user_name: user.email || 'Unknown User',
   })
 
+  // Notify PJO creator of approval
+  try {
+    const { notifyPjoDecision } = await import('@/lib/notifications/notification-triggers')
+    await notifyPjoDecision(
+      {
+        id,
+        pjo_number: existingPJO.pjo_number,
+        created_by: existingPJO.created_by || undefined,
+      },
+      'approved'
+    )
+  } catch (e) {
+    console.error('Failed to send approval decision notification:', e)
+  }
+
   revalidatePath('/proforma-jo')
   revalidatePath(`/proforma-jo/${id}`)
   revalidatePath('/dashboard')
@@ -494,7 +523,7 @@ export async function rejectPJO(id: string, reason: string): Promise<{ error?: s
 
   const { data: existingPJO, error: fetchError } = await supabase
     .from('proforma_job_orders')
-    .select('status')
+    .select('status, pjo_number, created_by')
     .eq('id', id)
     .single()
 
@@ -519,6 +548,22 @@ export async function rejectPJO(id: string, reason: string): Promise<{ error?: s
 
   if (error) {
     return { error: error.message }
+  }
+
+  // Notify PJO creator of rejection
+  try {
+    const { notifyPjoDecision } = await import('@/lib/notifications/notification-triggers')
+    await notifyPjoDecision(
+      {
+        id,
+        pjo_number: existingPJO.pjo_number,
+        created_by: existingPJO.created_by || undefined,
+      },
+      'rejected',
+      reason
+    )
+  } catch (e) {
+    console.error('Failed to send rejection notification:', e)
   }
 
   revalidatePath('/proforma-jo')
@@ -596,6 +641,45 @@ export async function confirmCostItem(
 
   if (updateError) {
     return { success: false, error: updateError.message }
+  }
+
+  // Send budget alert notification if variance > 10%
+  if (variancePct > 10) {
+    try {
+      // Get PJO details for notification
+      const { data: pjo } = await supabase
+        .from('proforma_job_orders')
+        .select('pjo_number')
+        .eq('id', costItem.pjo_id)
+        .single()
+
+      // Get cost item category
+      const { data: fullCostItem } = await supabase
+        .from('pjo_cost_items')
+        .select('category')
+        .eq('id', itemId)
+        .single()
+
+      if (pjo && fullCostItem) {
+        const { notifyBudgetExceeded } = await import('@/lib/notifications/notification-triggers')
+        await notifyBudgetExceeded(
+          {
+            id: itemId,
+            pjo_id: costItem.pjo_id,
+            category: fullCostItem.category,
+            estimated_amount: costItem.estimated_amount,
+            actual_amount: actualAmount,
+            variance_pct: variancePct,
+          },
+          {
+            id: costItem.pjo_id,
+            pjo_number: pjo.pjo_number,
+          }
+        )
+      }
+    } catch (e) {
+      console.error('Failed to send budget alert notification:', e)
+    }
   }
 
   // Check if all costs are confirmed and update PJO

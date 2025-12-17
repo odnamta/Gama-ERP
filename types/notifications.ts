@@ -1,0 +1,89 @@
+// Notification System Types
+
+export type NotificationType =
+  | 'approval'
+  | 'budget_alert'
+  | 'status_change'
+  | 'overdue'
+  | 'system'
+  | 'info'
+
+export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent'
+
+export type EntityType = 'pjo' | 'jo' | 'invoice' | 'user' | 'cost_item'
+
+export interface Notification {
+  id: string
+  user_id: string
+  title: string
+  message: string
+  type: NotificationType
+  priority: NotificationPriority
+  entity_type: EntityType | null
+  entity_id: string | null
+  is_read: boolean
+  read_at: string | null
+  action_url: string | null
+  metadata: Record<string, unknown>
+  created_at: string
+  expires_at: string | null
+  deleted_at: string | null
+}
+
+export interface NotificationPreferences {
+  id: string
+  user_id: string
+  approval_enabled: boolean
+  budget_alert_enabled: boolean
+  status_change_enabled: boolean
+  overdue_enabled: boolean
+  system_enabled: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface NotificationWithMeta extends Notification {
+  relativeTime: string
+  icon: string
+  iconColor: string
+}
+
+// Service types
+export interface CreateNotificationParams {
+  userId: string
+  title: string
+  message: string
+  type: NotificationType
+  priority?: NotificationPriority
+  entityType?: EntityType
+  entityId?: string
+  actionUrl?: string
+  expiresAt?: Date
+  metadata?: Record<string, unknown>
+}
+
+export interface CreateBulkNotificationParams {
+  title: string
+  message: string
+  type: NotificationType
+  priority?: NotificationPriority
+  entityType?: EntityType
+  entityId?: string
+  actionUrl?: string
+  expiresAt?: Date
+  metadata?: Record<string, unknown>
+}
+
+export interface NotificationFilters {
+  isRead?: boolean
+  type?: NotificationType
+  startDate?: Date
+  endDate?: Date
+  limit?: number
+  offset?: number
+}
+
+export interface NotificationRecipients {
+  userIds?: string[]
+  roles?: string[]
+}

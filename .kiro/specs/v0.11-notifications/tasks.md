@@ -1,0 +1,214 @@
+# Implementation Plan
+
+- [x] 1. Set up database schema and types
+  - [x] 1.1 Create notifications and notification_preferences tables with RLS policies
+    - Apply migration with notifications table (id, user_id, title, message, type, priority, entity_type, entity_id, is_read, read_at, action_url, metadata, created_at, expires_at, deleted_at)
+    - Apply migration with notification_preferences table (user_id, approval_enabled, budget_alert_enabled, status_change_enabled, overdue_enabled, system_enabled)
+    - Create indexes for performance (user_unread, user_created, cleanup)
+    - Add RLS policies for user isolation
+    - _Requirements: 12.1, 12.5_
+  - [x] 1.2 Create TypeScript types for notifications
+    - Create types/notifications.ts with NotificationType, NotificationPriority, EntityType, Notification, NotificationPreferences, NotificationWithMeta
+    - _Requirements: 12.1_
+
+- [x] 2. Implement notification service layer
+  - [x] 2.1 Create core notification service functions
+    - Create lib/notifications/notification-service.ts
+    - Implement createNotification(params) function
+    - Implement createBulkNotifications(params, recipients) function with role filtering
+    - Implement getNotifications(userId, filters) with pagination
+    - Implement getUnreadCount(userId) function
+    - _Requirements: 12.1, 12.2, 12.3_
+  - [x] 2.2 Write property test for notification service
+    - **Property 17: Notification service API contract**
+    - **Validates: Requirements 12.1, 12.2, 12.3**
+  - [x] 2.3 Implement notification state management functions
+    - Implement markAsRead(notificationId) - sets is_read=true and read_at timestamp
+    - Implement markAllAsRead(userId) - marks all user notifications as read
+    - Implement deleteNotification(notificationId) - soft delete with deleted_at
+    - _Requirements: 2.5, 2.6, 12.4, 12.5_
+  - [x] 2.4 Write property test for mark as read
+    - **Property 4: Mark as read state transition**
+    - **Validates: Requirements 2.5, 2.6, 12.4**
+  - [x] 2.5 Write property test for soft delete
+    - **Property 18: Soft delete behavior**
+    - **Validates: Requirements 12.5**
+  - [x] 2.6 Implement notification cleanup function
+    - Implement cleanupOldNotifications() - deletes expired, read >30 days, unread >90 days
+    - Ensure cleanup excludes notifications from normal queries
+    - _Requirements: 9.1, 9.2, 9.3, 9.5_
+  - [x] 2.7 Write property test for cleanup eligibility
+    - **Property 14: Notification cleanup eligibility**
+    - **Validates: Requirements 9.1, 9.2, 9.3, 9.5**
+
+- [x] 3. Implement notification triggers
+  - [x] 3.1 Create PJO notification triggers
+    - Create lib/notifications/notification-triggers.ts
+    - Implement notifyPjoApprovalRequired(pjo) - notifies users with can_approve_pjo
+    - Implement notifyPjoDecision(pjo, decision) - notifies PJO creator
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
+  - [x] 3.2 Write property test for PJO approval routing
+    - **Property 7: PJO approval notification routing**
+    - **Validates: Requirements 4.1, 4.2, 4.3, 4.4**
+  - [x] 3.3 Write property test for PJO decision notification
+    - **Property 8: PJO decision notification**
+    - **Validates: Requirements 4.5**
+  - [x] 3.4 Create budget alert triggers
+    - Implement notifyBudgetExceeded(costItem, pjo) - notifies owner/manager/finance
+    - Set priority to 'urgent' if variance > 25%, otherwise 'high'
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+  - [x] 3.5 Write property test for budget alert threshold
+    - **Property 9: Budget alert threshold and priority**
+    - **Validates: Requirements 5.1, 5.3, 5.5**
+  - [x] 3.6 Write property test for budget alert routing
+    - **Property 10: Budget alert recipient routing**
+    - **Validates: Requirements 5.2**
+  - [x] 3.7 Create invoice notification triggers
+    - Implement notifyInvoiceStatusChange(invoice, newStatus)
+    - Route 'sent' to creator, 'paid' to finance/manager, 'overdue' to finance/manager/owner
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5_
+  - [x] 3.8 Write property test for invoice notification routing
+    - **Property 11: Invoice notification routing**
+    - **Validates: Requirements 6.1, 6.2, 6.3, 6.4, 6.5**
+  - [x] 3.9 Create JO notification triggers
+    - Implement notifyJoCreated(jo) - notifies ops users
+    - Implement notifyJoStatusChange(jo, newStatus) - routes to admin/finance based on status
+    - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
+  - [x] 3.10 Write property test for JO notification routing
+    - **Property 12: JO notification routing**
+    - **Validates: Requirements 7.1, 7.2, 7.3, 7.4, 7.5**
+  - [x] 3.11 Create user activity notification triggers
+    - Implement notifyUserActivity(user, action) - notifies owner/admin for first_login, deactivated, role_changed
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
+  - [x] 3.12 Write property test for user activity notification routing
+    - **Property 13: User activity notification routing**
+    - **Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5**
+
+- [x] 4. Checkpoint - Ensure all service layer tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 5. Implement notification preferences
+  - [x] 5.1 Create notification preferences service
+    - Create lib/notifications/notification-preferences.ts
+    - Implement getPreferences(userId) function
+    - Implement updatePreferences(userId, preferences) function
+    - Implement shouldNotify(userId, type) function to check if user wants notification type
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
+  - [x] 5.2 Write property test for preference enforcement
+    - **Property 15: Preference enforcement**
+    - **Validates: Requirements 10.3, 10.4, 10.5**
+  - [x] 5.3 Integrate preferences into notification creation
+    - Update createNotification to check user preferences before creating
+    - Update createBulkNotifications to filter out users with disabled preferences
+    - _Requirements: 10.3, 10.4_
+
+- [x] 6. Implement notification UI components
+  - [x] 6.1 Create notification utility functions
+    - Create lib/notifications/notification-utils.ts
+    - Implement formatRelativeTime(timestamp) function
+    - Implement getNotificationIcon(type) function
+    - Implement getNotificationIconColor(type, priority) function
+    - Implement formatBadgeCount(count) function - returns "99+" for count > 99
+    - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5, 11.6_
+  - [x] 6.2 Write property test for relative time formatting
+    - **Property 16: Relative time formatting**
+    - **Validates: Requirements 11.6**
+  - [x] 6.3 Write property test for badge count accuracy
+    - **Property 1: Badge count accuracy**
+    - **Validates: Requirements 1.2, 1.3, 1.4**
+  - [x] 6.4 Create useNotifications hook
+    - Create hooks/use-notifications.ts
+    - Implement hook with notifications, unreadCount, isLoading, error states
+    - Implement markAsRead, markAllAsRead, refresh functions
+    - _Requirements: 1.5, 2.5, 2.6_
+  - [x] 6.5 Create NotificationItem component
+    - Create components/notifications/notification-item.tsx
+    - Display icon, title, message preview, relative time
+    - Support 'dropdown' and 'page' variants
+    - Visual distinction for unread notifications
+    - Pulsing indicator for urgent priority
+    - _Requirements: 2.3, 2.4, 3.3, 11.1, 11.2, 11.3, 11.4, 11.5_
+  - [x] 6.6 Write property test for notification content completeness
+    - **Property 3: Notification content completeness**
+    - **Validates: Requirements 2.3, 3.3**
+  - [x] 6.7 Create NotificationBell component
+    - Create components/notifications/notification-bell.tsx
+    - Display bell icon with unread count badge
+    - Badge shows count or "99+" for > 99
+    - No badge when count is 0
+    - _Requirements: 1.1, 1.2, 1.3, 1.4_
+  - [x] 6.8 Create NotificationDropdown component
+    - Create components/notifications/notification-dropdown.tsx
+    - Use Popover from shadcn/ui
+    - Display 10 most recent notifications
+    - Include "Mark all read" and "View All" actions
+    - _Requirements: 2.1, 2.2, 2.6, 2.7_
+  - [x] 6.9 Write property test for dropdown limit and ordering
+    - **Property 2: Dropdown limit and ordering**
+    - **Validates: Requirements 2.2**
+
+- [x] 7. Integrate notification bell into header
+  - [x] 7.1 Update header component
+    - Add NotificationBell to header next to user avatar
+    - Wire up NotificationDropdown
+    - _Requirements: 1.1, 2.1_
+
+- [x] 8. Checkpoint - Ensure UI components render correctly
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 9. Create notifications page
+  - [x] 9.1 Create notifications page layout
+    - Create app/(main)/notifications/page.tsx
+    - Display all notifications with pagination (25 per page)
+    - Show icon, title, message, timestamp, read status
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [x] 9.2 Write property test for pagination constraint
+    - **Property 5: Pagination constraint**
+    - **Validates: Requirements 3.2**
+  - [x] 9.3 Implement notification filters
+    - Add filter by type dropdown (All, Approvals, Budget Alerts, Status Changes, Overdue, System)
+    - Add filter by status (All, Unread, Read)
+    - _Requirements: 3.4, 3.5_
+  - [x] 9.4 Write property test for filter correctness
+    - **Property 6: Filter correctness**
+    - **Validates: Requirements 3.4, 3.5**
+  - [x] 9.5 Implement bulk actions
+    - Add "Mark selected as read" action
+    - Add "Delete old notifications" action (read > 30 days)
+    - _Requirements: 3.6, 3.7_
+
+- [x] 10. Create notification preferences page
+  - [x] 10.1 Create preferences UI
+    - Add notification preferences section to settings or as separate page
+    - Display toggles for each notification type
+    - Save preferences on toggle change
+    - _Requirements: 10.1, 10.2, 10.5_
+
+- [x] 11. Wire up notification triggers to existing actions
+  - [x] 11.1 Integrate PJO approval notifications
+    - Update PJO status change action to call notifyPjoApprovalRequired when status = 'pending_approval'
+    - Update PJO approval/rejection action to call notifyPjoDecision
+    - _Requirements: 4.1, 4.5_
+  - [x] 11.2 Integrate budget alert notifications
+    - Update cost item update action to call notifyBudgetExceeded when variance > 10%
+    - _Requirements: 5.1_
+  - [x] 11.3 Integrate invoice notifications
+    - Update invoice status change action to call notifyInvoiceStatusChange
+    - _Requirements: 6.1, 6.2, 6.3_
+  - [x] 11.4 Integrate JO notifications
+    - Update PJO conversion action to call notifyJoCreated
+    - Update JO status change action to call notifyJoStatusChange
+    - _Requirements: 7.1, 7.2, 7.3_
+  - [x] 11.5 Integrate user activity notifications
+    - Update auth callback to call notifyUserActivity on first login
+    - Update user management actions to call notifyUserActivity on deactivation/role change
+    - _Requirements: 8.1, 8.2, 8.3_
+
+- [x] 12. Add navigation entry for notifications
+  - [x] 12.1 Update navigation configuration
+    - Add "Notifications" to navigation items for all roles
+    - _Requirements: 3.1_
+
+- [x] 13. Final Checkpoint - Ensure all tests pass
+  - All 695 tests pass ✅
+

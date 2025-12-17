@@ -79,7 +79,7 @@ export async function markCompleted(joId: string): Promise<{ error?: string }> {
 
   const { data: jo, error: fetchError } = await supabase
     .from('job_orders')
-    .select('status')
+    .select('status, jo_number, customers(name)')
     .eq('id', joId)
     .single()
 
@@ -104,6 +104,22 @@ export async function markCompleted(joId: string): Promise<{ error?: string }> {
     return { error: error.message }
   }
 
+  // Send notification for JO completed
+  try {
+    const { notifyJoStatusChange } = await import('@/lib/notifications/notification-triggers')
+    await notifyJoStatusChange(
+      {
+        id: joId,
+        jo_number: jo.jo_number,
+        customer_name: (jo.customers as { name: string } | null)?.name,
+        status: 'completed',
+      },
+      'completed'
+    )
+  } catch (e) {
+    console.error('Failed to send JO completion notification:', e)
+  }
+
   revalidatePath('/job-orders')
   revalidatePath(`/job-orders/${joId}`)
   return {}
@@ -116,7 +132,7 @@ export async function submitToFinance(joId: string): Promise<{ error?: string }>
 
   const { data: jo, error: fetchError } = await supabase
     .from('job_orders')
-    .select('status')
+    .select('status, jo_number, customers(name)')
     .eq('id', joId)
     .single()
 
@@ -140,6 +156,22 @@ export async function submitToFinance(joId: string): Promise<{ error?: string }>
 
   if (error) {
     return { error: error.message }
+  }
+
+  // Send notification for JO submitted to finance
+  try {
+    const { notifyJoStatusChange } = await import('@/lib/notifications/notification-triggers')
+    await notifyJoStatusChange(
+      {
+        id: joId,
+        jo_number: jo.jo_number,
+        customer_name: (jo.customers as { name: string } | null)?.name,
+        status: 'submitted_to_finance',
+      },
+      'submitted_to_finance'
+    )
+  } catch (e) {
+    console.error('Failed to send JO submission notification:', e)
   }
 
   revalidatePath('/job-orders')

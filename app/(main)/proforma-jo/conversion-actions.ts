@@ -174,6 +174,25 @@ export async function convertToJobOrder(pjoId: string): Promise<{ error?: string
     })
     .eq('id', pjoId)
 
+  // Send notification for new JO created
+  try {
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('name')
+      .eq('id', pjo.customer_id)
+      .single()
+
+    const { notifyJoCreated } = await import('@/lib/notifications/notification-triggers')
+    await notifyJoCreated({
+      id: newJO.id,
+      jo_number: joNumber,
+      customer_name: customer?.name,
+      status: 'active',
+    })
+  } catch (e) {
+    console.error('Failed to send JO creation notification:', e)
+  }
+
   revalidatePath('/proforma-jo')
   revalidatePath(`/proforma-jo/${pjoId}`)
   revalidatePath('/job-orders')

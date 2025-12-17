@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { ensureUserProfile } from '@/lib/permissions-server'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -22,6 +23,40 @@ export async function GET(request: Request) {
       const loginUrl = new URL('/login', origin)
       loginUrl.searchParams.set('error', error.message)
       return NextResponse.redirect(loginUrl)
+    }
+
+    // Ensure user profile exists and check if first login
+    const profile = await ensureUserProfile()
+    
+    // Check if this is a first login (profile was just created or linked)
+    if (profile) {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      // Check if last_login_at was just set (within last minute) - indicates first login
+      const lastLogin = profile.last_login_at ? new Date(profile.last_login_at) : null
+      const now = new Date()
+      const isFirstLogin = lastLogin && (now.getTime() - lastLogin.getTime() < 60000)
+      
+      // Only notify on actual first login (check created_at vs last_login_at)
+      const createdAt = new Date(profile.created_at)
+      const isNewUser = (now.getTime() - createdAt.getTime() < 60000)
+      
+      if (isNewUser && user) {
+        try {
+          const { notifyUserActivity } = await import('@/lib/notifications/notification-triggers')
+          await notifyUserActivity(
+            {
+              id: profile.id,
+              email: profile.email,
+              full_name: profile.full_name || undefined,
+              role: profile.role,
+            },
+            'first_login'
+          )
+        } catch (e) {
+          console.error('Failed to send first login notification:', e)
+        }
+      }
     }
 
     // Successful authentication - redirect to dashboard

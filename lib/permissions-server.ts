@@ -320,6 +320,9 @@ export async function updateUserRole(
     }
   }
 
+  // Get previous role for notification
+  const previousRole = targetProfile?.role
+
   const { error } = await supabase
     .from('user_profiles')
     .update({
@@ -343,6 +346,31 @@ export async function updateUserRole(
     user_id: callerProfile.user_id,
     user_name: callerProfile.full_name || callerProfile.email,
   })
+
+  // Send notification for role change
+  try {
+    const { data: updatedProfile } = await supabase
+      .from('user_profiles')
+      .select('id, email, full_name')
+      .eq('user_id', targetUserId)
+      .single()
+
+    if (updatedProfile) {
+      const { notifyUserActivity } = await import('@/lib/notifications/notification-triggers')
+      await notifyUserActivity(
+        {
+          id: updatedProfile.id,
+          email: updatedProfile.email,
+          full_name: updatedProfile.full_name || undefined,
+          role: newRole,
+          previousRole: previousRole || undefined,
+        },
+        'role_changed'
+      )
+    }
+  } catch (e) {
+    console.error('Failed to send role change notification:', e)
+  }
 
   return { success: true }
 }
@@ -493,6 +521,23 @@ export async function toggleUserActive(
     user_id: callerProfile.user_id,
     user_name: callerProfile.full_name || callerProfile.email,
   })
+
+  // Send notification for deactivation
+  if (!newActiveStatus) {
+    try {
+      const { notifyUserActivity } = await import('@/lib/notifications/notification-triggers')
+      await notifyUserActivity(
+        {
+          id: targetProfileId,
+          email: targetProfile.email,
+          role: targetProfile.role,
+        },
+        'deactivated'
+      )
+    } catch (e) {
+      console.error('Failed to send deactivation notification:', e)
+    }
+  }
 
   return { success: true }
 }

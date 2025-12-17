@@ -367,6 +367,40 @@ export async function updateInvoiceStatus(
     return { error: updateError.message }
   }
 
+  // Send notification for status change
+  if (['sent', 'paid', 'overdue'].includes(targetStatus)) {
+    try {
+      const { data: invoiceDetails } = await supabase
+        .from('invoices')
+        .select('invoice_number, total_amount, customers(name)')
+        .eq('id', id)
+        .single()
+
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data: userProfile } = user ? await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single() : { data: null }
+
+      if (invoiceDetails) {
+        const { notifyInvoiceStatusChange } = await import('@/lib/notifications/notification-triggers')
+        await notifyInvoiceStatusChange(
+          {
+            id,
+            invoice_number: invoiceDetails.invoice_number,
+            customer_name: (invoiceDetails.customers as { name: string } | null)?.name,
+            total_amount: invoiceDetails.total_amount,
+            created_by: userProfile?.id,
+          },
+          targetStatus as 'sent' | 'paid' | 'overdue'
+        )
+      }
+    } catch (e) {
+      console.error('Failed to send invoice notification:', e)
+    }
+  }
+
   // Handle JO status updates based on invoice status
   if (targetStatus === 'paid') {
     // Update JO to closed

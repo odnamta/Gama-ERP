@@ -8,6 +8,7 @@ import {
   Settings,
   BarChart3,
   Calculator,
+  Bell,
   LucideIcon,
 } from 'lucide-react'
 import { UserRole, UserPermissions } from '@/types/permissions'
@@ -79,6 +80,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/reports',
     icon: BarChart3,
     roles: ['owner', 'admin', 'manager', 'ops', 'finance', 'sales'],
+  },
+  {
+    title: 'Notifications',
+    href: '/notifications',
+    icon: Bell,
+    roles: ['owner', 'admin', 'manager', 'ops', 'finance', 'sales', 'viewer'],
   },
   {
     title: 'Settings',

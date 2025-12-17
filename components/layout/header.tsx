@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Search, LogOut, Loader2 } from 'lucide-react'
+import { Search, LogOut, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { createClient } from '@/lib/supabase/client'
+import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 
 export interface UserInfo {
   name: string
@@ -49,9 +50,7 @@ export function Header({ user }: HeaderProps) {
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon">
-          <Bell className="h-5 w-5" />
-        </Button>
+        <NotificationDropdown />
 
         {user && (
           <>
