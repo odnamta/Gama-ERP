@@ -12,20 +12,23 @@ export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent'
 
 export type EntityType = 'pjo' | 'jo' | 'invoice' | 'user' | 'cost_item'
 
+// Json type from database
+type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
+
 export interface Notification {
   id: string
   user_id: string
   title: string
   message: string
-  type: NotificationType
-  priority: NotificationPriority
-  entity_type: EntityType | null
+  type: NotificationType | string
+  priority: NotificationPriority | string | null
+  entity_type: EntityType | string | null
   entity_id: string | null
-  is_read: boolean
+  is_read: boolean | null
   read_at: string | null
   action_url: string | null
-  metadata: Record<string, unknown>
-  created_at: string
+  metadata: Json | null
+  created_at: string | null
   expires_at: string | null
   deleted_at: string | null
 }
@@ -33,13 +36,13 @@ export interface Notification {
 export interface NotificationPreferences {
   id: string
   user_id: string
-  approval_enabled: boolean
-  budget_alert_enabled: boolean
-  status_change_enabled: boolean
-  overdue_enabled: boolean
-  system_enabled: boolean
-  created_at: string
-  updated_at: string
+  approval_enabled: boolean | null
+  budget_alert_enabled: boolean | null
+  status_change_enabled: boolean | null
+  overdue_enabled: boolean | null
+  system_enabled: boolean | null
+  created_at: string | null
+  updated_at: string | null
 }
 
 export interface NotificationWithMeta extends Notification {

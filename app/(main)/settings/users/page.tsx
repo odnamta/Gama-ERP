@@ -19,7 +19,7 @@ export default async function UsersPage() {
         <p className="text-muted-foreground">Manage user roles and permissions</p>
       </div>
 
-      <UserManagementClient users={users} currentUserId={profile.user_id} />
+      <UserManagementClient users={users} currentUserId={profile.user_id ?? ''} />
     </div>
   )
 }

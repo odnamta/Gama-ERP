@@ -17,11 +17,15 @@ describe('Report Utils', () => {
    */
   describe('Property 12: Date range validation', () => {
     it('should reject date ranges where end is before start', () => {
+      const validDateArb = fc.date({ min: new Date(2020, 0, 1), max: new Date(2030, 11, 31), noInvalidDate: true })
       fc.assert(
         fc.property(
-          fc.date({ min: new Date(2020, 0, 1), max: new Date(2030, 11, 31) }),
+          validDateArb,
           fc.integer({ min: 1, max: 365 }),
           (startDate, daysToSubtract) => {
+            // Skip if date is invalid
+            if (isNaN(startDate.getTime())) return
+            
             // Create end date that is strictly before start date
             const endDate = new Date(startDate.getTime() - daysToSubtract * 24 * 60 * 60 * 1000)
             
@@ -36,11 +40,15 @@ describe('Report Utils', () => {
     })
 
     it('should accept date ranges where end is after or equal to start', () => {
+      const validDateArb = fc.date({ min: new Date(2020, 0, 1), max: new Date(2030, 11, 31), noInvalidDate: true })
       fc.assert(
         fc.property(
-          fc.date({ min: new Date(2020, 0, 1), max: new Date(2030, 11, 31) }),
+          validDateArb,
           fc.integer({ min: 0, max: 365 }),
           (startDate, daysToAdd) => {
+            // Skip if date is invalid
+            if (isNaN(startDate.getTime())) return
+            
             const endDate = new Date(startDate)
             endDate.setDate(endDate.getDate() + daysToAdd)
             
@@ -55,10 +63,14 @@ describe('Report Utils', () => {
     })
 
     it('should accept same start and end date', () => {
+      const validDateArb = fc.date({ min: new Date(2020, 0, 1), max: new Date(2030, 11, 31), noInvalidDate: true })
       fc.assert(
         fc.property(
-          fc.date({ min: new Date(2020, 0, 1), max: new Date(2030, 11, 31) }),
+          validDateArb,
           (date) => {
+            // Skip if date is invalid
+            if (isNaN(date.getTime())) return
+            
             const result = validateDateRange({ startDate: date, endDate: date })
             expect(result.valid).toBe(true)
           }

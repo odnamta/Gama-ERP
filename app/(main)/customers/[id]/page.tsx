@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
+import { AttachmentsSection } from '@/components/attachments'
 import { ArrowLeft, Plus, Building2, Mail, Phone, MapPin } from 'lucide-react'
 
 interface CustomerDetailPageProps {
@@ -124,6 +125,13 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
           </CardContent>
         </Card>
       </div>
+
+      {/* Attachments */}
+      <AttachmentsSection
+        entityType="customer"
+        entityId={customer.id}
+        title="Customer Documents"
+      />
     </div>
   )
 }

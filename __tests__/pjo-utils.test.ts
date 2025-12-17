@@ -758,11 +758,14 @@ describe('v0.4.2 Validation Utilities', () => {
    */
   describe('validateDateOrder', () => {
     it('should reject when ETA is before ETD', () => {
+      const validDateArb = fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31'), noInvalidDate: true })
       fc.assert(
         fc.property(
-          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') }),
+          validDateArb,
           fc.integer({ min: 1, max: 365 }),
           (etd, daysBefore) => {
+            // Skip if date is invalid
+            if (isNaN(etd.getTime())) return
             const eta = new Date(etd.getTime() - daysBefore * 24 * 60 * 60 * 1000)
             const result = validateDateOrder(etd, eta)
             expect(result.valid).toBe(false)
@@ -774,11 +777,14 @@ describe('v0.4.2 Validation Utilities', () => {
     })
 
     it('should accept when ETA is on or after ETD', () => {
+      const validDateArb = fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31'), noInvalidDate: true })
       fc.assert(
         fc.property(
-          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') }),
+          validDateArb,
           fc.integer({ min: 0, max: 365 }),
           (etd, daysAfter) => {
+            // Skip if date is invalid
+            if (isNaN(etd.getTime())) return
             const eta = new Date(etd.getTime() + daysAfter * 24 * 60 * 60 * 1000)
             const result = validateDateOrder(etd, eta)
             expect(result.valid).toBe(true)

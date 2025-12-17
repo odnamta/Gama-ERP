@@ -13,6 +13,7 @@ import { formatIDR, formatDate, formatDateTime, COST_CATEGORY_LABELS } from '@/l
 import { markCompleted, submitToFinance, getJORevenueItems, getJOCostItems } from '@/app/(main)/job-orders/actions'
 import { useToast } from '@/hooks/use-toast'
 import { CheckCircle, Send, FileText, ArrowLeft, Loader2 } from 'lucide-react'
+import { AttachmentsSection } from '@/components/attachments'
 
 interface JODetailViewProps {
   jobOrder: JobOrderWithRelations
@@ -385,6 +386,13 @@ export function JODetailView({ jobOrder }: JODetailViewProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Attachments */}
+      <AttachmentsSection
+        entityType="jo"
+        entityId={jobOrder.id}
+        title="Attachments"
+      />
     </div>
   )
 }

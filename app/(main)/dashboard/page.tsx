@@ -1,10 +1,4 @@
-import { DashboardClient } from '@/components/dashboard/dashboard-client'
-import { OpsDashboard } from '@/components/dashboard/ops'
-import { FinanceDashboard } from '@/components/dashboard/finance/finance-dashboard'
-import { SalesDashboard } from '@/components/dashboard/sales/sales-dashboard'
-import { ManagerDashboard } from '@/components/dashboard/manager/manager-dashboard'
-import { AdminDashboard } from '@/components/dashboard/admin/admin-dashboard'
-import { OwnerDashboard } from '@/components/dashboard/owner-dashboard'
+import { DashboardSelector } from '@/components/dashboard/dashboard-selector'
 import {
   fetchDashboardKPIs,
   fetchBudgetAlerts,
@@ -25,58 +19,103 @@ export default async function DashboardPage() {
   const profile = await getUserProfile()
   const userRole = profile?.role || 'viewer'
 
-  // Render owner dashboard for owner users
+  // For owner users, fetch all dashboard data to support preview mode
   if (userRole === 'owner') {
-    const ownerData = await getOwnerDashboardData()
-    return <OwnerDashboard data={ownerData} />
+    const [
+      ownerData,
+      opsData,
+      financeData,
+      salesData,
+      managerData,
+      adminData,
+      kpis,
+      alerts,
+      alertCount,
+      activities,
+      queue,
+      metrics,
+    ] = await Promise.all([
+      getOwnerDashboardData(),
+      getOpsDashboardData(),
+      fetchFinanceDashboardData(),
+      fetchSalesDashboardData(),
+      fetchManagerDashboardData(),
+      fetchAdminDashboardData(),
+      fetchDashboardKPIs(),
+      fetchBudgetAlerts(),
+      fetchExceededBudgetCount(),
+      fetchRecentActivity(),
+      fetchOperationsQueue(),
+      fetchManagerMetrics(),
+    ])
+
+    return (
+      <DashboardSelector
+        ownerData={ownerData}
+        opsData={opsData}
+        financeData={financeData}
+        salesData={salesData}
+        managerData={managerData}
+        adminData={adminData}
+        defaultData={{
+          kpis,
+          alerts,
+          alertCount,
+          activities,
+          queue,
+          metrics,
+        }}
+        userName={profile?.full_name || undefined}
+        actualRole={userRole}
+      />
+    )
   }
 
-  // Render ops-specific dashboard for ops users
+  // For non-owner users, fetch only their specific dashboard data
   if (userRole === 'ops') {
     const opsData = await getOpsDashboardData()
     return (
-      <OpsDashboard 
-        data={opsData} 
-        userName={profile?.full_name || undefined} 
+      <DashboardSelector
+        opsData={opsData}
+        userName={profile?.full_name || undefined}
+        actualRole={userRole}
       />
     )
   }
 
-  // Render finance-specific dashboard for finance users
   if (userRole === 'finance') {
     const financeData = await fetchFinanceDashboardData()
-    return <FinanceDashboard data={financeData} />
+    return <DashboardSelector financeData={financeData} actualRole={userRole} />
   }
 
-  // Render sales-specific dashboard for sales users
   if (userRole === 'sales') {
     const salesData = await fetchSalesDashboardData()
-    return <SalesDashboard initialData={salesData} />
+    return <DashboardSelector salesData={salesData} actualRole={userRole} />
   }
 
-  // Render manager-specific dashboard for manager users
   if (userRole === 'manager') {
     const managerData = await fetchManagerDashboardData()
     return (
-      <ManagerDashboard
-        initialData={managerData}
+      <DashboardSelector
+        managerData={managerData}
         userName={profile?.full_name || undefined}
+        actualRole={userRole}
       />
     )
   }
 
-  // Render admin-specific dashboard for administration division users
   if (userRole === 'admin') {
     const adminData = await fetchAdminDashboardData()
     return (
-      <AdminDashboard
-        initialData={adminData}
+      <DashboardSelector
+        adminData={adminData}
         userName={profile?.full_name || undefined}
+        actualRole={userRole}
       />
     )
   }
 
-  // Fetch all data in parallel for other roles
+  // Fetch default data for viewer and other roles
   const [kpis, alerts, alertCount, activities, queue, metrics] = await Promise.all([
     fetchDashboardKPIs(),
     fetchBudgetAlerts(),
@@ -87,14 +126,16 @@ export default async function DashboardPage() {
   ])
 
   return (
-    <DashboardClient
-      initialKPIs={kpis}
-      initialAlerts={alerts}
-      initialAlertCount={alertCount}
-      initialActivities={activities}
-      initialQueue={queue}
-      initialMetrics={metrics}
-      userRole={userRole}
+    <DashboardSelector
+      defaultData={{
+        kpis,
+        alerts,
+        alertCount,
+        activities,
+        queue,
+        metrics,
+      }}
+      actualRole={userRole}
     />
   )
 }

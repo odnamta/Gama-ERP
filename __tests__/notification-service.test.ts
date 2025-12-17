@@ -121,11 +121,12 @@ describe('Property 17: Notification service API contract', () => {
   })
 
   it('notification filters should support isRead, type, and date range', () => {
+    const validDateArb = fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') })
     const filtersArb = fc.record({
       isRead: fc.option(fc.boolean(), { nil: undefined }),
       type: fc.option(notificationTypeArb, { nil: undefined }),
-      startDate: fc.option(fc.date(), { nil: undefined }),
-      endDate: fc.option(fc.date(), { nil: undefined }),
+      startDate: fc.option(validDateArb, { nil: undefined }),
+      endDate: fc.option(validDateArb, { nil: undefined }),
       limit: fc.option(fc.integer({ min: 1, max: 100 }), { nil: undefined }),
       offset: fc.option(fc.integer({ min: 0, max: 1000 }), { nil: undefined }),
     })
@@ -258,7 +259,7 @@ describe('Property 14: Notification cleanup eligibility', () => {
     const oldReadNotificationArb = fc.record({
       id: uuidArb,
       created_at: fc
-        .date({ max: new Date(thirtyDaysAgo.getTime() - 1000) })
+        .date({ min: new Date('2020-01-01'), max: new Date(thirtyDaysAgo.getTime() - 1000) })
         .map((d) => d.toISOString()),
       is_read: fc.constant(true),
       deleted_at: fc.constant(null),
@@ -278,7 +279,7 @@ describe('Property 14: Notification cleanup eligibility', () => {
     const oldUnreadNotificationArb = fc.record({
       id: uuidArb,
       created_at: fc
-        .date({ max: new Date(ninetyDaysAgo.getTime() - 1000) })
+        .date({ min: new Date('2020-01-01'), max: new Date(ninetyDaysAgo.getTime() - 1000) })
         .map((d) => d.toISOString()),
       is_read: fc.constant(false),
       deleted_at: fc.constant(null),
@@ -297,7 +298,7 @@ describe('Property 14: Notification cleanup eligibility', () => {
   it('deleted notifications should be excluded from queries', () => {
     const deletedNotificationArb = fc.record({
       id: uuidArb,
-      deleted_at: fc.date().map((d) => d.toISOString()),
+      deleted_at: fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') }).map((d) => d.toISOString()),
     })
 
     fc.assert(

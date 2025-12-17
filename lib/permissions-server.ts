@@ -247,7 +247,7 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
       full_name: fullName || null,
       avatar_url: avatarUrl || null,
       role,
-      custom_dashboard: role === 'owner' ? 'owner' : (role === 'admin' ? 'admin' : 'default'),
+      custom_dashboard: role === 'owner' ? 'owner' : (role === 'manager' ? 'manager' : 'default'),
       last_login_at: new Date().toISOString(),
       ...permissions,
     })

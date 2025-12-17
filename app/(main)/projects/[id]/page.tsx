@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { PJOStatusBadge } from '@/components/ui/pjo-status-badge'
+import { AttachmentsSection } from '@/components/attachments'
 import { formatDate } from '@/lib/pjo-utils'
 import { ArrowLeft, Building2, MapPin, Calendar, FolderOpen, FileText, ClipboardList } from 'lucide-react'
 
@@ -184,6 +185,13 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           </CardContent>
         </Card>
       </div>
+
+      {/* Attachments */}
+      <AttachmentsSection
+        entityType="project"
+        entityId={project.id}
+        title="Project Documents"
+      />
     </div>
   )
 }

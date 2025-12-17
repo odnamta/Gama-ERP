@@ -4,24 +4,18 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { usePermissions } from '@/components/providers/permission-provider'
+import { usePreview } from '@/hooks/use-preview'
 import { NAV_ITEMS, filterNavItems } from '@/lib/navigation'
 import { Skeleton } from '@/components/ui/skeleton'
 
 export function Sidebar() {
   const pathname = usePathname()
   const { profile, isLoading } = usePermissions()
+  const { effectiveRole, effectivePermissions, isPreviewActive } = usePreview()
 
-  // Filter navigation based on user role and permissions
+  // Filter navigation based on effective role and permissions (supports preview mode)
   const filteredNav = profile
-    ? filterNavItems(NAV_ITEMS, profile.role, {
-        can_see_revenue: profile.can_see_revenue,
-        can_see_profit: profile.can_see_profit,
-        can_approve_pjo: profile.can_approve_pjo,
-        can_manage_invoices: profile.can_manage_invoices,
-        can_manage_users: profile.can_manage_users,
-        can_create_pjo: profile.can_create_pjo,
-        can_fill_costs: profile.can_fill_costs,
-      })
+    ? filterNavItems(NAV_ITEMS, effectiveRole, effectivePermissions)
     : []
 
   return (
@@ -82,10 +76,21 @@ export function Sidebar() {
       {profile && (
         <div className="border-t p-4">
           <div className="text-xs text-muted-foreground">
-            Role:{' '}
-            <span className={`font-medium capitalize ${profile.role === 'owner' ? 'text-amber-600' : ''}`}>
-              {profile.role === 'owner' ? '👑 Owner' : profile.role}
-            </span>
+            {isPreviewActive ? (
+              <>
+                Viewing as:{' '}
+                <span className="font-medium capitalize text-yellow-600">
+                  {effectiveRole}
+                </span>
+              </>
+            ) : (
+              <>
+                Role:{' '}
+                <span className={`font-medium capitalize ${profile.role === 'owner' ? 'text-amber-600' : ''}`}>
+                  {profile.role === 'owner' ? '👑 Owner' : profile.role}
+                </span>
+              </>
+            )}
           </div>
         </div>
       )}

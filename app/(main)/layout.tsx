@@ -3,6 +3,7 @@ import { Header, UserInfo } from '@/components/layout/header'
 import { Toaster } from '@/components/ui/toaster'
 import { createClient } from '@/lib/supabase/server'
 import { PermissionProvider } from '@/components/providers/permission-provider'
+import { PreviewProviderWrapper } from '@/components/providers/preview-provider-wrapper'
 import { ensureUserProfile } from '@/lib/permissions-server'
 import { UserProfile } from '@/types/permissions'
 
@@ -24,14 +25,16 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
   return (
     <PermissionProvider initialProfile={userProfile}>
-      <div className="flex h-screen">
-        <Sidebar />
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <Header user={userInfo} />
-          <main className="flex-1 overflow-auto bg-muted/30 p-6">{children}</main>
+      <PreviewProviderWrapper>
+        <div className="flex h-screen">
+          <Sidebar />
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <Header user={userInfo} />
+            <main className="flex-1 overflow-auto bg-muted/30 p-6">{children}</main>
+          </div>
+          <Toaster />
         </div>
-        <Toaster />
-      </div>
+      </PreviewProviderWrapper>
     </PermissionProvider>
   )
 }

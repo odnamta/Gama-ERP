@@ -14,6 +14,7 @@ import { isInvoiceOverdue, VAT_RATE } from '@/lib/invoice-utils'
 import { updateInvoiceStatus } from '@/app/(main)/invoices/actions'
 import { useToast } from '@/hooks/use-toast'
 import { ArrowLeft, Send, CreditCard, XCircle, AlertTriangle, Loader2 } from 'lucide-react'
+import { AttachmentsSection } from '@/components/attachments'
 
 interface InvoiceDetailViewProps {
   invoice: InvoiceWithRelations
@@ -236,6 +237,13 @@ export function InvoiceDetailView({ invoice }: InvoiceDetailViewProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Attachments */}
+      <AttachmentsSection
+        entityType="invoice"
+        entityId={invoice.id}
+        title="Attachments"
+      />
     </div>
   )
 }

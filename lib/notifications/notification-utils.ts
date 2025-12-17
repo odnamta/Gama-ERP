@@ -5,7 +5,8 @@ import { NotificationType, NotificationPriority } from '@/types/notifications'
  * Format a timestamp as relative time
  * e.g., "2 min ago", "1 hour ago", "Yesterday", "Dec 15"
  */
-export function formatRelativeTime(timestamp: string): string {
+export function formatRelativeTime(timestamp: string | null): string {
+  if (!timestamp) return ''
   const date = new Date(timestamp)
   const now = new Date()
 
@@ -45,7 +46,7 @@ export function formatRelativeTime(timestamp: string): string {
 /**
  * Get the icon name for a notification type
  */
-export function getNotificationIcon(type: NotificationType): string {
+export function getNotificationIcon(type: NotificationType | string | null): string {
   switch (type) {
     case 'approval':
       return 'ClipboardCheck'
@@ -68,8 +69,8 @@ export function getNotificationIcon(type: NotificationType): string {
  * Get the icon color for a notification based on type and priority
  */
 export function getNotificationIconColor(
-  type: NotificationType,
-  priority: NotificationPriority
+  type: NotificationType | string | null,
+  priority: NotificationPriority | string | null
 ): string {
   // Urgent priority always gets red
   if (priority === 'urgent') {
@@ -151,7 +152,7 @@ export function getPriorityLabel(priority: NotificationPriority): string {
 /**
  * Check if notification should show pulsing indicator
  */
-export function shouldPulse(priority: NotificationPriority): boolean {
+export function shouldPulse(priority: NotificationPriority | string | null): boolean {
   return priority === 'urgent'
 }
 

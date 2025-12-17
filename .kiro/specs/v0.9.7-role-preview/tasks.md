@@ -1,0 +1,104 @@
+# Implementation Plan
+
+- [x] 1. Create preview utilities and types
+  - [x] 1.1 Create preview utility functions
+    - Create lib/preview-utils.ts
+    - Implement getEffectiveRole(actualRole, previewRole) function
+    - Implement getEffectivePermissions(actualRole, actualPermissions, previewRole) function
+    - Implement canUsePreviewFeature(actualRole) function - returns true only for 'owner'
+    - Define PREVIEW_ROLES constant with all available roles
+    - _Requirements: 1.4, 5.1, 7.1_
+  - [x] 1.2 Write property test for owner-only preview access
+    - **Property 1: Owner-only preview access**
+    - **Validates: Requirements 1.4, 7.1**
+  - [x] 1.3 Write property test for permissions match effective role
+    - **Property 7: Permissions match effective role**
+    - **Validates: Requirements 5.1**
+
+- [x] 2. Create PreviewContext and usePreview hook
+  - [x] 2.1 Create PreviewContext provider
+    - Create contexts/preview-context.tsx
+    - Implement PreviewContextType interface with previewRole, setPreviewRole, effectiveRole, effectivePermissions, isPreviewActive, canUsePreview
+    - Implement PreviewProvider component that wraps children
+    - Use useState for previewRole (initialized to null)
+    - Compute effectiveRole and effectivePermissions using preview-utils
+    - Only allow setPreviewRole to work when actualRole is 'owner'
+    - _Requirements: 1.3, 1.4, 6.1, 7.1_
+  - [x] 2.2 Write property test for preview role selection
+    - **Property 2: Preview role selection updates effective role**
+    - **Validates: Requirements 1.3**
+  - [x] 2.3 Write property test for initial preview state
+    - **Property 8: Initial preview state is null**
+    - **Validates: Requirements 6.2**
+  - [x] 2.4 Create usePreview hook
+    - Create hooks/use-preview.ts
+    - Implement hook that consumes PreviewContext
+    - Throw helpful error if used outside PreviewProvider
+    - _Requirements: 1.3, 2.4_
+
+- [x] 3. Checkpoint - Ensure context and utilities tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 4. Create preview UI components
+  - [x] 4.1 Create PreviewDropdown component
+    - Create components/preview/preview-dropdown.tsx
+    - Display "Preview as:" label with dropdown
+    - Show all PREVIEW_ROLES as options
+    - Highlight current effective role
+    - Call setPreviewRole on selection
+    - Only render when canUsePreview is true
+    - _Requirements: 1.1, 1.2, 1.3_
+  - [x] 4.2 Create PreviewBanner component
+    - Create components/preview/preview-banner.tsx
+    - Display yellow warning banner with "⚠️ PREVIEW MODE: Viewing as [RoleName]"
+    - Include "Exit Preview" button that calls setPreviewRole(null)
+    - Only render when isPreviewActive is true
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
+  - [x] 4.3 Write property test for preview banner display
+    - **Property 3: Preview banner displays correct role**
+    - **Validates: Requirements 2.1, 2.2**
+  - [x] 4.4 Write property test for exit preview
+    - **Property 4: Exit preview restores owner role**
+    - **Validates: Requirements 2.4**
+
+- [x] 5. Integrate preview into Owner Dashboard
+  - [x] 5.1 Add PreviewDropdown to Owner Dashboard header
+    - Update components/dashboard/owner-dashboard.tsx
+    - Add PreviewDropdown next to existing header buttons
+    - Pass current effectiveRole and setPreviewRole
+    - _Requirements: 1.1_
+  - [x] 5.2 Add PreviewBanner to main layout
+    - Update app/(main)/layout.tsx or appropriate layout component
+    - Add PreviewBanner at top of page content area
+    - Conditionally render based on isPreviewActive
+    - _Requirements: 2.1_
+
+- [x] 6. Integrate preview with navigation
+  - [x] 6.1 Update sidebar to use effective role
+    - Update sidebar component to use usePreview hook
+    - Pass effectiveRole to filterNavItems instead of actual role
+    - Pass effectivePermissions to filterNavItems
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [x] 6.2 Write property test for navigation filtering
+    - **Property 5: Navigation filtering matches effective role**
+    - **Validates: Requirements 3.1**
+
+- [x] 7. Integrate preview with dashboard selection
+  - [x] 7.1 Update dashboard page to use effective role
+    - Update app/(main)/dashboard/page.tsx
+    - Use effectiveRole to determine which dashboard component to render
+    - Use getDashboardPath with effectiveRole for routing
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
+  - [x] 7.2 Write property test for dashboard selection
+    - **Property 6: Dashboard selection matches effective role**
+    - **Validates: Requirements 4.1**
+
+- [x] 8. Wrap application with PreviewProvider
+  - [x] 8.1 Add PreviewProvider to app layout
+    - Update app/(main)/layout.tsx
+    - Wrap children with PreviewProvider
+    - Pass actualRole and actualPermissions from user profile
+    - _Requirements: 6.1_
+
+- [x] 9. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

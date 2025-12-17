@@ -30,6 +30,7 @@ import { getRevenueItems } from '@/app/(main)/proforma-jo/revenue-actions'
 import { getCostItems } from '@/app/(main)/proforma-jo/cost-actions'
 import { useToast } from '@/hooks/use-toast'
 import { Pencil, Send, Check, X, DollarSign } from 'lucide-react'
+import { AttachmentsSection } from '@/components/attachments'
 
 interface PJODetailViewProps {
   pjo: PJOWithRelations
@@ -375,6 +376,13 @@ export function PJODetailView({ pjo, canApprove = true }: PJODetailViewProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Attachments */}
+      <AttachmentsSection
+        entityType="pjo"
+        entityId={pjo.id}
+        title="Attachments"
+      />
 
       {/* Reject Dialog */}
       <AlertDialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>

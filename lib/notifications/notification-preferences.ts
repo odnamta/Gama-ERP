@@ -86,15 +86,15 @@ export async function shouldNotify(userId: string, type: NotificationType): Prom
 
   switch (type) {
     case 'approval':
-      return preferences.approval_enabled
+      return preferences.approval_enabled ?? true
     case 'budget_alert':
-      return preferences.budget_alert_enabled
+      return preferences.budget_alert_enabled ?? true
     case 'status_change':
-      return preferences.status_change_enabled
+      return preferences.status_change_enabled ?? true
     case 'overdue':
-      return preferences.overdue_enabled
+      return preferences.overdue_enabled ?? true
     case 'system':
-      return preferences.system_enabled
+      return preferences.system_enabled ?? true
     case 'info':
       return true // Info notifications are always enabled
     default:

@@ -183,9 +183,14 @@ describe('Property 2: Dropdown limit and ordering', () => {
   })
 
   it('notifications should be ordered by created_at descending', () => {
+    const validDateArb = fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31'), noInvalidDate: true })
     const notificationArb = fc.record({
       id: fc.uuid(),
-      created_at: fc.date().map((d) => d.toISOString()),
+      created_at: validDateArb.map((d) => {
+        // Ensure valid date
+        if (isNaN(d.getTime())) return new Date().toISOString()
+        return d.toISOString()
+      }),
     })
 
     const notificationsArb = fc.array(notificationArb, { minLength: 2, maxLength: 20 })

@@ -6,6 +6,7 @@ import {
   NotificationFilters,
   NotificationRecipients,
 } from '@/types/notifications'
+import { Json } from '@/types/database'
 import { shouldNotify } from './notification-preferences'
 
 /**
@@ -35,7 +36,7 @@ export async function createNotification(
       entity_id: params.entityId || null,
       action_url: params.actionUrl || null,
       expires_at: params.expiresAt?.toISOString() || null,
-      metadata: params.metadata || {},
+      metadata: (params.metadata || {}) as Json,
     })
     .select()
     .single()
@@ -102,13 +103,13 @@ export async function createBulkNotifications(
     user_id: userId,
     title: params.title,
     message: params.message,
-    type: params.type,
-    priority: params.priority || 'normal',
-    entity_type: params.entityType || null,
+    type: params.type as string,
+    priority: (params.priority || 'normal') as string,
+    entity_type: (params.entityType || null) as string | null,
     entity_id: params.entityId || null,
     action_url: params.actionUrl || null,
     expires_at: params.expiresAt?.toISOString() || null,
-    metadata: params.metadata || {},
+    metadata: (params.metadata || {}) as Json,
   }))
 
   const { data, error } = await supabase

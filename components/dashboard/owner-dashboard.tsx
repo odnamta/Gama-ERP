@@ -27,6 +27,8 @@ import {
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { UserRole } from '@/types/permissions'
+import { PreviewDropdown } from '@/components/preview/preview-dropdown'
+import { usePreview } from '@/hooks/use-preview'
 
 interface OwnerDashboardProps {
   data: {
@@ -74,6 +76,7 @@ function formatCurrency(amount: number): string {
 
 export function OwnerDashboard({ data }: OwnerDashboardProps) {
   const { userMetrics, recentLogins, systemKPIs } = data
+  const { effectiveRole, setPreviewRole, canUsePreview } = usePreview()
 
   return (
     <div className="space-y-6">
@@ -88,19 +91,26 @@ export function OwnerDashboard({ data }: OwnerDashboardProps) {
             System overview and user management
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link href="/settings/users">
-              <Settings className="mr-2 h-4 w-4" />
-              Manage Users
-            </Link>
-          </Button>
-          <Button asChild>
-            <Link href="/reports">
-              <BarChart3 className="mr-2 h-4 w-4" />
-              View Reports
-            </Link>
-          </Button>
+        <div className="flex items-center gap-4">
+          <PreviewDropdown
+            currentRole={effectiveRole}
+            onRoleSelect={setPreviewRole}
+            canUsePreview={canUsePreview}
+          />
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link href="/settings/users">
+                <Settings className="mr-2 h-4 w-4" />
+                Manage Users
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/reports">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Reports
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 

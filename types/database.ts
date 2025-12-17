@@ -9,6 +9,53 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      document_attachments: {
+        Row: {
+          id: string
+          entity_type: string
+          entity_id: string
+          file_name: string
+          file_type: string | null
+          file_size: number | null
+          storage_path: string
+          description: string | null
+          uploaded_by: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          entity_type: string
+          entity_id: string
+          file_name: string
+          file_type?: string | null
+          file_size?: number | null
+          storage_path: string
+          description?: string | null
+          uploaded_by?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          entity_type?: string
+          entity_id?: string
+          file_name?: string
+          file_type?: string | null
+          file_size?: number | null
+          storage_path?: string
+          description?: string | null
+          uploaded_by?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       customers: {
         Row: {
           address: string | null
@@ -563,10 +610,116 @@ export type Database = {
         }
         Relationships: []
       }
-      user_profiles: {
+      notifications: {
         Row: {
           id: string
           user_id: string
+          title: string
+          message: string
+          type: string
+          priority: string | null
+          entity_type: string | null
+          entity_id: string | null
+          is_read: boolean | null
+          read_at: string | null
+          action_url: string | null
+          metadata: Json | null
+          created_at: string | null
+          expires_at: string | null
+          deleted_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          title: string
+          message: string
+          type: string
+          priority?: string | null
+          entity_type?: string | null
+          entity_id?: string | null
+          is_read?: boolean | null
+          read_at?: string | null
+          action_url?: string | null
+          metadata?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          deleted_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          title?: string
+          message?: string
+          type?: string
+          priority?: string | null
+          entity_type?: string | null
+          entity_id?: string | null
+          is_read?: boolean | null
+          read_at?: string | null
+          action_url?: string | null
+          metadata?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          deleted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          id: string
+          user_id: string
+          approval_enabled: boolean | null
+          budget_alert_enabled: boolean | null
+          status_change_enabled: boolean | null
+          overdue_enabled: boolean | null
+          system_enabled: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          approval_enabled?: boolean | null
+          budget_alert_enabled?: boolean | null
+          status_change_enabled?: boolean | null
+          overdue_enabled?: boolean | null
+          system_enabled?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          approval_enabled?: boolean | null
+          budget_alert_enabled?: boolean | null
+          status_change_enabled?: boolean | null
+          overdue_enabled?: boolean | null
+          system_enabled?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      user_profiles: {
+        Row: {
+          id: string
+          user_id: string | null
           email: string
           full_name: string | null
           avatar_url: string | null
@@ -582,10 +735,11 @@ export type Database = {
           is_active: boolean
           created_at: string | null
           updated_at: string | null
+          last_login_at: string | null
         }
         Insert: {
           id?: string
-          user_id: string
+          user_id?: string | null
           email: string
           full_name?: string | null
           avatar_url?: string | null
@@ -601,10 +755,11 @@ export type Database = {
           is_active?: boolean
           created_at?: string | null
           updated_at?: string | null
+          last_login_at?: string | null
         }
         Update: {
           id?: string
-          user_id?: string
+          user_id?: string | null
           email?: string
           full_name?: string | null
           avatar_url?: string | null
@@ -620,6 +775,7 @@ export type Database = {
           is_active?: boolean
           created_at?: string | null
           updated_at?: string | null
+          last_login_at?: string | null
         }
         Relationships: []
       }
