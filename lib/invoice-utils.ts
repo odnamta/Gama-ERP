@@ -88,11 +88,13 @@ export function isInvoiceOverdue(dueDate: string, status: InvoiceStatus): boolea
 
 /**
  * Valid status transitions for invoices
+ * Note: 'partial' status is set automatically by payment recording, not manual transitions
  */
 export const VALID_STATUS_TRANSITIONS: Record<InvoiceStatus, InvoiceStatus[]> = {
   draft: ['sent', 'cancelled'],
-  sent: ['paid', 'overdue', 'cancelled'],
-  overdue: ['paid', 'cancelled'],
+  sent: ['partial', 'paid', 'overdue', 'cancelled'],
+  partial: ['paid', 'overdue', 'cancelled'],
+  overdue: ['partial', 'paid', 'cancelled'],
   paid: [],
   cancelled: [],
 }
@@ -113,6 +115,7 @@ export function isValidStatusTransition(
 export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
   draft: 'Draft',
   sent: 'Sent',
+  partial: 'Partial',
   paid: 'Paid',
   overdue: 'Overdue',
   cancelled: 'Cancelled',
@@ -124,6 +127,7 @@ export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
 export const INVOICE_STATUS_COLORS: Record<InvoiceStatus, string> = {
   draft: 'gray',
   sent: 'blue',
+  partial: 'amber',
   paid: 'green',
   overdue: 'red',
   cancelled: 'gray',

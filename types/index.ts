@@ -6,4 +6,7 @@ export type CustomerStatus = 'active' | 'inactive'
 export type ProjectStatus = 'active' | 'completed' | 'on_hold'
 // PJOStatus is now exported from database.ts
 export type JOStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled'
-export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
+export type InvoiceStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'overdue' | 'cancelled'
+
+// Re-export payment types
+export * from './payments'

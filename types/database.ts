@@ -203,6 +203,7 @@ export type Database = {
       }
       invoices: {
         Row: {
+          amount_paid: number | null
           cancelled_at: string | null
           created_at: string | null
           customer_id: string
@@ -221,6 +222,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          amount_paid?: number | null
           cancelled_at?: string | null
           created_at?: string | null
           customer_id: string
@@ -239,6 +241,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          amount_paid?: number | null
           cancelled_at?: string | null
           created_at?: string | null
           customer_id?: string
@@ -452,6 +455,66 @@ export type Database = {
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          bank_account: string | null
+          bank_name: string | null
+          created_at: string | null
+          id: string
+          invoice_id: string
+          notes: string | null
+          payment_date: string
+          payment_method: string
+          recorded_by: string | null
+          reference_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          bank_account?: string | null
+          bank_name?: string | null
+          created_at?: string | null
+          id?: string
+          invoice_id: string
+          notes?: string | null
+          payment_date?: string
+          payment_method: string
+          recorded_by?: string | null
+          reference_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          bank_account?: string | null
+          bank_name?: string | null
+          created_at?: string | null
+          id?: string
+          invoice_id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          recorded_by?: string | null
+          reference_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_recorded_by_fkey"
+            columns: ["recorded_by"]
             isOneToOne: false
             referencedRelation: "user_profiles"
             referencedColumns: ["id"]
@@ -972,3 +1035,64 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
+// Custom types for invoice with relations
+export interface InvoiceWithRelations {
+  id: string
+  invoice_number: string
+  jo_id: string
+  customer_id: string
+  invoice_date: string | null
+  due_date: string
+  subtotal: number
+  tax_amount: number
+  total_amount: number
+  amount_paid: number | null
+  status: string
+  notes: string | null
+  sent_at: string | null
+  paid_at: string | null
+  cancelled_at: string | null
+  created_at: string | null
+  updated_at: string | null
+  customers?: {
+    id: string
+    name: string
+    email: string
+    address: string | null
+  } | null
+  job_orders?: {
+    id: string
+    jo_number: string
+    pjo_id: string | null
+  } | null
+  invoice_line_items?: Array<{
+    id: string
+    invoice_id: string
+    line_number: number
+    description: string
+    quantity: number
+    unit: string | null
+    unit_price: number
+    subtotal: number | null
+    created_at: string | null
+    updated_at: string | null
+  }>
+}
+
+// Invoice form data for creating/editing invoices
+export interface InvoiceFormData {
+  jo_id: string
+  customer_id: string
+  invoice_date: string
+  due_date: string
+  notes?: string
+  line_items: InvoiceLineItemInput[]
+}
+
+export interface InvoiceLineItemInput {
+  description: string
+  quantity: number
+  unit: string
+  unit_price: number
+}

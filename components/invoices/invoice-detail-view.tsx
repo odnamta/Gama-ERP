@@ -13,19 +13,24 @@ import { formatIDR, formatDate, formatDateTime } from '@/lib/pjo-utils'
 import { isInvoiceOverdue, VAT_RATE } from '@/lib/invoice-utils'
 import { updateInvoiceStatus } from '@/app/(main)/invoices/actions'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, Send, CreditCard, XCircle, AlertTriangle, Loader2 } from 'lucide-react'
+import { ArrowLeft, Send, XCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { AttachmentsSection } from '@/components/attachments'
+import { PaymentsSection } from '@/components/payments'
+import { canRecordPayment } from '@/lib/payment-utils'
 
 interface InvoiceDetailViewProps {
   invoice: InvoiceWithRelations
+  userRole?: string
 }
 
-export function InvoiceDetailView({ invoice }: InvoiceDetailViewProps) {
+export function InvoiceDetailView({ invoice, userRole = 'viewer' }: InvoiceDetailViewProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
 
   const canMarkOverdue = invoice.status === 'sent' && isInvoiceOverdue(invoice.due_date, 'sent')
+  const canManagePayments = canRecordPayment(userRole)
+  const showPaymentSection = invoice.status !== 'draft' && invoice.status !== 'cancelled'
 
   async function handleStatusChange(targetStatus: InvoiceStatus) {
     setIsLoading(true)
@@ -70,19 +75,13 @@ export function InvoiceDetailView({ invoice }: InvoiceDetailViewProps) {
               Send Invoice
             </Button>
           )}
-          {(invoice.status === 'sent' || invoice.status === 'overdue') && (
-            <Button onClick={() => handleStatusChange('paid')} disabled={isLoading}>
-              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
-              Record Payment
-            </Button>
-          )}
           {canMarkOverdue && (
             <Button variant="outline" onClick={() => handleStatusChange('overdue')} disabled={isLoading}>
               <AlertTriangle className="mr-2 h-4 w-4" />
               Mark Overdue
             </Button>
           )}
-          {['draft', 'sent', 'overdue'].includes(invoice.status) && (
+          {['draft', 'sent', 'overdue', 'partial'].includes(invoice.status) && (
             <Button variant="destructive" onClick={() => handleStatusChange('cancelled')} disabled={isLoading}>
               <XCircle className="mr-2 h-4 w-4" />
               Cancel
@@ -198,6 +197,18 @@ export function InvoiceDetailView({ invoice }: InvoiceDetailViewProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Payments Section */}
+      {showPaymentSection && (
+        <PaymentsSection
+          invoiceId={invoice.id}
+          invoiceNumber={invoice.invoice_number}
+          customerName={invoice.customers?.name || 'Unknown'}
+          totalAmount={invoice.total_amount}
+          amountPaid={invoice.amount_paid || 0}
+          canRecordPayment={canManagePayments}
+        />
+      )}
 
       {/* Timeline */}
       <Card>

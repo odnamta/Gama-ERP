@@ -295,11 +295,13 @@ import {
   filterOverdueInvoices,
   filterRecentPayments,
   calculateFinanceKPIs,
+  calculatePaymentDashboardStats,
   type ARAgingData,
   type PJOPipelineData,
   type OverdueInvoice,
   type RecentPayment,
   type FinanceKPIs,
+  type PaymentDashboardStats,
 } from '@/lib/finance-dashboard-utils'
 
 export interface FinanceDashboardData {
@@ -308,13 +310,14 @@ export interface FinanceDashboardData {
   pjoPipeline: PJOPipelineData[]
   overdueInvoices: OverdueInvoice[]
   recentPayments: RecentPayment[]
+  paymentStats?: PaymentDashboardStats
 }
 
 export async function fetchFinanceDashboardData(): Promise<FinanceDashboardData> {
   const supabase = await createClient()
   const currentDate = new Date()
 
-  // Fetch invoices with customer info
+  // Fetch invoices with customer info (including amount_paid for partial payments)
   const { data: invoicesData } = await supabase
     .from('invoices')
     .select(`
@@ -322,6 +325,7 @@ export async function fetchFinanceDashboardData(): Promise<FinanceDashboardData>
       invoice_number,
       due_date,
       total_amount,
+      amount_paid,
       status,
       paid_at,
       notes,
@@ -340,12 +344,18 @@ export async function fetchFinanceDashboardData(): Promise<FinanceDashboardData>
     .from('job_orders')
     .select('final_revenue, completed_at, status')
 
+  // Fetch payments for monthly total calculation
+  const { data: paymentsData } = await supabase
+    .from('payments')
+    .select('amount, payment_date')
+
   // Transform invoice data
   const invoices = (invoicesData || []).map(inv => ({
     id: inv.id,
     invoice_number: inv.invoice_number,
     due_date: inv.due_date,
     total_amount: inv.total_amount,
+    amount_paid: inv.amount_paid,
     status: inv.status,
     paid_at: inv.paid_at,
     notes: inv.notes,
@@ -366,12 +376,19 @@ export async function fetchFinanceDashboardData(): Promise<FinanceDashboardData>
     status: jo.status,
   }))
 
+  // Transform payments data
+  const payments = (paymentsData || []).map(p => ({
+    amount: Number(p.amount),
+    payment_date: p.payment_date,
+  }))
+
   // Calculate all metrics
   const kpis = calculateFinanceKPIs(invoices, jobOrders, currentDate)
   const arAging = groupInvoicesByAging(invoices, currentDate)
   const pjoPipeline = groupPJOsByStatus(pjos)
   const overdueInvoices = filterOverdueInvoices(invoices, currentDate)
   const recentPayments = filterRecentPayments(invoices, currentDate)
+  const paymentStats = calculatePaymentDashboardStats(invoices, payments, currentDate)
 
   return {
     kpis,
@@ -379,6 +396,7 @@ export async function fetchFinanceDashboardData(): Promise<FinanceDashboardData>
     pjoPipeline,
     overdueInvoices,
     recentPayments,
+    paymentStats,
   }
 }
 

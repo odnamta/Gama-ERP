@@ -398,3 +398,86 @@ export function calculateFinanceKPIs(
     revenueTrend: monthlyData.trend,
   }
 }
+
+
+// Payment Statistics Types
+export interface PartialPaymentsStats {
+  count: number
+  totalRemaining: number
+}
+
+export interface PaymentDashboardStats {
+  partialPayments: PartialPaymentsStats
+  monthlyPaymentsTotal: number
+}
+
+/**
+ * Calculate partial payments statistics
+ * Returns count and total remaining balance of partially paid invoices
+ */
+export function calculatePartialPaymentsStats(
+  invoices: Array<{
+    status: string
+    total_amount: number
+    amount_paid?: number | null
+  }>
+): PartialPaymentsStats {
+  const partialInvoices = invoices.filter((inv) => inv.status === 'partial')
+  
+  const totalRemaining = partialInvoices.reduce((sum, inv) => {
+    const remaining = inv.total_amount - (inv.amount_paid || 0)
+    return sum + Math.max(0, remaining)
+  }, 0)
+
+  return {
+    count: partialInvoices.length,
+    totalRemaining,
+  }
+}
+
+/**
+ * Calculate total payments for the current month
+ * @param payments - Array of payment records with amount and payment_date
+ * @param currentDate - Reference date for current month calculation
+ */
+export function calculateMonthlyPaymentsTotal(
+  payments: Array<{
+    amount: number
+    payment_date: string
+  }>,
+  currentDate: Date
+): number {
+  const currentMonth = currentDate.getMonth()
+  const currentYear = currentDate.getFullYear()
+
+  return payments
+    .filter((payment) => {
+      const paymentDate = new Date(payment.payment_date)
+      return (
+        paymentDate.getMonth() === currentMonth &&
+        paymentDate.getFullYear() === currentYear
+      )
+    })
+    .reduce((sum, payment) => sum + Number(payment.amount), 0)
+}
+
+/**
+ * Calculate all payment-related dashboard statistics
+ */
+export function calculatePaymentDashboardStats(
+  invoices: Array<{
+    status: string
+    total_amount: number
+    amount_paid?: number | null
+  }>,
+  payments: Array<{
+    amount: number
+    payment_date: string
+  }>,
+  currentDate: Date
+): PaymentDashboardStats {
+  return {
+    partialPayments: calculatePartialPaymentsStats(invoices),
+    monthlyPaymentsTotal: calculateMonthlyPaymentsTotal(payments, currentDate),
+  }
+}

@@ -161,7 +161,7 @@ describe('Invoice Utils - Invoice Number Generation', () => {
 })
 
 describe('Invoice Utils - Status Transitions', () => {
-  const allStatuses: InvoiceStatus[] = ['draft', 'sent', 'paid', 'overdue', 'cancelled']
+  const allStatuses: InvoiceStatus[] = ['draft', 'sent', 'partial', 'paid', 'overdue', 'cancelled']
 
   /**
    * Property: Only valid transitions are allowed
@@ -172,12 +172,19 @@ describe('Invoice Utils - Status Transitions', () => {
     expect(isValidStatusTransition('draft', 'cancelled')).toBe(true)
     expect(isValidStatusTransition('draft', 'paid')).toBe(false)
     
-    // Sent can go to paid, overdue, or cancelled
+    // Sent can go to partial, paid, overdue, or cancelled
+    expect(isValidStatusTransition('sent', 'partial')).toBe(true)
     expect(isValidStatusTransition('sent', 'paid')).toBe(true)
     expect(isValidStatusTransition('sent', 'overdue')).toBe(true)
     expect(isValidStatusTransition('sent', 'cancelled')).toBe(true)
     
-    // Overdue can go to paid or cancelled
+    // Partial can go to paid, overdue, or cancelled
+    expect(isValidStatusTransition('partial', 'paid')).toBe(true)
+    expect(isValidStatusTransition('partial', 'overdue')).toBe(true)
+    expect(isValidStatusTransition('partial', 'cancelled')).toBe(true)
+    
+    // Overdue can go to partial, paid, or cancelled
+    expect(isValidStatusTransition('overdue', 'partial')).toBe(true)
     expect(isValidStatusTransition('overdue', 'paid')).toBe(true)
     expect(isValidStatusTransition('overdue', 'cancelled')).toBe(true)
     
@@ -200,7 +207,7 @@ describe('Invoice Utils - Overdue Check', () => {
    * Property: Only sent invoices can be overdue
    */
   it('Non-sent invoices are never overdue', () => {
-    const nonSentStatuses: InvoiceStatus[] = ['draft', 'paid', 'overdue', 'cancelled']
+    const nonSentStatuses: InvoiceStatus[] = ['draft', 'partial', 'paid', 'overdue', 'cancelled']
     const pastDate = '2020-01-01'
     
     nonSentStatuses.forEach((status) => {
@@ -367,7 +374,7 @@ describe('Invoice Utils - Invoice Creation Properties', () => {
 
 
 describe('Invoice Utils - Filtering and Ordering Properties', () => {
-  const invoiceStatuses: InvoiceStatus[] = ['draft', 'sent', 'paid', 'overdue', 'cancelled']
+  const invoiceStatuses: InvoiceStatus[] = ['draft', 'sent', 'partial', 'paid', 'overdue', 'cancelled']
 
   /**
    * **Feature: invoice-from-jo, Property 11: Status Filter Correctness**
@@ -440,7 +447,7 @@ describe('Invoice Utils - Filtering and Ordering Properties', () => {
 
 
 describe('Invoice Utils - Status Transition Properties', () => {
-  const allStatuses: InvoiceStatus[] = ['draft', 'sent', 'paid', 'overdue', 'cancelled']
+  const allStatuses: InvoiceStatus[] = ['draft', 'sent', 'partial', 'paid', 'overdue', 'cancelled']
 
   /**
    * **Feature: invoice-from-jo, Property 8: Invoice Status Transitions**
@@ -508,9 +515,10 @@ describe('Invoice Utils - Status Transition Properties', () => {
     const expectedJOStatusAfterCancellation = 'submitted_to_finance'
     expect(expectedJOStatusAfterCancellation).toBe('submitted_to_finance')
     
-    // Verify cancellation is valid from draft, sent, and overdue
+    // Verify cancellation is valid from draft, sent, partial, and overdue
     expect(isValidStatusTransition('draft', 'cancelled')).toBe(true)
     expect(isValidStatusTransition('sent', 'cancelled')).toBe(true)
+    expect(isValidStatusTransition('partial', 'cancelled')).toBe(true)
     expect(isValidStatusTransition('overdue', 'cancelled')).toBe(true)
   })
 
@@ -518,7 +526,7 @@ describe('Invoice Utils - Status Transition Properties', () => {
    * Property: All non-terminal statuses can be cancelled
    */
   it('All non-terminal statuses can be cancelled', () => {
-    const nonTerminalStatuses: InvoiceStatus[] = ['draft', 'sent', 'overdue']
+    const nonTerminalStatuses: InvoiceStatus[] = ['draft', 'sent', 'partial', 'overdue']
     
     nonTerminalStatuses.forEach(status => {
       expect(isValidStatusTransition(status, 'cancelled')).toBe(true)

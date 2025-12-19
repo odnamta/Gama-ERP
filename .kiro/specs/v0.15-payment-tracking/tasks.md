@@ -1,0 +1,142 @@
+# Implementation Plan
+
+- [x] 1. Database schema and types setup
+  - [x] 1.1 Create payments table migration
+    - Create `payments` table with all columns (id, invoice_id, amount, payment_date, payment_method, reference_number, bank_name, bank_account, notes, recorded_by, timestamps)
+    - Add indexes on invoice_id and payment_date
+    - Add RLS policies for payments table
+    - _Requirements: 1.2, 7.1_
+  - [x] 1.2 Add amount_paid column to invoices table
+    - Add `amount_paid` DECIMAL(15,2) DEFAULT 0 column to invoices
+    - _Requirements: 1.3_
+  - [x] 1.3 Create TypeScript types for payments
+    - Create `types/payments.ts` with Payment, PaymentWithRecorder, PaymentFormData, PaymentSummary interfaces
+    - Add PaymentMethod type and PAYMENT_METHODS constant
+    - Update InvoiceStatus type to include 'partial'
+    - Update database.ts types
+    - _Requirements: 1.2, 7.1_
+
+- [x] 2. Payment utility functions
+  - [x] 2.1 Create payment-utils.ts with core functions
+    - Implement `calculateRemainingBalance(totalAmount, amountPaid)`
+    - Implement `calculatePaymentSummary(invoice, payments)`
+    - Implement `determineInvoiceStatus(totalAmount, amountPaid, currentStatus)`
+    - Implement `validatePaymentAmount(amount)`
+    - Implement `isValidPaymentMethod(method)`
+    - _Requirements: 1.3, 1.4, 3.1, 3.2, 7.1_
+  - [x] 2.2 Write property test for amount paid invariant
+    - **Property 2: Amount paid invariant**
+    - **Validates: Requirements 1.3**
+  - [x] 2.3 Write property test for invoice status determination
+    - **Property 3: Invoice status reflects payment progress**
+    - **Validates: Requirements 3.1, 3.2, 3.3**
+  - [x] 2.4 Write property test for payment method validation
+    - **Property 10: Payment method validation**
+    - **Validates: Requirements 7.1**
+
+- [x] 3. Server actions for payment operations
+  - [x] 3.1 Create payment-actions.ts with recordPayment function
+    - Validate payment data (amount > 0, valid method)
+    - Insert payment record with recorded_by from current user
+    - Calculate new total paid from all payments
+    - Update invoice amount_paid and status
+    - Set paid_at timestamp when fully paid
+    - Revalidate paths
+    - _Requirements: 1.2, 1.3, 3.1, 3.2_
+  - [x] 3.2 Implement getPayments function
+    - Fetch all payments for an invoice with recorder details
+    - Order by payment_date descending
+    - _Requirements: 2.2_
+  - [x] 3.3 Implement deletePayment function
+    - Delete payment record
+    - Recalculate invoice amount_paid
+    - Update invoice status appropriately
+    - _Requirements: 3.3_
+  - [x] 3.4 Write property test for payment record integrity
+    - **Property 1: Payment record integrity**
+    - **Validates: Requirements 1.2**
+
+- [x] 4. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 5. Payment UI components
+  - [x] 5.1 Create PaymentSummaryCard component
+    - Display invoice total, amount paid, remaining balance
+    - Format amounts in Indonesian Rupiah
+    - _Requirements: 2.1, 2.4_
+  - [x] 5.2 Write property test for currency formatting
+    - **Property 5: Currency formatting consistency**
+    - **Validates: Requirements 2.4**
+  - [x] 5.3 Create PaymentHistory component
+    - Table with date, amount, method, reference, recorded by columns
+    - Empty state when no payments
+    - Format amounts and dates appropriately
+    - _Requirements: 2.2, 2.3_
+  - [x] 5.4 Write property test for payment history completeness
+    - **Property 4: Payment history completeness**
+    - **Validates: Requirements 2.2**
+  - [x] 5.5 Create RecordPaymentDialog component
+    - Form with amount, date, method, reference, bank details, notes fields
+    - "Pay Full" button to auto-fill remaining balance
+    - Conditional bank fields when transfer selected
+    - Overpayment warning
+    - Form validation
+    - _Requirements: 1.1, 4.1, 4.2, 4.3, 7.2, 7.3, 7.4_
+  - [x] 5.6 Write property test for Pay Full accuracy
+    - **Property 6: Pay Full amount accuracy**
+    - **Validates: Requirements 4.1**
+  - [x] 5.7 Create PaymentsSection container component
+    - Combine PaymentSummaryCard, PaymentHistory, RecordPaymentDialog
+    - Handle payment recording and refresh
+    - _Requirements: 2.1_
+
+- [x] 6. Invoice detail page integration
+  - [x] 6.1 Update invoice-detail-view.tsx to include PaymentsSection
+    - Add PaymentsSection below existing cards
+    - Pass invoice data and refresh handler
+    - _Requirements: 2.1_
+  - [x] 6.2 Update InvoiceStatusBadge for 'partial' status
+    - Add amber/yellow color for partial status
+    - _Requirements: 3.4_
+  - [x] 6.3 Update "Record Payment" button visibility based on role
+    - Show only for owner, admin, manager, finance roles
+    - Hide for ops, sales, viewer roles
+    - _Requirements: 6.1, 6.2_
+  - [x] 6.4 Write property test for role-based payment access
+    - **Property 9: Role-based payment access**
+    - **Validates: Requirements 6.1, 6.2, 6.3**
+
+- [x] 7. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 8. Finance dashboard updates
+  - [x] 8.1 Update finance-dashboard-utils.ts with payment statistics
+    - Add `getPartialPaymentsStats()` function (count and total remaining)
+    - Add `getMonthlyPaymentsTotal()` function
+    - _Requirements: 5.1, 5.2_
+  - [x] 8.2 Write property test for partial payments aggregation
+    - **Property 7: Partial payments dashboard aggregation**
+    - **Validates: Requirements 5.1**
+  - [x] 8.3 Write property test for monthly payments aggregation
+    - **Property 8: Monthly payments dashboard aggregation**
+    - **Validates: Requirements 5.2**
+  - [x] 8.4 Update FinanceKPICards with payment statistics
+    - Add "Partial Payments" card
+    - Add "Payments This Month" card
+    - _Requirements: 5.1, 5.2, 5.3_
+  - [x] 8.5 Update finance dashboard data fetching
+    - Include payment statistics in dashboard data
+    - _Requirements: 5.1, 5.2_
+
+- [x] 9. Invoice actions and status updates
+  - [x] 9.1 Update invoice-utils.ts for partial status
+    - Add 'partial' to valid status transitions
+    - Update isValidStatusTransition function
+    - _Requirements: 3.1, 3.2_
+  - [x] 9.2 Update getInvoices to include amount_paid
+    - Include amount_paid in invoice queries (already included via select('*'))
+    - _Requirements: 2.1_
+
+- [x] 10. Final Checkpoint - Ensure all tests pass
+  - All payment-related tests pass (78 tests across payment-utils, invoice-utils, finance-dashboard-utils)
+  - Note: Some pre-existing test failures in sales-dashboard-utils.test.ts are unrelated to payment tracking

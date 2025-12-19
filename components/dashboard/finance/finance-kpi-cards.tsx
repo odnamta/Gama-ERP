@@ -1,16 +1,17 @@
 'use client'
 
-import { Wallet, AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react'
+import { Wallet, AlertCircle, TrendingUp, TrendingDown, Minus, CreditCard, Clock } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency } from '@/lib/utils/format'
-import type { FinanceKPIs } from '@/lib/finance-dashboard-utils'
+import type { FinanceKPIs, PaymentDashboardStats } from '@/lib/finance-dashboard-utils'
 
 interface FinanceKPICardsProps {
   kpis: FinanceKPIs
+  paymentStats?: PaymentDashboardStats
 }
 
-export function FinanceKPICards({ kpis }: FinanceKPICardsProps) {
+export function FinanceKPICards({ kpis, paymentStats }: FinanceKPICardsProps) {
   const TrendIcon = kpis.revenueTrend === 'up' 
     ? TrendingUp 
     : kpis.revenueTrend === 'down' 
@@ -23,8 +24,11 @@ export function FinanceKPICards({ kpis }: FinanceKPICardsProps) {
       ? 'text-red-500' 
       : 'text-muted-foreground'
 
+  // Determine grid columns based on whether payment stats are available
+  const gridCols = paymentStats ? 'md:grid-cols-5' : 'md:grid-cols-3'
+
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className={`grid gap-4 ${gridCols}`}>
       {/* Outstanding AR */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -75,6 +79,42 @@ export function FinanceKPICards({ kpis }: FinanceKPICardsProps) {
           </p>
         </CardContent>
       </Card>
+
+      {/* Partial Payments - only show if payment stats available */}
+      {paymentStats && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Partial Payments</CardTitle>
+            <Clock className={`h-4 w-4 ${paymentStats.partialPayments.count > 0 ? 'text-amber-500' : 'text-muted-foreground'}`} />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${paymentStats.partialPayments.count > 0 ? 'text-amber-500' : ''}`}>
+              {formatCurrency(paymentStats.partialPayments.totalRemaining)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {paymentStats.partialPayments.count} invoice{paymentStats.partialPayments.count !== 1 ? 's' : ''} pending
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Payments This Month - only show if payment stats available */}
+      {paymentStats && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Payments This Month</CardTitle>
+            <CreditCard className="h-4 w-4 text-green-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {formatCurrency(paymentStats.monthlyPaymentsTotal)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Total collected
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

@@ -11,7 +11,8 @@ import type {
   ARAgingData, 
   PJOPipelineData, 
   OverdueInvoice, 
-  RecentPayment 
+  RecentPayment,
+  PaymentDashboardStats 
 } from '@/lib/finance-dashboard-utils'
 
 export interface FinanceDashboardData {
@@ -20,6 +21,7 @@ export interface FinanceDashboardData {
   pjoPipeline: PJOPipelineData[]
   overdueInvoices: OverdueInvoice[]
   recentPayments: RecentPayment[]
+  paymentStats?: PaymentDashboardStats
 }
 
 interface FinanceDashboardProps {
@@ -49,7 +51,7 @@ export function FinanceDashboard({ data }: FinanceDashboardProps) {
       </div>
 
       {/* KPI Cards */}
-      <FinanceKPICards kpis={data.kpis} />
+      <FinanceKPICards kpis={data.kpis} paymentStats={data.paymentStats} />
 
       {/* AR Aging Summary */}
       <ARAgingSummary aging={data.arAging} />
