@@ -1,0 +1,205 @@
+# Implementation Plan
+
+- [x] 1. Database schema and types setup
+  - [x] 1.1 Create database migration for surat_jalan and berita_acara tables
+    - Create surat_jalan table with all columns as specified in design
+    - Create berita_acara table with all columns as specified in design
+    - Add indexes on jo_id columns for both tables
+    - Add has_surat_jalan, has_berita_acara, requires_berita_acara columns to job_orders
+    - _Requirements: 7.1, 7.2, 7.3, 7.4_
+  - [x] 1.2 Update TypeScript types in types/database.ts
+    - Add SuratJalan table types (Row, Insert, Update)
+    - Add BeritaAcara table types (Row, Insert, Update)
+    - Update JobOrders types with new columns
+    - _Requirements: 7.1, 7.2, 7.4_
+  - [x] 1.3 Create TypeScript interfaces in types/index.ts
+    - Add SJStatus, BAStatus, CargoCondition types
+    - Add SuratJalan, BeritaAcara interfaces
+    - Add SuratJalanFormData, BeritaAcaraFormData interfaces
+    - Add SuratJalanWithRelations, BeritaAcaraWithRelations interfaces
+    - _Requirements: 3.5_
+
+- [x] 2. Surat Jalan utility functions
+  - [x] 2.1 Create lib/sj-utils.ts with core utility functions
+    - Implement generateSJNumber function (format: SJ-YYYY-NNNN)
+    - Implement canTransitionSJStatus function for state machine validation
+    - Implement validateSJForm function for required field validation
+    - Implement getSJStatusLabel and getSJStatusColor functions
+    - _Requirements: 1.2, 2.1, 1.4, 8.1_
+  - [x] 2.2 Write property test for SJ number generation
+    - **Property 1: SJ Number Generation Format**
+    - **Validates: Requirements 1.2, 8.1**
+  - [x] 2.3 Write property test for SJ status transitions
+    - **Property 3: SJ Status Transition Validity**
+    - **Validates: Requirements 2.1**
+  - [x] 2.4 Write property test for SJ form validation
+    - **Property 5: SJ Form Validation**
+    - **Validates: Requirements 1.4**
+
+- [x] 3. Berita Acara utility functions
+  - [x] 3.1 Create lib/ba-utils.ts with core utility functions
+    - Implement generateBANumber function (format: BA-YYYY-NNNN)
+    - Implement canTransitionBAStatus function for state machine validation
+    - Implement validateBAForm function for required field validation
+    - Implement isValidCargoCondition function
+    - Implement getBAStatusLabel and getBAStatusColor functions
+    - _Requirements: 3.2, 4.1, 3.3, 3.5, 8.2_
+  - [x] 3.2 Write property test for BA number generation
+    - **Property 2: BA Number Generation Format**
+    - **Validates: Requirements 3.2, 8.2**
+  - [x] 3.3 Write property test for BA status transitions
+    - **Property 4: BA Status Transition Validity**
+    - **Validates: Requirements 4.1**
+  - [x] 3.4 Write property test for BA form validation
+    - **Property 6: BA Form Validation**
+    - **Validates: Requirements 3.3**
+  - [x] 3.5 Write property test for cargo condition validation
+    - **Property 7: Cargo Condition Validation**
+    - **Validates: Requirements 3.5**
+
+- [x] 4. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 5. Surat Jalan server actions
+  - [x] 5.1 Create app/(main)/job-orders/surat-jalan-actions.ts
+    - Implement getSuratJalanList(joId) to fetch all SJ for a JO
+    - Implement getSuratJalan(id) to fetch single SJ with relations
+    - Implement createSuratJalan(joId, data) with auto-generated number and initial status
+    - Implement updateSuratJalanStatus(id, newStatus) with transition validation
+    - On 'delivered' status: update delivered_at, set JO has_surat_jalan=true
+    - _Requirements: 1.2, 1.5, 2.1, 2.2, 2.4_
+  - [x] 5.2 Write property test for SJ initial status
+    - **Property 11: SJ Initial Status**
+    - **Validates: Requirements 1.5**
+  - [x] 5.3 Write property test for SJ delivery side effects
+    - **Property 8: SJ Delivery Triggers JO Update and Invoice Term Unlock**
+    - **Validates: Requirements 2.2, 2.4**
+
+- [x] 6. Berita Acara server actions
+  - [x] 6.1 Create app/(main)/job-orders/berita-acara-actions.ts
+    - Implement getBeritaAcaraList(joId) to fetch all BA for a JO
+    - Implement getBeritaAcara(id) to fetch single BA with relations
+    - Implement createBeritaAcara(joId, data) with auto-generated number and initial status
+    - Implement updateBeritaAcara(id, data) for editing BA content
+    - Implement updateBeritaAcaraStatus(id, newStatus) with transition validation
+    - On 'signed' status: update signed_at, set JO has_berita_acara=true
+    - _Requirements: 3.2, 3.4, 4.1, 4.2, 4.3_
+  - [x] 6.2 Write property test for BA initial status
+    - **Property 12: BA Initial Status**
+    - **Validates: Requirements 3.4**
+  - [x] 6.3 Write property test for BA signed side effects
+    - **Property 9: BA Signed Triggers JO Update and Invoice Term Unlock**
+    - **Validates: Requirements 4.2, 4.3**
+
+- [x] 7. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 8. Surat Jalan UI components
+  - [x] 8.1 Create components/ui/sj-status-badge.tsx
+    - Display status with appropriate color coding
+    - Support all SJ statuses: issued, in_transit, delivered, returned
+    - _Requirements: 2.3_
+  - [x] 8.2 Create components/surat-jalan/surat-jalan-list.tsx
+    - Table displaying SJ number, date, status, driver, actions
+    - View and Print action buttons
+    - Update status button for non-delivered SJs
+    - _Requirements: 2.3_
+  - [x] 8.3 Create components/surat-jalan/surat-jalan-section.tsx
+    - Section component for JO detail page
+    - Shows SJ list with "Create Surat Jalan" button
+    - _Requirements: 1.1, 2.3_
+  - [x] 8.4 Create components/surat-jalan/surat-jalan-form.tsx
+    - Form with all SJ fields
+    - Auto-fill origin, destination, cargo from JO/PJO data
+    - Validation for required fields
+    - _Requirements: 1.3, 1.4_
+  - [x] 8.5 Write property test for SJ auto-fill from JO
+    - **Property 10: SJ Auto-fill from JO**
+    - **Validates: Requirements 1.3**
+
+- [x] 9. Surat Jalan pages
+  - [x] 9.1 Create app/(main)/job-orders/[id]/surat-jalan/new/page.tsx
+    - Page wrapper for SuratJalanForm
+    - Fetch JO data for auto-fill
+    - _Requirements: 1.1, 1.3_
+  - [x] 9.2 Create app/(main)/job-orders/[id]/surat-jalan/[sjId]/page.tsx
+    - SJ detail view page
+    - Display all SJ information
+    - Status update actions
+    - Print button
+    - _Requirements: 6.1, 6.3_
+  - [x] 9.3 Create components/surat-jalan/surat-jalan-detail-view.tsx
+    - Full detail display component
+    - Delivery details, route, cargo, sender info, notes sections
+    - _Requirements: 6.1_
+
+- [x] 10. Berita Acara UI components
+  - [x] 10.1 Create components/ui/ba-status-badge.tsx
+    - Display status with appropriate color coding
+    - Support all BA statuses: draft, pending_signature, signed, archived
+    - _Requirements: 4.4_
+  - [x] 10.2 Create components/berita-acara/berita-acara-list.tsx
+    - Table displaying BA number, date, status, cargo condition, actions
+    - View and Print action buttons
+    - _Requirements: 4.4_
+  - [x] 10.3 Create components/berita-acara/berita-acara-section.tsx
+    - Section component for JO detail page
+    - Shows BA list with "Create Berita Acara" button (conditional on requires_berita_acara)
+    - _Requirements: 3.1, 4.4_
+  - [x] 10.4 Create components/berita-acara/photo-uploader.tsx
+    - Photo upload component using Supabase Storage
+    - Accept image files only
+    - _Requirements: 5.1_
+  - [x] 10.5 Create components/berita-acara/photo-gallery.tsx
+    - Display uploaded photos in gallery format
+    - _Requirements: 5.3_
+  - [x] 10.6 Create components/berita-acara/berita-acara-form.tsx
+    - Form with all BA fields
+    - Cargo condition dropdown (good, minor_damage, major_damage)
+    - Photo upload integration
+    - Validation for required fields
+    - _Requirements: 3.3, 3.5, 5.1_
+  - [x] 10.7 Write property test for photo storage format
+    - **Property 13: Photo Storage Format**
+    - **Validates: Requirements 5.2**
+
+- [x] 11. Berita Acara pages
+  - [x] 11.1 Create app/(main)/job-orders/[id]/berita-acara/new/page.tsx
+    - Page wrapper for BeritaAcaraForm
+    - _Requirements: 3.1_
+  - [x] 11.2 Create app/(main)/job-orders/[id]/berita-acara/[baId]/page.tsx
+    - BA detail view page
+    - Display all BA information including photos
+    - Status update actions
+    - Print button
+    - _Requirements: 6.2, 6.3_
+  - [x] 11.3 Create app/(main)/job-orders/[id]/berita-acara/[baId]/edit/page.tsx
+    - Edit page for BA (before signed status)
+    - _Requirements: 5.1_
+  - [x] 11.4 Create components/berita-acara/berita-acara-detail-view.tsx
+    - Full detail display component
+    - Handover details, work summary, cargo condition, representatives, photos
+    - _Requirements: 6.2_
+
+- [x] 12. Integrate with Job Order detail page
+  - [x] 12.1 Update components/job-orders/jo-detail-view.tsx
+    - Add SuratJalanSection component
+    - Add BeritaAcaraSection component (conditional on requires_berita_acara or existing BAs)
+    - Pass hasSuratJalan and hasBeritaAcara to InvoiceTermsSection
+    - _Requirements: 1.1, 3.1, 2.4, 4.3_
+  - [x] 12.2 Update app/(main)/job-orders/actions.ts
+    - Update getJobOrder to include has_surat_jalan, has_berita_acara, requires_berita_acara
+    - _Requirements: 7.4_
+
+- [x] 13. Print views
+  - [x] 13.1 Create components/surat-jalan/surat-jalan-print-view.tsx
+    - Printer-friendly layout for SJ
+    - Company header, document details, signature areas
+    - _Requirements: 6.3_
+  - [x] 13.2 Create components/berita-acara/berita-acara-print-view.tsx
+    - Printer-friendly layout for BA
+    - Company header, document details, photo thumbnails, signature areas
+    - _Requirements: 6.3_
+
+- [x] 14. Final Checkpoint - Ensure all tests pass
+  - All SJ/BA tests pass (23 tests). Pre-existing test failures in navigation and sales-dashboard-utils are unrelated to this feature.

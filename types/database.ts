@@ -51,6 +51,88 @@ export type Database = {
         Relationships: []
       }
 
+      berita_acara: {
+        Row: {
+          ba_number: string
+          cargo_condition: string | null
+          client_representative: string | null
+          client_signature_url: string | null
+          company_representative: string | null
+          company_signature_url: string | null
+          condition_notes: string | null
+          created_at: string | null
+          created_by: string | null
+          handover_date: string
+          id: string
+          jo_id: string
+          location: string | null
+          notes: string | null
+          photo_urls: Json | null
+          signed_at: string | null
+          status: string | null
+          updated_at: string | null
+          work_description: string | null
+        }
+        Insert: {
+          ba_number: string
+          cargo_condition?: string | null
+          client_representative?: string | null
+          client_signature_url?: string | null
+          company_representative?: string | null
+          company_signature_url?: string | null
+          condition_notes?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          handover_date: string
+          id?: string
+          jo_id: string
+          location?: string | null
+          notes?: string | null
+          photo_urls?: Json | null
+          signed_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          work_description?: string | null
+        }
+        Update: {
+          ba_number?: string
+          cargo_condition?: string | null
+          client_representative?: string | null
+          client_signature_url?: string | null
+          company_representative?: string | null
+          company_signature_url?: string | null
+          condition_notes?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          handover_date?: string
+          id?: string
+          jo_id?: string
+          location?: string | null
+          notes?: string | null
+          photo_urls?: Json | null
+          signed_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          work_description?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "berita_acara_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "berita_acara_jo_id_fkey"
+            columns: ["jo_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
       company_settings: {
         Row: {
           id: string
@@ -300,12 +382,15 @@ export type Database = {
           description: string
           final_cost: number | null
           final_revenue: number | null
+          has_berita_acara: boolean | null
+          has_surat_jalan: boolean | null
           id: string
           invoice_terms: Json | null
           invoiceable_amount: number | null
           jo_number: string
           pjo_id: string | null
           project_id: string | null
+          requires_berita_acara: boolean | null
           status: string
           submitted_by: string | null
           submitted_to_finance_at: string | null
@@ -321,12 +406,15 @@ export type Database = {
           description: string
           final_cost?: number | null
           final_revenue?: number | null
+          has_berita_acara?: boolean | null
+          has_surat_jalan?: boolean | null
           id?: string
           invoice_terms?: Json | null
           invoiceable_amount?: number | null
           jo_number: string
           pjo_id?: string | null
           project_id?: string | null
+          requires_berita_acara?: boolean | null
           status?: string
           submitted_by?: string | null
           submitted_to_finance_at?: string | null
@@ -342,12 +430,15 @@ export type Database = {
           description?: string
           final_cost?: number | null
           final_revenue?: number | null
+          has_berita_acara?: boolean | null
+          has_surat_jalan?: boolean | null
           id?: string
           invoice_terms?: Json | null
           invoiceable_amount?: number | null
           jo_number?: string
           pjo_id?: string | null
           project_id?: string | null
+          requires_berita_acara?: boolean | null
           status?: string
           submitted_by?: string | null
           submitted_to_finance_at?: string | null
@@ -864,6 +955,104 @@ export type Database = {
           },
         ]
       }
+
+      surat_jalan: {
+        Row: {
+          cargo_description: string | null
+          created_at: string | null
+          created_by: string | null
+          delivered_at: string | null
+          delivery_date: string
+          destination: string | null
+          driver_name: string | null
+          driver_phone: string | null
+          id: string
+          issued_at: string | null
+          jo_id: string
+          notes: string | null
+          origin: string | null
+          quantity: number | null
+          quantity_unit: string | null
+          receiver_name: string | null
+          receiver_signature_url: string | null
+          sender_name: string | null
+          sender_signature_url: string | null
+          sj_number: string
+          status: string | null
+          updated_at: string | null
+          vehicle_plate: string | null
+          weight_kg: number | null
+        }
+        Insert: {
+          cargo_description?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          delivered_at?: string | null
+          delivery_date: string
+          destination?: string | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          id?: string
+          issued_at?: string | null
+          jo_id: string
+          notes?: string | null
+          origin?: string | null
+          quantity?: number | null
+          quantity_unit?: string | null
+          receiver_name?: string | null
+          receiver_signature_url?: string | null
+          sender_name?: string | null
+          sender_signature_url?: string | null
+          sj_number: string
+          status?: string | null
+          updated_at?: string | null
+          vehicle_plate?: string | null
+          weight_kg?: number | null
+        }
+        Update: {
+          cargo_description?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          delivered_at?: string | null
+          delivery_date?: string
+          destination?: string | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          id?: string
+          issued_at?: string | null
+          jo_id?: string
+          notes?: string | null
+          origin?: string | null
+          quantity?: number | null
+          quantity_unit?: string | null
+          receiver_name?: string | null
+          receiver_signature_url?: string | null
+          sender_name?: string | null
+          sender_signature_url?: string | null
+          sj_number?: string
+          status?: string | null
+          updated_at?: string | null
+          vehicle_plate?: string | null
+          weight_kg?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surat_jalan_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "surat_jalan_jo_id_fkey"
+            columns: ["jo_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
       user_profiles: {
         Row: {
           avatar_url: string | null
@@ -1001,6 +1190,7 @@ export type TablesInsert<
       ? I
       : never
     : never
+
 
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends

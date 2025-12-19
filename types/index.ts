@@ -26,6 +26,11 @@ export interface InvoiceTerm {
   invoice_id?: string
 }
 
+// Surat Jalan and Berita Acara Types
+export type SJStatus = 'issued' | 'in_transit' | 'delivered' | 'returned'
+export type BAStatus = 'draft' | 'pending_signature' | 'signed' | 'archived'
+export type CargoCondition = 'good' | 'minor_damage' | 'major_damage'
+
 // Base table types
 export type JobOrder = Tables<'job_orders'>
 export type Invoice = Tables<'invoices'>
@@ -35,6 +40,8 @@ export type ProformaJobOrder = Tables<'proforma_job_orders'>
 export type PJORevenueItem = Tables<'pjo_revenue_items'>
 export type PJOCostItem = Tables<'pjo_cost_items'>
 export type InvoiceLineItem = Tables<'invoice_line_items'>
+export type SuratJalan = Tables<'surat_jalan'>
+export type BeritaAcara = Tables<'berita_acara'>
 
 // Extended types with relations
 export interface JobOrderWithRelations extends JobOrder {
@@ -74,4 +81,51 @@ export interface InvoiceFormData {
 export function parseInvoiceTerms(terms: Json | null): InvoiceTerm[] {
   if (!terms || !Array.isArray(terms)) return []
   return terms as unknown as InvoiceTerm[]
+}
+
+// Surat Jalan with relations
+export interface SuratJalanWithRelations extends SuratJalan {
+  job_orders?: Pick<JobOrder, 'id' | 'jo_number' | 'description'> | null
+  user_profiles?: Pick<Tables<'user_profiles'>, 'id' | 'full_name'> | null
+}
+
+// Berita Acara with relations
+export interface BeritaAcaraWithRelations extends BeritaAcara {
+  job_orders?: Pick<JobOrder, 'id' | 'jo_number' | 'description'> | null
+  user_profiles?: Pick<Tables<'user_profiles'>, 'id' | 'full_name'> | null
+}
+
+// Surat Jalan form data
+export interface SuratJalanFormData {
+  delivery_date: string
+  vehicle_plate: string
+  driver_name: string
+  driver_phone?: string
+  origin: string
+  destination: string
+  cargo_description: string
+  quantity?: number
+  quantity_unit?: string
+  weight_kg?: number
+  sender_name?: string
+  notes?: string
+}
+
+// Berita Acara form data
+export interface BeritaAcaraFormData {
+  handover_date: string
+  location: string
+  work_description: string
+  cargo_condition: CargoCondition
+  condition_notes?: string
+  company_representative: string
+  client_representative: string
+  photo_urls?: string[]
+  notes?: string
+}
+
+// Helper to parse photo_urls from Json to string[]
+export function parsePhotoUrls(urls: Json | null): string[] {
+  if (!urls || !Array.isArray(urls)) return []
+  return urls as unknown as string[]
 }

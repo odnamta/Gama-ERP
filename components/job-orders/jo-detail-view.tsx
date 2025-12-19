@@ -15,6 +15,8 @@ import { useToast } from '@/hooks/use-toast'
 import { CheckCircle, Send, ArrowLeft, Loader2 } from 'lucide-react'
 import { AttachmentsSection } from '@/components/attachments'
 import { InvoiceTermsSection } from './invoice-terms-section'
+import { SuratJalanSection } from '@/components/surat-jalan/surat-jalan-section'
+import { BeritaAcaraSection } from '@/components/berita-acara/berita-acara-section'
 
 interface JODetailViewProps {
   jobOrder: JobOrderWithRelations
@@ -251,6 +253,8 @@ export function JODetailView({ jobOrder }: JODetailViewProps) {
           revenue={jobOrder.final_revenue ?? jobOrder.amount ?? 0}
           invoiceTerms={jobOrder.invoice_terms}
           totalInvoiced={jobOrder.total_invoiced ?? 0}
+          hasSuratJalan={jobOrder.has_surat_jalan ?? false}
+          hasBeritaAcara={jobOrder.has_berita_acara ?? false}
           pjoRevenueTotal={revenueItems.reduce((sum, item) => sum + (item.subtotal || 0), 0)}
         />
       )}
@@ -393,6 +397,15 @@ export function JODetailView({ jobOrder }: JODetailViewProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Surat Jalan Section */}
+      <SuratJalanSection joId={jobOrder.id} />
+
+      {/* Berita Acara Section - Show if required or has existing BAs */}
+      <BeritaAcaraSection
+        joId={jobOrder.id}
+        requiresBeritaAcara={jobOrder.requires_berita_acara ?? false}
+      />
 
       {/* Attachments */}
       <AttachmentsSection

@@ -41,7 +41,29 @@ export async function getJobOrder(id: string): Promise<JobOrderWithRelations | n
   const { data, error } = await supabase
     .from('job_orders')
     .select(`
-      *,
+      id,
+      jo_number,
+      customer_id,
+      project_id,
+      pjo_id,
+      description,
+      amount,
+      status,
+      final_revenue,
+      final_cost,
+      invoice_terms,
+      invoiceable_amount,
+      total_invoiced,
+      has_surat_jalan,
+      has_berita_acara,
+      requires_berita_acara,
+      notes,
+      converted_from_pjo_at,
+      completed_at,
+      submitted_to_finance_at,
+      submitted_by,
+      created_at,
+      updated_at,
       projects (
         id,
         name
