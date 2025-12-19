@@ -21,8 +21,9 @@ import { formatDate, formatDateTime } from '@/lib/pjo-utils'
 import { getAvailableSJTransitions, getSJStatusLabel } from '@/lib/sj-utils'
 import { updateSuratJalanStatus } from '@/app/(main)/job-orders/surat-jalan-actions'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, Printer, RefreshCw, Loader2 } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Loader2 } from 'lucide-react'
 import { SuratJalanPrintView } from './surat-jalan-print-view'
+import { PDFButtons } from '@/components/pdf/pdf-buttons'
 
 interface SuratJalanDetailViewProps {
   suratJalan: SuratJalanWithRelations
@@ -102,12 +103,11 @@ export function SuratJalanDetailView({
               Update Status
             </Button>
           )}
-          <Button variant="outline" asChild>
-            <Link href={`/job-orders/${joId}/surat-jalan/${suratJalan.id}?print=true`} target="_blank">
-              <Printer className="h-4 w-4 mr-1" />
-              Print
-            </Link>
-          </Button>
+          <PDFButtons
+            documentType="surat-jalan"
+            documentId={suratJalan.id}
+            documentNumber={suratJalan.sj_number}
+          />
         </div>
       </div>
 

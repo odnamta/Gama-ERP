@@ -37,7 +37,7 @@ export function ExportButtons({
         period,
       }
 
-      downloadExcelReport({
+      await downloadExcelReport({
         reportTitle,
         columns,
         data,

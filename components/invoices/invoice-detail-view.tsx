@@ -17,6 +17,7 @@ import { ArrowLeft, Send, XCircle, AlertTriangle, Loader2 } from 'lucide-react'
 import { AttachmentsSection } from '@/components/attachments'
 import { PaymentsSection } from '@/components/payments'
 import { canRecordPayment } from '@/lib/payment-utils'
+import { PDFButtons } from '@/components/pdf/pdf-buttons'
 
 interface InvoiceDetailViewProps {
   invoice: InvoiceWithRelations
@@ -69,6 +70,11 @@ export function InvoiceDetailView({ invoice, userRole = 'viewer' }: InvoiceDetai
           </div>
         </div>
         <div className="flex gap-2">
+          <PDFButtons
+            documentType="invoice"
+            documentId={invoice.id}
+            documentNumber={invoice.invoice_number}
+          />
           {invoice.status === 'draft' && (
             <Button onClick={() => handleStatusChange('sent')} disabled={isLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}

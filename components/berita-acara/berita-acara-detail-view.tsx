@@ -29,8 +29,9 @@ import {
 } from '@/lib/ba-utils'
 import { updateBeritaAcaraStatus } from '@/app/(main)/job-orders/berita-acara-actions'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, Printer, Edit, RefreshCw, Loader2 } from 'lucide-react'
+import { ArrowLeft, Edit, RefreshCw, Loader2 } from 'lucide-react'
 import { BeritaAcaraPrintView } from './berita-acara-print-view'
+import { PDFButtons } from '@/components/pdf/pdf-buttons'
 
 interface BeritaAcaraDetailViewProps {
   beritaAcara: BeritaAcaraWithRelations
@@ -112,12 +113,11 @@ export function BeritaAcaraDetailView({
               Update Status
             </Button>
           )}
-          <Button variant="outline" asChild>
-            <Link href={`/job-orders/${joId}/berita-acara/${beritaAcara.id}?print=true`} target="_blank">
-              <Printer className="h-4 w-4 mr-1" />
-              Print
-            </Link>
-          </Button>
+          <PDFButtons
+            documentType="berita-acara"
+            documentId={beritaAcara.id}
+            documentNumber={beritaAcara.ba_number}
+          />
         </div>
       </div>
 
