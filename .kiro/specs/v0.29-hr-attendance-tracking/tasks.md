@@ -1,0 +1,287 @@
+# Implementation Plan: HR Attendance Tracking
+
+## Overview
+
+This implementation plan breaks down the HR Attendance Tracking feature into discrete coding tasks. Each task builds incrementally on previous work, ensuring no orphaned code. The plan follows the established patterns in Gama ERP for server actions, components, and testing.
+
+## Tasks
+
+- [x] 1. Database Schema and Types Setup
+  - [x] 1.1 Create database migration for attendance tables
+    - Create `attendance_records` table with all columns and constraints
+    - Create `work_schedules` table with default schedule
+    - Create `holidays` table with sample Indonesian holidays
+    - Add `schedule_id` column to `employees` table
+    - Create indexes for performance
+    - Create trigger function for work_hours calculation
+    - _Requirements: 1.1, 2.2, 2.3, 5.1, 5.2, 5.3, 6.1_
+  - [x] 1.2 Create TypeScript types for attendance module
+    - Create `types/attendance.ts` with all interfaces
+    - Add AttendanceStatus, AttendanceRecord, WorkSchedule, Holiday types
+    - Add input types for create/update operations
+    - Add summary types for reports
+    - _Requirements: 1.1, 5.1, 6.1_
+
+- [x] 2. Utility Functions
+  - [x] 2.1 Create attendance utility functions
+    - Create `lib/attendance-utils.ts`
+    - Implement `calculateLateMinutes(clockIn, schedule)` function
+    - Implement `determineAttendanceStatus(clockIn, schedule)` function
+    - Implement `calculateWorkHours(clockIn, clockOut)` function
+    - Implement `formatAttendanceTime(timestamp)` function
+    - _Requirements: 1.2, 1.3, 2.2, 2.3_
+  - [x] 2.2 Write property tests for attendance calculations
+    - **Property 2: Late Status Determination**
+    - **Property 5: Work Hours Calculation**
+    - **Validates: Requirements 1.2, 1.3, 2.2, 2.3**
+  - [x] 2.3 Create schedule utility functions
+    - Create `lib/schedule-utils.ts`
+    - Implement `parseTimeString(time)` function
+    - Implement `isWorkDay(date, schedule)` function
+    - Implement `getScheduleForDate(date, schedule)` function
+    - _Requirements: 5.1, 5.2, 5.3_
+  - [x] 2.4 Create holiday utility functions
+    - Create `lib/holiday-utils.ts`
+    - Implement `isHoliday(date, holidays)` function
+    - Implement `getHolidaysInRange(startDate, endDate, holidays)` function
+    - _Requirements: 6.2_
+
+- [x] 3. Checkpoint - Utility Functions Complete
+  - Ensure all utility tests pass, ask the user if questions arise.
+
+- [x] 4. Server Actions - Clock In/Out
+  - [x] 4.1 Create clock actions
+    - Create `app/(main)/hr/attendance/clock-actions.ts`
+    - Implement `clockIn()` server action
+    - Implement `clockOut()` server action
+    - Implement `getTodayAttendance()` server action
+    - Handle duplicate clock-in prevention
+    - Handle clock-out without clock-in prevention
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.4_
+  - [x] 4.2 Write property tests for clock actions
+    - **Property 1: Clock-In Creates Valid Record**
+    - **Property 3: Clock-In Idempotence**
+    - **Property 4: Clock-Out Requires Clock-In**
+    - **Validates: Requirements 1.1, 1.4, 2.4**
+
+- [x] 5. Server Actions - Attendance Management
+  - [x] 5.1 Create attendance actions
+    - Create `app/(main)/hr/attendance/actions.ts`
+    - Implement `getAttendanceRecords(filters)` with department and status filtering
+    - Implement `getAttendanceSummary(date)` for summary cards
+    - Implement `upsertAttendanceRecord(data)` for manual entry
+    - Implement `markAbsent(employeeId, date, notes)` function
+    - Implement `getMonthlyAttendanceSummary(employeeId, year, month)` function
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 3.3_
+  - [x] 5.2 Write property tests for attendance management
+    - **Property 6: Monthly Summary Accuracy**
+    - **Property 7: Attendance Summary Counts**
+    - **Property 8: Department Filter Correctness**
+    - **Property 9: Status Filter Correctness**
+    - **Property 10: Manual Entry Persistence**
+    - **Property 11: Mark Absent Creates Correct Record**
+    - **Validates: Requirements 3.3, 4.2, 4.3, 4.4, 4.5, 4.6**
+
+- [x] 6. Server Actions - Schedules and Holidays
+  - [x] 6.1 Create schedule actions
+    - Create `app/(main)/hr/attendance/schedule-actions.ts`
+    - Implement `getWorkSchedules()` function
+    - Implement `getDefaultSchedule()` function
+    - Implement `getEmployeeSchedule(employeeId)` function
+    - Implement `upsertWorkSchedule(data)` function
+    - Implement `setDefaultSchedule(scheduleId)` function
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+  - [x] 6.2 Write property tests for schedule resolution
+    - **Property 12: Schedule Data Validation**
+    - **Property 13: Schedule Resolution Priority**
+    - **Validates: Requirements 5.1, 5.2, 5.3, 5.4, 5.5**
+  - [x] 6.3 Create holiday actions
+    - Create `app/(main)/hr/attendance/holiday-actions.ts`
+    - Implement `getHolidays(startDate, endDate)` function
+    - Implement `createHoliday(data)` function
+    - Implement `updateHoliday(id, data)` function
+    - Implement `deleteHoliday(id)` function
+    - Implement `isHolidayDate(date)` function
+    - _Requirements: 6.1, 6.2, 6.3_
+  - [x] 6.4 Write property tests for holidays
+    - **Property 14: Holiday Creation Persistence**
+    - **Property 15: Holiday Status Auto-Assignment**
+    - **Property 16: Holiday Uniqueness**
+    - **Validates: Requirements 6.1, 6.2, 6.3**
+
+- [x] 7. Checkpoint - Server Actions Complete
+  - Ensure all server action tests pass, ask the user if questions arise.
+
+- [x] 8. UI Components - Dashboard Widget
+  - [x] 8.1 Create attendance widget component
+    - Create `components/attendance/attendance-widget.tsx`
+    - Display current clock-in status and time
+    - Display current work hours (ongoing calculation)
+    - Show Clock In button when not clocked in
+    - Show Clock Out button when clocked in but not out
+    - Show total hours when day is complete
+    - Handle loading and error states
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
+  - [x] 8.2 Write property tests for widget state
+    - **Property 19: Widget State Consistency**
+    - **Validates: Requirements 8.2, 8.3, 8.4, 8.5**
+
+- [x] 9. UI Components - My Attendance Page
+  - [x] 9.1 Create my attendance view component
+    - Create `components/attendance/my-attendance-view.tsx`
+    - Display today's attendance status card
+    - Display monthly summary statistics cards
+    - Integrate with attendance actions
+    - _Requirements: 3.1, 3.3_
+  - [x] 9.2 Create attendance calendar component
+    - Create `components/attendance/attendance-calendar.tsx`
+    - Display calendar grid for selected month
+    - Show status indicators for each day (present, late, absent, holiday, weekend)
+    - Handle month navigation
+    - Highlight today's date
+    - _Requirements: 3.2, 3.4, 3.5_
+  - [x] 9.3 Create my attendance page
+    - Create `app/(main)/hr/my-attendance/page.tsx`
+    - Integrate my-attendance-view and calendar components
+    - Add month/year selector
+    - _Requirements: 3.1, 3.2_
+
+- [x] 10. UI Components - Admin Attendance Page
+  - [x] 10.1 Create attendance summary cards component
+    - Create `components/attendance/attendance-summary-cards.tsx`
+    - Display total staff, present, late, absent, on-leave counts
+    - Use appropriate icons and colors for each status
+    - _Requirements: 4.2_
+  - [x] 10.2 Create attendance list component
+    - Create `components/attendance/attendance-list.tsx`
+    - Display table with employee code, name, department, clock times, hours, status
+    - Add action buttons for edit and mark absent
+    - Handle empty states
+    - _Requirements: 4.1_
+  - [x] 10.3 Create attendance filters component
+    - Create `components/attendance/attendance-filters.tsx`
+    - Add date picker with navigation arrows
+    - Add department dropdown filter
+    - Add status dropdown filter
+    - Add export button
+    - _Requirements: 4.3, 4.4_
+  - [x] 10.4 Create manual entry dialog component
+    - Create `components/attendance/manual-entry-dialog.tsx`
+    - Form for employee selection, date, clock-in/out times
+    - Handle create and edit modes
+    - Validate times (clock-out after clock-in)
+    - _Requirements: 4.5_
+  - [x] 10.5 Create admin attendance page
+    - Create `app/(main)/hr/attendance/page.tsx`
+    - Integrate summary cards, filters, list, and manual entry dialog
+    - Wire up all actions and state management
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
+
+- [x] 11. Checkpoint - Core UI Complete
+  - Ensure all components render correctly, ask the user if questions arise.
+
+- [x] 12. UI Components - Schedule Management
+  - [x] 12.1 Create schedule form component
+    - Create `components/attendance/schedule-form.tsx`
+    - Form for schedule name, work times, break times, grace period
+    - Work days multi-select (Mon-Sun)
+    - Default schedule toggle
+    - _Requirements: 5.1, 5.2, 5.3_
+  - [x] 12.2 Create schedule list component
+    - Create `components/attendance/schedule-list.tsx`
+    - Display table of schedules with edit/delete actions
+    - Show default schedule indicator
+    - _Requirements: 5.4_
+  - [x] 12.3 Create schedule management page
+    - Create `app/(main)/hr/attendance/schedules/page.tsx`
+    - Integrate schedule list and form
+    - Handle CRUD operations
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
+
+- [x] 13. UI Components - Holiday Management
+  - [x] 13.1 Create holiday form component
+    - Create `components/attendance/holiday-form.tsx`
+    - Form for date, name, national/company toggles
+    - Date validation (no duplicates)
+    - _Requirements: 6.1_
+  - [x] 13.2 Create holiday list component
+    - Create `components/attendance/holiday-list.tsx`
+    - Display table of holidays with edit/delete actions
+    - Show national vs company holiday indicator
+    - _Requirements: 6.1_
+  - [x] 13.3 Create holiday management page
+    - Create `app/(main)/hr/attendance/holidays/page.tsx`
+    - Integrate holiday list and form
+    - Handle CRUD operations
+    - _Requirements: 6.1, 6.3_
+
+- [x] 14. Attendance Corrections
+  - [x] 14.1 Update manual entry dialog for corrections
+    - Add correction_reason field when editing existing records
+    - Set is_corrected flag on save
+    - Record corrected_by user
+    - Trigger recalculation of hours
+    - _Requirements: 7.1, 7.2, 7.3, 7.4_
+  - [ ] 14.2 Write property tests for corrections
+    - **Property 17: Correction Audit Trail**
+    - **Property 18: Recalculation on Correction**
+    - **Validates: Requirements 7.1, 7.2, 7.4**
+
+- [ ] 15. Attendance Reporting
+  - [x] 15.1 Create attendance report actions
+    - Add `getAttendanceReport(filters)` to actions.ts
+    - Support date range, department, employee filters
+    - Calculate aggregate statistics per employee
+    - _Requirements: 9.1, 9.2, 9.3, 9.5_
+  - [ ] 15.2 Write property tests for reporting
+    - **Property 20: Report Date Range Filtering**
+    - **Property 21: Report Data Completeness**
+    - **Property 22: Report Aggregate Statistics**
+    - **Validates: Requirements 9.1, 9.2, 9.5**
+  - [x] 15.3 Create attendance report export
+    - Add export functionality to attendance list
+    - Support CSV export format
+    - Include all required fields
+    - _Requirements: 9.4_
+
+- [x] 16. Role-Based Access Control
+  - [x] 16.1 Add attendance permissions to permissions system
+    - Update `lib/permissions.ts` with attendance permissions
+    - Add `canViewAllAttendance`, `canEditAttendance`, `canManageSchedules`, `canManageHolidays`
+    - Implement department-scoped access for managers
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
+  - [ ] 16.2 Write property tests for permissions
+    - **Property 23: Role-Based Access Control**
+    - **Validates: Requirements 10.1, 10.2, 10.3, 10.4, 10.5**
+  - [ ] 16.3 Apply permission gates to UI components
+    - Wrap admin features with PermissionGate
+    - Filter attendance list by department for managers
+    - Hide schedule/holiday management for non-admin roles
+    - _Requirements: 10.2, 10.3, 10.4, 10.5_
+
+- [x] 17. Navigation Integration
+  - [x] 17.1 Add attendance routes to navigation
+    - Update `lib/navigation.ts` with attendance menu items
+    - Add "Attendance" under HR section
+    - Add "My Attendance" for all employees
+    - Add "Schedules" and "Holidays" for admin roles
+    - _Requirements: 3.1, 4.1_
+  - [x] 17.2 Integrate widget into dashboard
+    - Add attendance widget to employee dashboard
+    - Position in appropriate dashboard section
+    - _Requirements: 8.1_
+
+- [x] 18. Final Checkpoint
+  - All core UI components implemented
+  - Navigation integration complete
+  - Dashboard widget integrated
+  - Remaining: Property tests for corrections (14.2), reporting (15.2), and permissions (16.2, 16.3)
+  - Test complete user flows for clock-in/out, admin management, and reporting
+
+## Notes
+
+- All tasks including property-based tests are required for comprehensive coverage
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties using fast-check
+- Unit tests validate specific examples and edge cases

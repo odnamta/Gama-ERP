@@ -8,6 +8,7 @@ import { BudgetAlertCard } from './budget-alert-card'
 import { RecentActivity } from './recent-activity'
 import { OperationsQueue } from './operations-queue'
 import { ManagerSummary } from './manager-summary'
+import { AttendanceWidget } from '@/components/attendance/attendance-widget'
 import { Button } from '@/components/ui/button'
 import { useInterval } from '@/hooks/use-interval'
 import { usePermissions } from '@/components/providers/permission-provider'
@@ -160,6 +161,9 @@ export function DashboardClient({
           <RecentActivity activities={initialActivities} />
         </div>
       )}
+
+      {/* Attendance Widget - visible to all users */}
+      <AttendanceWidget />
     </div>
   )
 }

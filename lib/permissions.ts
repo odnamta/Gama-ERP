@@ -134,6 +134,15 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'employees.view_salary': (p) => ['owner', 'admin', 'finance'].includes(p.role),
   'employees.edit_salary': (p) => ['owner', 'admin'].includes(p.role),
   'employees.nav': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  // Attendance permissions
+  'attendance.view_own': () => true, // All authenticated users can view their own
+  'attendance.clock': () => true, // All authenticated users can clock in/out
+  'attendance.view_all': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  'attendance.edit': (p) => ['owner', 'admin'].includes(p.role),
+  'attendance.manage_schedules': (p) => ['owner', 'admin'].includes(p.role),
+  'attendance.manage_holidays': (p) => ['owner', 'admin'].includes(p.role),
+  'attendance.view_reports': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
+  'attendance.nav': () => true, // All authenticated users can see attendance nav
 }
 
 /**
@@ -412,4 +421,64 @@ export function canEditEmployeeSalary(profile: UserProfile | null): boolean {
  */
 export function canSeeEmployeesNav(profile: UserProfile | null): boolean {
   return canAccessFeature(profile, 'employees.nav')
+}
+
+// ============================================
+// Attendance Permission Helpers
+// ============================================
+
+/**
+ * Check if user can view their own attendance
+ */
+export function canViewOwnAttendance(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'attendance.view_own')
+}
+
+/**
+ * Check if user can clock in/out
+ */
+export function canClockAttendance(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'attendance.clock')
+}
+
+/**
+ * Check if user can view all attendance records
+ */
+export function canViewAllAttendance(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'attendance.view_all')
+}
+
+/**
+ * Check if user can edit attendance records
+ */
+export function canEditAttendance(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'attendance.edit')
+}
+
+/**
+ * Check if user can manage work schedules
+ */
+export function canManageSchedules(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'attendance.manage_schedules')
+}
+
+/**
+ * Check if user can manage holidays
+ */
+export function canManageHolidays(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'attendance.manage_holidays')
+}
+
+/**
+ * Check if user can view attendance reports
+ */
+export function canViewAttendanceReports(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'attendance.view_reports')
+}
+
+/**
+ * Check if attendance should be shown in navigation
+ */
+export function canSeeAttendanceNav(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'attendance.nav')
 }

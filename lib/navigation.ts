@@ -13,6 +13,7 @@ import {
   FileQuestion,
   FileStack,
   UserCog,
+  Clock,
   LucideIcon,
 } from 'lucide-react'
 import { UserRole, UserPermissions } from '@/types/permissions'
@@ -104,10 +105,38 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ['owner', 'admin', 'manager', 'ops', 'finance', 'sales'],
   },
   {
+    title: 'My Attendance',
+    href: '/hr/my-attendance',
+    icon: Clock,
+    roles: ['owner', 'admin', 'manager', 'ops', 'finance', 'sales', 'viewer'],
+  },
+  {
     title: 'HR',
     href: '/hr/employees',
     icon: UserCog,
     roles: ['owner', 'admin', 'manager'],
+    children: [
+      {
+        title: 'Employees',
+        href: '/hr/employees',
+      },
+      {
+        title: 'Attendance',
+        href: '/hr/attendance',
+      },
+      {
+        title: 'My Attendance',
+        href: '/hr/my-attendance',
+      },
+      {
+        title: 'Schedules',
+        href: '/hr/attendance/schedules',
+      },
+      {
+        title: 'Holidays',
+        href: '/hr/attendance/holidays',
+      },
+    ],
   },
   {
     title: 'Notifications',

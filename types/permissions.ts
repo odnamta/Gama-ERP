@@ -83,6 +83,15 @@ export type FeatureKey =
   | 'employees.view_salary'
   | 'employees.edit_salary'
   | 'employees.nav'
+  // Attendance permissions
+  | 'attendance.view_own'
+  | 'attendance.clock'
+  | 'attendance.view_all'
+  | 'attendance.edit'
+  | 'attendance.manage_schedules'
+  | 'attendance.manage_holidays'
+  | 'attendance.view_reports'
+  | 'attendance.nav'
 
 export interface PermissionContextType {
   profile: UserProfile | null
