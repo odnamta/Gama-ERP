@@ -187,6 +187,19 @@ export async function convertToJobOrder(pjoId: string): Promise<{ error?: string
     console.error('Failed to update vendor invoice JO references:', e)
   }
 
+  // Allocate overhead to the new Job Order
+  try {
+    const { allocateJobOverhead } = await import('@/app/(main)/job-orders/overhead-actions')
+    const overheadResult = await allocateJobOverhead(newJO.id)
+    if (overheadResult.error) {
+      console.error('Failed to allocate overhead:', overheadResult.error)
+    } else {
+      console.log(`Allocated overhead: ${overheadResult.totalOverhead}`)
+    }
+  } catch (e) {
+    console.error('Failed to allocate overhead:', e)
+  }
+
   // Send notification for new JO created
   try {
     const { data: customer } = await supabase

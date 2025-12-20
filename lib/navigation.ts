@@ -120,6 +120,10 @@ export const NAV_ITEMS: NavItem[] = [
         permission: 'can_manage_users',
       },
       {
+        title: 'Overhead Allocation',
+        href: '/finance/settings/overhead',
+      },
+      {
         title: 'Activity Log',
         href: '/settings/activity-log',
       },

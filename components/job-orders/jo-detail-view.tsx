@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { JOStatusBadge } from '@/components/ui/jo-status-badge'
 import { formatIDR, formatDate, formatDateTime, COST_CATEGORY_LABELS } from '@/lib/pjo-utils'
 import { markCompleted, submitToFinance, getJORevenueItems, getJOCostItems } from '@/app/(main)/job-orders/actions'
+import { getJobOverheadBreakdown, getJobProfitability } from '@/app/(main)/job-orders/overhead-actions'
 import { useToast } from '@/hooks/use-toast'
 import { CheckCircle, Send, ArrowLeft, Loader2 } from 'lucide-react'
 import { AttachmentsSection } from '@/components/attachments'
@@ -18,8 +19,10 @@ import { InvoiceTermsSection } from './invoice-terms-section'
 import { SuratJalanSection } from '@/components/surat-jalan/surat-jalan-section'
 import { BeritaAcaraSection } from '@/components/berita-acara/berita-acara-section'
 import { BKKSection } from '@/components/bkk/bkk-section'
+import { ProfitabilitySection } from './profitability-section'
 import { getBKKsByJobOrder } from '@/app/(main)/job-orders/bkk-actions'
 import type { BKKWithRelations } from '@/types/database'
+import type { JobOverheadAllocationWithCategory } from '@/types/overhead'
 
 interface JODetailViewProps {
   jobOrder: JobOrderWithRelations
@@ -33,6 +36,12 @@ export function JODetailView({ jobOrder }: JODetailViewProps) {
   const [costItems, setCostItems] = useState<PJOCostItem[]>([])
   const [bkks, setBkks] = useState<BKKWithRelations[]>([])
   const [itemsLoading, setItemsLoading] = useState(true)
+  const [overheadBreakdown, setOverheadBreakdown] = useState<JobOverheadAllocationWithCategory[]>([])
+  const [profitabilityData, setProfitabilityData] = useState<{
+    totalOverhead: number;
+    netProfit: number;
+    netMargin: number;
+  } | null>(null)
 
   const pjo = jobOrder.proforma_job_orders
   const profit = (jobOrder.final_revenue ?? jobOrder.amount ?? 0) - (jobOrder.final_cost ?? 0)
@@ -48,14 +57,24 @@ export function JODetailView({ jobOrder }: JODetailViewProps) {
       }
       setItemsLoading(true)
       try {
-        const [revenue, cost, bkkData] = await Promise.all([
+        const [revenue, cost, bkkData, overheadData, profitData] = await Promise.all([
           getJORevenueItems(pjo.id),
           getJOCostItems(pjo.id),
           getBKKsByJobOrder(jobOrder.id),
+          getJobOverheadBreakdown(jobOrder.id),
+          getJobProfitability(jobOrder.id),
         ])
         setRevenueItems(revenue as PJORevenueItem[])
         setCostItems(cost as PJOCostItem[])
         setBkks(bkkData)
+        setOverheadBreakdown(overheadData.allocations || [])
+        if (profitData.data) {
+          setProfitabilityData({
+            totalOverhead: profitData.data.totalOverhead,
+            netProfit: profitData.data.netProfit,
+            netMargin: profitData.data.netMargin,
+          })
+        }
       } finally {
         setItemsLoading(false)
       }
@@ -250,6 +269,18 @@ export function JODetailView({ jobOrder }: JODetailViewProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Profitability Analysis with Overhead */}
+      <ProfitabilitySection
+        joId={jobOrder.id}
+        revenue={jobOrder.final_revenue ?? jobOrder.amount ?? 0}
+        directCosts={jobOrder.final_cost ?? 0}
+        totalOverhead={profitabilityData?.totalOverhead ?? 0}
+        netProfit={profitabilityData?.netProfit ?? profit}
+        netMargin={profitabilityData?.netMargin ?? margin}
+        overheadBreakdown={overheadBreakdown}
+        onRecalculated={() => router.refresh()}
+      />
 
       {/* Invoice Terms - Show when JO is submitted to finance or later */}
       {['submitted_to_finance', 'invoiced', 'closed'].includes(jobOrder.status) && (
