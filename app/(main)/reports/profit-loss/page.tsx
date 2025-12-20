@@ -12,6 +12,7 @@ import { usePermissions } from '@/components/providers/permission-provider'
 import { canAccessReport } from '@/lib/reports/report-permissions'
 import { buildPLReportData } from '@/lib/reports/profit-loss-utils'
 import { getDateRangeForPreset, parseDateRangeFromParams, formatCurrency, formatPercentage } from '@/lib/reports/report-utils'
+import { logReportExecution } from '@/lib/reports/report-execution-service'
 import { createClient } from '@/lib/supabase/client'
 import { DateRange, PLReportData } from '@/types/reports'
 
@@ -81,13 +82,18 @@ export default function ProfitLossReportPage() {
 
       const data = buildPLReportData(revenueItems, costItems, range)
       setReportData(data)
+
+      // Log report execution
+      if (profile?.user_id) {
+        logReportExecution({ reportCode: 'fin_profit_loss', userId: profile.user_id, parameters: { startDate, endDate } }).catch(console.error)
+      }
     } catch (err) {
       console.error('Error fetching P&L data:', err)
       setError('Failed to load report data. Please try again.')
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [profile?.user_id])
 
   useEffect(() => {
     const fromParams = parseDateRangeFromParams(searchParams)

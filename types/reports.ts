@@ -2,6 +2,59 @@
 
 import { UserRole } from './permissions'
 
+// Database-driven Report Configuration Types
+export type ReportCategoryDB = 'operations' | 'finance' | 'sales' | 'executive'
+
+export interface ReportConfigurationDB {
+  id: string
+  report_code: string
+  report_name: string
+  description: string | null
+  report_category: ReportCategoryDB
+  default_filters: Record<string, unknown>
+  columns: ReportColumnConfig[]
+  allowed_roles: string[]
+  is_active: boolean
+  display_order: number
+  href: string | null
+  icon: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ReportColumnConfig {
+  key: string
+  header: string
+  format?: 'currency' | 'percentage' | 'number' | 'date' | 'text'
+  align?: 'left' | 'center' | 'right'
+  width?: string
+}
+
+export interface ReportExecution {
+  id: string
+  report_code: string
+  parameters: Record<string, unknown>
+  executed_by: string
+  executed_at: string
+  export_format: 'view' | 'pdf' | 'excel' | 'csv' | null
+  export_url: string | null
+}
+
+export interface RecentReport {
+  report_code: string
+  report_name: string
+  href: string
+  executed_at: string
+}
+
+// Category display configuration
+export const CATEGORY_CONFIG_DB: Record<ReportCategoryDB, { name: string; icon: string }> = {
+  operations: { name: 'Operations', icon: 'Settings' },
+  finance: { name: 'Finance', icon: 'DollarSign' },
+  sales: { name: 'Sales', icon: 'TrendingUp' },
+  executive: { name: 'Executive', icon: 'LayoutDashboard' },
+}
+
 // Period and Date Range Types
 export type PeriodPreset =
   | 'this-week'

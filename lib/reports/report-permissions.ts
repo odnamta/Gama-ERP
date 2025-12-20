@@ -148,6 +148,15 @@ export const REPORTS: ReportConfig[] = [
     icon: 'UserPlus',
     allowedRoles: ['owner', 'admin', 'manager', 'sales'],
   },
+  {
+    id: 'job-profitability',
+    title: 'Job Profitability',
+    description: 'Net profit and margin analysis by job',
+    category: 'financial',
+    href: '/reports/job-profitability',
+    icon: 'TrendingUp',
+    allowedRoles: ['owner', 'admin', 'manager', 'finance'],
+  },
 ]
 
 /**
@@ -204,4 +213,39 @@ export function getCategoryIcon(category: ReportCategory): string {
     sales: 'TrendingUp',
   }
   return icons[category]
+}
+
+/**
+ * Check if a role has access to a specific category
+ * Used for category-level access control
+ */
+export function canAccessCategory(role: UserRole, category: ReportCategory): boolean {
+  const categoryRoles: Record<ReportCategory, UserRole[]> = {
+    financial: ['owner', 'admin', 'manager', 'finance'],
+    operational: ['owner', 'admin', 'manager', 'ops'],
+    ar: ['owner', 'admin', 'manager', 'finance'],
+    sales: ['owner', 'admin', 'manager', 'sales'],
+  }
+  return categoryRoles[category].includes(role)
+}
+
+/**
+ * Admin roles that have full access to all reports
+ */
+export const ADMIN_ROLES: UserRole[] = ['owner', 'admin', 'manager']
+
+/**
+ * Check if a role is an admin role with full access
+ */
+export function isAdminRole(role: UserRole): boolean {
+  return ADMIN_ROLES.includes(role)
+}
+
+/**
+ * Get all reports a role can access (combines static and DB configs)
+ * This function provides backward compatibility while supporting DB-driven configs
+ */
+export function getAllAccessibleReports(role: UserRole): ReportConfig[] {
+  // For now, use static config. DB config is handled in report-config-utils.ts
+  return getVisibleReports(role)
 }

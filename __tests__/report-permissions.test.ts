@@ -5,6 +5,9 @@ import {
   getVisibleReports,
   canAccessReport,
   getReportsByCategory,
+  canAccessCategory,
+  isAdminRole,
+  ADMIN_ROLES,
 } from '@/lib/reports/report-permissions'
 import { UserRole } from '@/types/permissions'
 
@@ -188,6 +191,119 @@ describe('Report Permissions', () => {
           }
         ),
         { numRuns: 50 }
+      )
+    })
+  })
+
+  /**
+   * Property 3: Admin roles full access
+   * For any report configuration in the default seed data, the allowed_roles array
+   * must contain 'owner', 'admin', and 'manager'.
+   * 
+   * Feature: reports-module-foundation, Property 3: Admin roles full access
+   * Validates: Requirements 4.2, 4.3, 4.4
+   */
+  describe('Property 3: Admin roles full access', () => {
+    it('all reports should include owner, admin, and manager in allowedRoles', () => {
+      for (const report of REPORTS) {
+        expect(report.allowedRoles).toContain('owner')
+        expect(report.allowedRoles).toContain('admin')
+        expect(report.allowedRoles).toContain('manager')
+      }
+    })
+
+    it('property: admin roles can access all reports', () => {
+      fc.assert(
+        fc.property(
+          fc.constantFrom(...ADMIN_ROLES),
+          fc.constantFrom(...REPORTS),
+          (role, report) => {
+            expect(report.allowedRoles.includes(role)).toBe(true)
+          }
+        ),
+        { numRuns: 100 }
+      )
+    })
+
+    it('isAdminRole correctly identifies admin roles', () => {
+      expect(isAdminRole('owner')).toBe(true)
+      expect(isAdminRole('admin')).toBe(true)
+      expect(isAdminRole('manager')).toBe(true)
+      expect(isAdminRole('ops')).toBe(false)
+      expect(isAdminRole('finance')).toBe(false)
+      expect(isAdminRole('sales')).toBe(false)
+      expect(isAdminRole('viewer')).toBe(false)
+    })
+  })
+
+  /**
+   * Property 4: Category-specific role restrictions
+   * For any report configuration:
+   * - If report_category is 'finance', allowed_roles must be a subset of ['owner', 'admin', 'manager', 'finance']
+   * - If report_category is 'operations', allowed_roles must be a subset of ['owner', 'admin', 'manager', 'ops']
+   * - If report_category is 'sales', allowed_roles must be a subset of ['owner', 'admin', 'manager', 'sales']
+   * 
+   * Feature: reports-module-foundation, Property 4: Category-specific role restrictions
+   * Validates: Requirements 4.5, 4.6, 4.7
+   */
+  describe('Property 4: Category-specific role restrictions', () => {
+    it('canAccessCategory returns correct access for each role-category combination', () => {
+      // Finance role
+      expect(canAccessCategory('finance', 'financial')).toBe(true)
+      expect(canAccessCategory('finance', 'ar')).toBe(true)
+      expect(canAccessCategory('finance', 'operational')).toBe(false)
+      expect(canAccessCategory('finance', 'sales')).toBe(false)
+
+      // Ops role
+      expect(canAccessCategory('ops', 'operational')).toBe(true)
+      expect(canAccessCategory('ops', 'financial')).toBe(false)
+      expect(canAccessCategory('ops', 'ar')).toBe(false)
+      expect(canAccessCategory('ops', 'sales')).toBe(false)
+
+      // Sales role
+      expect(canAccessCategory('sales', 'sales')).toBe(true)
+      expect(canAccessCategory('sales', 'financial')).toBe(false)
+      expect(canAccessCategory('sales', 'ar')).toBe(false)
+      expect(canAccessCategory('sales', 'operational')).toBe(false)
+    })
+
+    it('property: admin roles can access all categories', () => {
+      const categories = ['financial', 'operational', 'ar', 'sales'] as const
+      
+      fc.assert(
+        fc.property(
+          fc.constantFrom(...ADMIN_ROLES),
+          fc.constantFrom(...categories),
+          (role, category) => {
+            expect(canAccessCategory(role, category)).toBe(true)
+          }
+        ),
+        { numRuns: 100 }
+      )
+    })
+
+    it('property: non-admin roles have restricted category access', () => {
+      const restrictedRoles: UserRole[] = ['ops', 'finance', 'sales']
+      const categories = ['financial', 'operational', 'ar', 'sales'] as const
+      
+      fc.assert(
+        fc.property(
+          fc.constantFrom(...restrictedRoles),
+          fc.constantFrom(...categories),
+          (role, category) => {
+            const hasAccess = canAccessCategory(role, category)
+            
+            // Each restricted role should only access their specific categories
+            if (role === 'finance') {
+              expect(hasAccess).toBe(category === 'financial' || category === 'ar')
+            } else if (role === 'ops') {
+              expect(hasAccess).toBe(category === 'operational')
+            } else if (role === 'sales') {
+              expect(hasAccess).toBe(category === 'sales')
+            }
+          }
+        ),
+        { numRuns: 100 }
       )
     })
   })

@@ -12,6 +12,7 @@ import { usePermissions } from '@/components/providers/permission-provider'
 import { canAccessReport } from '@/lib/reports/report-permissions'
 import { buildARAgingReportData, filterByBucket } from '@/lib/reports/ar-aging-utils'
 import { formatCurrency } from '@/lib/reports/report-utils'
+import { logReportExecution, logExportAction } from '@/lib/reports/report-execution-service'
 import { createClient } from '@/lib/supabase/client'
 import { ARAgingReportData, AgingInvoice, ReportColumn, RowHighlight, AgingBucket } from '@/types/reports'
 import { cn } from '@/lib/utils'
@@ -57,13 +58,18 @@ export default function ARAgingReportPage() {
 
       const data = buildARAgingReportData(invoices || [])
       setReportData(data)
+
+      // Log report execution
+      if (profile?.user_id) {
+        logReportExecution({ reportCode: 'fin_ar_aging', userId: profile.user_id, parameters: {} }).catch(console.error)
+      }
     } catch (err) {
       console.error('Error fetching AR aging data:', err)
       setError('Failed to load report data. Please try again.')
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [profile?.user_id])
 
   useEffect(() => {
     fetchReportData()
