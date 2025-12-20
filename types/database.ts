@@ -7,8 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
@@ -114,22 +112,7 @@ export type Database = {
           updated_at?: string | null
           work_description?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "berita_acara_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "berita_acara_jo_id_fkey"
-            columns: ["jo_id"]
-            isOneToOne: false
-            referencedRelation: "job_orders"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       bukti_kas_keluar: {
         Row: {
@@ -222,64 +205,7 @@ export type Database = {
           vendor_id?: string | null
           vendor_invoice_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "bukti_kas_keluar_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bukti_kas_keluar_jo_id_fkey"
-            columns: ["jo_id"]
-            isOneToOne: false
-            referencedRelation: "job_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bukti_kas_keluar_pjo_cost_item_id_fkey"
-            columns: ["pjo_cost_item_id"]
-            isOneToOne: false
-            referencedRelation: "pjo_cost_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bukti_kas_keluar_released_by_fkey"
-            columns: ["released_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bukti_kas_keluar_requested_by_fkey"
-            columns: ["requested_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bukti_kas_keluar_settled_by_fkey"
-            columns: ["settled_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bukti_kas_keluar_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bukti_kas_keluar_vendor_invoice_id_fkey"
-            columns: ["vendor_invoice_id"]
-            isOneToOne: false
-            referencedRelation: "vendor_invoices"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       company_settings: {
         Row: {
@@ -374,6 +300,36 @@ export type Database = {
         }
         Relationships: []
       }
+      departments: {
+        Row: {
+          created_at: string | null
+          department_code: string
+          department_name: string
+          id: string
+          is_active: boolean | null
+          manager_id: string | null
+          parent_department_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          department_code: string
+          department_name: string
+          id?: string
+          is_active?: boolean | null
+          manager_id?: string | null
+          parent_department_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          department_code?: string
+          department_name?: string
+          id?: string
+          is_active?: boolean | null
+          manager_id?: string | null
+          parent_department_id?: string | null
+        }
+        Relationships: []
+      }
       document_attachments: {
         Row: {
           created_at: string | null
@@ -411,15 +367,133 @@ export type Database = {
           storage_path?: string
           uploaded_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "document_attachments_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      employees: {
+        Row: {
+          address: string | null
+          bank_account: string | null
+          bank_account_name: string | null
+          bank_name: string | null
+          base_salary: number | null
+          city: string | null
+          created_at: string | null
+          created_by: string | null
+          date_of_birth: string | null
+          department_id: string | null
+          documents: Json | null
+          email: string | null
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          emergency_contact_relation: string | null
+          employee_code: string
+          employment_type: string | null
+          end_date: string | null
+          full_name: string
+          gender: string | null
+          id: string
+          id_number: string | null
+          join_date: string
+          marital_status: string | null
+          nickname: string | null
+          notes: string | null
+          phone: string | null
+          photo_url: string | null
+          place_of_birth: string | null
+          position_id: string | null
+          religion: string | null
+          reporting_to: string | null
+          resignation_date: string | null
+          resignation_reason: string | null
+          salary_currency: string | null
+          status: string | null
+          tax_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          bank_account?: string | null
+          bank_account_name?: string | null
+          bank_name?: string | null
+          base_salary?: number | null
+          city?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          date_of_birth?: string | null
+          department_id?: string | null
+          documents?: Json | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relation?: string | null
+          employee_code: string
+          employment_type?: string | null
+          end_date?: string | null
+          full_name: string
+          gender?: string | null
+          id?: string
+          id_number?: string | null
+          join_date: string
+          marital_status?: string | null
+          nickname?: string | null
+          notes?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          place_of_birth?: string | null
+          position_id?: string | null
+          religion?: string | null
+          reporting_to?: string | null
+          resignation_date?: string | null
+          resignation_reason?: string | null
+          salary_currency?: string | null
+          status?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          bank_account?: string | null
+          bank_account_name?: string | null
+          bank_name?: string | null
+          base_salary?: number | null
+          city?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          date_of_birth?: string | null
+          department_id?: string | null
+          documents?: Json | null
+          email?: string | null
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          emergency_contact_relation?: string | null
+          employee_code?: string
+          employment_type?: string | null
+          end_date?: string | null
+          full_name?: string
+          gender?: string | null
+          id?: string
+          id_number?: string | null
+          join_date?: string
+          marital_status?: string | null
+          nickname?: string | null
+          notes?: string | null
+          phone?: string | null
+          photo_url?: string | null
+          place_of_birth?: string | null
+          position_id?: string | null
+          religion?: string | null
+          reporting_to?: string | null
+          resignation_date?: string | null
+          resignation_reason?: string | null
+          salary_currency?: string | null
+          status?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       engineering_assessments: {
         Row: {
@@ -482,36 +556,7 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "engineering_assessments_assigned_to_fkey"
-            columns: ["assigned_to"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "engineering_assessments_completed_by_fkey"
-            columns: ["completed_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "engineering_assessments_pjo_id_fkey"
-            columns: ["pjo_id"]
-            isOneToOne: false
-            referencedRelation: "proforma_job_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "engineering_assessments_quotation_id_fkey"
-            columns: ["quotation_id"]
-            isOneToOne: false
-            referencedRelation: "quotations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       invoice_line_items: {
         Row: {
@@ -550,15 +595,7 @@ export type Database = {
           unit_price?: number
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "invoice_line_items_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "invoices"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       invoices: {
         Row: {
@@ -627,22 +664,7 @@ export type Database = {
           total_amount?: number
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "invoices_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "customers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invoices_jo_id_fkey"
-            columns: ["jo_id"]
-            isOneToOne: false
-            referencedRelation: "job_orders"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       job_orders: {
         Row: {
@@ -660,6 +682,8 @@ export type Database = {
           invoice_terms: Json | null
           invoiceable_amount: number | null
           jo_number: string
+          net_margin: number | null
+          net_profit: number | null
           pjo_id: string | null
           project_id: string | null
           requires_berita_acara: boolean | null
@@ -667,6 +691,7 @@ export type Database = {
           submitted_by: string | null
           submitted_to_finance_at: string | null
           total_invoiced: number | null
+          total_overhead: number | null
           updated_at: string | null
         }
         Insert: {
@@ -684,6 +709,8 @@ export type Database = {
           invoice_terms?: Json | null
           invoiceable_amount?: number | null
           jo_number: string
+          net_margin?: number | null
+          net_profit?: number | null
           pjo_id?: string | null
           project_id?: string | null
           requires_berita_acara?: boolean | null
@@ -691,6 +718,7 @@ export type Database = {
           submitted_by?: string | null
           submitted_to_finance_at?: string | null
           total_invoiced?: number | null
+          total_overhead?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -708,6 +736,8 @@ export type Database = {
           invoice_terms?: Json | null
           invoiceable_amount?: number | null
           jo_number?: string
+          net_margin?: number | null
+          net_profit?: number | null
           pjo_id?: string | null
           project_id?: string | null
           requires_berita_acara?: boolean | null
@@ -715,31 +745,52 @@ export type Database = {
           submitted_by?: string | null
           submitted_to_finance_at?: string | null
           total_invoiced?: number | null
+          total_overhead?: number | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "job_orders_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "customers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "job_orders_pjo_id_fkey"
-            columns: ["pjo_id"]
-            isOneToOne: false
-            referencedRelation: "proforma_job_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "job_orders_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      job_overhead_allocations: {
+        Row: {
+          allocated_amount: number
+          allocation_method: string
+          allocation_rate: number | null
+          base_amount: number | null
+          category_id: string
+          created_at: string | null
+          id: string
+          jo_id: string
+          notes: string | null
+          period_month: number | null
+          period_year: number | null
+        }
+        Insert: {
+          allocated_amount: number
+          allocation_method: string
+          allocation_rate?: number | null
+          base_amount?: number | null
+          category_id: string
+          created_at?: string | null
+          id?: string
+          jo_id: string
+          notes?: string | null
+          period_month?: number | null
+          period_year?: number | null
+        }
+        Update: {
+          allocated_amount?: number
+          allocation_method?: string
+          allocation_rate?: number | null
+          base_amount?: number | null
+          category_id?: string
+          created_at?: string | null
+          id?: string
+          jo_id?: string
+          notes?: string | null
+          period_month?: number | null
+          period_year?: number | null
+        }
+        Relationships: []
       }
       notification_preferences: {
         Row: {
@@ -775,15 +826,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "notification_preferences_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -837,15 +880,76 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      overhead_actuals: {
+        Row: {
+          actual_amount: number
+          category_id: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          notes: string | null
+          period_month: number
+          period_year: number
+        }
+        Insert: {
+          actual_amount: number
+          category_id: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          period_month: number
+          period_year: number
+        }
+        Update: {
+          actual_amount?: number
+          category_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          period_month?: number
+          period_year?: number
+        }
+        Relationships: []
+      }
+      overhead_categories: {
+        Row: {
+          allocation_method: string | null
+          category_code: string
+          category_name: string
+          created_at: string | null
+          default_rate: number | null
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+        }
+        Insert: {
+          allocation_method?: string | null
+          category_code: string
+          category_name: string
+          created_at?: string | null
+          default_rate?: number | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+        }
+        Update: {
+          allocation_method?: string | null
+          category_code?: string
+          category_name?: string
+          created_at?: string | null
+          default_rate?: number | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+        }
+        Relationships: []
       }
       payments: {
         Row: {
@@ -890,22 +994,7 @@ export type Database = {
           reference_number?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "payments_invoice_id_fkey"
-            columns: ["invoice_id"]
-            isOneToOne: false
-            referencedRelation: "invoices"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payments_recorded_by_fkey"
-            columns: ["recorded_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       pjo_cost_items: {
         Row: {
@@ -968,29 +1057,7 @@ export type Database = {
           vendor_equipment_id?: string | null
           vendor_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "pjo_cost_items_pjo_id_fkey"
-            columns: ["pjo_id"]
-            isOneToOne: false
-            referencedRelation: "proforma_job_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pjo_cost_items_vendor_equipment_id_fkey"
-            columns: ["vendor_equipment_id"]
-            isOneToOne: false
-            referencedRelation: "vendor_equipment"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pjo_cost_items_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       pjo_revenue_items: {
         Row: {
@@ -1035,15 +1102,43 @@ export type Database = {
           unit_price?: number
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "pjo_revenue_items_pjo_id_fkey"
-            columns: ["pjo_id"]
-            isOneToOne: false
-            referencedRelation: "proforma_job_orders"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      positions: {
+        Row: {
+          created_at: string | null
+          department_id: string | null
+          id: string
+          is_active: boolean | null
+          level: number | null
+          position_code: string
+          position_name: string
+          salary_max: number | null
+          salary_min: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          department_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          level?: number | null
+          position_code: string
+          position_name: string
+          salary_max?: number | null
+          salary_min?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          department_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          level?: number | null
+          position_code?: string
+          position_name?: string
+          salary_max?: number | null
+          salary_min?: number | null
+        }
+        Relationships: []
       }
       proforma_job_orders: {
         Row: {
@@ -1247,50 +1342,7 @@ export type Database = {
           total_revenue_calculated?: number | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "proforma_job_orders_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "customers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "proforma_job_orders_engineering_assigned_to_fkey"
-            columns: ["engineering_assigned_to"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "proforma_job_orders_engineering_completed_by_fkey"
-            columns: ["engineering_completed_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "proforma_job_orders_job_order_id_fkey"
-            columns: ["job_order_id"]
-            isOneToOne: false
-            referencedRelation: "job_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "proforma_job_orders_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "proforma_job_orders_quotation_id_fkey"
-            columns: ["quotation_id"]
-            isOneToOne: false
-            referencedRelation: "quotations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       projects: {
         Row: {
@@ -1323,15 +1375,7 @@ export type Database = {
           status?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "projects_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "customers"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       pursuit_costs: {
         Row: {
@@ -1379,22 +1423,7 @@ export type Database = {
           receipt_url?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "pursuit_costs_incurred_by_fkey"
-            columns: ["incurred_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pursuit_costs_quotation_id_fkey"
-            columns: ["quotation_id"]
-            isOneToOne: false
-            referencedRelation: "quotations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       quotation_cost_items: {
         Row: {
@@ -1436,22 +1465,7 @@ export type Database = {
           vendor_id?: string | null
           vendor_name?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "quotation_cost_items_quotation_id_fkey"
-            columns: ["quotation_id"]
-            isOneToOne: false
-            referencedRelation: "quotations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotation_cost_items_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       quotation_revenue_items: {
         Row: {
@@ -1496,15 +1510,7 @@ export type Database = {
           unit_price?: number
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "quotation_revenue_items_quotation_id_fkey"
-            columns: ["quotation_id"]
-            isOneToOne: false
-            referencedRelation: "quotations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       quotations: {
         Row: {
@@ -1678,43 +1684,88 @@ export type Database = {
           total_revenue?: number | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "quotations_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotations_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "customers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotations_engineering_assigned_to_fkey"
-            columns: ["engineering_assigned_to"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotations_engineering_completed_by_fkey"
-            columns: ["engineering_completed_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "quotations_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      report_configurations: {
+        Row: {
+          allowed_roles: string[] | null
+          columns: Json | null
+          created_at: string | null
+          default_filters: Json | null
+          description: string | null
+          display_order: number | null
+          href: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          report_category: string
+          report_code: string
+          report_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          allowed_roles?: string[] | null
+          columns?: Json | null
+          created_at?: string | null
+          default_filters?: Json | null
+          description?: string | null
+          display_order?: number | null
+          href?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          report_category: string
+          report_code: string
+          report_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          allowed_roles?: string[] | null
+          columns?: Json | null
+          created_at?: string | null
+          default_filters?: Json | null
+          description?: string | null
+          display_order?: number | null
+          href?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          report_category?: string
+          report_code?: string
+          report_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      report_executions: {
+        Row: {
+          executed_at: string | null
+          executed_by: string | null
+          export_format: string | null
+          export_url: string | null
+          id: string
+          parameters: Json | null
+          report_code: string
+        }
+        Insert: {
+          executed_at?: string | null
+          executed_by?: string | null
+          export_format?: string | null
+          export_url?: string | null
+          id?: string
+          parameters?: Json | null
+          report_code: string
+        }
+        Update: {
+          executed_at?: string | null
+          executed_by?: string | null
+          export_format?: string | null
+          export_url?: string | null
+          id?: string
+          parameters?: Json | null
+          report_code?: string
+        }
+        Relationships: []
       }
       surat_jalan: {
         Row: {
@@ -1795,22 +1846,7 @@ export type Database = {
           vehicle_plate?: string | null
           weight_kg?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "surat_jalan_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "surat_jalan_jo_id_fkey"
-            columns: ["jo_id"]
-            isOneToOne: false
-            referencedRelation: "job_orders"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_profiles: {
         Row: {
@@ -1912,15 +1948,7 @@ export type Database = {
           vendor_id?: string
           whatsapp?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "vendor_contacts_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       vendor_documents: {
         Row: {
@@ -1953,22 +1981,7 @@ export type Database = {
           uploaded_by?: string | null
           vendor_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "vendor_documents_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_documents_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       vendor_equipment: {
         Row: {
@@ -2046,15 +2059,7 @@ export type Database = {
           width_m?: number | null
           year_made?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "vendor_equipment_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       vendor_invoices: {
         Row: {
@@ -2147,57 +2152,7 @@ export type Database = {
           verified_at?: string | null
           verified_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "vendor_invoices_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_invoices_bkk_id_fkey"
-            columns: ["bkk_id"]
-            isOneToOne: false
-            referencedRelation: "bukti_kas_keluar"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_invoices_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_invoices_jo_id_fkey"
-            columns: ["jo_id"]
-            isOneToOne: false
-            referencedRelation: "job_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_invoices_pjo_id_fkey"
-            columns: ["pjo_id"]
-            isOneToOne: false
-            referencedRelation: "proforma_job_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_invoices_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_invoices_verified_by_fkey"
-            columns: ["verified_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       vendor_payments: {
         Row: {
@@ -2242,22 +2197,7 @@ export type Database = {
           reference_number?: string | null
           vendor_invoice_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "vendor_payments_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_payments_vendor_invoice_id_fkey"
-            columns: ["vendor_invoice_id"]
-            isOneToOne: false
-            referencedRelation: "vendor_invoices"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       vendor_ratings: {
         Row: {
@@ -2311,36 +2251,7 @@ export type Database = {
           vendor_id?: string
           was_on_time?: boolean | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "vendor_ratings_bkk_id_fkey"
-            columns: ["bkk_id"]
-            isOneToOne: false
-            referencedRelation: "bukti_kas_keluar"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_ratings_jo_id_fkey"
-            columns: ["jo_id"]
-            isOneToOne: false
-            referencedRelation: "job_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_ratings_rated_by_fkey"
-            columns: ["rated_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_ratings_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vendors"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       vendors: {
         Row: {
@@ -2457,22 +2368,7 @@ export type Database = {
           verified_by?: string | null
           website?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "vendors_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendors_verified_by_fkey"
-            columns: ["verified_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
@@ -2510,25 +2406,23 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = Database["public"]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof Database
 }
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -2546,16 +2440,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof Database
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -2571,16 +2465,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof Database
 }
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -2596,35 +2490,18 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
+  schema: keyof Database
 }
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {

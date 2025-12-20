@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
-import { getJobOrder } from '../../../../../actions'
-import { getBeritaAcara } from '../../../../../berita-acara-actions'
+import { getJobOrder } from '@/app/(main)/job-orders/actions'
+import { getBeritaAcara } from '@/app/(main)/job-orders/berita-acara-actions'
 import { BeritaAcaraForm } from '@/components/berita-acara/berita-acara-form'
 import { canEditBA } from '@/lib/ba-utils'
 import { BAStatus } from '@/types'

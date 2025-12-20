@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getSuratJalan } from '../../../../surat-jalan-actions'
+import { getSuratJalan } from '@/app/(main)/job-orders/surat-jalan-actions'
 import { SuratJalanDetailView } from '@/components/surat-jalan/surat-jalan-detail-view'
 
 interface SuratJalanDetailPageProps {

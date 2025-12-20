@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getBeritaAcara } from '../../../../berita-acara-actions'
+import { getBeritaAcara } from '@/app/(main)/job-orders/berita-acara-actions'
 import { BeritaAcaraDetailView } from '@/components/berita-acara/berita-acara-detail-view'
 
 interface BeritaAcaraDetailPageProps {

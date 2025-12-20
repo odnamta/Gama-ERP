@@ -374,10 +374,12 @@ describe('Property 4: Validation Prevents Invalid Submission', () => {
   })
 
   it('accepts valid items with category, description, and positive amount', () => {
+    // Use alphanumeric strings to avoid whitespace-only strings
+    const nonEmptyStringArb = fc.stringMatching(/^[a-zA-Z0-9][a-zA-Z0-9 ]{0,99}$/)
     fc.assert(
       fc.property(
         fc.constantFrom('trucking', 'port_charges', 'documentation', 'handling', 'crew', 'fuel', 'tolls', 'other') as fc.Arbitrary<CostCategory>,
-        fc.string({ minLength: 1, maxLength: 100 }),
+        nonEmptyStringArb,
         fc.integer({ min: 1, max: 10000000 }),
         (category, description, amount) => {
           const items: CostItemRow[] = [{

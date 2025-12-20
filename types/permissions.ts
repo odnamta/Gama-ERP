@@ -75,6 +75,14 @@ export type FeatureKey =
   | 'vendor_invoices.approve'
   | 'vendor_invoices.record_payment'
   | 'vendor_invoices.nav'
+  // Employee/HR permissions
+  | 'employees.view'
+  | 'employees.create'
+  | 'employees.edit'
+  | 'employees.delete'
+  | 'employees.view_salary'
+  | 'employees.edit_salary'
+  | 'employees.nav'
 
 export interface PermissionContextType {
   profile: UserProfile | null

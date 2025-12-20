@@ -126,6 +126,14 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'vendor_invoices.approve': (p) => ['owner', 'admin', 'manager'].includes(p.role),
   'vendor_invoices.record_payment': (p) => ['owner', 'admin', 'finance'].includes(p.role),
   'vendor_invoices.nav': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
+  // Employee/HR permissions
+  'employees.view': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  'employees.create': (p) => ['owner', 'admin'].includes(p.role),
+  'employees.edit': (p) => ['owner', 'admin'].includes(p.role),
+  'employees.delete': (p) => ['owner', 'admin'].includes(p.role),
+  'employees.view_salary': (p) => ['owner', 'admin', 'finance'].includes(p.role),
+  'employees.edit_salary': (p) => ['owner', 'admin'].includes(p.role),
+  'employees.nav': (p) => ['owner', 'admin', 'manager'].includes(p.role),
 }
 
 /**
@@ -350,4 +358,58 @@ export function canRecordVendorPayment(profile: UserProfile | null): boolean {
  */
 export function canSeeVendorInvoicesNav(profile: UserProfile | null): boolean {
   return canAccessFeature(profile, 'vendor_invoices.nav')
+}
+
+
+// ============================================
+// Employee/HR Permission Helpers
+// ============================================
+
+/**
+ * Check if user can view employees
+ */
+export function canViewEmployees(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'employees.view')
+}
+
+/**
+ * Check if user can create employees
+ */
+export function canCreateEmployee(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'employees.create')
+}
+
+/**
+ * Check if user can edit employees
+ */
+export function canEditEmployee(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'employees.edit')
+}
+
+/**
+ * Check if user can delete employees
+ */
+export function canDeleteEmployee(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'employees.delete')
+}
+
+/**
+ * Check if user can view employee salary information
+ */
+export function canViewEmployeeSalary(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'employees.view_salary')
+}
+
+/**
+ * Check if user can edit employee salary information
+ */
+export function canEditEmployeeSalary(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'employees.edit_salary')
+}
+
+/**
+ * Check if employees/HR should be shown in navigation
+ */
+export function canSeeEmployeesNav(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'employees.nav')
 }

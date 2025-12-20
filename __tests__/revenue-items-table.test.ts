@@ -279,9 +279,11 @@ describe('Property 4: Validation Prevents Invalid Submission', () => {
   })
 
   it('accepts valid items with description and positive unit_price', () => {
+    // Use alphanumeric strings to avoid whitespace-only strings
+    const nonEmptyStringArb = fc.stringMatching(/^[a-zA-Z0-9][a-zA-Z0-9 ]{0,99}$/)
     fc.assert(
       fc.property(
-        fc.string({ minLength: 1, maxLength: 100 }),
+        nonEmptyStringArb,
         fc.integer({ min: 1, max: 10000000 }),
         (description, unitPrice) => {
           const items: RevenueItemRow[] = [{

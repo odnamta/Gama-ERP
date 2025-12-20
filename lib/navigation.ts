@@ -12,6 +12,7 @@ import {
   Building2,
   FileQuestion,
   FileStack,
+  UserCog,
   LucideIcon,
 } from 'lucide-react'
 import { UserRole, UserPermissions } from '@/types/permissions'
@@ -101,6 +102,12 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/reports',
     icon: BarChart3,
     roles: ['owner', 'admin', 'manager', 'ops', 'finance', 'sales'],
+  },
+  {
+    title: 'HR',
+    href: '/hr/employees',
+    icon: UserCog,
+    roles: ['owner', 'admin', 'manager'],
   },
   {
     title: 'Notifications',
