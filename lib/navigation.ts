@@ -11,6 +11,7 @@ import {
   Bell,
   Building2,
   FileQuestion,
+  FileStack,
   LucideIcon,
 } from 'lucide-react'
 import { UserRole, UserPermissions } from '@/types/permissions'
@@ -88,6 +89,12 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Receipt,
     roles: ['owner', 'admin', 'finance'],
     permission: 'can_manage_invoices',
+  },
+  {
+    title: 'Vendor Invoices',
+    href: '/finance/vendor-invoices',
+    icon: FileStack,
+    roles: ['owner', 'admin', 'manager', 'finance'],
   },
   {
     title: 'Reports',

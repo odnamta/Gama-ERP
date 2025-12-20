@@ -50,7 +50,6 @@ export type Database = {
         }
         Relationships: []
       }
-
       berita_acara: {
         Row: {
           ba_number: string
@@ -132,7 +131,6 @@ export type Database = {
           },
         ]
       }
-
       bukti_kas_keluar: {
         Row: {
           amount_requested: number
@@ -162,6 +160,7 @@ export type Database = {
           status: string | null
           updated_at: string | null
           vendor_id: string | null
+          vendor_invoice_id: string | null
         }
         Insert: {
           amount_requested: number
@@ -191,6 +190,7 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           vendor_id?: string | null
+          vendor_invoice_id?: string | null
         }
         Update: {
           amount_requested?: number
@@ -220,6 +220,7 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           vendor_id?: string | null
+          vendor_invoice_id?: string | null
         }
         Relationships: [
           {
@@ -271,9 +272,15 @@ export type Database = {
             referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "bukti_kas_keluar_vendor_invoice_id_fkey"
+            columns: ["vendor_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_invoices"
+            referencedColumns: ["id"]
+          },
         ]
       }
-
       company_settings: {
         Row: {
           id: string
@@ -367,7 +374,6 @@ export type Database = {
         }
         Relationships: []
       }
-
       document_attachments: {
         Row: {
           created_at: string | null
@@ -507,7 +513,6 @@ export type Database = {
           },
         ]
       }
-
       invoice_line_items: {
         Row: {
           created_at: string | null
@@ -639,7 +644,6 @@ export type Database = {
           },
         ]
       }
-
       job_orders: {
         Row: {
           amount: number
@@ -737,7 +741,6 @@ export type Database = {
           },
         ]
       }
-
       notification_preferences: {
         Row: {
           approval_enabled: boolean | null
@@ -844,7 +847,6 @@ export type Database = {
           },
         ]
       }
-
       payments: {
         Row: {
           amount: number
@@ -905,7 +907,6 @@ export type Database = {
           },
         ]
       }
-
       pjo_cost_items: {
         Row: {
           actual_amount: number | null
@@ -991,7 +992,6 @@ export type Database = {
           },
         ]
       }
-
       pjo_revenue_items: {
         Row: {
           created_at: string | null
@@ -1045,7 +1045,6 @@ export type Database = {
           },
         ]
       }
-
       proforma_job_orders: {
         Row: {
           all_costs_confirmed: boolean | null
@@ -1293,7 +1292,6 @@ export type Database = {
           },
         ]
       }
-
       projects: {
         Row: {
           created_at: string | null
@@ -1398,7 +1396,6 @@ export type Database = {
           },
         ]
       }
-
       quotation_cost_items: {
         Row: {
           category: string
@@ -1509,7 +1506,6 @@ export type Database = {
           },
         ]
       }
-
       quotations: {
         Row: {
           cargo_height_m: number | null
@@ -1720,7 +1716,6 @@ export type Database = {
           },
         ]
       }
-
       surat_jalan: {
         Row: {
           cargo_description: string | null
@@ -1817,7 +1812,6 @@ export type Database = {
           },
         ]
       }
-
       user_profiles: {
         Row: {
           avatar_url: string | null
@@ -1881,7 +1875,6 @@ export type Database = {
         }
         Relationships: []
       }
-
       vendor_contacts: {
         Row: {
           contact_name: string
@@ -1977,7 +1970,6 @@ export type Database = {
           },
         ]
       }
-
       vendor_equipment: {
         Row: {
           brand: string | null
@@ -2064,7 +2056,209 @@ export type Database = {
           },
         ]
       }
-
+      vendor_invoices: {
+        Row: {
+          amount_due: number | null
+          amount_paid: number | null
+          approved_at: string | null
+          approved_by: string | null
+          bkk_id: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          document_url: string | null
+          due_date: string | null
+          expense_category: string | null
+          id: string
+          internal_ref: string | null
+          invoice_date: string
+          invoice_number: string
+          jo_id: string | null
+          notes: string | null
+          pjo_id: string | null
+          received_date: string | null
+          status: string | null
+          subtotal: number
+          tax_amount: number | null
+          total_amount: number
+          updated_at: string | null
+          vendor_id: string
+          verification_notes: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          amount_due?: number | null
+          amount_paid?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          bkk_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          document_url?: string | null
+          due_date?: string | null
+          expense_category?: string | null
+          id?: string
+          internal_ref?: string | null
+          invoice_date: string
+          invoice_number: string
+          jo_id?: string | null
+          notes?: string | null
+          pjo_id?: string | null
+          received_date?: string | null
+          status?: string | null
+          subtotal: number
+          tax_amount?: number | null
+          total_amount: number
+          updated_at?: string | null
+          vendor_id: string
+          verification_notes?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          amount_due?: number | null
+          amount_paid?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          bkk_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          document_url?: string | null
+          due_date?: string | null
+          expense_category?: string | null
+          id?: string
+          internal_ref?: string | null
+          invoice_date?: string
+          invoice_number?: string
+          jo_id?: string | null
+          notes?: string | null
+          pjo_id?: string | null
+          received_date?: string | null
+          status?: string | null
+          subtotal?: number
+          tax_amount?: number | null
+          total_amount?: number
+          updated_at?: string | null
+          vendor_id?: string
+          verification_notes?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_invoices_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_bkk_id_fkey"
+            columns: ["bkk_id"]
+            isOneToOne: false
+            referencedRelation: "bukti_kas_keluar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_jo_id_fkey"
+            columns: ["jo_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_pjo_id_fkey"
+            columns: ["pjo_id"]
+            isOneToOne: false
+            referencedRelation: "proforma_job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vendor_payments: {
+        Row: {
+          amount: number
+          bank_account: string | null
+          bank_name: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          notes: string | null
+          payment_date: string
+          payment_method: string
+          proof_url: string | null
+          reference_number: string | null
+          vendor_invoice_id: string
+        }
+        Insert: {
+          amount: number
+          bank_account?: string | null
+          bank_name?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          payment_date: string
+          payment_method: string
+          proof_url?: string | null
+          reference_number?: string | null
+          vendor_invoice_id: string
+        }
+        Update: {
+          amount?: number
+          bank_account?: string | null
+          bank_name?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          proof_url?: string | null
+          reference_number?: string | null
+          vendor_invoice_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_payments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_payments_vendor_invoice_id_fkey"
+            columns: ["vendor_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendor_ratings: {
         Row: {
           bkk_id: string | null
@@ -2148,7 +2342,6 @@ export type Database = {
           },
         ]
       }
-
       vendors: {
         Row: {
           address: string | null
@@ -2283,10 +2476,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      search_index: {
+        Row: {
+          created_at: string | null
+          entity_id: string | null
+          entity_type: string | null
+          primary_text: string | null
+          secondary_text: string | null
+          url: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      global_search: {
+        Args: { max_results?: number; search_query: string }
+        Returns: {
+          entity_id: string
+          entity_type: string
+          primary_text: string
+          relevance: number
+          secondary_text: string
+          url: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
@@ -2296,7 +2509,6 @@ export type Database = {
     }
   }
 }
-
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 

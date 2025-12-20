@@ -66,6 +66,15 @@ export type FeatureKey =
   | 'vendors.rate'
   | 'vendors.view_bank'
   | 'vendors.nav'
+  // Vendor Invoice (AP) permissions
+  | 'vendor_invoices.view'
+  | 'vendor_invoices.create'
+  | 'vendor_invoices.edit'
+  | 'vendor_invoices.delete'
+  | 'vendor_invoices.verify'
+  | 'vendor_invoices.approve'
+  | 'vendor_invoices.record_payment'
+  | 'vendor_invoices.nav'
 
 export interface PermissionContextType {
   profile: UserProfile | null

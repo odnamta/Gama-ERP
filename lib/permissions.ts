@@ -117,6 +117,15 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'vendors.rate': (p) => ['owner', 'admin', 'manager', 'finance', 'ops'].includes(p.role),
   'vendors.view_bank': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
   'vendors.nav': (p) => p.role !== 'viewer', // Show in nav for all except viewer
+  // Vendor Invoice (AP) permissions
+  'vendor_invoices.view': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
+  'vendor_invoices.create': (p) => ['owner', 'admin', 'finance'].includes(p.role),
+  'vendor_invoices.edit': (p) => ['owner', 'admin', 'finance'].includes(p.role),
+  'vendor_invoices.delete': (p) => ['owner', 'admin'].includes(p.role),
+  'vendor_invoices.verify': (p) => ['owner', 'admin', 'finance'].includes(p.role),
+  'vendor_invoices.approve': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  'vendor_invoices.record_payment': (p) => ['owner', 'admin', 'finance'].includes(p.role),
+  'vendor_invoices.nav': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
 }
 
 /**
@@ -281,4 +290,64 @@ export function canViewVendorBankDetails(profile: UserProfile | null): boolean {
  */
 export function canSeeVendorsNav(profile: UserProfile | null): boolean {
   return canAccessFeature(profile, 'vendors.nav')
+}
+
+// ============================================
+// Vendor Invoice (AP) Permission Helpers
+// ============================================
+
+/**
+ * Check if user can view vendor invoices
+ */
+export function canViewVendorInvoices(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'vendor_invoices.view')
+}
+
+/**
+ * Check if user can create vendor invoices
+ */
+export function canCreateVendorInvoice(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'vendor_invoices.create')
+}
+
+/**
+ * Check if user can edit vendor invoices
+ */
+export function canEditVendorInvoice(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'vendor_invoices.edit')
+}
+
+/**
+ * Check if user can delete vendor invoices
+ */
+export function canDeleteVendorInvoice(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'vendor_invoices.delete')
+}
+
+/**
+ * Check if user can verify vendor invoices (3-way match)
+ */
+export function canVerifyVendorInvoice(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'vendor_invoices.verify')
+}
+
+/**
+ * Check if user can approve vendor invoices for payment
+ */
+export function canApproveVendorInvoice(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'vendor_invoices.approve')
+}
+
+/**
+ * Check if user can record payments for vendor invoices
+ */
+export function canRecordVendorPayment(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'vendor_invoices.record_payment')
+}
+
+/**
+ * Check if vendor invoices should be shown in navigation
+ */
+export function canSeeVendorInvoicesNav(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'vendor_invoices.nav')
 }

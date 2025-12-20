@@ -174,6 +174,19 @@ export async function convertToJobOrder(pjoId: string): Promise<{ error?: string
     })
     .eq('id', pjoId)
 
+  // Update vendor invoices linked to this PJO with the new JO reference
+  try {
+    const { updateVendorInvoiceJOReference } = await import('@/app/(main)/finance/vendor-invoices/actions')
+    const result = await updateVendorInvoiceJOReference(pjoId, newJO.id)
+    if (result.error) {
+      console.error('Failed to update vendor invoice JO references:', result.error)
+    } else if (result.updatedCount && result.updatedCount > 0) {
+      console.log(`Updated ${result.updatedCount} vendor invoice(s) with JO reference`)
+    }
+  } catch (e) {
+    console.error('Failed to update vendor invoice JO references:', e)
+  }
+
   // Send notification for new JO created
   try {
     const { data: customer } = await supabase
