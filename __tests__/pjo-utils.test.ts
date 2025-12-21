@@ -592,19 +592,19 @@ describe('Itemized Financials Utilities', () => {
       const items: PJOCostItem[] = [
         { id: '1', pjo_id: 'p1', category: 'trucking', description: 'A', estimated_amount: 5000000, actual_amount: 4800000, status: 'under_budget', created_at: '', updated_at: '' },
         { id: '2', pjo_id: 'p1', category: 'port_charges', description: 'B', estimated_amount: 2500000, actual_amount: 2600000, status: 'exceeded', created_at: '', updated_at: '' },
-        { id: '3', pjo_id: 'p1', category: 'documentation', description: 'C', estimated_amount: 750000, actual_amount: undefined, status: 'estimated', created_at: '', updated_at: '' },
+        { id: '3', pjo_id: 'p1', category: 'documentation', description: 'C', estimated_amount: 750000, actual_amount: null, status: 'estimated', created_at: '', updated_at: '' },
       ]
 
       const result = analyzeBudget(items)
 
-      expect(result.total_estimated).toBe(8250000)
-      expect(result.total_actual).toBe(7400000)
-      expect(result.items_confirmed).toBe(2)
-      expect(result.items_pending).toBe(1)
-      expect(result.items_over_budget).toBe(1)
-      expect(result.items_under_budget).toBe(1)
-      expect(result.all_confirmed).toBe(false)
-      expect(result.has_overruns).toBe(true)
+      expect(result.totalEstimated).toBe(8250000)
+      expect(result.totalActual).toBe(7400000)
+      expect(result.confirmedCount).toBe(2)
+      expect(result.pendingCount).toBe(1)
+      expect(result.exceededCount).toBe(1)
+      expect(result.underBudgetCount).toBe(1)
+      expect(result.allConfirmed).toBe(false)
+      expect(result.isHealthy).toBe(false)
     })
 
     it('should report all_confirmed when all items have actuals', () => {
@@ -614,8 +614,8 @@ describe('Itemized Financials Utilities', () => {
       ]
 
       const result = analyzeBudget(items)
-      expect(result.all_confirmed).toBe(true)
-      expect(result.items_pending).toBe(0)
+      expect(result.allConfirmed).toBe(true)
+      expect(result.pendingCount).toBe(0)
     })
   })
 

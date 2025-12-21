@@ -101,8 +101,11 @@ describe('Clock Actions - Property Tests', () => {
     it('should detect duplicate clock-in attempts based on existing record', () => {
       fc.assert(
         fc.property(
-          fc.date({ min: new Date(2025, 0, 1), max: new Date(2025, 11, 31) }),
+          fc.date({ min: new Date(2025, 0, 1), max: new Date(2025, 11, 31), noInvalidDate: true }),
           (clockInTime) => {
+            // Skip invalid dates
+            if (isNaN(clockInTime.getTime())) return true;
+            
             // Simulate existing record check
             const existingRecord = {
               clock_in: clockInTime.toISOString(),

@@ -2,7 +2,7 @@
 
 import { usePreview } from '@/hooks/use-preview'
 import { DashboardClient } from '@/components/dashboard/dashboard-client'
-import { OpsDashboard } from '@/components/dashboard/ops'
+import { OpsDashboard, EnhancedOpsDashboard } from '@/components/dashboard/ops'
 import { FinanceDashboard } from '@/components/dashboard/finance/finance-dashboard'
 import { SalesDashboard } from '@/components/dashboard/sales/sales-dashboard'
 import { SalesEngineeringDashboard } from '@/components/dashboard/sales-engineering'
@@ -10,10 +10,12 @@ import { ManagerDashboard } from '@/components/dashboard/manager/manager-dashboa
 import { AdminDashboard } from '@/components/dashboard/admin/admin-dashboard'
 import { OwnerDashboard } from '@/components/dashboard/owner-dashboard'
 import type { SalesEngineeringDashboardData } from '@/lib/sales-engineering-dashboard-utils'
+import type { EnhancedOpsDashboardData } from '@/lib/ops-dashboard-enhanced-utils'
 
 interface DashboardSelectorProps {
   ownerData?: Parameters<typeof OwnerDashboard>[0]['data']
   opsData?: Parameters<typeof OpsDashboard>[0]['data']
+  enhancedOpsData?: EnhancedOpsDashboardData
   financeData?: Parameters<typeof FinanceDashboard>[0]['data']
   salesData?: Parameters<typeof SalesDashboard>[0]['initialData']
   salesEngineeringData?: SalesEngineeringDashboardData
@@ -35,6 +37,7 @@ interface DashboardSelectorProps {
 export function DashboardSelector({
   ownerData,
   opsData,
+  enhancedOpsData,
   financeData,
   salesData,
   salesEngineeringData,
@@ -55,8 +58,14 @@ export function DashboardSelector({
     return <OwnerDashboard data={ownerData} />
   }
 
-  if (roleToRender === 'ops' && opsData) {
-    return <OpsDashboard data={opsData} userName={userName} />
+  // Ops role: Use enhanced dashboard if available, otherwise fallback to original
+  if (roleToRender === 'ops') {
+    if (enhancedOpsData) {
+      return <EnhancedOpsDashboard data={enhancedOpsData} userName={userName} />
+    }
+    if (opsData) {
+      return <OpsDashboard data={opsData} userName={userName} />
+    }
   }
 
   if (roleToRender === 'finance' && financeData) {

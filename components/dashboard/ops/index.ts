@@ -3,3 +3,12 @@ export { OpsKPICards } from './ops-kpi-cards'
 export { PendingCostsTable } from './pending-costs-table'
 export { ActiveJobsTable } from './active-jobs-table'
 export { WeeklyStatsCard } from './weekly-stats'
+
+// v0.9.10 Enhanced Ops Dashboard
+export { EnhancedOpsDashboard } from './enhanced-ops-dashboard'
+export { EnhancedSummaryCards } from './enhanced-summary-cards'
+export { EnhancedActiveJobsTable } from './enhanced-active-jobs-table'
+export { DeliveryScheduleCard } from './delivery-schedule-card'
+export { CostTrackingCard } from './cost-tracking-card'
+export { PendingActionsCard } from './pending-actions-card'
+export { QuickActionsBar } from './quick-actions-bar'

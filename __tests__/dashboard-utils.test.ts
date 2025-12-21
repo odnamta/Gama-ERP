@@ -14,7 +14,8 @@ import {
   calculateManagerMetrics,
   limitResults,
 } from '@/lib/dashboard-utils'
-import { ProformaJobOrder, PJOCostItem, Invoice, JobOrder, ActivityEntry } from '@/types'
+import { ProformaJobOrder, PJOCostItem, Invoice, JobOrder } from '@/types'
+import { ActivityEntry } from '@/types/database'
 
 /**
  * **Feature: v0.8-dashboard-budget-monitoring, Property 1: KPI Count Calculations**

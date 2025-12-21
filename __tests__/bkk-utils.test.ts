@@ -52,6 +52,8 @@ function createMockBKK(overrides: Partial<BKK> = {}): BKK {
     settled_by: null,
     receipt_urls: [],
     notes: null,
+    vendor_id: null,
+    vendor_invoice_id: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     ...overrides

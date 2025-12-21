@@ -239,28 +239,28 @@ export function calculateCostStatus(estimated: number, actual: number): CostStat
  * @returns Budget analysis object
  */
 export function analyzeBudget(costItems: PJOCostItem[]): BudgetAnalysis {
-  const total_estimated = calculateCostTotal(costItems, 'estimated')
+  const totalEstimated = calculateCostTotal(costItems, 'estimated')
   const confirmedItems = costItems.filter(item => item.actual_amount !== null && item.actual_amount !== undefined)
-  const total_actual = confirmedItems.reduce((sum, item) => sum + (item.actual_amount ?? 0), 0)
-  const total_variance = total_actual - total_estimated
-  const variance_pct = total_estimated > 0 ? (total_variance / total_estimated) * 100 : 0
+  const totalActual = confirmedItems.reduce((sum, item) => sum + (item.actual_amount ?? 0), 0)
+  const variance = totalActual - totalEstimated
+  const variancePercentage = totalEstimated > 0 ? (variance / totalEstimated) * 100 : 0
   
-  const items_confirmed = confirmedItems.length
-  const items_pending = costItems.length - items_confirmed
-  const items_over_budget = costItems.filter(item => item.status === 'exceeded').length
-  const items_under_budget = costItems.filter(item => item.status === 'under_budget').length
+  const confirmedCount = confirmedItems.length
+  const pendingCount = costItems.length - confirmedCount
+  const exceededCount = costItems.filter(item => item.status === 'exceeded').length
+  const underBudgetCount = costItems.filter(item => item.status === 'under_budget').length
   
   return {
-    total_estimated,
-    total_actual,
-    total_variance,
-    variance_pct,
-    items_confirmed,
-    items_pending,
-    items_over_budget,
-    items_under_budget,
-    all_confirmed: items_pending === 0 && costItems.length > 0,
-    has_overruns: items_over_budget > 0,
+    totalEstimated,
+    totalActual,
+    variance,
+    variancePercentage,
+    confirmedCount,
+    pendingCount,
+    exceededCount,
+    underBudgetCount,
+    isHealthy: exceededCount === 0,
+    allConfirmed: pendingCount === 0 && costItems.length > 0,
   }
 }
 

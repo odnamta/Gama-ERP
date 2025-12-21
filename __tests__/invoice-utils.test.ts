@@ -10,7 +10,15 @@ import {
   VAT_RATE,
   VALID_STATUS_TRANSITIONS,
 } from '@/lib/invoice-utils'
-import { InvoiceStatus, InvoiceLineItemInput } from '@/types'
+import { InvoiceStatus } from '@/types'
+
+// Type for line item input in tests
+interface LineItemInput {
+  description: string
+  quantity: number
+  unit: string
+  unit_price: number
+}
 
 // Arbitrary for generating valid line items
 const lineItemArbitrary = fc.record({

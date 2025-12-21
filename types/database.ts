@@ -4246,3 +4246,45 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
+// ============================================
+// Custom Type Definitions
+// ============================================
+
+// BKK (Bukti Kas Keluar) Types
+export type BKKStatus = 'pending' | 'approved' | 'rejected' | 'released' | 'settled' | 'cancelled'
+
+export type BKK = Tables<'bukti_kas_keluar'>
+
+export interface AvailableBudget {
+  budgetAmount: number
+  alreadyDisbursed: number
+  pendingRequests: number
+  available: number
+}
+
+export interface SettlementDifference {
+  releasedAmount: number
+  spentAmount: number
+  difference: number
+  type: 'return' | 'additional' | 'exact'
+}
+
+export interface BKKSummaryTotals {
+  totalRequested: number
+  totalReleased: number
+  totalSettled: number
+  pendingReturn: number
+  count: Record<BKKStatus, number>
+}
+
+// Activity Entry type for dashboard
+export interface ActivityEntry {
+  action_type: 'pjo_approved' | 'jo_created' | 'invoice_paid' | 'cost_exceeded' | 'pjo_submitted' | 'invoice_sent'
+  document_number: string
+  user_name: string
+  details?: {
+    source_pjo_number?: string
+    [key: string]: unknown
+  }
+}

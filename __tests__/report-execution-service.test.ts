@@ -117,10 +117,14 @@ describe('Execution Logging Input Validation', () => {
 
     const validFormats: (ExportFormat | null)[] = ['view', 'pdf', 'excel', 'csv', null]
     
+    // Generate non-whitespace strings for reportCode
+    const nonWhitespaceString = fc.string({ minLength: 1, maxLength: 50 })
+      .filter(s => s.trim().length > 0)
+    
     fc.assert(
       fc.property(
         fc.record({
-          reportCode: fc.string({ minLength: 1, maxLength: 50 }),
+          reportCode: nonWhitespaceString,
           userId: fc.uuid(),
           parameters: fc.constant({}),
           exportFormat: fc.constantFrom(...validFormats),

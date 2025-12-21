@@ -14,6 +14,7 @@ import {
 import { getSalesEngineeringDashboardData } from './sales-engineering-actions'
 import { getUserProfile, getOwnerDashboardData } from '@/lib/permissions-server'
 import { getOpsDashboardData } from '@/lib/ops-dashboard-utils'
+import { getEnhancedOpsDashboardData } from '@/lib/ops-dashboard-enhanced-utils'
 
 // Hutami's email - Marketing Manager who also manages Engineering
 const HUTAMI_EMAIL = 'hutamiarini@gama-group.co'
@@ -29,6 +30,7 @@ export default async function DashboardPage() {
     const [
       ownerData,
       opsData,
+      enhancedOpsData,
       financeData,
       salesData,
       salesEngineeringData,
@@ -43,6 +45,7 @@ export default async function DashboardPage() {
     ] = await Promise.all([
       getOwnerDashboardData(),
       getOpsDashboardData(),
+      getEnhancedOpsDashboardData(),
       fetchFinanceDashboardData(),
       fetchSalesDashboardData(),
       getSalesEngineeringDashboardData(),
@@ -60,6 +63,7 @@ export default async function DashboardPage() {
       <DashboardSelector
         ownerData={ownerData}
         opsData={opsData}
+        enhancedOpsData={enhancedOpsData}
         financeData={financeData}
         salesData={salesData}
         salesEngineeringData={salesEngineeringData}
@@ -82,10 +86,10 @@ export default async function DashboardPage() {
 
   // For non-owner users, fetch only their specific dashboard data
   if (userRole === 'ops') {
-    const opsData = await getOpsDashboardData()
+    const enhancedOpsData = await getEnhancedOpsDashboardData()
     return (
       <DashboardSelector
-        opsData={opsData}
+        enhancedOpsData={enhancedOpsData}
         userName={profile?.full_name || undefined}
         actualRole={userRole}
       />

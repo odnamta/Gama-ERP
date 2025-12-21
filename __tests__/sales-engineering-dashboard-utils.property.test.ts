@@ -3,6 +3,7 @@
  * Using fast-check for property-based testing
  */
 
+import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 import {
   calculateTotalPipelineValue,

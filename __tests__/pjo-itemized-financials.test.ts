@@ -176,7 +176,7 @@ describe('PJO Itemized Financials Integration', () => {
           category: 'trucking',
           description: 'Transport',
           estimated_amount: 5000000,
-          actual_amount: undefined,
+          actual_amount: null,
           status: 'estimated',
           created_at: '',
           updated_at: '',
@@ -187,7 +187,7 @@ describe('PJO Itemized Financials Integration', () => {
           category: 'port_charges',
           description: 'Port fees',
           estimated_amount: 2500000,
-          actual_amount: undefined,
+          actual_amount: null,
           status: 'estimated',
           created_at: '',
           updated_at: '',
@@ -198,7 +198,7 @@ describe('PJO Itemized Financials Integration', () => {
           category: 'documentation',
           description: 'Docs',
           estimated_amount: 750000,
-          actual_amount: undefined,
+          actual_amount: null,
           status: 'estimated',
           created_at: '',
           updated_at: '',
@@ -207,36 +207,36 @@ describe('PJO Itemized Financials Integration', () => {
       
       // Initial state: no items confirmed
       let budget = analyzeBudget(costItems)
-      expect(budget.items_confirmed).toBe(0)
-      expect(budget.items_pending).toBe(3)
-      expect(budget.all_confirmed).toBe(false)
+      expect(budget.confirmedCount).toBe(0)
+      expect(budget.pendingCount).toBe(3)
+      expect(budget.allConfirmed).toBe(false)
       
       // Confirm first item (under budget)
       costItems[0].actual_amount = 4800000
       costItems[0].status = 'under_budget'
       
       budget = analyzeBudget(costItems)
-      expect(budget.items_confirmed).toBe(1)
-      expect(budget.items_pending).toBe(2)
-      expect(budget.all_confirmed).toBe(false)
+      expect(budget.confirmedCount).toBe(1)
+      expect(budget.pendingCount).toBe(2)
+      expect(budget.allConfirmed).toBe(false)
       
       // Confirm second item (over budget)
       costItems[1].actual_amount = 2600000
       costItems[1].status = 'exceeded'
       
       budget = analyzeBudget(costItems)
-      expect(budget.items_confirmed).toBe(2)
-      expect(budget.items_pending).toBe(1)
-      expect(budget.has_overruns).toBe(true)
+      expect(budget.confirmedCount).toBe(2)
+      expect(budget.pendingCount).toBe(1)
+      expect(budget.isHealthy).toBe(false)
       
       // Confirm third item (exactly on budget)
       costItems[2].actual_amount = 750000
       costItems[2].status = 'confirmed'
       
       budget = analyzeBudget(costItems)
-      expect(budget.items_confirmed).toBe(3)
-      expect(budget.items_pending).toBe(0)
-      expect(budget.all_confirmed).toBe(true)
+      expect(budget.confirmedCount).toBe(3)
+      expect(budget.pendingCount).toBe(0)
+      expect(budget.allConfirmed).toBe(true)
     })
 
     it('should require justification for over-budget items', () => {
@@ -261,8 +261,6 @@ describe('PJO Itemized Financials Integration', () => {
           description: 'Transport',
           estimated_amount: 5000000,
           actual_amount: 4800000,
-          variance: -200000,
-          variance_pct: -4,
           status: 'under_budget',
           created_at: '',
           updated_at: '',
@@ -274,8 +272,6 @@ describe('PJO Itemized Financials Integration', () => {
           description: 'Port fees',
           estimated_amount: 2500000,
           actual_amount: 2600000,
-          variance: 100000,
-          variance_pct: 4,
           status: 'exceeded',
           created_at: '',
           updated_at: '',
@@ -285,13 +281,13 @@ describe('PJO Itemized Financials Integration', () => {
       const budget = analyzeBudget(costItems)
       
       // Total estimated: 7,500,000
-      expect(budget.total_estimated).toBe(7500000)
+      expect(budget.totalEstimated).toBe(7500000)
       
       // Total actual: 7,400,000
-      expect(budget.total_actual).toBe(7400000)
+      expect(budget.totalActual).toBe(7400000)
       
       // Total variance: -100,000 (under budget overall)
-      expect(budget.total_variance).toBe(-100000)
+      expect(budget.variance).toBe(-100000)
     })
   })
 
@@ -318,7 +314,7 @@ describe('PJO Itemized Financials Integration', () => {
           category: 'port_charges',
           description: 'Port fees',
           estimated_amount: 2500000,
-          actual_amount: undefined, // Not confirmed
+          actual_amount: null, // Not confirmed
           status: 'estimated',
           created_at: '',
           updated_at: '',
@@ -328,8 +324,8 @@ describe('PJO Itemized Financials Integration', () => {
       const budget = analyzeBudget(costItems)
       
       // Should not be ready for conversion
-      expect(budget.all_confirmed).toBe(false)
-      expect(budget.items_pending).toBe(1)
+      expect(budget.allConfirmed).toBe(false)
+      expect(budget.pendingCount).toBe(1)
     })
 
     it('should allow conversion when all costs confirmed', () => {
@@ -361,8 +357,8 @@ describe('PJO Itemized Financials Integration', () => {
       const budget = analyzeBudget(costItems)
       
       // Should be ready for conversion
-      expect(budget.all_confirmed).toBe(true)
-      expect(budget.items_pending).toBe(0)
+      expect(budget.allConfirmed).toBe(true)
+      expect(budget.pendingCount).toBe(0)
     })
 
     it('should generate correct JO number on conversion', () => {
@@ -458,7 +454,7 @@ describe('PJO Itemized Financials Integration', () => {
       expect(calculateCostTotal(items, 'actual')).toBe(0)
       
       const budget = analyzeBudget(items)
-      expect(budget.all_confirmed).toBe(false) // Empty array is not "all confirmed"
+      expect(budget.allConfirmed).toBe(false) // Empty array is not "all confirmed"
     })
 
     it('should handle zero values', () => {
