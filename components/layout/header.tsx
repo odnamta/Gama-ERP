@@ -7,11 +7,13 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import { GlobalSearch } from '@/components/search/global-search'
+import { ContextualHelpPopover } from '@/components/help-center/contextual-help-popover'
 
 export interface UserInfo {
   name: string
   email: string
   avatarUrl: string | null
+  role?: string
 }
 
 interface HeaderProps {
@@ -47,6 +49,7 @@ export function Header({ user }: HeaderProps) {
         <GlobalSearch />
       </div>
       <div className="flex items-center gap-4">
+        <ContextualHelpPopover userRole={user?.role || 'viewer'} />
         <NotificationDropdown />
 
         {user && (

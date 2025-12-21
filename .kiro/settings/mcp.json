@@ -17,7 +17,8 @@
         "list_migrations",
         "execute_sql",
         "get_logs",
-        "get_advisors"
+        "get_advisors",
+        "search_docs"
       ]
     },
     "context7": {
