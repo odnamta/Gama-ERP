@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { Notification, NotificationType } from '@/types/notifications'
-import { NotificationItem } from '@/components/notifications/notification-item'
+import { useNotificationsEnhanced } from '@/hooks/use-notifications-enhanced'
+import { NotificationItemEnhanced } from '@/components/notifications/notification-item-enhanced'
+import { NotificationCenterFilters, NotificationCategory } from '@/types/notification-center'
+import { NotificationPriority } from '@/types/notifications'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
@@ -13,214 +15,156 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { CheckCheck, Trash2, Loader2, Bell } from 'lucide-react'
+import {
+  CheckCheck,
+  Archive,
+  Loader2,
+  Bell,
+  Search,
+  Settings,
+  RefreshCw,
+} from 'lucide-react'
+import Link from 'next/link'
 
-const PAGE_SIZE = 25
-
-const TYPE_OPTIONS: { value: string; label: string }[] = [
-  { value: 'all', label: 'All Types' },
-  { value: 'approval', label: 'Approvals' },
-  { value: 'budget_alert', label: 'Budget Alerts' },
-  { value: 'status_change', label: 'Status Changes' },
-  { value: 'overdue', label: 'Overdue' },
-  { value: 'system', label: 'System' },
-]
-
-const STATUS_OPTIONS: { value: string; label: string }[] = [
+const STATUS_OPTIONS = [
   { value: 'all', label: 'All Status' },
   { value: 'unread', label: 'Unread' },
   { value: 'read', label: 'Read' },
 ]
 
+const CATEGORY_OPTIONS: { value: NotificationCategory | 'all'; label: string }[] = [
+  { value: 'all', label: 'All Categories' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'operations', label: 'Operations' },
+  { value: 'hr', label: 'HR' },
+  { value: 'approvals', label: 'Approvals' },
+  { value: 'system', label: 'System' },
+]
+
+const PRIORITY_OPTIONS: { value: NotificationPriority | 'all'; label: string }[] = [
+  { value: 'all', label: 'All Priorities' },
+  { value: 'urgent', label: 'Urgent' },
+  { value: 'high', label: 'High' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'low', label: 'Low' },
+]
+
 export default function NotificationsPage() {
   const router = useRouter()
-  const supabase = createClient()
+  const [searchInput, setSearchInput] = useState('')
 
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [userProfileId, setUserProfileId] = useState<string | null>(null)
-  const [typeFilter, setTypeFilter] = useState('all')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [page, setPage] = useState(0)
-  const [hasMore, setHasMore] = useState(true)
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const {
+    groupedNotifications,
+    unreadCount,
+    totalCount,
+    isLoading,
+    filters,
+    setFilters,
+    markAsRead,
+    markAllAsRead,
+    archiveNotification,
+    archiveAllRead,
+    refresh,
+    loadMore,
+    hasMore,
+  } = useNotificationsEnhanced({
+    enableRealtime: true,
+    enableSound: false,
+    enableDesktopNotifications: false,
+    groupBy: 'date',
+  })
 
-  // Get user profile ID
-  useEffect(() => {
-    async function getUserProfileId() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) return
-
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single()
-
-      if (profile) {
-        setUserProfileId(profile.id)
-      }
-    }
-
-    getUserProfileId()
-  }, [supabase])
-
-  // Fetch notifications
-  const fetchNotifications = useCallback(async () => {
-    if (!userProfileId) return
-
-    setIsLoading(true)
-
-    let query = supabase
-      .from('notifications')
-      .select('*')
-      .eq('user_id', userProfileId)
-      .is('deleted_at', null)
-      .order('created_at', { ascending: false })
-      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1)
-
-    if (typeFilter !== 'all') {
-      query = query.eq('type', typeFilter)
-    }
-
-    if (statusFilter === 'unread') {
-      query = query.eq('is_read', false)
-    } else if (statusFilter === 'read') {
-      query = query.eq('is_read', true)
-    }
-
-    const { data, error } = await query
-
-    if (error) {
-      console.error('Failed to fetch notifications:', error)
-    } else {
-      if (page === 0) {
-        setNotifications(data || [])
-      } else {
-        setNotifications((prev) => [...prev, ...(data || [])])
-      }
-      setHasMore((data?.length || 0) === PAGE_SIZE)
-    }
-
-    setIsLoading(false)
-  }, [userProfileId, typeFilter, statusFilter, page, supabase])
-
-  useEffect(() => {
-    if (userProfileId) {
-      fetchNotifications()
-    }
-  }, [userProfileId, fetchNotifications])
-
-  // Reset page when filters change
-  useEffect(() => {
-    setPage(0)
-    setNotifications([])
-  }, [typeFilter, statusFilter])
-
-  const handleMarkAsRead = async (id: string) => {
-    await supabase
-      .from('notifications')
-      .update({ is_read: true, read_at: new Date().toISOString() })
-      .eq('id', id)
-
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true, read_at: new Date().toISOString() } : n))
-    )
-  }
-
-  const handleMarkSelectedAsRead = async () => {
-    if (selectedIds.size === 0) return
-
-    await supabase
-      .from('notifications')
-      .update({ is_read: true, read_at: new Date().toISOString() })
-      .in('id', Array.from(selectedIds))
-
-    setNotifications((prev) =>
-      prev.map((n) =>
-        selectedIds.has(n.id) ? { ...n, is_read: true, read_at: new Date().toISOString() } : n
-      )
-    )
-    setSelectedIds(new Set())
-  }
-
-  const handleDeleteOld = async () => {
-    if (!userProfileId) return
-
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
-    await supabase
-      .from('notifications')
-      .update({ deleted_at: new Date().toISOString() })
-      .eq('user_id', userProfileId)
-      .eq('is_read', true)
-      .lt('created_at', thirtyDaysAgo.toISOString())
-
-    // Refresh the list
-    setPage(0)
-    setNotifications([])
-    fetchNotifications()
-  }
-
-  const handleNotificationClick = (notification: Notification) => {
-    if (notification.action_url) {
-      router.push(notification.action_url)
-    }
-  }
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
-      return next
+  const handleFilterChange = (
+    key: keyof NotificationCenterFilters,
+    value: string
+  ) => {
+    setFilters({
+      ...filters,
+      [key]: value,
     })
+  }
+
+  const handleSearch = () => {
+    setFilters({
+      ...filters,
+      searchQuery: searchInput,
+    })
+  }
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
+
+  const handleNotificationClick = (actionUrl: string | null) => {
+    if (actionUrl) {
+      router.push(actionUrl)
+    }
   }
 
   return (
     <div className="container mx-auto py-6 max-w-4xl">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Notifications</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Notifications</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up!'} · {totalCount} total
+          </p>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={handleMarkSelectedAsRead}
-            disabled={selectedIds.size === 0}
+            onClick={() => markAllAsRead()}
+            disabled={unreadCount === 0}
           >
             <CheckCheck className="h-4 w-4 mr-1" />
-            Mark Selected Read
+            Mark All Read
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDeleteOld}>
-            <Trash2 className="h-4 w-4 mr-1" />
-            Delete Old
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => archiveAllRead()}
+          >
+            <Archive className="h-4 w-4 mr-1" />
+            Archive Read
           </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => refresh()}
+          >
+            <RefreshCw className="h-4 w-4" />
+          </Button>
+          <Link href="/notifications/preferences">
+            <Button variant="ghost" size="icon">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
 
-      <div className="flex items-center gap-4 mb-6">
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by type" />
-          </SelectTrigger>
-          <SelectContent>
-            {TYPE_OPTIONS.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      {/* Filter Bar */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search notifications..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+            className="pl-9"
+          />
+        </div>
 
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
+        <Select
+          value={filters.status}
+          onValueChange={(value) => handleFilterChange('status', value)}
+        >
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
             {STATUS_OPTIONS.map((option) => (
@@ -230,14 +174,47 @@ export default function NotificationsPage() {
             ))}
           </SelectContent>
         </Select>
+
+        <Select
+          value={filters.category}
+          onValueChange={(value) => handleFilterChange('category', value)}
+        >
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            {CATEGORY_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={filters.priority}
+          onValueChange={(value) => handleFilterChange('priority', value)}
+        >
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Priority" />
+          </SelectTrigger>
+          <SelectContent>
+            {PRIORITY_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
+      {/* Notification List */}
       <div className="bg-card rounded-lg border">
-        {isLoading && notifications.length === 0 ? (
+        {isLoading && groupedNotifications.length === 0 ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
-        ) : notifications.length === 0 ? (
+        ) : groupedNotifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <Bell className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-lg font-medium">No notifications</p>
@@ -247,22 +224,23 @@ export default function NotificationsPage() {
           </div>
         ) : (
           <>
-            {notifications.map((notification) => (
-              <div key={notification.id} className="flex items-start">
-                <input
-                  type="checkbox"
-                  checked={selectedIds.has(notification.id)}
-                  onChange={() => toggleSelect(notification.id)}
-                  className="mt-5 ml-4"
-                />
-                <div className="flex-1">
-                  <NotificationItem
+            {groupedNotifications.map((group) => (
+              <div key={group.label}>
+                <div className="px-4 py-2 bg-muted/50 border-b">
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    {group.label}
+                  </h3>
+                </div>
+                {group.notifications.map((notification) => (
+                  <NotificationItemEnhanced
+                    key={notification.id}
                     notification={notification}
                     variant="page"
-                    onMarkAsRead={handleMarkAsRead}
-                    onClick={() => handleNotificationClick(notification)}
+                    onMarkAsRead={markAsRead}
+                    onArchive={archiveNotification}
+                    onClick={() => handleNotificationClick(notification.action_url)}
                   />
-                </div>
+                ))}
               </div>
             ))}
 
@@ -270,7 +248,7 @@ export default function NotificationsPage() {
               <div className="p-4 text-center border-t">
                 <Button
                   variant="outline"
-                  onClick={() => setPage((p) => p + 1)}
+                  onClick={() => loadMore()}
                   disabled={isLoading}
                 >
                   {isLoading ? (

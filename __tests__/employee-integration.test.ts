@@ -119,7 +119,7 @@ describe('Employee Integration Tests', () => {
     it('should have updated_at >= created_at', () => {
       fc.assert(
         fc.property(
-          fc.date({ min: new Date('2020-01-01'), max: new Date('2024-01-01') }),
+          fc.integer({ min: 1577836800000, max: 1704067200000 }).map(ts => new Date(ts)),
           fc.nat({ max: 365 * 24 * 60 * 60 * 1000 }), // Up to 1 year in ms
           (createdDate, offsetMs) => {
             const created_at = createdDate.toISOString();
@@ -162,7 +162,7 @@ describe('Employee Integration Tests', () => {
       fc.assert(
         fc.property(
           fc.constantFrom('resigned', 'terminated') as fc.Arbitrary<EmployeeStatus>,
-          fc.date({ min: new Date('2020-01-01'), max: new Date() }),
+          fc.integer({ min: 1577836800000, max: 1735689600000 }).map(ts => new Date(ts)),
           (status, resignDate) => {
             const employee = createMockEmployee({
               status,

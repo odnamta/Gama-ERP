@@ -1143,7 +1143,7 @@ describe('v0.5 Operations Actual Cost Entry', () => {
           fc.array(
             fc.record({
               actual_amount: fc.option(fc.double({ min: 0, max: 1e9, noNaN: true }), { nil: null }),
-              confirmed_at: fc.option(fc.date().map(d => d.toISOString()), { nil: null }),
+              confirmed_at: fc.option(fc.integer({ min: 1577836800000, max: 1735689600000 }).map(ts => new Date(ts).toISOString()), { nil: null }),
             }),
             { minLength: 0, maxLength: 20 }
           ),

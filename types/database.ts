@@ -1666,51 +1666,75 @@ export type Database = {
       }
       notifications: {
         Row: {
+          action_label: string | null
           action_url: string | null
+          archived_at: string | null
+          category: string | null
           created_at: string | null
           deleted_at: string | null
+          email_sent: boolean | null
+          email_sent_at: string | null
           entity_id: string | null
           entity_type: string | null
           expires_at: string | null
           id: string
+          is_archived: boolean | null
           is_read: boolean | null
           message: string
           metadata: Json | null
           priority: string | null
+          push_sent: boolean | null
+          push_sent_at: string | null
           read_at: string | null
           title: string
           type: string
           user_id: string
         }
         Insert: {
+          action_label?: string | null
           action_url?: string | null
+          archived_at?: string | null
+          category?: string | null
           created_at?: string | null
           deleted_at?: string | null
+          email_sent?: boolean | null
+          email_sent_at?: string | null
           entity_id?: string | null
           entity_type?: string | null
           expires_at?: string | null
           id?: string
+          is_archived?: boolean | null
           is_read?: boolean | null
           message: string
           metadata?: Json | null
           priority?: string | null
+          push_sent?: boolean | null
+          push_sent_at?: string | null
           read_at?: string | null
           title: string
           type: string
           user_id: string
         }
         Update: {
+          action_label?: string | null
           action_url?: string | null
+          archived_at?: string | null
+          category?: string | null
           created_at?: string | null
           deleted_at?: string | null
+          email_sent?: boolean | null
+          email_sent_at?: string | null
           entity_id?: string | null
           entity_type?: string | null
           expires_at?: string | null
           id?: string
+          is_archived?: boolean | null
           is_read?: boolean | null
           message?: string
           metadata?: Json | null
           priority?: string | null
+          push_sent?: boolean | null
+          push_sent_at?: string | null
           read_at?: string | null
           title?: string
           type?: string

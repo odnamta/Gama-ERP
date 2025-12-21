@@ -8,6 +8,7 @@ import {
 } from '@/types/notifications'
 import { Json } from '@/types/database'
 import { shouldNotify } from './notification-preferences'
+import { getCategoryFromType } from './notification-center-utils'
 
 /**
  * Create a single notification for a user
@@ -23,6 +24,7 @@ export async function createNotification(
   }
 
   const supabase = await createClient()
+  const category = getCategoryFromType(params.type)
 
   const { data, error } = await supabase
     .from('notifications')
@@ -31,6 +33,7 @@ export async function createNotification(
       title: params.title,
       message: params.message,
       type: params.type,
+      category: category,
       priority: params.priority || 'normal',
       entity_type: params.entityType || null,
       entity_id: params.entityId || null,
@@ -98,12 +101,15 @@ export async function createBulkNotifications(
     return []
   }
 
+  const category = getCategoryFromType(params.type)
+
   // Create notifications for filtered users
   const notifications = filteredUserIds.map((userId) => ({
     user_id: userId,
     title: params.title,
     message: params.message,
     type: params.type as string,
+    category: category,
     priority: (params.priority || 'normal') as string,
     entity_type: (params.entityType || null) as string | null,
     entity_id: params.entityId || null,

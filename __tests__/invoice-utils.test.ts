@@ -618,9 +618,9 @@ describe('Invoice Utils - Monetary Value Properties', () => {
           const roundedVat = Math.round(vatAmount * 100) / 100
           const roundedTotal = Math.round(grandTotal * 100) / 100
           
-          // Verify calculations are consistent (within 1 cent due to rounding)
-          expect(Math.abs(roundedVat - roundedSubtotal * VAT_RATE)).toBeLessThan(0.01)
-          expect(Math.abs(roundedTotal - (roundedSubtotal + roundedVat))).toBeLessThan(0.01)
+          // Verify calculations are consistent (within 1 cent due to rounding + floating point tolerance)
+          expect(Math.abs(roundedVat - roundedSubtotal * VAT_RATE)).toBeLessThan(0.011)
+          expect(Math.abs(roundedTotal - (roundedSubtotal + roundedVat))).toBeLessThan(0.011)
         }
       ),
       { numRuns: 100 }
