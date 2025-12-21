@@ -80,7 +80,8 @@ describe('Recent Searches Utils', () => {
       fc.assert(
         fc.property(
           // Use non-whitespace strings to avoid edge cases with whitespace filtering
-          fc.array(fc.stringMatching(/^[a-zA-Z0-9]{1,50}$/), { minLength: 0, maxLength: 10 }),
+          // Use uniqueArray to ensure input has no duplicates
+          fc.uniqueArray(fc.stringMatching(/^[a-zA-Z0-9]{1,50}$/), { minLength: 0, maxLength: 10 }),
           fc.stringMatching(/^[a-zA-Z0-9]{1,50}$/),
           (existingSearches, newSearch) => {
             const result = addToRecentSearches(existingSearches, newSearch)

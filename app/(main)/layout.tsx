@@ -8,6 +8,9 @@ import { ensureUserProfile } from '@/lib/permissions-server'
 import { UserProfile } from '@/types/permissions'
 import { OnboardingRouteTracker } from '@/components/onboarding'
 import { TourProvider } from '@/components/guided-tours'
+import { PreferencesProvider } from '@/contexts/preferences-context'
+import { getUserPreferences } from '@/app/(main)/settings/preferences/actions'
+import { DEFAULT_PREFERENCES } from '@/types/user-preferences'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -19,6 +22,12 @@ export default async function MainLayout({ children }: { children: React.ReactNo
     userProfile = await ensureUserProfile()
   }
 
+  // Get user preferences
+  const prefsResult = await getUserPreferences()
+  const initialPreferences = prefsResult.success && prefsResult.data
+    ? prefsResult.data
+    : DEFAULT_PREFERENCES
+
   const userInfo: UserInfo | null = user ? {
     name: userProfile?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User',
     email: user.email || '',
@@ -27,19 +36,21 @@ export default async function MainLayout({ children }: { children: React.ReactNo
 
   return (
     <PermissionProvider initialProfile={userProfile}>
-      <PreviewProviderWrapper>
-        <TourProvider>
-          <div className="flex h-screen">
-            <Sidebar />
-            <div className="flex flex-1 flex-col overflow-hidden">
-              <Header user={userInfo} />
-              <main className="flex-1 overflow-auto bg-muted/30 p-6">{children}</main>
+      <PreferencesProvider initialPreferences={initialPreferences}>
+        <PreviewProviderWrapper>
+          <TourProvider>
+            <div className="flex h-screen">
+              <Sidebar />
+              <div className="flex flex-1 flex-col overflow-hidden">
+                <Header user={userInfo} />
+                <main className="flex-1 overflow-auto bg-muted/30 p-6">{children}</main>
+              </div>
+              <Toaster />
+              <OnboardingRouteTracker userId={userProfile?.id || null} />
             </div>
-            <Toaster />
-            <OnboardingRouteTracker userId={userProfile?.id || null} />
-          </div>
-        </TourProvider>
-      </PreviewProviderWrapper>
+          </TourProvider>
+        </PreviewProviderWrapper>
+      </PreferencesProvider>
     </PermissionProvider>
   )
 }
