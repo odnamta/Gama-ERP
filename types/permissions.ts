@@ -99,6 +99,11 @@ export type FeatureKey =
   | 'finance_dashboard.view_profit_margins'
   | 'finance_dashboard.refresh'
   | 'finance_dashboard.view_bkk_pending'
+  // Sales/Engineering Dashboard permissions
+  | 'sales_engineering_dashboard.view'
+  | 'sales_engineering_dashboard.view_pipeline'
+  | 'sales_engineering_dashboard.view_engineering'
+  | 'sales_engineering_dashboard.refresh'
 
 export interface PermissionContextType {
   profile: UserProfile | null

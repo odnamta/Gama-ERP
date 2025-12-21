@@ -5,15 +5,18 @@ import { DashboardClient } from '@/components/dashboard/dashboard-client'
 import { OpsDashboard } from '@/components/dashboard/ops'
 import { FinanceDashboard } from '@/components/dashboard/finance/finance-dashboard'
 import { SalesDashboard } from '@/components/dashboard/sales/sales-dashboard'
+import { SalesEngineeringDashboard } from '@/components/dashboard/sales-engineering'
 import { ManagerDashboard } from '@/components/dashboard/manager/manager-dashboard'
 import { AdminDashboard } from '@/components/dashboard/admin/admin-dashboard'
 import { OwnerDashboard } from '@/components/dashboard/owner-dashboard'
+import type { SalesEngineeringDashboardData } from '@/lib/sales-engineering-dashboard-utils'
 
 interface DashboardSelectorProps {
   ownerData?: Parameters<typeof OwnerDashboard>[0]['data']
   opsData?: Parameters<typeof OpsDashboard>[0]['data']
   financeData?: Parameters<typeof FinanceDashboard>[0]['data']
   salesData?: Parameters<typeof SalesDashboard>[0]['initialData']
+  salesEngineeringData?: SalesEngineeringDashboardData
   managerData?: Parameters<typeof ManagerDashboard>[0]['initialData']
   adminData?: Parameters<typeof AdminDashboard>[0]['initialData']
   defaultData?: {
@@ -26,6 +29,7 @@ interface DashboardSelectorProps {
   }
   userName?: string
   actualRole: string
+  userEmail?: string
 }
 
 export function DashboardSelector({
@@ -33,11 +37,13 @@ export function DashboardSelector({
   opsData,
   financeData,
   salesData,
+  salesEngineeringData,
   managerData,
   adminData,
   defaultData,
   userName,
   actualRole,
+  userEmail,
 }: DashboardSelectorProps) {
   const { effectiveRole, isPreviewActive } = usePreview()
 
@@ -57,8 +63,18 @@ export function DashboardSelector({
     return <FinanceDashboard data={financeData} />
   }
 
-  if (roleToRender === 'sales' && salesData) {
-    return <SalesDashboard initialData={salesData} />
+  // Sales role: Show SalesEngineeringDashboard for Hutami or if salesEngineeringData is provided
+  if (roleToRender === 'sales') {
+    // Check if this is Hutami (Marketing Manager who also manages Engineering)
+    const isHutami = userEmail === 'hutamiarini@gama-group.co'
+    
+    if ((isHutami || salesEngineeringData) && salesEngineeringData) {
+      return <SalesEngineeringDashboard data={salesEngineeringData} userName={userName} />
+    }
+    
+    if (salesData) {
+      return <SalesDashboard initialData={salesData} />
+    }
   }
 
   if (roleToRender === 'manager' && managerData) {

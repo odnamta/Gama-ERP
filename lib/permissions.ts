@@ -150,6 +150,11 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'finance_dashboard.view_profit_margins': (p) => ['finance', 'owner', 'admin'].includes(p.role),
   'finance_dashboard.refresh': (p) => ['finance', 'owner', 'admin'].includes(p.role),
   'finance_dashboard.view_bkk_pending': (p) => ['finance', 'owner', 'admin', 'manager'].includes(p.role),
+  // Sales/Engineering Dashboard permissions
+  'sales_engineering_dashboard.view': (p) => ['sales', 'owner', 'admin', 'manager'].includes(p.role),
+  'sales_engineering_dashboard.view_pipeline': (p) => ['sales', 'owner', 'admin', 'manager'].includes(p.role),
+  'sales_engineering_dashboard.view_engineering': (p) => ['sales', 'owner', 'admin', 'manager'].includes(p.role),
+  'sales_engineering_dashboard.refresh': (p) => ['sales', 'owner', 'admin', 'manager'].includes(p.role),
 }
 
 /**
@@ -539,4 +544,38 @@ export function canRefreshFinanceDashboard(profile: UserProfile | null): boolean
  */
 export function canViewPendingBKK(profile: UserProfile | null): boolean {
   return canAccessFeature(profile, 'finance_dashboard.view_bkk_pending')
+}
+
+
+// ============================================
+// Sales/Engineering Dashboard Permission Helpers
+// ============================================
+
+/**
+ * Check if user can view the sales/engineering dashboard
+ * Property 11: Dashboard Routing - sales role and Hutami SHALL have access
+ */
+export function canViewSalesEngineeringDashboard(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'sales_engineering_dashboard.view')
+}
+
+/**
+ * Check if user can view sales pipeline data
+ */
+export function canViewSalesPipeline(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'sales_engineering_dashboard.view_pipeline')
+}
+
+/**
+ * Check if user can view engineering workload data
+ */
+export function canViewEngineeringWorkload(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'sales_engineering_dashboard.view_engineering')
+}
+
+/**
+ * Check if user can refresh the sales/engineering dashboard data
+ */
+export function canRefreshSalesEngineeringDashboard(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'sales_engineering_dashboard.refresh')
 }

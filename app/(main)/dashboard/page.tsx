@@ -11,13 +11,18 @@ import {
   fetchManagerDashboardData,
   fetchAdminDashboardData,
 } from './actions'
+import { getSalesEngineeringDashboardData } from './sales-engineering-actions'
 import { getUserProfile, getOwnerDashboardData } from '@/lib/permissions-server'
 import { getOpsDashboardData } from '@/lib/ops-dashboard-utils'
+
+// Hutami's email - Marketing Manager who also manages Engineering
+const HUTAMI_EMAIL = 'hutamiarini@gama-group.co'
 
 export default async function DashboardPage() {
   // Get user profile for role-based rendering
   const profile = await getUserProfile()
   const userRole = profile?.role || 'viewer'
+  const userEmail = profile?.email || ''
 
   // For owner users, fetch all dashboard data to support preview mode
   if (userRole === 'owner') {
@@ -26,6 +31,7 @@ export default async function DashboardPage() {
       opsData,
       financeData,
       salesData,
+      salesEngineeringData,
       managerData,
       adminData,
       kpis,
@@ -39,6 +45,7 @@ export default async function DashboardPage() {
       getOpsDashboardData(),
       fetchFinanceDashboardData(),
       fetchSalesDashboardData(),
+      getSalesEngineeringDashboardData(),
       fetchManagerDashboardData(),
       fetchAdminDashboardData(),
       fetchDashboardKPIs(),
@@ -55,6 +62,7 @@ export default async function DashboardPage() {
         opsData={opsData}
         financeData={financeData}
         salesData={salesData}
+        salesEngineeringData={salesEngineeringData}
         managerData={managerData}
         adminData={adminData}
         defaultData={{
@@ -66,6 +74,7 @@ export default async function DashboardPage() {
           metrics,
         }}
         userName={profile?.full_name || undefined}
+        userEmail={userEmail}
         actualRole={userRole}
       />
     )
@@ -89,8 +98,25 @@ export default async function DashboardPage() {
   }
 
   if (userRole === 'sales') {
+    // Check if this is Hutami (Marketing Manager who also manages Engineering)
+    const isHutami = userEmail === HUTAMI_EMAIL
+    
+    if (isHutami) {
+      // Fetch sales-engineering dashboard data for Hutami
+      const salesEngineeringData = await getSalesEngineeringDashboardData()
+      return (
+        <DashboardSelector
+          salesEngineeringData={salesEngineeringData}
+          userName={profile?.full_name || undefined}
+          userEmail={userEmail}
+          actualRole={userRole}
+        />
+      )
+    }
+    
+    // Regular sales users get the standard sales dashboard
     const salesData = await fetchSalesDashboardData()
-    return <DashboardSelector salesData={salesData} actualRole={userRole} />
+    return <DashboardSelector salesData={salesData} userEmail={userEmail} actualRole={userRole} />
   }
 
   if (userRole === 'manager') {
