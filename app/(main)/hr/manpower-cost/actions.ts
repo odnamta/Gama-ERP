@@ -17,13 +17,43 @@ import {
   generateExportFilename,
 } from '@/lib/manpower-cost-utils';
 
+// Database row types for new tables (not yet in generated types)
+interface ManpowerCostSummaryRow {
+  id: string;
+  department_id: string;
+  period_year: number;
+  period_month: number;
+  employee_count: number | null;
+  total_base_salary: number | null;
+  total_allowances: number | null;
+  total_overtime: number | null;
+  total_gross: number | null;
+  total_deductions: number | null;
+  total_net: number | null;
+  total_company_contributions: number | null;
+  total_company_cost: number | null;
+  avg_salary: number | null;
+  cost_per_employee: number | null;
+  calculated_at: string | null;
+  created_at: string | null;
+  department?: {
+    id: string;
+    department_name: string;
+  } | null;
+}
+
+interface PayrollPeriodRow {
+  period_year: number;
+  period_month: number;
+  period_name: string;
+}
+
 // ============================================
 // Manpower Cost Summary
 // ============================================
 
 /**
  * Refresh manpower cost summary for a period
- * Calls the database function to recalculate from payroll data
  */
 export async function refreshManpowerCostSummary(
   year: number,
@@ -35,8 +65,8 @@ export async function refreshManpowerCostSummary(
 
   const supabase = await createClient();
   
-  // Call the database function to refresh summary
-  const { error } = await supabase.rpc('refresh_manpower_cost_summary', {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.rpc as any)('refresh_manpower_cost_summary', {
     p_year: year,
     p_month: month,
   });
@@ -49,6 +79,7 @@ export async function refreshManpowerCostSummary(
   revalidatePath('/hr/manpower-cost');
   return { success: true };
 }
+
 
 /**
  * Get manpower cost summary for a period with department details
@@ -63,7 +94,8 @@ export async function getManpowerCostSummary(
 
   const supabase = await createClient();
   
-  const { data, error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
     .from('manpower_cost_summary')
     .select(`
       *,
@@ -78,9 +110,24 @@ export async function getManpowerCostSummary(
     return [];
   }
 
-  // Transform department data
-  return (data || []).map(item => ({
-    ...item,
+  return ((data || []) as ManpowerCostSummaryRow[]).map(item => ({
+    id: item.id,
+    department_id: item.department_id,
+    period_year: item.period_year,
+    period_month: item.period_month,
+    employee_count: item.employee_count || 0,
+    total_base_salary: item.total_base_salary || 0,
+    total_allowances: item.total_allowances || 0,
+    total_overtime: item.total_overtime || 0,
+    total_gross: item.total_gross || 0,
+    total_deductions: item.total_deductions || 0,
+    total_net: item.total_net || 0,
+    total_company_contributions: item.total_company_contributions || 0,
+    total_company_cost: item.total_company_cost || 0,
+    avg_salary: item.avg_salary || 0,
+    cost_per_employee: item.cost_per_employee || 0,
+    calculated_at: item.calculated_at,
+    created_at: item.created_at || new Date().toISOString(),
     department: {
       id: item.department?.id || item.department_id,
       name: item.department?.department_name || 'Unknown',
@@ -118,7 +165,8 @@ export async function getCostTrendData(
   const trendData: ManpowerCostTrendPoint[] = [];
 
   for (const period of periods) {
-    const { data, error } = await supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase as any)
       .from('manpower_cost_summary')
       .select('total_company_cost')
       .eq('period_year', period.year)
@@ -130,7 +178,8 @@ export async function getCostTrendData(
     }
 
     const totalCost = (data || []).reduce(
-      (sum, item) => sum + (item.total_company_cost || 0),
+      (sum: number, item: { total_company_cost: number | null }) => 
+        sum + (item.total_company_cost || 0),
       0
     );
 
@@ -158,7 +207,6 @@ export async function getDepartmentCostPercentages(
 
 /**
  * Get manpower cost for overhead allocation
- * Returns raw summary data for integration with overhead module
  */
 export async function getManpowerCostForOverhead(
   year: number,
@@ -170,7 +218,8 @@ export async function getManpowerCostForOverhead(
 
   const supabase = await createClient();
   
-  const { data, error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
     .from('manpower_cost_summary')
     .select('*')
     .eq('period_year', year)
@@ -181,8 +230,27 @@ export async function getManpowerCostForOverhead(
     return [];
   }
 
-  return data || [];
+  return ((data || []) as ManpowerCostSummaryRow[]).map(item => ({
+    id: item.id,
+    department_id: item.department_id,
+    period_year: item.period_year,
+    period_month: item.period_month,
+    employee_count: item.employee_count || 0,
+    total_base_salary: item.total_base_salary || 0,
+    total_allowances: item.total_allowances || 0,
+    total_overtime: item.total_overtime || 0,
+    total_gross: item.total_gross || 0,
+    total_deductions: item.total_deductions || 0,
+    total_net: item.total_net || 0,
+    total_company_contributions: item.total_company_contributions || 0,
+    total_company_cost: item.total_company_cost || 0,
+    avg_salary: item.avg_salary || 0,
+    cost_per_employee: item.cost_per_employee || 0,
+    calculated_at: item.calculated_at,
+    created_at: item.created_at || new Date().toISOString(),
+  }));
 }
+
 
 // ============================================
 // Dashboard Data
@@ -261,7 +329,6 @@ export async function getManpowerCostExportData(
     return { success: false, error: 'Invalid year or month' };
   }
 
-  // Check user role for export permission
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -275,7 +342,9 @@ export async function getManpowerCostExportData(
     .eq('id', user.id)
     .single();
 
-  if (!profile || !['finance', 'super_admin', 'admin', 'manager'].includes(profile.role)) {
+  const allowedRoles = ['finance', 'super_admin', 'admin', 'manager'];
+  const userRole = (profile as { role: string } | null)?.role;
+  if (!userRole || !allowedRoles.includes(userRole)) {
     return { success: false, error: 'You do not have permission to export data' };
   }
 
@@ -334,7 +403,8 @@ export async function getManpowerCostExportData(
 export async function getAvailablePeriods(): Promise<Array<{ year: number; month: number; name: string }>> {
   const supabase = await createClient();
   
-  const { data, error } = await supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase as any)
     .from('payroll_periods')
     .select('period_year, period_month, period_name')
     .order('period_year', { ascending: false })
@@ -345,7 +415,7 @@ export async function getAvailablePeriods(): Promise<Array<{ year: number; month
     return [];
   }
 
-  return (data || []).map(p => ({
+  return ((data || []) as PayrollPeriodRow[]).map(p => ({
     year: p.period_year,
     month: p.period_month,
     name: p.period_name,

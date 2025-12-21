@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { Tables } from '@/types/database'
 import {
   SalesPipelineSummary,
   EngineeringWorkloadSummary,
@@ -12,52 +13,10 @@ import {
   isDashboardStale,
 } from '@/lib/sales-engineering-dashboard-utils'
 
-// Type definitions for the views (until database types are regenerated)
-type SalesPipelineSummaryRow = {
-  calculated_at: string | null
-  draft_count: number | null
-  draft_value: number | null
-  eng_review_count: number | null
-  eng_review_value: number | null
-  lost_mtd: number | null
-  lost_value_mtd: number | null
-  pursuit_costs_mtd: number | null
-  ready_count: number | null
-  ready_value: number | null
-  submitted_count: number | null
-  submitted_value: number | null
-  win_rate_90d: number | null
-  won_mtd: number | null
-  won_value_mtd: number | null
-}
-
-type EngineeringWorkloadSummaryRow = {
-  calculated_at: string | null
-  completed_mtd: number | null
-  complex_in_pipeline: number | null
-  pending_assessments: number | null
-  pending_jmp: number | null
-  pending_permit: number | null
-  pending_surveys: number | null
-  pending_technical: number | null
-}
-
-type QuotationDashboardListRow = {
-  id: string
-  quotation_number: string
-  rfq_number: string | null
-  customer_name: string
-  cargo_description: string | null
-  total_revenue: number | null
-  gross_margin: number | null
-  status: string | null
-  engineering_status: string | null
-  market_type: string | null
-  submission_deadline: string | null
-  days_to_deadline: number | null
-  created_at: string | null
-  updated_at: string | null
-}
+// Use database types for views
+type SalesPipelineSummaryRow = Tables<'sales_pipeline_summary'>
+type EngineeringWorkloadSummaryRow = Tables<'engineering_workload_summary'>
+type QuotationDashboardListRow = Tables<'quotation_dashboard_list'>
 
 /**
  * Get complete sales/engineering dashboard data
@@ -67,22 +26,19 @@ export async function getSalesEngineeringDashboardData(): Promise<SalesEngineeri
   const supabase = await createClient()
 
   // Check staleness and refresh if needed
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: salesCheck } = await (supabase as any)
+  const { data: salesCheck } = await supabase
     .from('sales_pipeline_summary')
     .select('calculated_at')
     .single()
 
-  if (!salesCheck || isDashboardStale(salesCheck.calculated_at)) {
+  if (!salesCheck || isDashboardStale(salesCheck.calculated_at || '')) {
     await refreshSalesEngineeringDashboard()
   }
 
   // Fetch all data in parallel
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const supabaseAny = supabase as any
   const [salesResult, engineeringResult, urgentResult, recentResult] = await Promise.all([
-    supabaseAny.from('sales_pipeline_summary').select('*').single(),
-    supabaseAny.from('engineering_workload_summary').select('*').single(),
+    supabase.from('sales_pipeline_summary').select('*').single(),
+    supabase.from('engineering_workload_summary').select('*').single(),
     getUrgentQuotations(5),
     getRecentQuotations(10),
   ])
@@ -90,7 +46,23 @@ export async function getSalesEngineeringDashboardData(): Promise<SalesEngineeri
   // Transform sales summary
   const salesData = salesResult.data as SalesPipelineSummaryRow | null
   const salesSummary: SalesPipelineSummary = salesData
-    ? transformSalesPipelineSummary(salesData)
+    ? transformSalesPipelineSummary({
+        draft_count: salesData.draft_count,
+        draft_value: salesData.draft_value,
+        eng_review_count: salesData.eng_review_count,
+        eng_review_value: salesData.eng_review_value,
+        submitted_count: salesData.submitted_count,
+        submitted_value: salesData.submitted_value,
+        ready_count: salesData.ready_count,
+        ready_value: salesData.ready_value,
+        won_mtd: salesData.won_mtd,
+        won_value_mtd: salesData.won_value_mtd,
+        lost_mtd: salesData.lost_mtd,
+        lost_value_mtd: salesData.lost_value_mtd,
+        win_rate_90d: salesData.win_rate_90d,
+        pursuit_costs_mtd: salesData.pursuit_costs_mtd,
+        calculated_at: salesData.calculated_at,
+      })
     : {
         draftCount: 0,
         draftValue: 0,
@@ -112,7 +84,16 @@ export async function getSalesEngineeringDashboardData(): Promise<SalesEngineeri
   // Transform engineering summary
   const engineeringData = engineeringResult.data as EngineeringWorkloadSummaryRow | null
   const engineeringSummary: EngineeringWorkloadSummary = engineeringData
-    ? transformEngineeringWorkloadSummary(engineeringData)
+    ? transformEngineeringWorkloadSummary({
+        pending_assessments: engineeringData.pending_assessments,
+        pending_surveys: engineeringData.pending_surveys,
+        pending_technical: engineeringData.pending_technical,
+        pending_jmp: engineeringData.pending_jmp,
+        pending_permit: engineeringData.pending_permit,
+        completed_mtd: engineeringData.completed_mtd,
+        complex_in_pipeline: engineeringData.complex_in_pipeline,
+        calculated_at: engineeringData.calculated_at,
+      })
     : {
         pendingAssessments: 0,
         pendingSurveys: 0,
@@ -142,8 +123,7 @@ export async function getSalesEngineeringDashboardData(): Promise<SalesEngineeri
 export async function refreshSalesEngineeringDashboard(): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any).rpc('refresh_sales_engineering_dashboard')
+  const { error } = await supabase.rpc('refresh_sales_engineering_dashboard')
 
   if (error) {
     console.error('Failed to refresh sales/engineering dashboard:', error)
@@ -159,8 +139,7 @@ export async function refreshSalesEngineeringDashboard(): Promise<{ success: boo
 export async function getUrgentQuotations(maxDays: number = 7): Promise<QuotationListItem[]> {
   const supabase = await createClient()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('quotation_dashboard_list')
     .select('*')
     .not('submission_deadline', 'is', null)
@@ -175,7 +154,22 @@ export async function getUrgentQuotations(maxDays: number = 7): Promise<Quotatio
     return []
   }
 
-  return ((data || []) as QuotationDashboardListRow[]).map(transformQuotationRow)
+  return ((data || []) as QuotationDashboardListRow[]).map((row) => transformQuotationRow({
+    id: row.id || '',
+    quotation_number: row.quotation_number || '',
+    rfq_number: row.rfq_number,
+    customer_name: row.customer_name,
+    cargo_description: row.cargo_description,
+    total_revenue: row.total_revenue,
+    gross_margin: row.gross_margin,
+    status: row.status,
+    market_type: row.market_type,
+    submission_deadline: row.submission_deadline,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    engineering_status: row.engineering_status,
+    days_to_deadline: row.days_to_deadline,
+  }))
 }
 
 /**
@@ -184,8 +178,7 @@ export async function getUrgentQuotations(maxDays: number = 7): Promise<Quotatio
 export async function getRecentQuotations(limit: number = 10): Promise<QuotationListItem[]> {
   const supabase = await createClient()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('quotation_dashboard_list')
     .select('*')
     .not('status', 'in', '("won","lost","cancelled")')
@@ -197,7 +190,22 @@ export async function getRecentQuotations(limit: number = 10): Promise<Quotation
     return []
   }
 
-  return ((data || []) as QuotationDashboardListRow[]).map(transformQuotationRow)
+  return ((data || []) as QuotationDashboardListRow[]).map((row) => transformQuotationRow({
+    id: row.id || '',
+    quotation_number: row.quotation_number || '',
+    rfq_number: row.rfq_number,
+    customer_name: row.customer_name,
+    cargo_description: row.cargo_description,
+    total_revenue: row.total_revenue,
+    gross_margin: row.gross_margin,
+    status: row.status,
+    market_type: row.market_type,
+    submission_deadline: row.submission_deadline,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    engineering_status: row.engineering_status,
+    days_to_deadline: row.days_to_deadline,
+  }))
 }
 
 /**
@@ -206,8 +214,7 @@ export async function getRecentQuotations(limit: number = 10): Promise<Quotation
 export async function getAllQuotations(): Promise<QuotationListItem[]> {
   const supabase = await createClient()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('quotation_dashboard_list')
     .select('*')
     .order('updated_at', { ascending: false })
@@ -217,7 +224,22 @@ export async function getAllQuotations(): Promise<QuotationListItem[]> {
     return []
   }
 
-  return ((data || []) as QuotationDashboardListRow[]).map(transformQuotationRow)
+  return ((data || []) as QuotationDashboardListRow[]).map((row) => transformQuotationRow({
+    id: row.id || '',
+    quotation_number: row.quotation_number || '',
+    rfq_number: row.rfq_number,
+    customer_name: row.customer_name,
+    cargo_description: row.cargo_description,
+    total_revenue: row.total_revenue,
+    gross_margin: row.gross_margin,
+    status: row.status,
+    market_type: row.market_type,
+    submission_deadline: row.submission_deadline,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    engineering_status: row.engineering_status,
+    days_to_deadline: row.days_to_deadline,
+  }))
 }
 
 /**
@@ -251,13 +273,16 @@ export async function getPendingAssessments(limit: number = 5): Promise<{
     return []
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return (data || []).map((row: any) => ({
-    id: row.id,
-    assessmentType: row.assessment_type,
-    status: row.status || 'pending',
-    quotationNumber: row.quotations?.quotation_number || null,
-    cargoDescription: row.quotations?.commodity || null,
-    createdAt: row.created_at || new Date().toISOString(),
-  }))
+  return (data || []).map((row) => {
+    // Handle the quotations relation which could be an object or array
+    const quotation = Array.isArray(row.quotations) ? row.quotations[0] : row.quotations
+    return {
+      id: row.id,
+      assessmentType: row.assessment_type,
+      status: row.status || 'pending',
+      quotationNumber: quotation?.quotation_number || null,
+      cargoDescription: quotation?.commodity || null,
+      createdAt: row.created_at || new Date().toISOString(),
+    }
+  })
 }

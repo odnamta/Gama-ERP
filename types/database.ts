@@ -7,6 +7,8 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
@@ -47,6 +49,84 @@ export type Database = {
           user_name?: string
         }
         Relationships: []
+      }
+      attendance_records: {
+        Row: {
+          attendance_date: string
+          clock_in: string | null
+          clock_in_location: string | null
+          clock_out: string | null
+          clock_out_location: string | null
+          corrected_by: string | null
+          correction_reason: string | null
+          created_at: string | null
+          early_leave_minutes: number | null
+          employee_id: string
+          id: string
+          is_corrected: boolean | null
+          late_minutes: number | null
+          notes: string | null
+          overtime_hours: number | null
+          status: string | null
+          updated_at: string | null
+          work_hours: number | null
+        }
+        Insert: {
+          attendance_date: string
+          clock_in?: string | null
+          clock_in_location?: string | null
+          clock_out?: string | null
+          clock_out_location?: string | null
+          corrected_by?: string | null
+          correction_reason?: string | null
+          created_at?: string | null
+          early_leave_minutes?: number | null
+          employee_id: string
+          id?: string
+          is_corrected?: boolean | null
+          late_minutes?: number | null
+          notes?: string | null
+          overtime_hours?: number | null
+          status?: string | null
+          updated_at?: string | null
+          work_hours?: number | null
+        }
+        Update: {
+          attendance_date?: string
+          clock_in?: string | null
+          clock_in_location?: string | null
+          clock_out?: string | null
+          clock_out_location?: string | null
+          corrected_by?: string | null
+          correction_reason?: string | null
+          created_at?: string | null
+          early_leave_minutes?: number | null
+          employee_id?: string
+          id?: string
+          is_corrected?: boolean | null
+          late_minutes?: number | null
+          notes?: string | null
+          overtime_hours?: number | null
+          status?: string | null
+          updated_at?: string | null
+          work_hours?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_corrected_by_fkey"
+            columns: ["corrected_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_records_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       berita_acara: {
         Row: {
@@ -112,7 +192,22 @@ export type Database = {
           updated_at?: string | null
           work_description?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "berita_acara_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "berita_acara_jo_id_fkey"
+            columns: ["jo_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bukti_kas_keluar: {
         Row: {
@@ -205,7 +300,64 @@ export type Database = {
           vendor_id?: string | null
           vendor_invoice_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "bukti_kas_keluar_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bukti_kas_keluar_jo_id_fkey"
+            columns: ["jo_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bukti_kas_keluar_pjo_cost_item_id_fkey"
+            columns: ["pjo_cost_item_id"]
+            isOneToOne: false
+            referencedRelation: "pjo_cost_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bukti_kas_keluar_released_by_fkey"
+            columns: ["released_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bukti_kas_keluar_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bukti_kas_keluar_settled_by_fkey"
+            columns: ["settled_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bukti_kas_keluar_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bukti_kas_keluar_vendor_invoice_id_fkey"
+            columns: ["vendor_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       company_settings: {
         Row: {
@@ -300,6 +452,45 @@ export type Database = {
         }
         Relationships: []
       }
+
+      dashboard_configs: {
+        Row: {
+          created_at: string | null
+          id: string
+          layout: Json | null
+          refresh_interval: number | null
+          role: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          layout?: Json | null
+          refresh_interval?: number | null
+          role?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          layout?: Json | null
+          refresh_interval?: number | null
+          role?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dashboard_configs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           created_at: string | null
@@ -328,7 +519,22 @@ export type Database = {
           manager_id?: string | null
           parent_department_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "departments_parent_department_id_fkey"
+            columns: ["parent_department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_department_manager"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       document_attachments: {
         Row: {
@@ -367,7 +573,149 @@ export type Database = {
           storage_path?: string
           uploaded_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "document_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_payroll_setup: {
+        Row: {
+          component_id: string
+          created_at: string | null
+          custom_amount: number | null
+          custom_rate: number | null
+          effective_from: string | null
+          effective_to: string | null
+          employee_id: string
+          id: string
+          is_active: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          component_id: string
+          created_at?: string | null
+          custom_amount?: number | null
+          custom_rate?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          employee_id: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          component_id?: string
+          created_at?: string | null
+          custom_amount?: number | null
+          custom_rate?: number | null
+          effective_from?: string | null
+          effective_to?: string | null
+          employee_id?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_payroll_setup_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "payroll_components"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_payroll_setup_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_skills: {
+        Row: {
+          certificate_url: string | null
+          certification_date: string | null
+          certification_number: string | null
+          created_at: string | null
+          employee_id: string
+          expiry_date: string | null
+          id: string
+          is_certified: boolean | null
+          level: string | null
+          notes: string | null
+          skill_id: string
+          updated_at: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          certificate_url?: string | null
+          certification_date?: string | null
+          certification_number?: string | null
+          created_at?: string | null
+          employee_id: string
+          expiry_date?: string | null
+          id?: string
+          is_certified?: boolean | null
+          level?: string | null
+          notes?: string | null
+          skill_id: string
+          updated_at?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          certificate_url?: string | null
+          certification_date?: string | null
+          certification_number?: string | null
+          created_at?: string | null
+          employee_id?: string
+          expiry_date?: string | null
+          id?: string
+          is_certified?: boolean | null
+          level?: string | null
+          notes?: string | null
+          skill_id?: string
+          updated_at?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_skills_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skill_gap_analysis"
+            referencedColumns: ["skill_id"]
+          },
+          {
+            foreignKeyName: "employee_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_skills_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       employees: {
         Row: {
@@ -406,6 +754,7 @@ export type Database = {
           resignation_date: string | null
           resignation_reason: string | null
           salary_currency: string | null
+          schedule_id: string | null
           status: string | null
           tax_id: string | null
           updated_at: string | null
@@ -447,6 +796,7 @@ export type Database = {
           resignation_date?: string | null
           resignation_reason?: string | null
           salary_currency?: string | null
+          schedule_id?: string | null
           status?: string | null
           tax_id?: string | null
           updated_at?: string | null
@@ -488,12 +838,56 @@ export type Database = {
           resignation_date?: string | null
           resignation_reason?: string | null
           salary_currency?: string | null
+          schedule_id?: string | null
           status?: string | null
           tax_id?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "employees_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "positions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_reporting_to_fkey"
+            columns: ["reporting_to"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "work_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employees_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       engineering_assessments: {
         Row: {
@@ -556,6 +950,69 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "engineering_assessments_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineering_assessments_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineering_assessments_pjo_id_fkey"
+            columns: ["pjo_id"]
+            isOneToOne: false
+            referencedRelation: "proforma_job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineering_assessments_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotation_dashboard_list"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "engineering_assessments_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      holidays: {
+        Row: {
+          created_at: string | null
+          holiday_date: string
+          holiday_name: string
+          id: string
+          is_company: boolean | null
+          is_national: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          holiday_date: string
+          holiday_name: string
+          id?: string
+          is_company?: boolean | null
+          is_national?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          holiday_date?: string
+          holiday_name?: string
+          id?: string
+          is_company?: boolean | null
+          is_national?: boolean | null
+        }
         Relationships: []
       }
       invoice_line_items: {
@@ -595,7 +1052,15 @@ export type Database = {
           unit_price?: number
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invoice_line_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoices: {
         Row: {
@@ -664,7 +1129,22 @@ export type Database = {
           total_amount?: number
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_jo_id_fkey"
+            columns: ["jo_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       job_orders: {
         Row: {
@@ -748,7 +1228,29 @@ export type Database = {
           total_overhead?: number | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "job_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_orders_pjo_id_fkey"
+            columns: ["pjo_id"]
+            isOneToOne: false
+            referencedRelation: "proforma_job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_orders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       job_overhead_allocations: {
         Row: {
@@ -790,7 +1292,291 @@ export type Database = {
           period_month?: number | null
           period_year?: number | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "job_overhead_allocations_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "overhead_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_overhead_allocations_jo_id_fkey"
+            columns: ["jo_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+
+      leave_balances: {
+        Row: {
+          available_days: number | null
+          carried_over_days: number | null
+          created_at: string | null
+          employee_id: string
+          entitled_days: number
+          id: string
+          leave_type_id: string
+          pending_days: number | null
+          updated_at: string | null
+          used_days: number | null
+          year: number
+        }
+        Insert: {
+          available_days?: number | null
+          carried_over_days?: number | null
+          created_at?: string | null
+          employee_id: string
+          entitled_days: number
+          id?: string
+          leave_type_id: string
+          pending_days?: number | null
+          updated_at?: string | null
+          used_days?: number | null
+          year: number
+        }
+        Update: {
+          available_days?: number | null
+          carried_over_days?: number | null
+          created_at?: string | null
+          employee_id?: string
+          entitled_days?: number
+          id?: string
+          leave_type_id?: string
+          pending_days?: number | null
+          updated_at?: string | null
+          used_days?: number | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leave_balances_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_balances_leave_type_id_fkey"
+            columns: ["leave_type_id"]
+            isOneToOne: false
+            referencedRelation: "leave_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leave_requests: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          attachment_url: string | null
+          created_at: string | null
+          emergency_contact: string | null
+          employee_id: string
+          end_date: string
+          half_day_type: string | null
+          handover_notes: string | null
+          handover_to: string | null
+          id: string
+          is_half_day: boolean | null
+          leave_type_id: string
+          reason: string | null
+          rejection_reason: string | null
+          request_number: string | null
+          start_date: string
+          status: string | null
+          total_days: number
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          attachment_url?: string | null
+          created_at?: string | null
+          emergency_contact?: string | null
+          employee_id: string
+          end_date: string
+          half_day_type?: string | null
+          handover_notes?: string | null
+          handover_to?: string | null
+          id?: string
+          is_half_day?: boolean | null
+          leave_type_id: string
+          reason?: string | null
+          rejection_reason?: string | null
+          request_number?: string | null
+          start_date: string
+          status?: string | null
+          total_days: number
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          attachment_url?: string | null
+          created_at?: string | null
+          emergency_contact?: string | null
+          employee_id?: string
+          end_date?: string
+          half_day_type?: string | null
+          handover_notes?: string | null
+          handover_to?: string | null
+          id?: string
+          is_half_day?: boolean | null
+          leave_type_id?: string
+          reason?: string | null
+          rejection_reason?: string | null
+          request_number?: string | null
+          start_date?: string
+          status?: string | null
+          total_days?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leave_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_requests_handover_to_fkey"
+            columns: ["handover_to"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leave_requests_leave_type_id_fkey"
+            columns: ["leave_type_id"]
+            isOneToOne: false
+            referencedRelation: "leave_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leave_types: {
+        Row: {
+          allow_carry_over: boolean | null
+          created_at: string | null
+          default_days_per_year: number | null
+          id: string
+          is_active: boolean | null
+          is_paid: boolean | null
+          max_carry_over_days: number | null
+          min_days_advance: number | null
+          requires_approval: boolean | null
+          requires_attachment: boolean | null
+          type_code: string
+          type_name: string
+        }
+        Insert: {
+          allow_carry_over?: boolean | null
+          created_at?: string | null
+          default_days_per_year?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_paid?: boolean | null
+          max_carry_over_days?: number | null
+          min_days_advance?: number | null
+          requires_approval?: boolean | null
+          requires_attachment?: boolean | null
+          type_code: string
+          type_name: string
+        }
+        Update: {
+          allow_carry_over?: boolean | null
+          created_at?: string | null
+          default_days_per_year?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_paid?: boolean | null
+          max_carry_over_days?: number | null
+          min_days_advance?: number | null
+          requires_approval?: boolean | null
+          requires_attachment?: boolean | null
+          type_code?: string
+          type_name?: string
+        }
         Relationships: []
+      }
+      manpower_cost_summary: {
+        Row: {
+          avg_salary: number | null
+          calculated_at: string | null
+          cost_per_employee: number | null
+          created_at: string | null
+          department_id: string
+          employee_count: number | null
+          id: string
+          period_month: number
+          period_year: number
+          total_allowances: number | null
+          total_base_salary: number | null
+          total_company_contributions: number | null
+          total_company_cost: number | null
+          total_deductions: number | null
+          total_gross: number | null
+          total_net: number | null
+          total_overtime: number | null
+        }
+        Insert: {
+          avg_salary?: number | null
+          calculated_at?: string | null
+          cost_per_employee?: number | null
+          created_at?: string | null
+          department_id: string
+          employee_count?: number | null
+          id?: string
+          period_month: number
+          period_year: number
+          total_allowances?: number | null
+          total_base_salary?: number | null
+          total_company_contributions?: number | null
+          total_company_cost?: number | null
+          total_deductions?: number | null
+          total_gross?: number | null
+          total_net?: number | null
+          total_overtime?: number | null
+        }
+        Update: {
+          avg_salary?: number | null
+          calculated_at?: string | null
+          cost_per_employee?: number | null
+          created_at?: string | null
+          department_id?: string
+          employee_count?: number | null
+          id?: string
+          period_month?: number
+          period_year?: number
+          total_allowances?: number | null
+          total_base_salary?: number | null
+          total_company_contributions?: number | null
+          total_company_cost?: number | null
+          total_deductions?: number | null
+          total_gross?: number | null
+          total_net?: number | null
+          total_overtime?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manpower_cost_summary_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_preferences: {
         Row: {
@@ -826,7 +1612,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -880,7 +1674,15 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       overhead_actuals: {
         Row: {
@@ -913,7 +1715,22 @@ export type Database = {
           period_month?: number
           period_year?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "overhead_actuals_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "overhead_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "overhead_actuals_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       overhead_categories: {
         Row: {
@@ -994,7 +1811,241 @@ export type Database = {
           reference_number?: string | null
           updated_at?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_components: {
+        Row: {
+          calculation_type: string | null
+          component_code: string
+          component_name: string
+          component_type: string
+          created_at: string | null
+          default_amount: number | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          is_mandatory: boolean | null
+          is_taxable: boolean | null
+          percentage_of: string | null
+          percentage_rate: number | null
+        }
+        Insert: {
+          calculation_type?: string | null
+          component_code: string
+          component_name: string
+          component_type: string
+          created_at?: string | null
+          default_amount?: number | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_mandatory?: boolean | null
+          is_taxable?: boolean | null
+          percentage_of?: string | null
+          percentage_rate?: number | null
+        }
+        Update: {
+          calculation_type?: string | null
+          component_code?: string
+          component_name?: string
+          component_type?: string
+          created_at?: string | null
+          default_amount?: number | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_mandatory?: boolean | null
+          is_taxable?: boolean | null
+          percentage_of?: string | null
+          percentage_rate?: number | null
+        }
         Relationships: []
+      }
+      payroll_periods: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string | null
+          employee_count: number | null
+          end_date: string
+          id: string
+          pay_date: string
+          period_month: number
+          period_name: string
+          period_year: number
+          processed_at: string | null
+          processed_by: string | null
+          start_date: string
+          status: string | null
+          total_company_cost: number | null
+          total_deductions: number | null
+          total_gross: number | null
+          total_net: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          employee_count?: number | null
+          end_date: string
+          id?: string
+          pay_date: string
+          period_month: number
+          period_name: string
+          period_year: number
+          processed_at?: string | null
+          processed_by?: string | null
+          start_date: string
+          status?: string | null
+          total_company_cost?: number | null
+          total_deductions?: number | null
+          total_gross?: number | null
+          total_net?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          employee_count?: number | null
+          end_date?: string
+          id?: string
+          pay_date?: string
+          period_month?: number
+          period_name?: string
+          period_year?: number
+          processed_at?: string | null
+          processed_by?: string | null
+          start_date?: string
+          status?: string | null
+          total_company_cost?: number | null
+          total_deductions?: number | null
+          total_gross?: number | null
+          total_net?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_periods_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_periods_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_records: {
+        Row: {
+          absent_days: number | null
+          bank_account: string | null
+          bank_account_name: string | null
+          bank_name: string | null
+          company_contributions: Json | null
+          created_at: string | null
+          deductions: Json | null
+          earnings: Json | null
+          employee_id: string
+          gross_salary: number | null
+          id: string
+          leave_days: number | null
+          net_salary: number | null
+          notes: string | null
+          overtime_hours: number | null
+          period_id: string
+          present_days: number | null
+          status: string | null
+          total_company_cost: number | null
+          total_deductions: number | null
+          updated_at: string | null
+          work_days: number | null
+        }
+        Insert: {
+          absent_days?: number | null
+          bank_account?: string | null
+          bank_account_name?: string | null
+          bank_name?: string | null
+          company_contributions?: Json | null
+          created_at?: string | null
+          deductions?: Json | null
+          earnings?: Json | null
+          employee_id: string
+          gross_salary?: number | null
+          id?: string
+          leave_days?: number | null
+          net_salary?: number | null
+          notes?: string | null
+          overtime_hours?: number | null
+          period_id: string
+          present_days?: number | null
+          status?: string | null
+          total_company_cost?: number | null
+          total_deductions?: number | null
+          updated_at?: string | null
+          work_days?: number | null
+        }
+        Update: {
+          absent_days?: number | null
+          bank_account?: string | null
+          bank_account_name?: string | null
+          bank_name?: string | null
+          company_contributions?: Json | null
+          created_at?: string | null
+          deductions?: Json | null
+          earnings?: Json | null
+          employee_id?: string
+          gross_salary?: number | null
+          id?: string
+          leave_days?: number | null
+          net_salary?: number | null
+          notes?: string | null
+          overtime_hours?: number | null
+          period_id?: string
+          present_days?: number | null
+          status?: string | null
+          total_company_cost?: number | null
+          total_deductions?: number | null
+          updated_at?: string | null
+          work_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_records_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_records_period_id_fkey"
+            columns: ["period_id"]
+            isOneToOne: false
+            referencedRelation: "payroll_periods"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pjo_cost_items: {
         Row: {
@@ -1057,7 +2108,29 @@ export type Database = {
           vendor_equipment_id?: string | null
           vendor_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pjo_cost_items_pjo_id_fkey"
+            columns: ["pjo_id"]
+            isOneToOne: false
+            referencedRelation: "proforma_job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pjo_cost_items_vendor_equipment_id_fkey"
+            columns: ["vendor_equipment_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pjo_cost_items_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pjo_revenue_items: {
         Row: {
@@ -1102,7 +2175,15 @@ export type Database = {
           unit_price?: number
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pjo_revenue_items_pjo_id_fkey"
+            columns: ["pjo_id"]
+            isOneToOne: false
+            referencedRelation: "proforma_job_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       positions: {
         Row: {
@@ -1138,8 +2219,17 @@ export type Database = {
           salary_max?: number | null
           salary_min?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "positions_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
+
       proforma_job_orders: {
         Row: {
           all_costs_confirmed: boolean | null
@@ -1342,7 +2432,57 @@ export type Database = {
           total_revenue_calculated?: number | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "proforma_job_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_job_orders_engineering_assigned_to_fkey"
+            columns: ["engineering_assigned_to"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_job_orders_engineering_completed_by_fkey"
+            columns: ["engineering_completed_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_job_orders_job_order_id_fkey"
+            columns: ["job_order_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_job_orders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_job_orders_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotation_dashboard_list"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "proforma_job_orders_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       projects: {
         Row: {
@@ -1375,7 +2515,15 @@ export type Database = {
           status?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pursuit_costs: {
         Row: {
@@ -1423,7 +2571,29 @@ export type Database = {
           receipt_url?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pursuit_costs_incurred_by_fkey"
+            columns: ["incurred_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pursuit_costs_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotation_dashboard_list"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pursuit_costs_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quotation_cost_items: {
         Row: {
@@ -1465,7 +2635,29 @@ export type Database = {
           vendor_id?: string | null
           vendor_name?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "quotation_cost_items_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotation_dashboard_list"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotation_cost_items_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotation_cost_items_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quotation_revenue_items: {
         Row: {
@@ -1510,8 +2702,24 @@ export type Database = {
           unit_price?: number
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "quotation_revenue_items_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotation_dashboard_list"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotation_revenue_items_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
+
       quotations: {
         Row: {
           cargo_height_m: number | null
@@ -1684,7 +2892,43 @@ export type Database = {
           total_revenue?: number | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "quotations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_engineering_assigned_to_fkey"
+            columns: ["engineering_assigned_to"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_engineering_completed_by_fkey"
+            columns: ["engineering_completed_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       report_configurations: {
         Row: {
@@ -1765,7 +3009,127 @@ export type Database = {
           parameters?: Json | null
           report_code?: string
         }
+        Relationships: [
+          {
+            foreignKeyName: "report_executions_executed_by_fkey"
+            columns: ["executed_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      salary_slips: {
+        Row: {
+          generated_at: string | null
+          id: string
+          payroll_record_id: string
+          pdf_url: string | null
+          slip_number: string
+        }
+        Insert: {
+          generated_at?: string | null
+          id?: string
+          payroll_record_id: string
+          pdf_url?: string | null
+          slip_number: string
+        }
+        Update: {
+          generated_at?: string | null
+          id?: string
+          payroll_record_id?: string
+          pdf_url?: string | null
+          slip_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "salary_slips_payroll_record_id_fkey"
+            columns: ["payroll_record_id"]
+            isOneToOne: false
+            referencedRelation: "payroll_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skill_categories: {
+        Row: {
+          category_code: string
+          category_name: string
+          created_at: string | null
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+        }
+        Insert: {
+          category_code: string
+          category_name: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+        }
+        Update: {
+          category_code?: string
+          category_name?: string
+          created_at?: string | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+        }
         Relationships: []
+      }
+      skills: {
+        Row: {
+          category_id: string | null
+          certification_validity_months: number | null
+          created_at: string | null
+          criticality: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          requires_certification: boolean | null
+          skill_code: string
+          skill_name: string
+          target_coverage_percent: number | null
+        }
+        Insert: {
+          category_id?: string | null
+          certification_validity_months?: number | null
+          created_at?: string | null
+          criticality?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          requires_certification?: boolean | null
+          skill_code: string
+          skill_name: string
+          target_coverage_percent?: number | null
+        }
+        Update: {
+          category_id?: string | null
+          certification_validity_months?: number | null
+          created_at?: string | null
+          criticality?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          requires_certification?: boolean | null
+          skill_code?: string
+          skill_name?: string
+          target_coverage_percent?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skills_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "skill_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       surat_jalan: {
         Row: {
@@ -1846,7 +3210,22 @@ export type Database = {
           vehicle_plate?: string | null
           weight_kg?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "surat_jalan_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "surat_jalan_jo_id_fkey"
+            columns: ["jo_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_profiles: {
         Row: {
@@ -1911,6 +3290,7 @@ export type Database = {
         }
         Relationships: []
       }
+
       vendor_contacts: {
         Row: {
           contact_name: string
@@ -1948,7 +3328,15 @@ export type Database = {
           vendor_id?: string
           whatsapp?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vendor_contacts_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendor_documents: {
         Row: {
@@ -1981,7 +3369,22 @@ export type Database = {
           uploaded_by?: string | null
           vendor_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vendor_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_documents_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendor_equipment: {
         Row: {
@@ -2059,7 +3462,15 @@ export type Database = {
           width_m?: number | null
           year_made?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vendor_equipment_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendor_invoices: {
         Row: {
@@ -2152,7 +3563,57 @@ export type Database = {
           verified_at?: string | null
           verified_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vendor_invoices_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_bkk_id_fkey"
+            columns: ["bkk_id"]
+            isOneToOne: false
+            referencedRelation: "bukti_kas_keluar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_jo_id_fkey"
+            columns: ["jo_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_pjo_id_fkey"
+            columns: ["pjo_id"]
+            isOneToOne: false
+            referencedRelation: "proforma_job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_invoices_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendor_payments: {
         Row: {
@@ -2197,7 +3658,22 @@ export type Database = {
           reference_number?: string | null
           vendor_invoice_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vendor_payments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_payments_vendor_invoice_id_fkey"
+            columns: ["vendor_invoice_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendor_ratings: {
         Row: {
@@ -2251,7 +3727,36 @@ export type Database = {
           vendor_id?: string
           was_on_time?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "vendor_ratings_bkk_id_fkey"
+            columns: ["bkk_id"]
+            isOneToOne: false
+            referencedRelation: "bukti_kas_keluar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_ratings_jo_id_fkey"
+            columns: ["jo_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_ratings_rated_by_fkey"
+            columns: ["rated_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_ratings_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vendors: {
         Row: {
@@ -2368,10 +3873,201 @@ export type Database = {
           verified_by?: string | null
           website?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "vendors_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendors_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      work_schedules: {
+        Row: {
+          break_end: string | null
+          break_start: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          late_grace_minutes: number | null
+          schedule_name: string
+          work_days: number[] | null
+          work_end: string
+          work_start: string
+        }
+        Insert: {
+          break_end?: string | null
+          break_start?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          late_grace_minutes?: number | null
+          schedule_name: string
+          work_days?: number[] | null
+          work_end?: string
+          work_start?: string
+        }
+        Update: {
+          break_end?: string | null
+          break_start?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          late_grace_minutes?: number | null
+          schedule_name?: string
+          work_days?: number[] | null
+          work_end?: string
+          work_start?: string
+        }
         Relationships: []
       }
     }
     Views: {
+      ap_aging_breakdown: {
+        Row: {
+          aging_bucket: string | null
+          invoice_count: number | null
+          total_amount: number | null
+        }
+        Relationships: []
+      }
+      ar_aging_breakdown: {
+        Row: {
+          aging_bucket: string | null
+          invoice_count: number | null
+          total_amount: number | null
+        }
+        Relationships: []
+      }
+      engineering_workload_summary: {
+        Row: {
+          calculated_at: string | null
+          completed_mtd: number | null
+          complex_in_pipeline: number | null
+          pending_assessments: number | null
+          pending_jmp: number | null
+          pending_permit: number | null
+          pending_surveys: number | null
+          pending_technical: number | null
+        }
+        Relationships: []
+      }
+      expiring_certifications: {
+        Row: {
+          certification_date: string | null
+          certification_number: string | null
+          days_until_expiry: number | null
+          employee_code: string | null
+          employee_id: string | null
+          employee_name: string | null
+          expiry_date: string | null
+          expiry_status: string | null
+          id: string | null
+          skill_code: string | null
+          skill_id: string | null
+          skill_name: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_skills_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skill_gap_analysis"
+            referencedColumns: ["skill_id"]
+          },
+          {
+            foreignKeyName: "employee_skills_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_dashboard_summary: {
+        Row: {
+          ap_overdue: number | null
+          ap_pending_verification: number | null
+          ar_invoice_count: number | null
+          ar_overdue: number | null
+          bkk_pending_amount: number | null
+          bkk_pending_approval: number | null
+          calculated_at: string | null
+          cash_paid_mtd: number | null
+          cash_received_mtd: number | null
+          profit_mtd: number | null
+          revenue_mtd: number | null
+          revenue_previous_month: number | null
+          total_ap: number | null
+          total_ar: number | null
+        }
+        Relationships: []
+      }
+      monthly_revenue_trend: {
+        Row: {
+          collected: number | null
+          month: string | null
+          revenue: number | null
+        }
+        Relationships: []
+      }
+      quotation_dashboard_list: {
+        Row: {
+          cargo_description: string | null
+          created_at: string | null
+          customer_name: string | null
+          days_to_deadline: number | null
+          engineering_status: string | null
+          gross_margin: number | null
+          id: string | null
+          market_type: string | null
+          quotation_number: string | null
+          rfq_number: string | null
+          status: string | null
+          submission_deadline: string | null
+          total_revenue: number | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
+      sales_pipeline_summary: {
+        Row: {
+          calculated_at: string | null
+          draft_count: number | null
+          draft_value: number | null
+          eng_review_count: number | null
+          eng_review_value: number | null
+          lost_mtd: number | null
+          lost_value_mtd: number | null
+          pursuit_costs_mtd: number | null
+          ready_count: number | null
+          ready_value: number | null
+          submitted_count: number | null
+          submitted_value: number | null
+          win_rate_90d: number | null
+          won_mtd: number | null
+          won_value_mtd: number | null
+        }
+        Relationships: []
+      }
       search_index: {
         Row: {
           created_at: string | null
@@ -2380,6 +4076,22 @@ export type Database = {
           primary_text: string | null
           secondary_text: string | null
           url: string | null
+        }
+        Relationships: []
+      }
+      skill_gap_analysis: {
+        Row: {
+          category_name: string | null
+          criticality: string | null
+          current_coverage_percent: number | null
+          gap_percent: number | null
+          ops_staff_count: number | null
+          requires_certification: boolean | null
+          skill_code: string | null
+          skill_id: string | null
+          skill_name: string | null
+          staff_with_skill: number | null
+          target_coverage_percent: number | null
         }
         Relationships: []
       }
@@ -2396,6 +4108,12 @@ export type Database = {
           url: string
         }[]
       }
+      refresh_finance_dashboard: { Args: never; Returns: undefined }
+      refresh_manpower_cost_summary: {
+        Args: { p_month: number; p_year: number }
+        Returns: undefined
+      }
+      refresh_sales_engineering_dashboard: { Args: never; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
@@ -2406,23 +4124,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database["public"]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof Database
+  schema: keyof DatabaseWithoutInternals
 }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -2440,16 +4160,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof Database
+  schema: keyof DatabaseWithoutInternals
 }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -2465,16 +4185,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof Database
+  schema: keyof DatabaseWithoutInternals
 }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -2490,18 +4210,35 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof Database
+  schema: keyof DatabaseWithoutInternals
 }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
 
 export const Constants = {
