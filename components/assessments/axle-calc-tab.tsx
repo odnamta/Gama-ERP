@@ -54,6 +54,7 @@ interface AxleCalcTabProps {
 export function AxleCalcTab({ assessment, axleCalculations, canEdit }: AxleCalcTabProps) {
   const router = useRouter();
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingCalc, setEditingCalc] = useState<AxleLoadCalculation | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 

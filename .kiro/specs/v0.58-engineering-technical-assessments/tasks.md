@@ -117,21 +117,21 @@ This implementation plan covers the Engineering Technical Assessments module (v0
     - Display equipment recommendations
     - _Requirements: 10.1_
 
-  - [ ] 7.2 Create components/assessments/calculations-tab.tsx
+  - [x] 7.2 Create components/assessments/calculations-tab.tsx
     - Display calculations with name, formula, inputs, result, unit
     - Allow adding/editing calculations
     - _Requirements: 10.2_
 
-  - [ ] 7.3 Create components/assessments/conclusion-form.tsx
+  - [x] 7.3 Create components/assessments/conclusion-form.tsx
     - Form for conclusion, conclusion_notes, recommendations, limitations, assumptions
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-  - [ ] 7.4 Create components/assessments/review-workflow-panel.tsx
+  - [x] 7.4 Create components/assessments/review-workflow-panel.tsx
     - Display current status and workflow actions
     - Submit for review, approve, reject buttons based on permissions
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-  - [ ] 7.5 Create components/assessments/revision-history.tsx
+  - [x] 7.5 Create components/assessments/revision-history.tsx
     - Display revision chain with links to previous versions
     - Create revision button
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
@@ -154,12 +154,12 @@ This implementation plan covers the Engineering Technical Assessments module (v0
     - Auto-calculate total weight and utilization
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.6, 6.7, 6.8_
 
-  - [ ] 9.2 Create components/assessments/crane-capacity-table.tsx
+  - [x] 9.2 Create components/assessments/crane-capacity-table.tsx
     - Display crane parameters with limits and utilization
     - Highlight if utilization > 80%
     - _Requirements: 6.4, 6.5_
 
-  - [ ] 9.3 Create components/assessments/lifting-plan-table.tsx
+  - [x] 9.3 Create components/assessments/lifting-plan-table.tsx
     - List all lifting plans for an assessment
     - Edit/delete actions
     - _Requirements: 6.9_
@@ -178,7 +178,7 @@ This implementation plan covers the Engineering Technical Assessments module (v0
     - Form for trailer specs, prime mover specs, cargo weight and COG
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
 
-  - [ ] 10.2 Create components/assessments/axle-load-table.tsx
+  - [x] 10.2 Create components/assessments/axle-load-table.tsx
     - Display axle loads with utilization and compliance status
     - Highlight axles exceeding limits
     - _Requirements: 7.5, 7.7, 7.8_
@@ -188,18 +188,18 @@ This implementation plan covers the Engineering Technical Assessments module (v0
     - Display for transport study assessments
     - _Requirements: 10.4_
 
-- [ ] 11. Implement document management
-  - [ ] 11.1 Create components/assessments/drawings-tab.tsx
+- [x] 11. Implement document management
+  - [x] 11.1 Create components/assessments/drawings-tab.tsx
     - Display drawings with viewer
     - Upload new drawings
     - _Requirements: 8.2, 8.3_
 
-  - [ ] 11.2 Create components/assessments/documents-tab.tsx
+  - [x] 11.2 Create components/assessments/documents-tab.tsx
     - Display documents list
     - Upload new documents
     - _Requirements: 8.1, 8.4_
 
-- [ ] 12. Final checkpoint - All features complete
+- [x] 12. Final checkpoint - All features complete
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

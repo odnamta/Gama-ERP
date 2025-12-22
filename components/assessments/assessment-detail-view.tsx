@@ -76,8 +76,13 @@ import {
   createRevision,
 } from '@/lib/assessment-actions';
 import { AssessmentSummaryTab } from './assessment-summary-tab';
+import { CalculationsTab } from './calculations-tab';
 import { LiftingPlanTab } from './lifting-plan-tab';
 import { AxleCalcTab } from './axle-calc-tab';
+import { DrawingsTab } from './drawings-tab';
+import { DocumentsTab } from './documents-tab';
+import { ReviewWorkflowPanel } from './review-workflow-panel';
+import { RevisionHistory } from './revision-history';
 
 interface AssessmentDetailViewProps {
   assessment: TechnicalAssessment;
@@ -357,33 +362,7 @@ export function AssessmentDetailView({
         </TabsContent>
 
         <TabsContent value="calculations">
-          <Card>
-            <CardHeader>
-              <CardTitle>Calculations</CardTitle>
-              <CardDescription>Engineering calculations for this assessment</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {assessment.calculations && assessment.calculations.length > 0 ? (
-                <div className="space-y-4">
-                  {assessment.calculations.map((calc, index) => (
-                    <div key={index} className="p-4 bg-muted/50 rounded-lg">
-                      <p className="font-medium">{calc.name}</p>
-                      <p className="text-sm text-muted-foreground font-mono mt-1">
-                        {calc.formula}
-                      </p>
-                      <p className="text-lg font-bold mt-2">
-                        {calc.result} {calc.unit}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center py-8">
-                  No calculations added yet
-                </p>
-              )}
-            </CardContent>
-          </Card>
+          <CalculationsTab assessment={assessment} canEdit={canEdit} />
         </TabsContent>
 
         {isLiftingStudy && (
@@ -407,61 +386,11 @@ export function AssessmentDetailView({
         )}
 
         <TabsContent value="drawings">
-          <Card>
-            <CardHeader>
-              <CardTitle>Drawings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {assessment.drawings && assessment.drawings.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {assessment.drawings.map((drawing, index) => (
-                    <div key={index} className="p-4 border rounded-lg">
-                      <p className="font-medium truncate">{drawing.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {drawing.drawing_number} Rev {drawing.revision}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center py-8">
-                  No drawings attached
-                </p>
-              )}
-            </CardContent>
-          </Card>
+          <DrawingsTab assessment={assessment} canEdit={canEdit} />
         </TabsContent>
 
         <TabsContent value="documents">
-          <Card>
-            <CardHeader>
-              <CardTitle>Documents</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {assessment.documents && assessment.documents.length > 0 ? (
-                <div className="space-y-2">
-                  {assessment.documents.map((doc, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Paperclip className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <p className="font-medium">{doc.name}</p>
-                          <p className="text-sm text-muted-foreground">{doc.type}</p>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="sm">
-                        Download
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground text-center py-8">
-                  No documents attached
-                </p>
-              )}
-            </CardContent>
-          </Card>
+          <DocumentsTab assessment={assessment} canEdit={canEdit} />
         </TabsContent>
       </Tabs>
 

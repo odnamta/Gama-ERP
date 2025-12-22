@@ -484,7 +484,7 @@ describe('Assessment Utils Property Tests', () => {
   // Validates: Requirements 9.2, 9.3, 9.4
   // ============================================
   describe('Property 8: Filter Results Correctness', () => {
-    // Generator for mock assessments
+    // Generator for mock assessments with fixed dates to avoid date parsing issues
     const assessmentArb = fc.record({
       id: fc.uuid(),
       assessment_number: fc.string({ minLength: 10, maxLength: 20 }),
@@ -519,8 +519,8 @@ describe('Assessment Utils Property Tests', () => {
       revision_notes: fc.constant(null),
       documents: fc.constant([]),
       drawings: fc.constant([]),
-      created_at: fc.date({ min: new Date('2024-01-01'), max: new Date('2025-12-31') }).map(d => d.toISOString()),
-      updated_at: fc.date({ min: new Date('2024-01-01'), max: new Date('2025-12-31') }).map(d => d.toISOString()),
+      created_at: fc.integer({ min: 1704067200000, max: 1735689600000 }).map(ts => new Date(ts).toISOString()),
+      updated_at: fc.integer({ min: 1704067200000, max: 1735689600000 }).map(ts => new Date(ts).toISOString()),
     }) as fc.Arbitrary<TechnicalAssessment>;
 
     it('filtering by status returns only matching assessments', () => {
