@@ -159,6 +159,30 @@ export const NAV_ITEMS: NavItem[] = [
         title: 'Training Sessions',
         href: '/hse/training/sessions',
       },
+      {
+        title: 'PPE Management',
+        href: '/hse/ppe',
+      },
+      {
+        title: 'PPE Types',
+        href: '/hse/ppe/types',
+      },
+      {
+        title: 'PPE Inventory',
+        href: '/hse/ppe/inventory',
+      },
+      {
+        title: 'PPE Issuance',
+        href: '/hse/ppe/issuance',
+      },
+      {
+        title: 'PPE Compliance',
+        href: '/hse/ppe/compliance',
+      },
+      {
+        title: 'PPE Replacement',
+        href: '/hse/ppe/replacement',
+      },
     ],
   },
   {
