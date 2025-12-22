@@ -20,6 +20,7 @@ import {
   Truck,
   ShieldAlert,
   Package,
+  Compass,
 } from 'lucide-react'
 import { UserRole, UserPermissions } from '@/types/permissions'
 
@@ -195,6 +196,18 @@ export const NAV_ITEMS: NavItem[] = [
       {
         title: 'PPE Replacement',
         href: '/hse/ppe/replacement',
+      },
+    ],
+  },
+  {
+    title: 'Engineering',
+    href: '/engineering/surveys',
+    icon: Compass,
+    roles: ['owner', 'admin', 'manager', 'ops'],
+    children: [
+      {
+        title: 'Route Surveys',
+        href: '/engineering/surveys',
       },
     ],
   },
