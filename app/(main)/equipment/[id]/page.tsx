@@ -2,15 +2,24 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, Edit, Loader2, RefreshCw, Plus, FileText, ImageIcon } from 'lucide-react'
+import { ArrowLeft, Edit, Loader2, RefreshCw, Plus, FileText, ImageIcon, Wrench, Eye } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   AssetDetailView,
-  AssetStatusDialog,
-  AssetDocumentList,
-  AssetDocumentForm,
   AssetPhotoGallery,
+  AssetDocumentList,
+  AssetStatusDialog,
+  AssetDocumentForm,
 } from '@/components/equipment'
 import {
   AssetWithRelations,
@@ -19,6 +28,7 @@ import {
   AssetLocation,
   AssetDocumentFormData,
 } from '@/types/assets'
+import { MaintenanceRecord, MaintenanceHistoryFilters } from '@/types/maintenance'
 import {
   getAssetById,
   getAssetStatusHistory,
@@ -27,8 +37,25 @@ import {
   deleteAssetDocument,
   getAssetLocations,
 } from '@/lib/asset-actions'
+import { getMaintenanceHistory } from '@/lib/maintenance-actions'
 import { useToast } from '@/hooks/use-toast'
 import { usePermissions } from '@/components/providers/permission-provider'
+import { formatDate, formatIDR } from '@/lib/pjo-utils'
+
+function getMaintenanceStatusBadge(status: string) {
+  switch (status) {
+    case 'completed':
+      return <Badge variant="outline" className="border-green-500 text-green-600">Completed</Badge>
+    case 'in_progress':
+      return <Badge variant="outline" className="border-blue-500 text-blue-600">In Progress</Badge>
+    case 'scheduled':
+      return <Badge variant="outline" className="border-yellow-500 text-yellow-600">Scheduled</Badge>
+    case 'cancelled':
+      return <Badge variant="outline" className="border-gray-500 text-gray-600">Cancelled</Badge>
+    default:
+      return <Badge variant="outline">{status}</Badge>
+  }
+}
 
 export default function AssetDetailPage() {
   const router = useRouter()
@@ -40,6 +67,7 @@ export default function AssetDetailPage() {
   const [statusHistory, setStatusHistory] = useState<AssetStatusHistory[]>([])
   const [documents, setDocuments] = useState<AssetDocument[]>([])
   const [locations, setLocations] = useState<AssetLocation[]>([])
+  const [maintenanceHistory, setMaintenanceHistory] = useState<MaintenanceRecord[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [statusDialogOpen, setStatusDialogOpen] = useState(false)
   const [documentFormOpen, setDocumentFormOpen] = useState(false)
@@ -52,11 +80,12 @@ export default function AssetDetailPage() {
   const loadData = async () => {
     setIsLoading(true)
     try {
-      const [assetResult, historyResult, docsResult, locationsResult] = await Promise.all([
+      const [assetResult, historyResult, docsResult, locationsResult, maintenanceResult] = await Promise.all([
         getAssetById(assetId),
         getAssetStatusHistory(assetId),
         getAssetDocuments(assetId),
         getAssetLocations(),
+        getMaintenanceHistory({ assetId } as MaintenanceHistoryFilters),
       ])
 
       if (!assetResult) {
@@ -73,6 +102,7 @@ export default function AssetDetailPage() {
       setStatusHistory(historyResult)
       setDocuments(docsResult)
       setLocations(locationsResult)
+      setMaintenanceHistory(maintenanceResult)
     } catch (error) {
       console.error('Failed to load asset:', error)
       toast({
@@ -213,6 +243,81 @@ export default function AssetDetailPage() {
             canDelete={canUploadDocuments}
             onDelete={handleDeleteDocument}
           />
+        </CardContent>
+      </Card>
+
+      {/* Maintenance History Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Wrench className="h-5 w-5" />
+            Maintenance History ({maintenanceHistory.length})
+          </CardTitle>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push('/equipment/maintenance')}
+            >
+              View All
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => router.push(`/equipment/maintenance/new?asset_id=${assetId}`)}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Log Maintenance
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {maintenanceHistory.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              No maintenance records found for this asset.
+            </p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Record #</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="text-right">Cost</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {maintenanceHistory.slice(0, 5).map((record) => (
+                  <TableRow 
+                    key={record.id} 
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => router.push(`/equipment/maintenance/${record.id}`)}
+                  >
+                    <TableCell className="font-mono text-sm">{record.recordNumber}</TableCell>
+                    <TableCell>{formatDate(record.maintenanceDate)}</TableCell>
+                    <TableCell>{record.maintenanceType?.typeName || '-'}</TableCell>
+                    <TableCell className="max-w-[200px] truncate">{record.description}</TableCell>
+                    <TableCell className="text-right font-medium">{formatIDR(record.totalCost)}</TableCell>
+                    <TableCell>{getMaintenanceStatusBadge(record.status)}</TableCell>
+                    <TableCell>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={(e) => { 
+                          e.stopPropagation()
+                          router.push(`/equipment/maintenance/${record.id}`)
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 

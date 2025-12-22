@@ -93,6 +93,20 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/equipment',
     icon: Truck,
     roles: ['owner', 'admin', 'manager', 'ops', 'finance'],
+    children: [
+      {
+        title: 'Asset Registry',
+        href: '/equipment',
+      },
+      {
+        title: 'Maintenance',
+        href: '/equipment/maintenance',
+      },
+      {
+        title: 'Maintenance Schedules',
+        href: '/equipment/maintenance/schedules',
+      },
+    ],
   },
   {
     title: 'Invoices',
