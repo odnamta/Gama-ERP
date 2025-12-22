@@ -225,11 +225,12 @@ This implementation plan covers the HSE incident reporting system for capturing 
     - Show for all roles (everyone can report)
     - _Requirements: 10.3_
 
-- [ ] 12. Notification Integration (Optional)
-  - [ ] 12.1 Add incident notification triggers
+- [x] 12. Notification Integration 
+  - [x] 12.1 Add incident notification triggers
     - Notify HSE team and supervisor on incident report
     - Notify investigator on assignment
     - Notify responsible person on action assignment
+    - Notify reporter when incident is closed
     - _Requirements: 2.9, 4.4_
 
 - [x] 13. Final Checkpoint
@@ -237,7 +238,7 @@ This implementation plan covers the HSE incident reporting system for capturing 
   - [x] Database schema verified via MCP (incident_categories, incidents, incident_persons, incident_history)
   - [x] UI components created and exported (16 components)
   - [x] Navigation integrated (HSE menu with Dashboard, Incidents, Report Incident)
-  - [ ] Notifications working (optional)
+  - [x] Notifications working (4 notification triggers implemented)
 
 ## Summary
 

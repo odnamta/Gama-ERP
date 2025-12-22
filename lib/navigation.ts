@@ -135,6 +135,14 @@ export const NAV_ITEMS: NavItem[] = [
         title: 'Report Incident',
         href: '/hse/incidents/report',
       },
+      {
+        title: 'Documents',
+        href: '/hse/documents',
+      },
+      {
+        title: 'Permits',
+        href: '/hse/permits',
+      },
     ],
   },
   {
