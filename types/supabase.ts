@@ -149,6 +149,75 @@ export type Database = {
         }
         Relationships: []
       }
+      customers: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          email: string
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      export_types: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          permit_type: string | null
+          requires_export_duty: boolean | null
+          requires_permit: boolean | null
+          type_code: string
+          type_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          permit_type?: string | null
+          requires_export_duty?: boolean | null
+          requires_permit?: boolean | null
+          type_code: string
+          type_name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          permit_type?: string | null
+          requires_export_duty?: boolean | null
+          requires_permit?: boolean | null
+          type_code?: string
+          type_name?: string
+        }
+        Relationships: []
+      }
       import_types: {
         Row: {
           created_at: string | null
@@ -188,6 +257,309 @@ export type Database = {
           requires_permit?: boolean | null
           type_code?: string
           type_name?: string
+        }
+        Relationships: []
+      }
+      job_orders: {
+        Row: {
+          amount: number
+          completed_at: string | null
+          converted_from_pjo_at: string | null
+          created_at: string | null
+          customer_id: string
+          description: string
+          equipment_cost: number | null
+          final_cost: number | null
+          final_revenue: number | null
+          has_berita_acara: boolean | null
+          has_surat_jalan: boolean | null
+          id: string
+          invoice_terms: Json | null
+          invoiceable_amount: number | null
+          jo_number: string
+          net_margin: number | null
+          net_profit: number | null
+          pjo_id: string | null
+          project_id: string | null
+          requires_berita_acara: boolean | null
+          status: string
+          submitted_by: string | null
+          submitted_to_finance_at: string | null
+          total_invoiced: number | null
+          total_overhead: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number
+          completed_at?: string | null
+          converted_from_pjo_at?: string | null
+          created_at?: string | null
+          customer_id: string
+          description: string
+          equipment_cost?: number | null
+          final_cost?: number | null
+          final_revenue?: number | null
+          has_berita_acara?: boolean | null
+          has_surat_jalan?: boolean | null
+          id?: string
+          invoice_terms?: Json | null
+          invoiceable_amount?: number | null
+          jo_number: string
+          net_margin?: number | null
+          net_profit?: number | null
+          pjo_id?: string | null
+          project_id?: string | null
+          requires_berita_acara?: boolean | null
+          status?: string
+          submitted_by?: string | null
+          submitted_to_finance_at?: string | null
+          total_invoiced?: number | null
+          total_overhead?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          completed_at?: string | null
+          converted_from_pjo_at?: string | null
+          created_at?: string | null
+          customer_id?: string
+          description?: string
+          equipment_cost?: number | null
+          final_cost?: number | null
+          final_revenue?: number | null
+          has_berita_acara?: boolean | null
+          has_surat_jalan?: boolean | null
+          id?: string
+          invoice_terms?: Json | null
+          invoiceable_amount?: number | null
+          jo_number?: string
+          net_margin?: number | null
+          net_profit?: number | null
+          pjo_id?: string | null
+          project_id?: string | null
+          requires_berita_acara?: boolean | null
+          status?: string
+          submitted_by?: string | null
+          submitted_to_finance_at?: string | null
+          total_invoiced?: number | null
+          total_overhead?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      peb_documents: {
+        Row: {
+          aju_number: string | null
+          approved_at: string | null
+          atd_date: string | null
+          awb_number: string | null
+          bill_of_lading: string | null
+          consignee_address: string | null
+          consignee_country: string | null
+          consignee_name: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          customer_id: string | null
+          customs_office_id: string | null
+          documents: Json | null
+          etd_date: string | null
+          export_type_id: string | null
+          exporter_address: string | null
+          exporter_name: string
+          exporter_npwp: string | null
+          final_destination: string | null
+          fob_value: number | null
+          gross_weight_kg: number | null
+          id: string
+          internal_ref: string
+          job_order_id: string | null
+          loaded_at: string | null
+          notes: string | null
+          npe_date: string | null
+          npe_number: string | null
+          package_type: string | null
+          peb_number: string | null
+          port_of_discharge: string | null
+          port_of_loading: string | null
+          status: string | null
+          submitted_at: string | null
+          total_packages: number | null
+          transport_mode: string | null
+          updated_at: string | null
+          vessel_name: string | null
+          voyage_number: string | null
+        }
+        Insert: {
+          aju_number?: string | null
+          approved_at?: string | null
+          atd_date?: string | null
+          awb_number?: string | null
+          bill_of_lading?: string | null
+          consignee_address?: string | null
+          consignee_country?: string | null
+          consignee_name?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          customer_id?: string | null
+          customs_office_id?: string | null
+          documents?: Json | null
+          etd_date?: string | null
+          export_type_id?: string | null
+          exporter_address?: string | null
+          exporter_name: string
+          exporter_npwp?: string | null
+          final_destination?: string | null
+          fob_value?: number | null
+          gross_weight_kg?: number | null
+          id?: string
+          internal_ref: string
+          job_order_id?: string | null
+          loaded_at?: string | null
+          notes?: string | null
+          npe_date?: string | null
+          npe_number?: string | null
+          package_type?: string | null
+          peb_number?: string | null
+          port_of_discharge?: string | null
+          port_of_loading?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          total_packages?: number | null
+          transport_mode?: string | null
+          updated_at?: string | null
+          vessel_name?: string | null
+          voyage_number?: string | null
+        }
+        Update: {
+          aju_number?: string | null
+          approved_at?: string | null
+          atd_date?: string | null
+          awb_number?: string | null
+          bill_of_lading?: string | null
+          consignee_address?: string | null
+          consignee_country?: string | null
+          consignee_name?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          customer_id?: string | null
+          customs_office_id?: string | null
+          documents?: Json | null
+          etd_date?: string | null
+          export_type_id?: string | null
+          exporter_address?: string | null
+          exporter_name?: string
+          exporter_npwp?: string | null
+          final_destination?: string | null
+          fob_value?: number | null
+          gross_weight_kg?: number | null
+          id?: string
+          internal_ref?: string
+          job_order_id?: string | null
+          loaded_at?: string | null
+          notes?: string | null
+          npe_date?: string | null
+          npe_number?: string | null
+          package_type?: string | null
+          peb_number?: string | null
+          port_of_discharge?: string | null
+          port_of_loading?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          total_packages?: number | null
+          transport_mode?: string | null
+          updated_at?: string | null
+          vessel_name?: string | null
+          voyage_number?: string | null
+        }
+        Relationships: []
+      }
+      peb_items: {
+        Row: {
+          brand: string | null
+          created_at: string | null
+          currency: string | null
+          goods_description: string
+          gross_weight_kg: number | null
+          hs_code: string
+          hs_description: string | null
+          id: string
+          item_number: number
+          net_weight_kg: number | null
+          peb_id: string
+          quantity: number
+          specifications: string | null
+          total_price: number | null
+          unit: string
+          unit_price: number | null
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string | null
+          currency?: string | null
+          goods_description: string
+          gross_weight_kg?: number | null
+          hs_code: string
+          hs_description?: string | null
+          id?: string
+          item_number: number
+          net_weight_kg?: number | null
+          peb_id: string
+          quantity: number
+          specifications?: string | null
+          total_price?: number | null
+          unit: string
+          unit_price?: number | null
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string | null
+          currency?: string | null
+          goods_description?: string
+          gross_weight_kg?: number | null
+          hs_code?: string
+          hs_description?: string | null
+          id?: string
+          item_number?: number
+          net_weight_kg?: number | null
+          peb_id?: string
+          quantity?: number
+          specifications?: string | null
+          total_price?: number | null
+          unit?: string
+          unit_price?: number | null
+        }
+        Relationships: []
+      }
+      peb_status_history: {
+        Row: {
+          changed_at: string | null
+          changed_by: string | null
+          id: string
+          new_status: string
+          notes: string | null
+          peb_id: string
+          previous_status: string | null
+        }
+        Insert: {
+          changed_at?: string | null
+          changed_by?: string | null
+          id?: string
+          new_status: string
+          notes?: string | null
+          peb_id: string
+          previous_status?: string | null
+        }
+        Update: {
+          changed_at?: string | null
+          changed_by?: string | null
+          id?: string
+          new_status?: string
+          notes?: string | null
+          peb_id?: string
+          previous_status?: string | null
         }
         Relationships: []
       }
@@ -464,122 +836,35 @@ export type Database = {
         }
         Relationships: []
       }
-      customers: {
+      projects: {
         Row: {
-          address: string | null
           created_at: string | null
-          email: string
+          customer_id: string
+          description: string | null
           id: string
           is_active: boolean
           name: string
-          phone: string | null
+          status: string
           updated_at: string | null
         }
         Insert: {
-          address?: string | null
           created_at?: string | null
-          email: string
+          customer_id: string
+          description?: string | null
           id?: string
           is_active?: boolean
           name: string
-          phone?: string | null
+          status?: string
           updated_at?: string | null
         }
         Update: {
-          address?: string | null
           created_at?: string | null
-          email?: string
+          customer_id?: string
+          description?: string | null
           id?: string
           is_active?: boolean
           name?: string
-          phone?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      job_orders: {
-        Row: {
-          amount: number
-          completed_at: string | null
-          converted_from_pjo_at: string | null
-          created_at: string | null
-          customer_id: string
-          description: string
-          equipment_cost: number | null
-          final_cost: number | null
-          final_revenue: number | null
-          has_berita_acara: boolean | null
-          has_surat_jalan: boolean | null
-          id: string
-          invoice_terms: Json | null
-          invoiceable_amount: number | null
-          jo_number: string
-          net_margin: number | null
-          net_profit: number | null
-          pjo_id: string | null
-          project_id: string | null
-          requires_berita_acara: boolean | null
-          status: string
-          submitted_by: string | null
-          submitted_to_finance_at: string | null
-          total_invoiced: number | null
-          total_overhead: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          amount?: number
-          completed_at?: string | null
-          converted_from_pjo_at?: string | null
-          created_at?: string | null
-          customer_id: string
-          description: string
-          equipment_cost?: number | null
-          final_cost?: number | null
-          final_revenue?: number | null
-          has_berita_acara?: boolean | null
-          has_surat_jalan?: boolean | null
-          id?: string
-          invoice_terms?: Json | null
-          invoiceable_amount?: number | null
-          jo_number: string
-          net_margin?: number | null
-          net_profit?: number | null
-          pjo_id?: string | null
-          project_id?: string | null
-          requires_berita_acara?: boolean | null
           status?: string
-          submitted_by?: string | null
-          submitted_to_finance_at?: string | null
-          total_invoiced?: number | null
-          total_overhead?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          amount?: number
-          completed_at?: string | null
-          converted_from_pjo_at?: string | null
-          created_at?: string | null
-          customer_id?: string
-          description?: string
-          equipment_cost?: number | null
-          final_cost?: number | null
-          final_revenue?: number | null
-          has_berita_acara?: boolean | null
-          has_surat_jalan?: boolean | null
-          id?: string
-          invoice_terms?: Json | null
-          invoiceable_amount?: number | null
-          jo_number?: string
-          net_margin?: number | null
-          net_profit?: number | null
-          pjo_id?: string | null
-          project_id?: string | null
-          requires_berita_acara?: boolean | null
-          status?: string
-          submitted_by?: string | null
-          submitted_to_finance_at?: string | null
-          total_invoiced?: number | null
-          total_overhead?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -655,65 +940,7 @@ export type Database = {
       }
     }
     Views: {
-      active_pib_documents: {
-        Row: {
-          aju_number: string | null
-          ata_date: string | null
-          awb_number: string | null
-          bea_masuk: number | null
-          bill_of_lading: string | null
-          cif_value: number | null
-          cif_value_idr: number | null
-          created_at: string | null
-          created_by: string | null
-          currency: string | null
-          customer_id: string | null
-          customer_name: string | null
-          customs_office_code: string | null
-          customs_office_id: string | null
-          customs_office_name: string | null
-          documents: Json | null
-          duties_paid_at: string | null
-          eta_date: string | null
-          exchange_rate: number | null
-          fob_value: number | null
-          freight_value: number | null
-          gross_weight_kg: number | null
-          id: string | null
-          import_type_code: string | null
-          import_type_id: string | null
-          import_type_name: string | null
-          importer_address: string | null
-          importer_name: string | null
-          importer_npwp: string | null
-          insurance_value: number | null
-          internal_ref: string | null
-          item_count: number | null
-          jo_number: string | null
-          job_order_id: string | null
-          notes: string | null
-          package_type: string | null
-          pib_number: string | null
-          port_of_discharge: string | null
-          port_of_loading: string | null
-          pph_import: number | null
-          ppn: number | null
-          released_at: string | null
-          sppb_date: string | null
-          sppb_number: string | null
-          status: string | null
-          submitted_at: string | null
-          supplier_country: string | null
-          supplier_name: string | null
-          total_duties: number | null
-          total_packages: number | null
-          transport_mode: string | null
-          updated_at: string | null
-          vessel_name: string | null
-          voyage_number: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
@@ -727,125 +954,14 @@ export type Database = {
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+type PublicSchema = Database["public"]
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+export type Tables<T extends keyof PublicSchema["Tables"]> = PublicSchema["Tables"][T]["Row"]
 
-export type Tables<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
-    ? R
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] &
-        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
-        Row: infer R
-      }
-      ? R
-      : never
-    : never
+export type TablesInsert<T extends keyof PublicSchema["Tables"]> = PublicSchema["Tables"][T]["Insert"]
 
-export type TablesInsert<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
-    ? I
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Insert: infer I
-      }
-      ? I
-      : never
-    : never
+export type TablesUpdate<T extends keyof PublicSchema["Tables"]> = PublicSchema["Tables"][T]["Update"]
 
-export type TablesUpdate<
-  DefaultSchemaTableNameOrOptions extends
-    | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
-    ? U
-    : never
-  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
-    : never
+export type Enums<T extends keyof PublicSchema["Enums"]> = PublicSchema["Enums"][T]
 
-export type Enums<
-  DefaultSchemaEnumNameOrOptions extends
-    | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
-    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
-    : never
-
-export type CompositeTypes<
-  PublicCompositeTypeNameOrOptions extends
-    | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
-  }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
-    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
-
-export const Constants = {
-  public: {
-    Enums: {},
-  },
-} as const
+export type CompositeTypes<T extends keyof PublicSchema["CompositeTypes"]> = PublicSchema["CompositeTypes"][T]

@@ -1,0 +1,189 @@
+# Implementation Plan: Customs Export Documentation (PEB)
+
+## Overview
+
+This implementation plan covers the Customs Export Documentation (PEB) module for Gama ERP. The module manages Indonesian export declarations with document creation, line item management, status workflow tracking, and integration with job orders.
+
+## Tasks
+
+- [x] 1. Set up database schema and reference data
+  - [x] 1.1 Create export_types table with default data
+    - Create table with type_code, type_name, description, requires_export_duty, requires_permit, permit_type, is_active
+    - Insert default types: General Export, Temporary Export, Re-export, Bonded Zone Export
+    - _Requirements: 1.1, 1.2, 1.3, 1.4_
+  - [x] 1.2 Create peb_documents table
+    - Create table with all fields per schema (reference numbers, exporter, consignee, transport, cargo, values, status, NPE)
+    - Add foreign keys to job_orders, customers, export_types, customs_offices
+    - Create indexes on status and job_order_id
+    - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 2.10_
+  - [x] 1.3 Create peb_items table
+    - Create table with HS code, description, quantity, weight, value fields
+    - Add foreign key to peb_documents with cascade delete
+    - Create index on peb_id
+    - _Requirements: 3.2, 3.3, 3.4, 3.5, 3.6_
+  - [x] 1.4 Create peb_status_history table
+    - Create table with previous_status, new_status, notes, changed_by, changed_at
+    - Add foreign key to peb_documents
+    - _Requirements: 4.6_
+  - [x] 1.5 Create sequence and trigger for auto-reference generation
+    - Create peb_internal_seq sequence
+    - Create generate_peb_internal_ref() function
+    - Create trigger to auto-generate internal_ref on insert
+    - _Requirements: 2.1_
+
+- [x] 2. Create TypeScript types and utility functions
+  - [x] 2.1 Create PEB types in types/peb.ts
+    - Define PEBStatus, TransportMode types
+    - Define ExportType, PEBDocument, PEBDocumentWithRelations interfaces
+    - Define PEBItem, PEBStatusHistory, PEBAttachment interfaces
+    - Define PEBFormData, PEBItemFormData, PEBStatistics interfaces
+    - _Requirements: 2.1, 3.1, 4.1_
+  - [x] 2.2 Create utility functions in lib/peb-utils.ts
+    - Implement calculateItemTotalPrice()
+    - Implement generatePEBInternalRef()
+    - Implement canTransitionStatus() and getNextAllowedStatuses()
+    - Implement formatPEBReference() and formatCurrency()
+    - Implement validatePEBDocument() and validatePEBItem()
+    - Implement filterPEBDocuments() and searchPEBDocuments()
+    - Implement calculatePEBStatistics()
+    - Implement permission functions: canViewPEB(), canEditPEB(), canDeletePEB()
+    - _Requirements: 2.1, 2.5, 3.2, 3.5, 4.1, 5.1, 5.3, 5.4, 8.1, 8.2, 8.4_
+  - [x] 2.3 Write property tests for PEB utilities
+    - **Property 1: Reference Format Validation**
+    - **Property 5: Item Total Price Calculation**
+    - **Property 8: Statistics Calculation Correctness**
+    - **Property 9: Filter Correctness**
+    - **Property 10: Search Correctness**
+    - **Property 11: Role-Based Permission Consistency**
+    - **Validates: Requirements 2.1, 3.5, 5.1, 5.3, 5.4, 8.1, 8.2, 8.4**
+
+- [x] 3. Implement server actions
+  - [x] 3.1 Create PEB document CRUD actions in lib/peb-actions.ts
+    - Implement createPEBDocument() with validation and auto-reference
+    - Implement updatePEBDocument() with permission check
+    - Implement deletePEBDocument() with permission check
+    - Implement getPEBDocument() and getPEBDocuments()
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 8.1, 8.2, 8.4_
+  - [x] 3.2 Create PEB item CRUD actions
+    - Implement addPEBItem() with sequential numbering
+    - Implement updatePEBItem() and deletePEBItem()
+    - Implement getPEBItems()
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+  - [x] 3.3 Create status management actions
+    - Implement updatePEBStatus() with transition validation
+    - Implement status history logging
+    - Implement getPEBStatusHistory()
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6_
+  - [x] 3.4 Create reference data and statistics actions
+    - Implement getExportTypes()
+    - Implement getPEBStatistics()
+    - _Requirements: 1.5, 5.1_
+  - [x] 3.5 Write property tests for PEB actions
+    - **Property 3: Sequential Item Numbers**
+    - **Property 4: Item Required Fields Validation**
+    - **Property 6: Initial Status Invariant**
+    - **Property 7: Status History Completeness**
+    - **Validates: Requirements 3.1, 3.2, 4.2, 4.6**
+
+- [x] 4. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 5. Create UI components
+  - [x] 5.1 Create PEB summary cards component
+    - Display Active PEBs, Pending Approval, Loaded, Departed MTD counts
+    - Use Card components from shadcn/ui
+    - _Requirements: 5.1_
+  - [x] 5.2 Create PEB filters component
+    - Status filter dropdown
+    - Customs office filter dropdown
+    - Date range picker
+    - Search input
+    - _Requirements: 5.3, 5.4_
+  - [x] 5.3 Create PEB list component
+    - Display table with reference, exporter, cargo, ETD, FOB value, status
+    - Status badges with colors
+    - Link to detail page
+    - _Requirements: 5.2, 5.5, 5.6_
+  - [x] 5.4 Create PEB form component
+    - Exporter details section
+    - Consignee details section
+    - Export type and customs office selection
+    - Transport details section
+    - Cargo summary section
+    - FOB value input
+    - _Requirements: 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 2.10_
+  - [x] 5.5 Create PEB item form component
+    - HS code input with validation
+    - Goods description textarea
+    - Quantity, unit, weight inputs
+    - Unit price input with auto-calculated total
+    - _Requirements: 3.2, 3.3, 3.4, 3.5_
+  - [x] 5.6 Create PEB items table component
+    - Display items with all fields
+    - Add/Edit/Delete actions when editable
+    - Total value summary
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
+  - [x] 5.7 Create status timeline component
+    - Visual timeline showing workflow stages
+    - Highlight current status
+    - Show timestamps for completed stages
+    - _Requirements: 6.1_
+  - [x] 5.8 Create status update dialog component
+    - Status selection based on allowed transitions
+    - Conditional fields (AJU number, NPE number/date)
+    - Notes input
+    - _Requirements: 4.3, 4.4, 4.5, 6.7_
+  - [x] 5.9 Create status history component
+    - Display history list with timestamps
+    - Show user who made changes
+    - Show notes
+    - _Requirements: 4.6_
+  - [x] 5.10 Create PEB detail view component
+    - Tabbed interface: Details, Items, Documents, History
+    - Display all document information
+    - Status update button
+    - _Requirements: 6.2, 6.3, 6.4, 6.5, 6.6_
+
+- [x] 6. Create pages
+  - [x] 6.1 Create PEB list page at /customs/export
+    - Integrate summary cards, filters, and list components
+    - Add "New PEB" button with permission check
+    - _Requirements: 5.1, 5.2, 5.3, 5.4, 8.1_
+  - [x] 6.2 Create new PEB page at /customs/export/new
+    - Integrate PEB form component
+    - Handle form submission
+    - Redirect to detail page on success
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 8.2_
+  - [x] 6.3 Create PEB detail page at /customs/export/[id]
+    - Integrate detail view component
+    - Integrate items table
+    - Integrate status timeline and history
+    - Add edit/delete buttons with permission checks
+    - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 8.1, 8.2, 8.4_
+  - [x] 6.4 Create edit PEB page at /customs/export/[id]/edit
+    - Integrate PEB form with existing data
+    - Handle form submission
+    - Redirect to detail page on success
+    - _Requirements: 8.2_
+
+- [x] 7. Add navigation and permissions
+  - [x] 7.1 Add export menu item to customs navigation
+    - Add "Export (PEB)" link under Customs menu
+    - Apply permission-based visibility
+    - _Requirements: 8.1_
+  - [x] 7.2 Update permissions configuration
+    - Add PEB permissions to permissions.ts
+    - Ensure role-based access control
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
+
+- [x] 8. Final checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+## Notes
+
+- All tasks are required including property-based tests
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
+- Unit tests validate specific examples and edge cases
+- The module mirrors the PIB (import) structure for consistency

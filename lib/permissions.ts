@@ -193,6 +193,13 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'pib.view_duties': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
   'pib.update_status': (p) => ['owner', 'admin', 'manager'].includes(p.role),
   'pib.nav': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
+  // PEB (Customs Export) permissions
+  'peb.view': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
+  'peb.create': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  'peb.edit': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  'peb.delete': (p) => ['owner', 'admin'].includes(p.role),
+  'peb.update_status': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  'peb.nav': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
 }
 
 /**
@@ -904,4 +911,56 @@ export function canUpdatePIBStatus(profile: UserProfile | null): boolean {
  */
 export function canSeePIBNav(profile: UserProfile | null): boolean {
   return canAccessFeature(profile, 'pib.nav')
+}
+
+
+// ============================================
+// PEB (Customs Export) Permission Helpers
+// ============================================
+
+/**
+ * Check if user can view PEB documents
+ * Property 12: Owner, Admin, Manager, Ops, Finance roles SHALL have access
+ */
+export function canViewPEB(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'peb.view')
+}
+
+/**
+ * Check if user can create PEB documents
+ * Property 12: Only Owner, Admin, Manager roles SHALL have access
+ */
+export function canCreatePEB(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'peb.create')
+}
+
+/**
+ * Check if user can edit PEB documents
+ * Property 12: Only Owner, Admin, Manager roles SHALL have access
+ */
+export function canEditPEB(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'peb.edit')
+}
+
+/**
+ * Check if user can delete PEB documents
+ * Property 12: Only Owner, Admin roles SHALL have access
+ */
+export function canDeletePEB(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'peb.delete')
+}
+
+/**
+ * Check if user can update PEB status
+ * Property 12: Owner, Admin, Manager roles SHALL have access
+ */
+export function canUpdatePEBStatus(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'peb.update_status')
+}
+
+/**
+ * Check if PEB/Customs Export should be shown in navigation
+ */
+export function canSeePEBNav(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'peb.nav')
 }

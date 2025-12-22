@@ -142,6 +142,13 @@ export type FeatureKey =
   | 'pib.view_duties'
   | 'pib.update_status'
   | 'pib.nav'
+  // PEB (Customs Export) permissions
+  | 'peb.view'
+  | 'peb.create'
+  | 'peb.edit'
+  | 'peb.delete'
+  | 'peb.update_status'
+  | 'peb.nav'
 
 export interface PermissionContextType {
   profile: UserProfile | null

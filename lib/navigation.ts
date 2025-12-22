@@ -208,6 +208,10 @@ export const NAV_ITEMS: NavItem[] = [
         title: 'Import Documents (PIB)',
         href: '/customs/import',
       },
+      {
+        title: 'Export Documents (PEB)',
+        href: '/customs/export',
+      },
     ],
   },
   {
