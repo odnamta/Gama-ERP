@@ -31,6 +31,8 @@ import { StatusUpdateDialog } from './status-update-dialog'
 import { PIBItemsTable } from './pib-items-table'
 import { DutiesSummary } from './duties-summary'
 import { AttachmentsSection } from '@/components/attachments/attachments-section'
+import { DocumentFeesSection } from '@/components/customs-fees/document-fees-section'
+import { DocumentContainersSection } from '@/components/customs-fees/document-containers-section'
 import {
   formatCurrency,
   formatPIBDate,
@@ -58,6 +60,8 @@ import {
   Calculator,
   History,
   Paperclip,
+  Receipt,
+  Container,
 } from 'lucide-react'
 
 interface PIBPermissions {
@@ -219,6 +223,14 @@ export function PIBDetailView({ pib, permissions }: PIBDetailViewProps) {
           <TabsTrigger value="documents" className="flex items-center gap-2">
             <Paperclip className="h-4 w-4" />
             Documents
+          </TabsTrigger>
+          <TabsTrigger value="fees" className="flex items-center gap-2">
+            <Receipt className="h-4 w-4" />
+            Fees
+          </TabsTrigger>
+          <TabsTrigger value="containers" className="flex items-center gap-2">
+            <Container className="h-4 w-4" />
+            Containers
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <History className="h-4 w-4" />
@@ -496,6 +508,24 @@ export function PIBDetailView({ pib, permissions }: PIBDetailViewProps) {
             entityId={pib.id}
             title="PIB Documents"
             maxFiles={20}
+          />
+        </TabsContent>
+
+        {/* Fees Tab */}
+        <TabsContent value="fees">
+          <DocumentFeesSection
+            documentType="pib"
+            documentId={pib.id}
+            editable={isEditable}
+          />
+        </TabsContent>
+
+        {/* Containers Tab */}
+        <TabsContent value="containers">
+          <DocumentContainersSection
+            documentType="pib"
+            documentId={pib.id}
+            editable={isEditable}
           />
         </TabsContent>
       </Tabs>

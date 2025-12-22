@@ -31,6 +31,7 @@ import { StatusHistory } from './status-history'
 import { StatusUpdateDialog } from './status-update-dialog'
 import { PEBItemsTable } from './peb-items-table'
 import { AttachmentsSection } from '@/components/attachments/attachments-section'
+import { DocumentFeesSection } from '@/components/customs-fees/document-fees-section'
 import { formatCurrency, getNextAllowedStatuses } from '@/lib/peb-utils'
 import {
   getPEBItems,
@@ -50,6 +51,7 @@ import {
   Package,
   History,
   Paperclip,
+  Receipt,
 } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -205,6 +207,10 @@ export function PEBDetailView({ peb, permissions }: PEBDetailViewProps) {
           <TabsTrigger value="documents" className="flex items-center gap-2">
             <Paperclip className="h-4 w-4" />
             Documents
+          </TabsTrigger>
+          <TabsTrigger value="fees" className="flex items-center gap-2">
+            <Receipt className="h-4 w-4" />
+            Fees
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <History className="h-4 w-4" />
@@ -452,6 +458,15 @@ export function PEBDetailView({ peb, permissions }: PEBDetailViewProps) {
         {/* Documents Tab */}
         <TabsContent value="documents">
           <AttachmentsSection entityType="peb" entityId={peb.id} title="PEB Documents" maxFiles={20} />
+        </TabsContent>
+
+        {/* Fees Tab */}
+        <TabsContent value="fees">
+          <DocumentFeesSection
+            documentType="peb"
+            documentId={peb.id}
+            editable={isEditable}
+          />
         </TabsContent>
 
         {/* History Tab */}

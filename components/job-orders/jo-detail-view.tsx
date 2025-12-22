@@ -20,6 +20,7 @@ import { SuratJalanSection } from '@/components/surat-jalan/surat-jalan-section'
 import { BeritaAcaraSection } from '@/components/berita-acara/berita-acara-section'
 import { BKKSection } from '@/components/bkk/bkk-section'
 import { ProfitabilitySection } from './profitability-section'
+import { JobCustomsSection } from '@/components/customs-fees/job-customs-section'
 import { getBKKsByJobOrder } from '@/app/(main)/job-orders/bkk-actions'
 import type { BKKWithRelations } from '@/types/database'
 import type { JobOverheadAllocationWithCategory } from '@/types/overhead'
@@ -434,6 +435,9 @@ export function JODetailView({ jobOrder }: JODetailViewProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Customs Costs */}
+      <JobCustomsSection jobOrderId={jobOrder.id} />
 
       {/* Notes */}
       {pjo?.notes && (

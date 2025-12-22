@@ -220,6 +220,18 @@ export const NAV_ITEMS: NavItem[] = [
         title: 'Duty Calculator',
         href: '/customs/hs-codes/calculator',
       },
+      {
+        title: 'Fees & Duties',
+        href: '/customs/fees',
+      },
+      {
+        title: 'Pending Payments',
+        href: '/customs/fees/pending',
+      },
+      {
+        title: 'Container Tracking',
+        href: '/customs/containers',
+      },
     ],
   },
   {
