@@ -117,7 +117,7 @@ export function FindingList({ findings, onView, onClose }: FindingListProps) {
                     <p className="truncate">{finding.finding_description}</p>
                   </TableCell>
                   <TableCell>
-                    {(finding as any).audits?.audit_number || '-'}
+                    {(finding as AuditFinding & { audits?: { audit_number: string } }).audits?.audit_number || '-'}
                   </TableCell>
                   <TableCell>
                     {finding.due_date ? formatDate(finding.due_date) : '-'}

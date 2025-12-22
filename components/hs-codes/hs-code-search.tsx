@@ -154,7 +154,7 @@ export function HSCodeSearch({
 
       {isOpen && query.trim().length >= 2 && results.length === 0 && !isLoading && (
         <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover p-4 text-center text-sm text-muted-foreground shadow-lg">
-          No HS codes found for "{query}"
+          No HS codes found for &quot;{query}&quot;
         </div>
       )}
     </div>

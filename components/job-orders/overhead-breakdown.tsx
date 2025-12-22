@@ -14,7 +14,7 @@ export function OverheadBreakdown({ allocations, total }: OverheadBreakdownProps
   if (allocations.length === 0) {
     return (
       <div className="text-sm text-muted-foreground italic">
-        No overhead allocated. Click "Recalculate Overhead" to allocate.
+        No overhead allocated. Click &quot;Recalculate Overhead&quot; to allocate.
       </div>
     );
   }

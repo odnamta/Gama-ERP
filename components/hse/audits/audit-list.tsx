@@ -91,7 +91,7 @@ export function AuditList({ audits, onView, onEdit }: AuditListProps) {
                 <TableRow key={audit.id}>
                   <TableCell className="font-medium">{audit.audit_number}</TableCell>
                   <TableCell>
-                    {(audit as any).audit_types?.type_name || '-'}
+                    {(audit as Audit & { audit_types?: { type_name: string } }).audit_types?.type_name || '-'}
                   </TableCell>
                   <TableCell>
                     {audit.conducted_date 

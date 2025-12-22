@@ -56,7 +56,7 @@ export function NotificationDropdown() {
           ) : notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <p className="text-sm text-muted-foreground">No notifications</p>
-              <p className="text-xs text-muted-foreground mt-1">You're all caught up!</p>
+              <p className="text-xs text-muted-foreground mt-1">You&apos;re all caught up!</p>
             </div>
           ) : (
             <div className="divide-y">

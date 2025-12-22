@@ -56,11 +56,11 @@ export function FindingForm({ auditId, finding, onSuccess, onCancel }: FindingFo
     try {
       if (isEdit) {
         const input: UpdateFindingInput = {
-          severity: severity as any,
+          severity: severity as UpdateFindingInput['severity'],
           category: category || undefined,
           finding_description: description,
           location_detail: locationDetail || undefined,
-          risk_level: riskLevel as any || undefined,
+          risk_level: (riskLevel || undefined) as UpdateFindingInput['risk_level'],
           potential_consequence: potentialConsequence || undefined,
           corrective_action: correctiveAction || undefined,
           due_date: dueDate || undefined,
@@ -73,11 +73,11 @@ export function FindingForm({ auditId, finding, onSuccess, onCancel }: FindingFo
       } else {
         const input: CreateFindingInput = {
           audit_id: auditId,
-          severity: severity as any,
+          severity: severity as CreateFindingInput['severity'],
           category: category || undefined,
           finding_description: description,
           location_detail: locationDetail || undefined,
-          risk_level: riskLevel as any || undefined,
+          risk_level: (riskLevel || undefined) as CreateFindingInput['risk_level'],
           potential_consequence: potentialConsequence || undefined,
           corrective_action: correctiveAction || undefined,
           due_date: dueDate || undefined,

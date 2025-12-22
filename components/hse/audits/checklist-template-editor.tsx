@@ -118,7 +118,7 @@ export function ChecklistTemplateEditor({
       <CardContent>
         {template.sections.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <p>No sections yet. Click "Add Section" to start building your checklist.</p>
+            <p>No sections yet. Click &quot;Add Section&quot; to start building your checklist.</p>
           </div>
         ) : (
           <Accordion
@@ -189,9 +189,9 @@ export function ChecklistTemplateEditor({
                                 <Label>Type</Label>
                                 <Select
                                   value={item.type}
-                                  onValueChange={(value) =>
+                                  onValueChange={(value: ChecklistItem['type']) =>
                                     updateItem(sectionIndex, itemIndex, {
-                                      type: value as any,
+                                      type: value,
                                     })
                                   }
                                 >

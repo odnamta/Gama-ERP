@@ -59,7 +59,7 @@ export function AuditTypeForm({ auditType, onSuccess, onCancel }: AuditTypeFormP
         const input: UpdateAuditTypeInput = {
           type_name: typeName,
           description: description || undefined,
-          category: category as any,
+          category: category as UpdateAuditTypeInput['category'],
           frequency_days: frequencyDays ? parseInt(frequencyDays) : null,
         };
         const { error: updateError } = await updateAuditType(auditType.id, input);
@@ -72,7 +72,7 @@ export function AuditTypeForm({ auditType, onSuccess, onCancel }: AuditTypeFormP
           type_code: typeCode.toUpperCase(),
           type_name: typeName,
           description: description || undefined,
-          category: category as any,
+          category: category as CreateAuditTypeInput['category'],
           frequency_days: frequencyDays ? parseInt(frequencyDays) : undefined,
         };
         const { error: createError } = await createAuditType(input);
@@ -147,7 +147,7 @@ export function AuditTypeForm({ auditType, onSuccess, onCancel }: AuditTypeFormP
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="category">Category *</Label>
-              <Select value={category} onValueChange={(value) => setCategory(value as any)}>
+              <Select value={category} onValueChange={(value: string) => setCategory(value)}>
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>

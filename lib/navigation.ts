@@ -232,6 +232,14 @@ export const NAV_ITEMS: NavItem[] = [
         title: 'Container Tracking',
         href: '/customs/containers',
       },
+      {
+        title: 'Document Templates',
+        href: '/customs/templates',
+      },
+      {
+        title: 'Generated Documents',
+        href: '/customs/documents',
+      },
     ],
   },
   {

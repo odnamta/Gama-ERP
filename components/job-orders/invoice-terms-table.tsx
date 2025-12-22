@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { InvoiceTerm, TermStatus } from '@/types'
+import { InvoiceTerm, TermStatus, TriggerType } from '@/types'
 import {
   getTermStatus,
   getTermStatusLabel,
@@ -80,7 +80,7 @@ export function InvoiceTermsTable({
         return (
           <Badge variant="outline" className="text-muted-foreground">
             <Lock className="h-3 w-3 mr-1" />
-            {getLockedTriggerDescription(trigger as any)}
+            {getLockedTriggerDescription(trigger as TriggerType)}
           </Badge>
         )
       default:

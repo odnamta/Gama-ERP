@@ -122,7 +122,7 @@ export function EngineeringAssessmentsSection({
             <HardHat className="h-12 w-12 mx-auto mb-3 opacity-50" />
             <p>No assessments created yet.</p>
             {canAddAssessment && (
-              <p className="text-sm mt-1">Click "Add Assessment" to create one.</p>
+              <p className="text-sm mt-1">Click &quot;Add Assessment&quot; to create one.</p>
             )}
           </div>
         ) : (

@@ -120,7 +120,7 @@ export function PPETypeForm({ ppeType, open, onOpenChange, onSuccess }: PPETypeF
               <Select
                 value={formData.category}
                 onValueChange={value =>
-                  setFormData({ ...formData, category: value as any })
+                  setFormData({ ...formData, category: value as CreatePPETypeInput['category'] })
                 }
               >
                 <SelectTrigger>
