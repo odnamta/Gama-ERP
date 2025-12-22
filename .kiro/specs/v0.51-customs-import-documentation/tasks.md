@@ -1,0 +1,227 @@
+# Implementation Plan: Customs Import Documentation (PIB)
+
+## Overview
+
+This implementation plan covers the development of the Customs Import Documentation (PIB) module for Gama ERP. The module manages Indonesian import declarations including document creation, line item management with HS code classification, automatic duty calculations, status workflow tracking, and integration with job orders.
+
+## Tasks
+
+- [x] 1. Database Schema Setup
+  - [x] 1.1 Create customs_offices table with default data
+    - Create table with office_code, office_name, office_type, city, address, phone, is_active
+    - Insert default customs offices for major Indonesian ports
+    - _Requirements: 1.1, 1.2, 1.3_
+  - [x] 1.2 Create import_types table with default data
+    - Create table with type_code, type_name, default rates, permit requirements
+    - Insert default import types (General, Machinery, Temporary, Re-import, Bonded, Project)
+    - _Requirements: 2.1, 2.2, 2.3, 2.4_
+  - [x] 1.3 Create pib_documents table
+    - Create main PIB document table with all fields
+    - Add generated CIF value column
+    - Add generated total_duties column
+    - Create sequence and trigger for internal_ref generation
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10_
+  - [x] 1.4 Create pib_items table
+    - Create line items table with HS code, quantities, values, duty calculations
+    - Add foreign key to pib_documents with cascade delete
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.7, 4.8_
+  - [x] 1.5 Create pib_status_history table
+    - Create status history table for audit trail
+    - _Requirements: 6.6_
+  - [x] 1.6 Create indexes and view
+    - Create indexes on status, job_order_id, customer_id, hs_code
+    - Create active_pib_documents view with relations
+    - _Requirements: 7.2, 7.3_
+  - [x] 1.7 Apply RLS policies
+    - Add row-level security policies based on role permissions
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6_
+
+- [x] 2. TypeScript Types and Utilities
+  - [x] 2.1 Create PIB types file
+    - Create types/pib.ts with all interfaces and types
+    - Include PIBDocument, PIBItem, PIBStatusHistory, CustomsOffice, ImportType
+    - Include form data types and calculation types
+    - _Requirements: 3.1, 4.1, 6.1_
+  - [x] 2.2 Create PIB utility functions
+    - Create lib/pib-utils.ts with calculation functions
+    - Implement calculateCIFValue, calculateItemDuties, aggregatePIBDuties
+    - Implement convertToIDR, generatePIBInternalRef
+    - Implement canTransitionStatus, getNextAllowedStatuses
+    - Implement validatePIBDocument, validatePIBItem, validateHSCode
+    - Implement filterPIBDocuments, searchPIBDocuments
+    - _Requirements: 3.10, 4.5, 4.7, 5.1, 5.2, 5.3, 5.4, 6.1, 7.3, 7.4_
+  - [x] 2.3 Write property tests for CIF calculation
+    - **Property 1: CIF Value Calculation**
+    - **Validates: Requirements 3.10**
+  - [x] 2.4 Write property tests for item duty calculations
+    - **Property 2: Item Total Price Calculation**
+    - **Property 3: Item Duty Calculation**
+    - **Validates: Requirements 4.5, 4.7**
+  - [x] 2.5 Write property tests for duty aggregation
+    - **Property 4: PIB Duty Aggregation**
+    - **Validates: Requirements 5.1, 5.2, 5.3**
+  - [x] 2.6 Write property tests for currency conversion
+    - **Property 5: Currency Conversion**
+    - **Validates: Requirements 5.4**
+  - [x] 2.7 Write property tests for reference format
+    - **Property 11: Reference Format Validation**
+    - **Validates: Requirements 3.1**
+
+- [x] 3. Server Actions
+  - [x] 3.1 Create PIB document actions
+    - Create lib/pib-actions.ts with server actions
+    - Implement createPIBDocument with auto-reference generation
+    - Implement updatePIBDocument, deletePIBDocument
+    - Implement getPIBDocument, getPIBDocuments with filters
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 7.3_
+  - [x] 3.2 Create PIB item actions
+    - Implement addPIBItem with sequential numbering and duty calculation
+    - Implement updatePIBItem, deletePIBItem
+    - Implement recalculatePIBTotals
+    - _Requirements: 4.1, 4.2, 4.5, 4.6, 4.7, 5.1, 5.2, 5.3_
+  - [x] 3.3 Create status management actions
+    - Implement updatePIBStatus with timestamp and number recording
+    - Implement logPIBStatusChange for history
+    - Implement getPIBStatusHistory
+    - _Requirements: 6.2, 6.3, 6.4, 6.5, 6.6_
+  - [x] 3.4 Create reference data actions
+    - Implement getCustomsOffices, getImportTypes
+    - Implement getPIBStatistics for summary cards
+    - _Requirements: 1.4, 7.1_
+  - [ ] 3.5 Write property tests for sequential item numbers
+    - **Property 6: Sequential Item Numbers**
+    - **Validates: Requirements 4.1**
+  - [ ] 3.6 Write property tests for initial status
+    - **Property 7: Initial Status Invariant**
+    - **Validates: Requirements 6.2**
+  - [ ] 3.7 Write property tests for status history
+    - **Property 8: Status History Completeness**
+    - **Validates: Requirements 6.6**
+
+- [x] 4. Checkpoint - Core Logic Complete
+  - Ensure all utility and action tests pass
+  - Ask the user if questions arise
+
+- [x] 5. UI Components - List View
+  - [x] 5.1 Create PIB summary cards component
+    - Create components/pib/pib-summary-cards.tsx
+    - Display Active PIBs, Pending Clearance, In Transit, Released (MTD)
+    - _Requirements: 7.1_
+  - [x] 5.2 Create PIB list component
+    - Create components/pib/pib-list.tsx
+    - Display table with reference, importer, ETA, CIF value, status
+    - Add status indicators with icons/colors
+    - Show linked job order number
+    - _Requirements: 7.2, 7.5, 7.6_
+  - [x] 5.3 Create PIB filters component
+    - Create components/pib/pib-filters.tsx
+    - Add status, customs office, and date range filters
+    - Add search input
+    - _Requirements: 7.3, 7.4_
+  - [x] 5.4 Write property tests for filtering
+    - **Property 9: Document Filtering Correctness**
+    - **Validates: Requirements 7.3**
+  - [x] 5.5 Write property tests for search
+    - **Property 10: Document Search Correctness**
+    - **Validates: Requirements 7.4**
+
+- [x] 6. UI Components - Forms
+  - [x] 6.1 Create PIB form component
+    - Create components/pib/pib-form.tsx
+    - Include all document fields with validation
+    - Support linking to job orders and customers
+    - Auto-calculate CIF value
+    - _Requirements: 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10_
+  - [x] 6.2 Create PIB item form component
+    - Create components/pib/pib-item-form.tsx
+    - Include HS code, description, quantity, price fields
+    - Auto-calculate duties on input
+    - _Requirements: 4.2, 4.3, 4.4, 4.5, 4.6, 4.7_
+  - [x] 6.3 Create PIB items table component
+    - Create components/pib/pib-items-table.tsx
+    - Display items with edit/delete actions
+    - Show per-item duty calculations
+    - _Requirements: 4.1, 4.7_
+
+- [x] 7. UI Components - Detail View
+  - [x] 7.1 Create status timeline component
+    - Create components/pib/status-timeline.tsx
+    - Show workflow progress with completed/current/pending states
+    - _Requirements: 8.1_
+  - [x] 7.2 Create PIB detail view component
+    - Create components/pib/pib-detail-view.tsx
+    - Implement tabbed interface: Details, Items, Duties, Documents, History
+    - Display all document information
+    - _Requirements: 8.2, 8.3, 8.4, 8.5, 8.6_
+  - [x] 7.3 Create duties summary component
+    - Create components/pib/duties-summary.tsx
+    - Display FOB, freight, insurance, CIF breakdown
+    - Display duty components and total
+    - _Requirements: 5.5, 8.6_
+  - [x] 7.4 Create status update dialog
+    - Create components/pib/status-update-dialog.tsx
+    - Allow status transitions with required data entry
+    - _Requirements: 6.3, 6.4, 6.5, 8.7_
+  - [x] 7.5 Create status history component
+    - Create components/pib/status-history.tsx
+    - Display timeline of status changes
+    - _Requirements: 6.6_
+
+- [x] 8. Checkpoint - Components Complete
+  - Ensure all components render correctly
+  - Ask the user if questions arise
+
+- [x] 9. Pages and Navigation
+  - [x] 9.1 Create PIB list page
+    - Create app/(main)/customs/import/page.tsx
+    - Integrate summary cards, filters, and list components
+    - _Requirements: 7.1, 7.2, 7.3, 7.4_
+  - [x] 9.2 Create PIB detail page
+    - Create app/(main)/customs/import/[id]/page.tsx
+    - Integrate detail view, timeline, and action components
+    - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7_
+  - [x] 9.3 Create new PIB page
+    - Create app/(main)/customs/import/new/page.tsx
+    - Integrate PIB form component
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9_
+  - [x] 9.4 Create edit PIB page
+    - Create app/(main)/customs/import/[id]/edit/page.tsx
+    - Pre-populate form with existing data
+    - _Requirements: 3.1 through 3.10_
+  - [x] 9.5 Add navigation links
+    - Add Customs menu to navigation with Import Documents link
+    - Update lib/navigation.ts
+    - _Requirements: 7.1_
+
+- [x] 10. Permission Integration
+  - [x] 10.1 Create PIB permission utilities
+    - Add PIB permissions to lib/permissions.ts
+    - Implement canViewPIB, canCreatePIB, canEditPIB, canDeletePIB, canViewDuties
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6_
+  - [ ] 10.2 Apply permissions to pages and components
+    - Add permission checks to all PIB pages
+    - Conditionally render actions based on permissions
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6_
+  - [ ] 10.3 Write property tests for permissions
+    - **Property 12: Role-Based Permission Consistency**
+    - **Validates: Requirements 10.1, 10.2, 10.3, 10.4, 10.5, 10.6**
+
+- [ ] 11. Document Attachments
+  - [ ] 11.1 Integrate document upload
+    - Use existing attachment components for PIB documents
+    - Support B/L, commercial invoice, packing list uploads
+    - _Requirements: 9.1, 9.2, 9.3_
+
+- [ ] 12. Final Checkpoint
+  - Ensure all tests pass
+  - Verify all requirements are implemented
+  - Ask the user if questions arise
+
+## Notes
+
+- All tasks including property tests are required for comprehensive coverage
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
+- Unit tests validate specific examples and edge cases
+- The implementation follows existing Gama ERP patterns and conventions

@@ -185,6 +185,14 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'audits.close_finding': (p) => ['owner', 'admin', 'manager', 'ops'].includes(p.role),
   'audits.verify_finding': (p) => ['owner', 'admin', 'manager'].includes(p.role),
   'audits.nav': () => true, // All authenticated users can see audits nav
+  // PIB (Customs Import) permissions
+  'pib.view': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
+  'pib.create': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  'pib.edit': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  'pib.delete': (p) => ['owner', 'admin'].includes(p.role),
+  'pib.view_duties': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
+  'pib.update_status': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  'pib.nav': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
 }
 
 /**
@@ -836,4 +844,64 @@ export function canVerifyFinding(profile: UserProfile | null): boolean {
  */
 export function canSeeAuditsNav(profile: UserProfile | null): boolean {
   return canAccessFeature(profile, 'audits.nav')
+}
+
+
+// ============================================
+// PIB (Customs Import) Permission Helpers
+// ============================================
+
+/**
+ * Check if user can view PIB documents
+ * Property 12: Owner, Admin, Manager, Ops, Finance roles SHALL have access
+ */
+export function canViewPIB(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'pib.view')
+}
+
+/**
+ * Check if user can create PIB documents
+ * Property 12: Only Owner, Admin, Manager roles SHALL have access
+ */
+export function canCreatePIB(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'pib.create')
+}
+
+/**
+ * Check if user can edit PIB documents
+ * Property 12: Only Owner, Admin, Manager roles SHALL have access
+ */
+export function canEditPIB(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'pib.edit')
+}
+
+/**
+ * Check if user can delete PIB documents
+ * Property 12: Only Owner, Admin roles SHALL have access
+ */
+export function canDeletePIB(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'pib.delete')
+}
+
+/**
+ * Check if user can view PIB duty calculations
+ * Property 12: Owner, Admin, Manager, Finance roles SHALL have access; Ops SHALL NOT
+ */
+export function canViewPIBDuties(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'pib.view_duties')
+}
+
+/**
+ * Check if user can update PIB status
+ * Property 12: Owner, Admin, Manager roles SHALL have access
+ */
+export function canUpdatePIBStatus(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'pib.update_status')
+}
+
+/**
+ * Check if PIB/Customs should be shown in navigation
+ */
+export function canSeePIBNav(profile: UserProfile | null): boolean {
+  return canAccessFeature(profile, 'pib.nav')
 }

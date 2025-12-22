@@ -134,6 +134,14 @@ export type FeatureKey =
   | 'audits.close_finding'
   | 'audits.verify_finding'
   | 'audits.nav'
+  // PIB (Customs Import) permissions
+  | 'pib.view'
+  | 'pib.create'
+  | 'pib.edit'
+  | 'pib.delete'
+  | 'pib.view_duties'
+  | 'pib.update_status'
+  | 'pib.nav'
 
 export interface PermissionContextType {
   profile: UserProfile | null

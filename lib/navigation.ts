@@ -19,6 +19,7 @@ import {
   HelpCircle,
   Truck,
   ShieldAlert,
+  Package,
 } from 'lucide-react'
 import { UserRole, UserPermissions } from '@/types/permissions'
 
@@ -194,6 +195,18 @@ export const NAV_ITEMS: NavItem[] = [
       {
         title: 'PPE Replacement',
         href: '/hse/ppe/replacement',
+      },
+    ],
+  },
+  {
+    title: 'Customs',
+    href: '/customs/import',
+    icon: Package,
+    roles: ['owner', 'admin', 'manager', 'ops', 'finance'],
+    children: [
+      {
+        title: 'Import Documents (PIB)',
+        href: '/customs/import',
       },
     ],
   },
