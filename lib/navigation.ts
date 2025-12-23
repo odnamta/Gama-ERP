@@ -37,6 +37,7 @@ export interface NavSubItem {
   title: string
   href: string
   permission?: keyof UserPermissions
+  roles?: UserRole[]
 }
 
 /**
@@ -56,10 +57,17 @@ export const NAV_ITEMS: NavItem[] = [
       {
         title: 'Executive KPI',
         href: '/dashboard/executive',
+        roles: ['owner', 'admin', 'manager', 'finance'],
       },
       {
         title: 'Financial Analytics',
         href: '/dashboard/executive/finance',
+        roles: ['owner', 'admin', 'manager', 'finance'],
+      },
+      {
+        title: 'AI Insights',
+        href: '/dashboard/executive/ai',
+        roles: ['owner', 'manager', 'finance'],
       },
     ],
   },
@@ -437,6 +445,11 @@ export function filterNavItems(
       // Filter children if present
       if (item.children) {
         const filteredChildren = item.children.filter((child) => {
+          // Check role access for child if specified
+          if (child.roles && !child.roles.includes(userRole)) {
+            return false
+          }
+          // Check permission if specified
           if (child.permission && !permissions[child.permission]) {
             return false
           }
