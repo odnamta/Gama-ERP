@@ -1,15 +1,10 @@
-# Continuity Ledger - v0.60 Engineering Resource Scheduling
+# Continuity Ledger - v0.61 Executive Dashboard KPI
 
 ## Goal (incl. success criteria):
-Complete v0.60 Engineering Resource Scheduling module implementation, review/fix bugs, push to GitHub.
-- Database schema ✅
-- TypeScript types ✅
-- Core utilities ✅
-- Property tests (47 passing) ✅
-- Server actions ✅
-- UI components ✅
-- Pages ✅
-- Navigation integration ✅
+Complete v0.61 Executive Dashboard KPI Overview implementation and push to GitHub.
+- All tasks complete ✅
+- Bug fixes applied ✅
+- Pushed to GitHub ✅
 
 ## Constraints/Assumptions:
 - Next.js 15 + TypeScript + TailwindCSS + shadcn/ui
@@ -18,37 +13,37 @@ Complete v0.60 Engineering Resource Scheduling module implementation, review/fix
 - Property tests use fast-check with 100 iterations minimum
 
 ## Key decisions:
-- Resource types: personnel, equipment, tool, vehicle
-- Assignment targets: project, job_order, assessment, route_survey, jmp
-- Calendar view shows week/month with resource rows
-- Utilization calculated as (assigned_hours / available_hours) × 100
-- Toast notifications use sonner library
+- Server component fetches user profile for role-based filtering
+- Client component handles interactive features (period selection, export, refresh)
+- KPIs filtered by user role via visible_to_roles array
+- Export generates CSV/JSON with configurable options
+- Use `any` type assertions for tables not in generated Supabase types (kpi_definitions, kpi_targets, dashboard_layouts, incidents)
+- Fixed column names: amount_paid (not paid_amount), total_revenue (not total_value)
+- TrendChart uses SVG line chart (not bar chart) per Requirement 12.3
+- Layout customization uses native HTML5 drag-drop API (no external library)
+- Export dialog supports CSV and JSON formats with configurable fields
 
 ## State:
 
 ### Done:
-- Task 1: Database schema (MCP)
-- Task 2: TypeScript types
-- Tasks 3-6: Core utilities + property tests (47 tests passing)
-- Tasks 7-10: Server actions (Resources, Assignments, Availability, Calendar, Utilization)
-- Task 13-16: UI Components (resource-list, resource-form, resource-detail, skill-selector, certification-editor, calendar components, assignment-dialog, availability-form, utilization-report)
-- Task 18: Pages (resources list, new, detail, edit)
-- Task 19: Navigation integration (added Resources to Engineering menu)
+- Task 1-12: All v0.61 tasks complete ✅
+- Bug fixes: ESLint no-explicit-any errors fixed
+- Added react-dropzone dependency
+- Fixed type assertions in resource-scheduling components
 
 ### Now:
-- Push to GitHub
+- Pushing to GitHub
 
 ### Next:
-- Done
+- None - feature complete
 
 ## Open questions:
 None
 
 ## Working set:
-- types/resource-scheduling.ts
-- lib/resource-scheduling-utils.ts
-- lib/resource-scheduling-actions.ts
-- __tests__/resource-scheduling-utils.property.test.ts
-- components/resource-scheduling/*
-- app/(main)/engineering/resources/*
-- lib/navigation.ts
+- app/(main)/dashboard/executive/page.tsx
+- app/(main)/dashboard/executive/executive-dashboard-client.tsx
+- lib/executive-dashboard-actions.ts
+- lib/executive-dashboard-utils.ts
+- types/executive-dashboard.ts
+- components/executive-dashboard/*

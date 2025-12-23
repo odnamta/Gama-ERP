@@ -1,25 +1,53 @@
-/**
- * Executive Dashboard Route - Owner View
- * v0.35: Role-Based Homepage Routing
- * 
- * This route serves as the dedicated entry point for owner users.
- * It renders the full executive dashboard with all data access.
- */
+import { Suspense } from 'react';
+import { getUserProfile } from '@/lib/permissions-server';
+import { redirect } from 'next/navigation';
+import { ExecutiveDashboardClient } from './executive-dashboard-client';
+import { Skeleton } from '@/components/ui/skeleton';
 
-import { redirect } from 'next/navigation'
-import { getUserProfile, getOwnerDashboardData } from '@/lib/permissions-server'
-import { OwnerDashboard } from '@/components/dashboard/owner-dashboard'
-import { DashboardSkeleton } from '@/components/dashboard/dashboard-skeleton'
+// =====================================================
+// v0.61: Executive Dashboard Page (Server Component)
+// Route: /dashboard/executive
+// Requirements: 11.1, 11.4, 13.1, 15.1
+// =====================================================
 
 export default async function ExecutiveDashboardPage() {
-  const profile = await getUserProfile()
+  // Fetch user profile for role-based KPI filtering (Requirement 13.1)
+  const profile = await getUserProfile();
   
-  // Only owner role can access executive dashboard
-  if (!profile || profile.role !== 'owner') {
-    redirect('/dashboard')
+  if (!profile) {
+    redirect('/login');
   }
 
-  const ownerData = await getOwnerDashboardData()
+  const userRole = profile.role || 'viewer';
+  const userId = profile.id || '';
 
-  return <OwnerDashboard data={ownerData} />
+  return (
+    <Suspense fallback={<ExecutiveDashboardSkeleton />}>
+      <ExecutiveDashboardClient 
+        userRole={userRole} 
+        userId={userId}
+      />
+    </Suspense>
+  );
+}
+
+function ExecutiveDashboardSkeleton() {
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-10 w-48" />
+      </div>
+      <div className="grid grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-32" />
+        ))}
+      </div>
+      <div className="grid grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <Skeleton key={i} className="h-32" />
+        ))}
+      </div>
+    </div>
+  );
 }

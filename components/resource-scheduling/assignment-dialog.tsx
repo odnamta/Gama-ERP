@@ -28,6 +28,7 @@ import {
   CalendarCell,
   ResourceAssignment,
   AssignmentTargetType,
+  AssignmentStatus,
   ASSIGNMENT_TARGET_LABELS,
 } from '@/types/resource-scheduling'
 import { createAssignment, updateAssignmentStatus, deleteAssignment } from '@/lib/resource-scheduling-actions'
@@ -101,7 +102,7 @@ export function AssignmentDialog({
   const handleStatusChange = async (assignmentId: string, status: string) => {
     setLoading(true)
     try {
-      await updateAssignmentStatus(assignmentId, status as any)
+      await updateAssignmentStatus(assignmentId, status as AssignmentStatus)
       toast.success('Status updated')
       onSuccess()
     } catch (error) {

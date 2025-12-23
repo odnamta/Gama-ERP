@@ -382,7 +382,7 @@ export async function createAssignment(
   );
 
   if (conflicts.has_conflict && !forceCreate) {
-    return { assignment: null as any, conflicts };
+    return { assignment: null, conflicts };
   }
 
   // Calculate planned hours if not provided

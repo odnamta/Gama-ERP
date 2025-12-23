@@ -32,7 +32,7 @@ import {
   Loader2,
   GitBranch,
 } from 'lucide-react';
-import { TechnicalAssessment } from '@/types/assessment';
+import { TechnicalAssessment, AssessmentStatus } from '@/types/assessment';
 import { getStatusColor, getStatusLabel, formatDate, canCreateRevision } from '@/lib/assessment-utils';
 import { createRevision, getAssessment } from '@/lib/assessment-actions';
 
@@ -183,8 +183,8 @@ export function RevisionHistory({ assessment }: RevisionHistoryProps) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="font-medium">{rev.assessment_number}</span>
-                      <Badge className={getStatusColor(rev.status as any)}>
-                        {getStatusLabel(rev.status as any)}
+                      <Badge className={getStatusColor(rev.status as AssessmentStatus)}>
+                        {getStatusLabel(rev.status as AssessmentStatus)}
                       </Badge>
                       {isCurrent && (
                         <Badge variant="outline" className="text-blue-600">

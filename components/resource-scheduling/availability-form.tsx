@@ -48,7 +48,7 @@ export function AvailabilityForm({
   const [endDate, setEndDate] = useState('')
   const [unavailabilityType, setUnavailabilityType] = useState<UnavailabilityType>('leave')
   const [notes, setNotes] = useState('')
-  const [conflicts, setConflicts] = useState<any[]>([])
+  const [conflicts, setConflicts] = useState<{ assignment_id: string; target_name: string }[]>([])
 
   const handleSubmit = async () => {
     if (!startDate || !endDate) {
