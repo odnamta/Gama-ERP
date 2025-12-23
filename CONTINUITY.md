@@ -1,6 +1,37 @@
 # Continuity Ledger
 
 ## Goal
+Create spec v0.66: n8n Automation - Workflow Foundation for Gama ERP. Establish foundational n8n integration including webhook endpoints, database triggers, event queue, and core workflow patterns.
+
+## Constraints/Assumptions
+- Next.js 15 + TypeScript + Supabase stack
+- n8n provides visual workflow builder for automation
+- Must integrate with existing ERP tables (job_orders, invoices, incidents)
+- RLS policies required on all new tables
+
+## Key Decisions
+- Using event queue pattern for async processing
+- Database triggers to capture events automatically
+- Exponential backoff for retry logic
+- All property tests required (comprehensive testing)
+
+## State
+- Done: All v0.66 tasks complete - database schema, types, utils, actions, property tests
+- Now: Push to GitHub
+- Next: Complete
+
+## Open Questions
+- None
+
+## Working Set
+- .kiro/specs/v0.66-n8n-automation-foundation/
+- types/automation.ts
+- lib/automation-utils.ts, webhook-actions.ts, event-queue-actions.ts
+- lib/webhook-executor.ts, automation-log-actions.ts
+- lib/template-management-actions.ts, automation-stats-actions.ts
+- __tests__/*automation*.property.test.ts
+
+## Goal
 Implement v0.65: AI Insights - Automated Alerts & Reports ✅ COMPLETE
 - Automated alerting system based on KPIs, thresholds, and AI insights
 - Scheduled report generation with PDF/Excel delivery

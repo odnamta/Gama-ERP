@@ -70,6 +70,7 @@ describe('Alert Utils Property Tests', () => {
     });
   });
 
+
   describe('Property 3: Trend Alert Detection', () => {
     it('should detect increasing trends correctly', () => {
       fc.assert(
@@ -163,6 +164,7 @@ describe('Alert Utils Property Tests', () => {
     });
   });
 
+
   describe('Property 7: Alert Sorting Order', () => {
     it('should sort by severity then timestamp', () => {
       const alertArb = fc.record({
@@ -240,6 +242,7 @@ describe('Alert Utils Property Tests', () => {
       );
     });
   });
+
 
   describe('Property 14: Alert Summary Calculation', () => {
     it('should calculate summary counts correctly', () => {
