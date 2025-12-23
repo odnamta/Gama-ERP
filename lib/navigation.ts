@@ -69,6 +69,11 @@ export const NAV_ITEMS: NavItem[] = [
         href: '/dashboard/executive/ai',
         roles: ['owner', 'manager', 'finance'],
       },
+      {
+        title: 'Predictive Analytics',
+        href: '/dashboard/executive/predictions',
+        roles: ['owner', 'manager', 'finance'],
+      },
     ],
   },
   {
