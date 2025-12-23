@@ -225,9 +225,12 @@ describe('Webhook Executor Property Tests', () => {
     it('execution time should be 0 or positive', () => {
       fc.assert(
         fc.property(
-          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-01-01') }),
-          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-01-01') }),
+          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-01-01'), noInvalidDate: true }),
+          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-01-01'), noInvalidDate: true }),
           (date1, date2) => {
+            // Skip invalid dates
+            if (isNaN(date1.getTime()) || isNaN(date2.getTime())) return true;
+            
             const [earlier, later] = date1 < date2 ? [date1, date2] : [date2, date1];
             const executionTime = calculateExecutionTime(earlier.toISOString(), later.toISOString());
             

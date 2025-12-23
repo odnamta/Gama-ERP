@@ -111,9 +111,12 @@ describe('PPE Utils Property Tests', () => {
     it('should calculate replacement date as issue date plus interval days', () => {
       fc.assert(
         fc.property(
-          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') }),
+          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31'), noInvalidDate: true }),
           fc.integer({ min: 1, max: 3650 }), // 1 day to 10 years
           (issueDate, intervalDays) => {
+            // Skip invalid dates
+            if (isNaN(issueDate.getTime())) return true;
+            
             const result = calculateReplacementDate(issueDate, intervalDays);
             if (result === null) return false;
             

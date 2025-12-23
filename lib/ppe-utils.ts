@@ -177,6 +177,12 @@ export function calculateReplacementDate(
     return null;
   }
   const date = typeof issueDate === 'string' ? parseISO(issueDate) : issueDate;
+  
+  // Handle invalid dates
+  if (isNaN(date.getTime())) {
+    return null;
+  }
+  
   return addDays(date, intervalDays);
 }
 

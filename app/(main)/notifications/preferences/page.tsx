@@ -6,8 +6,10 @@ import { NotificationPreferences } from '@/types/notifications'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Loader2, Bell, AlertTriangle, RefreshCw, Clock, Info } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Loader2, Bell, AlertTriangle, RefreshCw, Clock, Info, Workflow } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { NotificationPreferencesForm } from '@/components/notifications/notification-preferences-form'
 
 const PREFERENCE_ITEMS = [
   {
@@ -47,6 +49,7 @@ export default function NotificationPreferencesPage() {
   const { toast } = useToast()
 
   const [preferences, setPreferences] = useState<NotificationPreferences | null>(null)
+  const [userId, setUserId] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState<string | null>(null)
 
@@ -64,6 +67,8 @@ export default function NotificationPreferencesPage() {
         .single()
 
       if (!profile) return
+
+      setUserId(profile.id)
 
       // Try to get existing preferences
       let { data: prefs } = await supabase
@@ -126,7 +131,7 @@ export default function NotificationPreferencesPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-6 max-w-2xl">
+      <div className="container mx-auto py-6 max-w-4xl">
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -135,56 +140,85 @@ export default function NotificationPreferencesPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 max-w-2xl">
+    <div className="container mx-auto py-6 max-w-4xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Notification Preferences</h1>
         <p className="text-muted-foreground mt-1">
-          Choose which notifications you want to receive
+          Configure how and when you receive notifications
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Notification Types</CardTitle>
-          <CardDescription>
-            Toggle notifications on or off for each category
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {PREFERENCE_ITEMS.map((item) => {
-            const Icon = item.icon
-            const isEnabled = preferences?.[item.key] ?? true
-            const isSavingThis = isSaving === item.key
+      <Tabs defaultValue="basic" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="basic" className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            Basic Preferences
+          </TabsTrigger>
+          <TabsTrigger value="workflow" className="flex items-center gap-2">
+            <Workflow className="h-4 w-4" />
+            Workflow Notifications
+          </TabsTrigger>
+        </TabsList>
 
-            return (
-              <div key={item.key} className="flex items-center justify-between">
-                <div className="flex items-start gap-3">
-                  <Icon className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div>
-                    <Label htmlFor={item.key} className="text-sm font-medium">
-                      {item.label}
-                    </Label>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {item.description}
-                    </p>
+        <TabsContent value="basic">
+          <Card>
+            <CardHeader>
+              <CardTitle>Notification Types</CardTitle>
+              <CardDescription>
+                Toggle notifications on or off for each category
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {PREFERENCE_ITEMS.map((item) => {
+                const Icon = item.icon
+                const isEnabled = preferences?.[item.key] ?? true
+                const isSavingThis = isSaving === item.key
+
+                return (
+                  <div key={item.key} className="flex items-center justify-between">
+                    <div className="flex items-start gap-3">
+                      <Icon className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <Label htmlFor={item.key} className="text-sm font-medium">
+                          {item.label}
+                        </Label>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {isSavingThis && (
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      )}
+                      <Switch
+                        id={item.key}
+                        checked={isEnabled}
+                        onCheckedChange={(checked) => handleToggle(item.key, checked)}
+                        disabled={isSavingThis}
+                      />
+                    </div>
                   </div>
+                )
+              })}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="workflow">
+          {userId ? (
+            <NotificationPreferencesForm userId={userId} />
+          ) : (
+            <Card>
+              <CardContent className="py-12">
+                <div className="flex items-center justify-center">
+                  <p className="text-muted-foreground">Unable to load user preferences</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  {isSavingThis && (
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  )}
-                  <Switch
-                    id={item.key}
-                    checked={isEnabled}
-                    onCheckedChange={(checked) => handleToggle(item.key, checked)}
-                    disabled={isSavingThis}
-                  />
-                </div>
-              </div>
-            )
-          })}
-        </CardContent>
-      </Card>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

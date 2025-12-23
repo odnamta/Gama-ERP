@@ -230,10 +230,11 @@ export function substituteParameters(
   let sql = sqlTemplate;
   
   for (const [key, value] of Object.entries(parameters)) {
-    // Replace $1, $2 style placeholders
-    sql = sql.replace(new RegExp(`\\$\\d+`, 'g'), String(value));
-    // Replace {key} style placeholders
-    sql = sql.replace(new RegExp(`\\{${key}\\}`, 'gi'), String(value));
+    const valueStr = String(value);
+    // Replace $1, $2 style placeholders - use function to avoid special $ patterns
+    sql = sql.replace(new RegExp(`\\$\\d+`, 'g'), () => valueStr);
+    // Replace {key} style placeholders - use function to avoid special $ patterns
+    sql = sql.replace(new RegExp(`\\{${key}\\}`, 'gi'), () => valueStr);
   }
   
   return sql;

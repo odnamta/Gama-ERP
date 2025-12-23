@@ -453,9 +453,12 @@ describe('Property 6: Next Due Date Calculation', () => {
   it('should handle string date input', () => {
     fc.assert(
       fc.property(
-        fc.date({ min: new Date('2020-01-01'), max: new Date('2025-12-31') }),
+        fc.date({ min: new Date('2020-01-01'), max: new Date('2025-12-31'), noInvalidDate: true }),
         fc.integer({ min: 1, max: 365 }),
         (lastConducted, frequencyDays) => {
+          // Skip invalid dates
+          if (isNaN(lastConducted.getTime())) return true;
+          
           const dateString = lastConducted.toISOString().split('T')[0];
           const nextDue = calculateNextDueDate(dateString, frequencyDays);
           

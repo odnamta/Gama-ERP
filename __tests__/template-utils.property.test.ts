@@ -266,11 +266,15 @@ describe('Template Utilities Property Tests', () => {
         fc.property(
           fc.array(placeholderKeyArb, { minLength: 2, maxLength: 5 }),
           (keys) => {
-            // Create HTML with only first key
-            const html = `{{${keys[0]}}}`;
+            // Ensure unique keys to avoid duplicate definition issues
+            const uniqueKeys = [...new Set(keys)];
+            if (uniqueKeys.length < 2) return true; // Skip if not enough unique keys
             
-            // Create definitions for all keys
-            const definitions: PlaceholderDefinition[] = keys.map(k => ({
+            // Create HTML with only first key
+            const html = `{{${uniqueKeys[0]}}}`;
+            
+            // Create definitions for all unique keys
+            const definitions: PlaceholderDefinition[] = uniqueKeys.map(k => ({
               key: k,
               label: k,
               source: 'manual',
@@ -279,7 +283,7 @@ describe('Template Utilities Property Tests', () => {
             const result = validatePlaceholders(html, definitions);
             
             // Unused should contain all keys except the first
-            const unusedKeys = keys.slice(1);
+            const unusedKeys = uniqueKeys.slice(1);
             for (const unused of unusedKeys) {
               expect(result.unused).toContain(unused);
             }

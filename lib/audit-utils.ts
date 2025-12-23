@@ -277,6 +277,14 @@ export function calculateNextDueDate(
   frequencyDays: number
 ): Date {
   const baseDate = lastConducted ? new Date(lastConducted) : new Date();
+  
+  // Handle invalid dates
+  if (isNaN(baseDate.getTime())) {
+    const fallback = new Date();
+    fallback.setDate(fallback.getDate() + frequencyDays);
+    return fallback;
+  }
+  
   const nextDue = new Date(baseDate);
   nextDue.setDate(nextDue.getDate() + frequencyDays);
   return nextDue;

@@ -26,7 +26,7 @@ const pebStatusGenerator = fc.constantFrom<PEBStatus>(
 );
 
 const validPEBFormDataGenerator = fc.record({
-  exporter_name: fc.string({ minLength: 1, maxLength: 200 }),
+  exporter_name: fc.string({ minLength: 1, maxLength: 200 }).filter(s => s.trim().length > 0),
   export_type_id: fc.uuid(),
   customs_office_id: fc.uuid(),
   transport_mode: fc.constantFrom('sea', 'air', 'land') as fc.Arbitrary<'sea' | 'air' | 'land'>,
