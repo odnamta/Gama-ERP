@@ -156,7 +156,7 @@ describe('Property 1: Category Settings Enforcement', () => {
       fc.property(
         fc.record({
           categoryId: fc.uuid(),
-          title: fc.string({ minLength: 1, maxLength: 100 }),
+          title: fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0),
           effectiveDate: safeDateString,
         }),
         categoryArb.filter(c => c.requiresExpiry),

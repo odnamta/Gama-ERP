@@ -465,10 +465,12 @@ describe('Template Utilities Property Tests', () => {
     });
 
     it('should accept valid placeholder definitions', () => {
+      // Use stringMatching to ensure non-whitespace-only labels
+      const nonWhitespaceLabel = fc.stringMatching(/^[a-zA-Z0-9][a-zA-Z0-9 _-]{0,49}$/);
       fc.assert(
         fc.property(
           placeholderKeyArb,
-          fc.string({ minLength: 1, maxLength: 50 }),
+          nonWhitespaceLabel,
           placeholderSourceArb,
           (key, label, source) => {
             const result = validatePlaceholderDefinition({

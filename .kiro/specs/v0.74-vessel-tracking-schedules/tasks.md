@@ -1,0 +1,317 @@
+# Implementation Plan: Agency Vessel Tracking & Schedules
+
+## Overview
+
+This implementation plan covers the v0.74 Vessel Tracking & Schedules module. Tasks are organized to build incrementally, starting with database schema, then types, utilities, server actions, and finally UI components.
+
+## Tasks
+
+- [x] 1. Database Schema Setup
+  - [x] 1.1 Create vessels table with all columns and indexes
+    - IMO number, MMSI, vessel name, type, flag, dimensions
+    - Ownership fields, current status, position JSONB
+    - Unique constraints on imo_number and mmsi
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6_
+  - [x] 1.2 Create vessel_schedules table with all columns and indexes
+    - Voyage info, port call details, scheduled/actual times
+    - Cutoff times, status, delay tracking
+    - Unique constraint on vessel_id + voyage_number + port_id
+    - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.7_
+  - [x] 1.3 Create vessel_positions table with all columns and indexes
+    - Coordinates, navigation data, source tracking
+    - Index on vessel_id and timestamp
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [x] 1.4 Create shipment_tracking table with all columns and indexes
+    - Links to bookings, B/Ls, containers
+    - Event type, timestamp, location, vessel info
+    - Indexes on booking_id, bl_id, container_number
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
+  - [x] 1.5 Create tracking_subscriptions table with all columns and indexes
+    - Tracking type, reference, user, notification preferences
+    - Unique constraint on tracking_type + reference_id + user_id
+    - _Requirements: 6.1, 6.2, 6.6_
+  - [x] 1.6 Create upcoming_vessel_arrivals view
+    - Join vessels, schedules, ports
+    - Include booking count aggregation
+    - Filter for future scheduled arrivals
+    - _Requirements: 7.1, 7.2, 7.3, 7.4_
+  - [x] 1.7 Apply RLS policies for all tables
+    - Enable RLS on all tables
+    - Create policies for authenticated users
+    - _Requirements: Security_
+
+- [x] 2. TypeScript Types and Constants
+  - [x] 2.1 Add vessel tracking types to types/agency.ts
+    - VesselType, VesselStatus, ScheduleType, ScheduleStatus
+    - TrackingEventType, TrackingType, PositionSource
+    - All entity interfaces and form data types
+    - Database row types
+    - _Requirements: 1.1-1.7, 2.1-2.8, 3.1-3.6, 4.1-4.7, 6.1-6.6_
+
+- [x] 3. Utility Functions
+  - [x] 3.1 Create lib/vessel-tracking-utils.ts with validation functions
+    - validateIMO, validateMMSI
+    - validateCoordinates, validateNavigationData
+    - Reuse validateContainerNumber from bl-documentation-utils
+    - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7_
+  - [x] 3.2 Write property tests for IMO validation
+    - **Property 17: IMO Format Validation**
+    - **Validates: Requirements 9.1**
+  - [x] 3.3 Write property tests for MMSI validation
+    - **Property 18: MMSI Format Validation**
+    - **Validates: Requirements 9.2**
+  - [x] 3.4 Write property tests for coordinate validation
+    - **Property 19: Coordinate Validation**
+    - **Validates: Requirements 9.3, 9.4**
+  - [x] 3.5 Write property tests for navigation data validation
+    - **Property 20: Navigation Data Validation**
+    - **Validates: Requirements 9.5, 9.6**
+  - [x] 3.6 Add calculation functions
+    - calculateDelayHours, calculateTimeSinceUpdate
+    - calculateMilestoneProgress
+    - _Requirements: 2.6, 3.6, 8.1_
+  - [x] 3.7 Write property test for delay calculation
+    - **Property 7: Delay Calculation**
+    - **Validates: Requirements 2.6, 8.1**
+  - [x] 3.8 Add transformation functions
+    - vesselToRow, rowToVessel
+    - scheduleToRow, rowToSchedule
+    - positionToRow, rowToPosition
+    - trackingToRow, rowToTracking
+    - subscriptionToRow, rowToSubscription
+    - _Requirements: All data models_
+  - [x] 3.9 Add filter and sort functions
+    - filterSchedulesByDelay
+    - filterArrivalsByDateRange
+    - sortArrivalsByTime
+    - sortTrackingEventsByTimestamp
+    - _Requirements: 4.6, 7.5, 7.6, 8.4_
+  - [x] 3.10 Write property test for tracking event ordering
+    - **Property 11: Tracking Event Chronological Ordering**
+    - **Validates: Requirements 4.6**
+  - [x] 3.11 Write property test for arrivals sorting
+    - **Property 15: Upcoming Arrivals Sorting**
+    - **Validates: Requirements 7.6**
+
+- [x] 4. Checkpoint - Utilities Complete
+  - Ensure all utility tests pass
+  - Ask the user if questions arise
+
+- [x] 5. Server Actions - Vessel Management
+  - [x] 5.1 Create app/actions/vessel-tracking-actions.ts with vessel CRUD
+    - createVessel, updateVessel, deleteVessel (soft delete)
+    - getVessel, getVessels with filters
+    - IMO/MMSI uniqueness validation
+    - _Requirements: 1.1-1.7_
+  - [x] 5.2 Write property test for vessel data round-trip
+    - **Property 1: Vessel Data Round-Trip**
+    - **Validates: Requirements 1.1, 1.2, 1.3, 1.6**
+  - [x] 5.3 Write property test for IMO uniqueness
+    - **Property 2: IMO Number Uniqueness**
+    - **Validates: Requirements 1.4**
+  - [x] 5.4 Write property test for MMSI uniqueness
+    - **Property 3: MMSI Uniqueness**
+    - **Validates: Requirements 1.5**
+  - [x] 5.5 Write property test for vessel deactivation
+    - **Property 4: Vessel Deactivation Preserves Data**
+    - **Validates: Requirements 1.7**
+
+- [x] 6. Server Actions - Schedule Management
+  - [x] 6.1 Add schedule CRUD to vessel-tracking-actions.ts
+    - createSchedule, updateSchedule, deleteSchedule
+    - getSchedule, getSchedules with filters
+    - Uniqueness validation for vessel+voyage+port
+    - Auto-calculate delay hours on actual time update
+    - _Requirements: 2.1-2.8_
+  - [x] 6.2 Write property test for schedule data round-trip
+    - **Property 5: Schedule Data Round-Trip**
+    - **Validates: Requirements 2.1, 2.2, 2.3, 2.4**
+  - [x] 6.3 Write property test for schedule uniqueness
+    - **Property 6: Schedule Uniqueness**
+    - **Validates: Requirements 2.5**
+  - [x] 6.4 Add getUpcomingArrivals action
+    - Query upcoming_vessel_arrivals view
+    - Support date range filtering
+    - _Requirements: 7.1-7.6_
+  - [x] 6.5 Write property test for arrivals date filtering
+    - **Property 14: Upcoming Arrivals Date Filtering**
+    - **Validates: Requirements 7.5**
+  - [x] 6.6 Write property test for booking count aggregation
+    - **Property 16: Booking Count Aggregation**
+    - **Validates: Requirements 7.4**
+
+- [x] 7. Server Actions - Position Tracking
+  - [x] 7.1 Add position tracking to vessel-tracking-actions.ts
+    - recordPosition with vessel current_position update
+    - getPositionHistory with limit
+    - _Requirements: 3.1-3.6_
+  - [x] 7.2 Write property test for position updates vessel
+    - **Property 8: Position Recording Updates Vessel**
+    - **Validates: Requirements 3.4**
+  - [x] 7.3 Write property test for position history preservation
+    - **Property 9: Position History Preservation**
+    - **Validates: Requirements 3.5**
+
+- [x] 8. Server Actions - Shipment Tracking
+  - [x] 8.1 Add tracking event management to vessel-tracking-actions.ts
+    - recordTrackingEvent
+    - getTrackingEvents with filters
+    - searchTracking by B/L, booking, or container
+    - _Requirements: 4.1-4.7, 5.1-5.6_
+  - [x] 8.2 Write property test for tracking event round-trip
+    - **Property 10: Tracking Event Data Round-Trip**
+    - **Validates: Requirements 4.1, 4.3, 4.4, 4.5**
+  - [x] 8.3 Write property test for search by reference
+    - **Property 12: Search by Reference Returns Linked Events**
+    - **Validates: Requirements 5.1, 5.2, 5.3**
+
+- [x] 9. Server Actions - Subscriptions
+  - [x] 9.1 Add subscription management to vessel-tracking-actions.ts
+    - createSubscription with reference validation
+    - updateSubscription, deleteSubscription
+    - getUserSubscriptions
+    - _Requirements: 6.1-6.6_
+  - [x] 9.2 Write property test for subscription uniqueness
+    - **Property 13: Subscription Uniqueness Per User**
+    - **Validates: Requirements 6.6**
+
+- [x] 10. Checkpoint - Server Actions Complete
+  - Ensure all server action tests pass
+  - Ask the user if questions arise
+
+- [x] 11. UI Components - Vessel Management
+  - [x] 11.1 Create components/vessel-tracking/vessel-card.tsx
+    - Display vessel summary with name, IMO, type, status
+    - Show current position if available
+    - _Requirements: 1.1, 1.6_
+  - [x] 11.2 Create components/vessel-tracking/vessel-form.tsx
+    - Form for vessel create/edit
+    - Validation for IMO, MMSI formats
+    - _Requirements: 1.1-1.5_
+  - [x] 11.3 Create components/vessel-tracking/vessel-list.tsx
+    - List vessels with filters (type, status, shipping line)
+    - Search by name, IMO, MMSI
+    - _Requirements: 1.1-1.7_
+
+- [x] 12. UI Components - Schedule Management
+  - [x] 12.1 Create components/vessel-tracking/schedule-card.tsx
+    - Display port call with times and status
+    - Show delay indicator if applicable
+    - _Requirements: 2.1-2.8, 8.1-8.5_
+  - [x] 12.2 Create components/vessel-tracking/schedule-form.tsx
+    - Form for schedule create/edit
+    - Date/time pickers for all time fields
+    - _Requirements: 2.1-2.4_
+  - [x] 12.3 Create components/vessel-tracking/schedule-timeline.tsx
+    - Voyage timeline showing all port calls
+    - Visual progress indicator
+    - _Requirements: 2.1-2.8_
+  - [x] 12.4 Create components/vessel-tracking/delay-indicator.tsx
+    - Badge showing delay status and hours
+    - Color coding based on severity
+    - _Requirements: 8.1-8.5_
+  - [x] 12.5 Create components/vessel-tracking/upcoming-arrivals.tsx
+    - List upcoming arrivals with filters
+    - Show booking count per vessel/voyage
+    - _Requirements: 7.1-7.6_
+
+- [x] 13. UI Components - Tracking
+  - [x] 13.1 Create components/vessel-tracking/tracking-search.tsx
+    - Search input for B/L, booking, or container
+    - Auto-detect reference type
+    - _Requirements: 5.1-5.3_
+  - [x] 13.2 Create components/vessel-tracking/tracking-timeline.tsx
+    - Chronological event timeline
+    - Event cards with details
+    - _Requirements: 4.6, 5.4_
+  - [x] 13.3 Create components/vessel-tracking/tracking-progress.tsx
+    - Visual milestone progress bar
+    - Show completed and pending milestones
+    - _Requirements: 5.4_
+  - [x] 13.4 Create components/vessel-tracking/tracking-event-card.tsx
+    - Individual event display
+    - Show location, vessel, timestamp
+    - _Requirements: 4.1-4.5_
+  - [x] 13.5 Create components/vessel-tracking/position-map.tsx
+    - Map display for vessel position
+    - Show course and speed
+    - _Requirements: 3.1-3.6, 5.5_
+
+- [x] 14. UI Components - Subscriptions
+  - [x] 14.1 Create components/vessel-tracking/subscription-form.tsx
+    - Form to subscribe to tracking updates
+    - Notification preference checkboxes
+    - _Requirements: 6.1-6.3_
+  - [x] 14.2 Create components/vessel-tracking/subscription-list.tsx
+    - List user's active subscriptions
+    - Toggle active/inactive
+    - _Requirements: 6.4, 6.5_
+
+- [x] 15. Checkpoint - Components Complete
+  - Ensure all components render correctly
+  - Ask the user if questions arise
+
+- [x] 16. Pages - Vessel Management
+  - [x] 16.1 Create app/(main)/agency/vessels/page.tsx
+    - Vessel list page with filters
+    - Link to create new vessel
+    - _Requirements: 1.1-1.7_
+  - [x] 16.2 Create app/(main)/agency/vessels/new/page.tsx
+    - New vessel form page
+    - _Requirements: 1.1-1.5_
+  - [x] 16.3 Create app/(main)/agency/vessels/[id]/page.tsx
+    - Vessel detail page
+    - Show schedules and position history
+    - _Requirements: 1.1-1.7, 3.5_
+  - [x] 16.4 Create app/(main)/agency/vessels/[id]/edit/page.tsx
+    - Edit vessel form page
+    - _Requirements: 1.1-1.5_
+
+- [x] 17. Pages - Schedule Management
+  - [x] 17.1 Create app/(main)/agency/schedules/page.tsx
+    - Schedule list with filters
+    - Upcoming arrivals view
+    - _Requirements: 2.1-2.8, 7.1-7.6_
+  - [x] 17.2 Create app/(main)/agency/schedules/new/page.tsx
+    - New schedule form page
+    - _Requirements: 2.1-2.5_
+  - [x] 17.3 Create app/(main)/agency/schedules/[id]/page.tsx
+    - Schedule detail page
+    - _Requirements: 2.1-2.8_
+  - [x] 17.4 Create app/(main)/agency/schedules/[id]/edit/page.tsx
+    - Edit schedule form page
+    - _Requirements: 2.1-2.5_
+
+- [x] 18. Pages - Tracking
+  - [x] 18.1 Create app/(main)/agency/tracking/page.tsx
+    - Main tracking page with search
+    - Display tracking results
+    - _Requirements: 5.1-5.6_
+  - [x] 18.2 Add tracking results display
+    - Timeline view
+    - Progress indicator
+    - Vessel position map
+    - _Requirements: 4.6, 5.4, 5.5_
+  - [x] 18.3 Add subscription management to tracking page
+    - Subscribe button
+    - Subscription preferences
+    - _Requirements: 6.1-6.6_
+
+- [x] 19. Navigation Integration
+  - [x] 19.1 Add vessel tracking routes to navigation
+    - Add to agency section in sidebar
+    - Vessels, Schedules, Tracking links
+    - _Requirements: All_
+
+- [x] 20. Final Checkpoint
+  - Ensure all tests pass
+  - Verify all pages render correctly
+  - Ask the user if questions arise
+
+## Notes
+
+- All property-based tests are required for comprehensive coverage
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness properties
+- Unit tests validate specific examples and edge cases

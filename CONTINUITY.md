@@ -1,36 +1,44 @@
 # Continuity Ledger
 
+## Latest Update: v0.74 Vessel Tracking - COMPLETE + Bug Fixes
+
+**Goal:** v0.74 review complete, all bugs fixed, ready for GitHub push
+
+**State:**
+- Done: All v0.74 tasks verified complete, 7 property test bugs fixed
+- Now: Pushing to GitHub
+- Next: User to decide next feature
+
+---
+
 ## Goal
-v0.73 Agency - Bill of Lading & Documentation - Complete
+v0.74 Agency - Vessel Tracking & Schedules - Implementation (SUCCESS)
 
 ## Constraints/Assumptions
 - Next.js 15 + TypeScript + Supabase stack
 - Supabase project ID: ljbkjtaowrdddvjhsygj
-- Builds on v0.72 Agency - Booking Management (complete)
-- Uses existing freight_bookings, shipping_lines tables from v0.71/v0.72
+- Builds on v0.71-v0.73 Agency modules (complete)
 
 ## Key Decisions
-- Requirements approved
-- 11 correctness properties identified for property-based testing
-- Using fast-check for property testing
-- Document number formats: SI-YYYY-NNNNN, AN-YYYY-NNNNN, MF-YYYY-NNNNN
-- Container number validation: ISO 6346 format (4 letters + 7 digits)
+- Database tables: vessels, vessel_schedules, vessel_positions, shipment_tracking, tracking_subscriptions
+- IMO number format: 7 digits, MMSI format: 9 digits
+- Container validation: ISO 6346 format
+- Position map uses static placeholder with external links to Google Maps/MarineTraffic
 
 ## State
 - Done: 
-  - v0.71 complete (Shipping Line & Agent Management)
-  - v0.72 complete (Booking Management)
-  - v0.73 spec complete
-  - All 20 tasks complete
-  - All 54 property tests passing (including Property 10: Issued B/L Deletion Prevention)
-  - Build succeeds (warnings only, no errors)
-  - tasks.md updated with all checkboxes marked complete
-- Now: Push to GitHub
-- Next: None - v0.73 complete
+  - All 20 v0.74 tasks verified complete
+  - Database tables exist with RLS enabled
+  - upcoming_vessel_arrivals view exists
+  - 106 vessel tracking tests pass
+  - Fixed 7 property test bugs (invalid dates, whitespace labels, boundary conditions, duplicate IDs)
+  - All 3651 tests pass
+- Now: Pushing to GitHub
+- Next: Awaiting user direction
 
 ## Open Questions
 - None
 
 ## Working Set
-- .kiro/specs/v0.73-agency-bl-documentation/tasks.md
-- __tests__/bl-documentation-utils.property.test.ts
+- .kiro/specs/v0.74-vessel-tracking-schedules/tasks.md
+- __tests__/*.property.test.ts (7 files fixed)

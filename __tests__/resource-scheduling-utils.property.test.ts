@@ -544,7 +544,7 @@ describe('Resource Scheduling - Property Tests', () => {
       fc.assert(
         fc.property(
           uuidGen,
-          dateGen,
+          safeDateGen,
           unavailabilityTypeGen,
           (resourceId, date, unavailType) => {
             const unavailability: ResourceAvailability = {

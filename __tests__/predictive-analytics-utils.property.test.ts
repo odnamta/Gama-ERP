@@ -425,8 +425,11 @@ describe('Predictive Analytics Utils - Property Tests', () => {
     it('should return 0 when dates are the same day', () => {
       fc.assert(
         fc.property(
-          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') }),
+          fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31'), noInvalidDate: true }),
           (date) => {
+            // Skip invalid dates
+            if (isNaN(date.getTime())) return true;
+            
             // Create two dates on the same day
             const date1 = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 10, 0, 0);
             const date2 = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 15, 0, 0);

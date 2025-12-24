@@ -146,6 +146,18 @@ export const NAV_ITEMS: NavItem[] = [
         href: '/agency/manifests',
       },
       {
+        title: 'Vessels',
+        href: '/agency/vessels',
+      },
+      {
+        title: 'Schedules',
+        href: '/agency/schedules',
+      },
+      {
+        title: 'Tracking',
+        href: '/agency/tracking',
+      },
+      {
         title: 'Shipping Lines',
         href: '/agency/shipping-lines',
       },

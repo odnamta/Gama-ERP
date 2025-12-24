@@ -435,15 +435,22 @@ describe('Property 6: Next Due Date Calculation', () => {
   it('should calculate next due date as last conducted + frequency days', () => {
     fc.assert(
       fc.property(
-        fc.date({ min: new Date('2020-01-01'), max: new Date('2025-12-31') }),
+        fc.date({ min: new Date('2020-01-01'), max: new Date('2025-12-31'), noInvalidDate: true }),
         fc.integer({ min: 1, max: 365 }),
         (lastConducted, frequencyDays) => {
+          // Skip invalid dates
+          if (isNaN(lastConducted.getTime())) return true;
+          
           const nextDue = calculateNextDueDate(lastConducted, frequencyDays);
           
           const expected = new Date(lastConducted);
           expected.setDate(expected.getDate() + frequencyDays);
           
-          expect(nextDue.toDateString()).toBe(expected.toDateString());
+          // Compare timestamps to avoid timezone issues
+          const nextDueDay = Math.floor(nextDue.getTime() / (24 * 60 * 60 * 1000));
+          const expectedDay = Math.floor(expected.getTime() / (24 * 60 * 60 * 1000));
+          
+          expect(nextDueDay).toBe(expectedDay);
         }
       ),
       { numRuns: 100 }

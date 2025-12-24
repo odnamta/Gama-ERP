@@ -73,7 +73,7 @@ const waypointArb = fc.record({
   waypointType: waypointTypeArb,
   locationName: fc.string({ minLength: 1, maxLength: 200 }),
   isPassable: fc.boolean(),
-  createdAt: fc.date().map((d) => d.toISOString()),
+  createdAt: fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31'), noInvalidDate: true }).map((d) => d.toISOString()),
   verticalClearanceM: fc.option(fc.integer({ min: 1, max: 20 }).map(n => n * 0.5), { nil: undefined }),
   horizontalClearanceM: fc.option(fc.integer({ min: 1, max: 20 }).map(n => n * 0.5), { nil: undefined }),
   bridgeCapacityTons: fc.option(fc.integer({ min: 10, max: 500 }), { nil: undefined }),

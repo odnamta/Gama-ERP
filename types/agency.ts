@@ -1572,3 +1572,551 @@ export interface ManifestFilters {
   dateFrom?: string;
   dateTo?: string;
 }
+
+
+// =====================================================
+// v0.74: AGENCY - VESSEL TRACKING & SCHEDULES TYPES
+// =====================================================
+
+// Vessel Types
+export type VesselType = 'container' | 'bulk_carrier' | 'tanker' | 'general_cargo' | 'ro_ro' | 'heavy_lift' | 'multipurpose';
+
+export const VESSEL_TYPES: VesselType[] = ['container', 'bulk_carrier', 'tanker', 'general_cargo', 'ro_ro', 'heavy_lift', 'multipurpose'];
+
+export const VESSEL_TYPE_LABELS: Record<VesselType, string> = {
+  container: 'Container',
+  bulk_carrier: 'Bulk Carrier',
+  tanker: 'Tanker',
+  general_cargo: 'General Cargo',
+  ro_ro: 'Ro-Ro',
+  heavy_lift: 'Heavy Lift',
+  multipurpose: 'Multipurpose',
+};
+
+// Vessel Status
+export type VesselStatus = 'underway' | 'at_anchor' | 'moored' | 'not_under_command';
+
+export const VESSEL_STATUSES: VesselStatus[] = ['underway', 'at_anchor', 'moored', 'not_under_command'];
+
+export const VESSEL_STATUS_LABELS: Record<VesselStatus, string> = {
+  underway: 'Underway',
+  at_anchor: 'At Anchor',
+  moored: 'Moored',
+  not_under_command: 'Not Under Command',
+};
+
+export const VESSEL_STATUS_COLORS: Record<VesselStatus, string> = {
+  underway: 'bg-green-100 text-green-800',
+  at_anchor: 'bg-yellow-100 text-yellow-800',
+  moored: 'bg-blue-100 text-blue-800',
+  not_under_command: 'bg-red-100 text-red-800',
+};
+
+// Schedule Type
+export type ScheduleType = 'scheduled' | 'omitted' | 'extra_call';
+
+export const SCHEDULE_TYPES: ScheduleType[] = ['scheduled', 'omitted', 'extra_call'];
+
+export const SCHEDULE_TYPE_LABELS: Record<ScheduleType, string> = {
+  scheduled: 'Scheduled',
+  omitted: 'Omitted',
+  extra_call: 'Extra Call',
+};
+
+// Schedule Status
+export type ScheduleStatus = 'scheduled' | 'arrived' | 'berthed' | 'working' | 'departed' | 'cancelled';
+
+export const SCHEDULE_STATUSES: ScheduleStatus[] = ['scheduled', 'arrived', 'berthed', 'working', 'departed', 'cancelled'];
+
+export const SCHEDULE_STATUS_LABELS: Record<ScheduleStatus, string> = {
+  scheduled: 'Scheduled',
+  arrived: 'Arrived',
+  berthed: 'Berthed',
+  working: 'Working',
+  departed: 'Departed',
+  cancelled: 'Cancelled',
+};
+
+export const SCHEDULE_STATUS_COLORS: Record<ScheduleStatus, string> = {
+  scheduled: 'bg-gray-100 text-gray-800',
+  arrived: 'bg-blue-100 text-blue-800',
+  berthed: 'bg-purple-100 text-purple-800',
+  working: 'bg-yellow-100 text-yellow-800',
+  departed: 'bg-green-100 text-green-800',
+  cancelled: 'bg-red-100 text-red-800',
+};
+
+// Tracking Event Type
+export type TrackingEventType = 'booked' | 'gate_in' | 'loaded' | 'departed' | 'transshipment' | 'arrived' | 'discharged' | 'gate_out' | 'delivered';
+
+export const TRACKING_EVENT_TYPES: TrackingEventType[] = ['booked', 'gate_in', 'loaded', 'departed', 'transshipment', 'arrived', 'discharged', 'gate_out', 'delivered'];
+
+export const TRACKING_EVENT_TYPE_LABELS: Record<TrackingEventType, string> = {
+  booked: 'Booked',
+  gate_in: 'Gate In',
+  loaded: 'Loaded',
+  departed: 'Departed',
+  transshipment: 'Transshipment',
+  arrived: 'Arrived',
+  discharged: 'Discharged',
+  gate_out: 'Gate Out',
+  delivered: 'Delivered',
+};
+
+export const TRACKING_EVENT_TYPE_COLORS: Record<TrackingEventType, string> = {
+  booked: 'bg-gray-100 text-gray-800',
+  gate_in: 'bg-blue-100 text-blue-800',
+  loaded: 'bg-indigo-100 text-indigo-800',
+  departed: 'bg-purple-100 text-purple-800',
+  transshipment: 'bg-orange-100 text-orange-800',
+  arrived: 'bg-teal-100 text-teal-800',
+  discharged: 'bg-cyan-100 text-cyan-800',
+  gate_out: 'bg-emerald-100 text-emerald-800',
+  delivered: 'bg-green-100 text-green-800',
+};
+
+// Tracking Type (for subscriptions)
+export type TrackingType = 'vessel' | 'container' | 'booking';
+
+export const TRACKING_TYPES: TrackingType[] = ['vessel', 'container', 'booking'];
+
+export const TRACKING_TYPE_LABELS: Record<TrackingType, string> = {
+  vessel: 'Vessel',
+  container: 'Container',
+  booking: 'Booking',
+};
+
+// Position Source
+export type PositionSource = 'ais' | 'manual' | 'api';
+
+export const POSITION_SOURCES: PositionSource[] = ['ais', 'manual', 'api'];
+
+export const POSITION_SOURCE_LABELS: Record<PositionSource, string> = {
+  ais: 'AIS',
+  manual: 'Manual',
+  api: 'API',
+};
+
+// Vessel Position (embedded in vessel)
+export interface VesselPosition {
+  lat: number;
+  lng: number;
+  course?: number;
+  speed?: number;
+  updatedAt: string;
+}
+
+// Vessel Entity
+export interface Vessel {
+  id: string;
+  imoNumber?: string;
+  mmsi?: string;
+  vesselName: string;
+  vesselType?: VesselType;
+  flag?: string;
+  callSign?: string;
+  lengthM?: number;
+  beamM?: number;
+  draftM?: number;
+  grossTonnage?: number;
+  deadweightTons?: number;
+  teuCapacity?: number;
+  owner?: string;
+  operator?: string;
+  shippingLineId?: string;
+  currentStatus?: VesselStatus;
+  currentPosition?: VesselPosition;
+  lastPort?: string;
+  nextPort?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  // Joined fields
+  shippingLine?: ShippingLine;
+}
+
+// Vessel Schedule Entity
+export interface VesselSchedule {
+  id: string;
+  vesselId: string;
+  voyageNumber: string;
+  serviceName?: string;
+  serviceCode?: string;
+  scheduleType: ScheduleType;
+  portId?: string;
+  portName: string;
+  terminal?: string;
+  berth?: string;
+  scheduledArrival?: string;
+  scheduledDeparture?: string;
+  actualArrival?: string;
+  actualDeparture?: string;
+  cargoCutoff?: string;
+  docCutoff?: string;
+  vgmCutoff?: string;
+  status: ScheduleStatus;
+  delayHours: number;
+  delayReason?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  // Joined fields
+  vessel?: Vessel;
+  port?: Port;
+}
+
+// Vessel Position Record (history)
+export interface VesselPositionRecord {
+  id: string;
+  vesselId: string;
+  timestamp: string;
+  latitude: number;
+  longitude: number;
+  course?: number;
+  speedKnots?: number;
+  status?: VesselStatus;
+  destination?: string;
+  source: PositionSource;
+  createdAt: string;
+}
+
+// Shipment Tracking Event
+export interface ShipmentTracking {
+  id: string;
+  bookingId?: string;
+  blId?: string;
+  containerId?: string;
+  trackingNumber?: string;
+  containerNumber?: string;
+  eventType: TrackingEventType;
+  eventTimestamp: string;
+  locationName?: string;
+  locationCode?: string;
+  terminal?: string;
+  vesselName?: string;
+  voyageNumber?: string;
+  description?: string;
+  isActual: boolean;
+  source?: string;
+  createdAt: string;
+  // Joined fields
+  booking?: FreightBooking;
+  bl?: BillOfLading;
+}
+
+// Tracking Subscription
+export interface TrackingSubscription {
+  id: string;
+  trackingType: TrackingType;
+  referenceId: string;
+  referenceNumber?: string;
+  userId?: string;
+  email?: string;
+  notifyDeparture: boolean;
+  notifyArrival: boolean;
+  notifyDelay: boolean;
+  notifyMilestone: boolean;
+  isActive: boolean;
+  createdAt: string;
+}
+
+// Upcoming Arrival (from view)
+export interface UpcomingArrival {
+  id: string;
+  vesselId: string;
+  vesselName: string;
+  imoNumber?: string;
+  vesselType?: VesselType;
+  voyageNumber: string;
+  portName: string;
+  portCode?: string;
+  terminal?: string;
+  scheduledArrival: string;
+  status: ScheduleStatus;
+  delayHours: number;
+  ourBookingsCount: number;
+}
+
+// Milestone Progress
+export interface MilestoneProgress {
+  currentMilestone: TrackingEventType;
+  completedMilestones: TrackingEventType[];
+  pendingMilestones: TrackingEventType[];
+  progressPercent: number;
+}
+
+// Tracking Search Result
+export interface TrackingSearchResult {
+  type: 'bl' | 'booking' | 'container';
+  reference: string;
+  booking?: FreightBooking;
+  bl?: BillOfLading;
+  events: ShipmentTracking[];
+  vessel?: {
+    name: string;
+    voyage: string;
+    position?: VesselPosition;
+  };
+}
+
+// Form Data Types
+export interface VesselFormData {
+  imoNumber?: string;
+  mmsi?: string;
+  vesselName: string;
+  vesselType?: VesselType;
+  flag?: string;
+  callSign?: string;
+  lengthM?: number;
+  beamM?: number;
+  draftM?: number;
+  grossTonnage?: number;
+  deadweightTons?: number;
+  teuCapacity?: number;
+  owner?: string;
+  operator?: string;
+  shippingLineId?: string;
+  currentStatus?: VesselStatus;
+  lastPort?: string;
+  nextPort?: string;
+  notes?: string;
+}
+
+export interface ScheduleFormData {
+  vesselId: string;
+  voyageNumber: string;
+  serviceName?: string;
+  serviceCode?: string;
+  scheduleType?: ScheduleType;
+  portId?: string;
+  portName: string;
+  terminal?: string;
+  berth?: string;
+  scheduledArrival?: string;
+  scheduledDeparture?: string;
+  actualArrival?: string;
+  actualDeparture?: string;
+  cargoCutoff?: string;
+  docCutoff?: string;
+  vgmCutoff?: string;
+  status?: ScheduleStatus;
+  delayReason?: string;
+  notes?: string;
+}
+
+export interface PositionFormData {
+  vesselId: string;
+  timestamp: string;
+  latitude: number;
+  longitude: number;
+  course?: number;
+  speedKnots?: number;
+  status?: VesselStatus;
+  destination?: string;
+  source?: PositionSource;
+}
+
+export interface TrackingEventFormData {
+  bookingId?: string;
+  blId?: string;
+  containerId?: string;
+  trackingNumber?: string;
+  containerNumber?: string;
+  eventType: TrackingEventType;
+  eventTimestamp: string;
+  locationName?: string;
+  locationCode?: string;
+  terminal?: string;
+  vesselName?: string;
+  voyageNumber?: string;
+  description?: string;
+  isActual?: boolean;
+  source?: string;
+}
+
+export interface SubscriptionFormData {
+  trackingType: TrackingType;
+  referenceId: string;
+  referenceNumber?: string;
+  email?: string;
+  notifyDeparture?: boolean;
+  notifyArrival?: boolean;
+  notifyDelay?: boolean;
+  notifyMilestone?: boolean;
+}
+
+// Database Row Types (snake_case for Supabase)
+export interface VesselRow {
+  id: string;
+  imo_number?: string;
+  mmsi?: string;
+  vessel_name: string;
+  vessel_type?: string;
+  flag?: string;
+  call_sign?: string;
+  length_m?: number;
+  beam_m?: number;
+  draft_m?: number;
+  gross_tonnage?: number;
+  deadweight_tons?: number;
+  teu_capacity?: number;
+  owner?: string;
+  operator?: string;
+  shipping_line_id?: string;
+  current_status?: string;
+  current_position?: VesselPosition;
+  last_port?: string;
+  next_port?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VesselScheduleRow {
+  id: string;
+  vessel_id: string;
+  voyage_number: string;
+  service_name?: string;
+  service_code?: string;
+  schedule_type: string;
+  port_id?: string;
+  port_name: string;
+  terminal?: string;
+  berth?: string;
+  scheduled_arrival?: string;
+  scheduled_departure?: string;
+  actual_arrival?: string;
+  actual_departure?: string;
+  cargo_cutoff?: string;
+  doc_cutoff?: string;
+  vgm_cutoff?: string;
+  status: string;
+  delay_hours: number;
+  delay_reason?: string;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VesselPositionRow {
+  id: string;
+  vessel_id: string;
+  timestamp: string;
+  latitude: number;
+  longitude: number;
+  course?: number;
+  speed_knots?: number;
+  status?: string;
+  destination?: string;
+  source: string;
+  created_at: string;
+}
+
+export interface ShipmentTrackingRow {
+  id: string;
+  booking_id?: string;
+  bl_id?: string;
+  container_id?: string;
+  tracking_number?: string;
+  container_number?: string;
+  event_type: string;
+  event_timestamp: string;
+  location_name?: string;
+  location_code?: string;
+  terminal?: string;
+  vessel_name?: string;
+  voyage_number?: string;
+  description?: string;
+  is_actual: boolean;
+  source?: string;
+  created_at: string;
+}
+
+export interface TrackingSubscriptionRow {
+  id: string;
+  tracking_type: string;
+  reference_id: string;
+  reference_number?: string;
+  user_id?: string;
+  email?: string;
+  notify_departure: boolean;
+  notify_arrival: boolean;
+  notify_delay: boolean;
+  notify_milestone: boolean;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface UpcomingArrivalRow {
+  id: string;
+  vessel_id: string;
+  vessel_name: string;
+  imo_number?: string;
+  vessel_type?: string;
+  voyage_number: string;
+  port_name: string;
+  port_code?: string;
+  terminal?: string;
+  scheduled_arrival: string;
+  status: string;
+  delay_hours: number;
+  our_bookings_count: number;
+}
+
+// Filter Types
+export interface VesselFilters {
+  search?: string;
+  vesselType?: VesselType;
+  status?: VesselStatus;
+  shippingLineId?: string;
+  isActive?: boolean;
+}
+
+export interface ScheduleFilters {
+  vesselId?: string;
+  voyageNumber?: string;
+  portId?: string;
+  status?: ScheduleStatus;
+  hasDelay?: boolean;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface ArrivalFilters {
+  dateFrom?: string;
+  dateTo?: string;
+  portId?: string;
+  vesselType?: VesselType;
+}
+
+export interface TrackingSearchParams {
+  bookingId?: string;
+  blId?: string;
+  containerNumber?: string;
+  trackingNumber?: string;
+}
+
+// Delay Severity
+export type DelaySeverity = 'none' | 'minor' | 'moderate' | 'severe';
+
+export const DELAY_SEVERITY_THRESHOLDS = {
+  minor: 6,    // 6+ hours
+  moderate: 24, // 24+ hours
+  severe: 48,   // 48+ hours
+};
+
+export const DELAY_SEVERITY_COLORS: Record<DelaySeverity, string> = {
+  none: 'bg-green-100 text-green-800',
+  minor: 'bg-yellow-100 text-yellow-800',
+  moderate: 'bg-orange-100 text-orange-800',
+  severe: 'bg-red-100 text-red-800',
+};
+
+// Utility function to get delay severity
+export function getDelaySeverity(delayHours: number): DelaySeverity {
+  if (delayHours <= 0) return 'none';
+  if (delayHours < DELAY_SEVERITY_THRESHOLDS.minor) return 'none';
+  if (delayHours < DELAY_SEVERITY_THRESHOLDS.moderate) return 'minor';
+  if (delayHours < DELAY_SEVERITY_THRESHOLDS.severe) return 'moderate';
+  return 'severe';
+}

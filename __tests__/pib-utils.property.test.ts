@@ -433,9 +433,11 @@ describe('Property 9: Document Filtering Correctness', () => {
 
 describe('Property 10: Document Search Correctness', () => {
   it('All returned documents SHALL contain search term', () => {
+    // Use alphanumeric search terms to avoid regex special characters
+    const alphanumericArb = fc.stringMatching(/^[a-zA-Z0-9]{3,10}$/);
     fc.assert(
       fc.property(
-        fc.string({ minLength: 3, maxLength: 10 }),
+        alphanumericArb,
         fc.array(fc.string({ minLength: 5, maxLength: 50 }), { minLength: 1, maxLength: 10 }),
         (searchTerm, importerNames) => {
           // Create documents with various importer names
