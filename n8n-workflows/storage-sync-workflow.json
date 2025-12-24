@@ -1,0 +1,424 @@
+{
+  "name": "Storage Sync - Google Drive",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sync-storage",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "storage-sync"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            { "id": "validate-document-id", "leftValue": "={{ $json.document_id }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } },
+            { "id": "validate-connection-id", "leftValue": "={{ $json.connection_id }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "attachments", "mode": "list", "cachedResultName": "attachments" },
+        "returnAll": false,
+        "limit": 1,
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Webhook Trigger').item.json.document_id }}",
+        "options": {}
+      },
+      "id": "fetch-document",
+      "name": "Fetch Document",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [690, 200],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "integration_connections", "mode": "list", "cachedResultName": "integration_connections" },
+        "returnAll": false,
+        "limit": 1,
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Webhook Trigger').item.json.connection_id }}",
+        "options": {}
+      },
+      "id": "fetch-connection",
+      "name": "Fetch Connection",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [690, 400],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": { "values": [] },
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "merge-data",
+      "name": "Merge Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [910, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate folder path and prepare upload metadata\nconst document = $('Fetch Document').first().json;\nconst connection = $('Fetch Connection').first().json;\nconst webhookData = $('Webhook Trigger').first().json;\n\nconst config = connection.config || {};\n\n// Folder structure configuration\nconst folderConfig = {\n  root_folder_id: config.folder_id || 'root',\n  root_folder_name: config.root_folder_name || 'Gama ERP Documents',\n  use_year_folders: config.use_year_folders !== false,\n  use_month_folders: config.use_month_folders !== false,\n  use_entity_folders: config.use_entity_folders !== false,\n  folder_naming_pattern: config.folder_naming_pattern || 'entity_name'\n};\n\n// Format entity type for folder name\nfunction formatEntityTypeFolder(entityType) {\n  const typeMap = {\n    customer: 'Customers', project: 'Projects', quotation: 'Quotations',\n    pjo: 'PJOs', job_order: 'Job Orders', invoice: 'Invoices',\n    asset: 'Assets', employee: 'Employees', vendor: 'Vendors'\n  };\n  return typeMap[entityType] || entityType;\n}\n\n// Format document type for folder name\nfunction formatDocumentTypeFolder(documentType) {\n  const typeMap = {\n    invoice: 'Invoices', quotation: 'Quotations', pjo: 'PJOs',\n    job_order: 'Job Orders', surat_jalan: 'Surat Jalan',\n    berita_acara: 'Berita Acara', contract: 'Contracts',\n    permit: 'Permits', certificate: 'Certificates',\n    photo: 'Photos', report: 'Reports', other: 'Other'\n  };\n  return typeMap[documentType] || documentType;\n}\n\n// Sanitize folder name\nfunction sanitizeFolderName(name) {\n  if (!name) return 'Unknown';\n  return name.replace(/[<>:\"/\\\\|?*]/g, '_').replace(/\\s+/g, ' ').trim().substring(0, 255) || 'Unknown';\n}\n\n// Sanitize file name\nfunction sanitizeFileName(name) {\n  if (!name) return 'document';\n  const nameWithoutExt = name.replace(/\\.[^/.]+$/, '');\n  return nameWithoutExt.replace(/[<>:\"/\\\\|?*]/g, '_').replace(/\\s+/g, '_').trim().substring(0, 200) || 'document';\n}\n\n// Get file extension\nfunction getFileExtension(fileName) {\n  const match = fileName.match(/\\.([^/.]+)$/);\n  return match ? match[1].toLowerCase() : '';\n}\n\n// Generate folder path segments\nconst segments = [folderConfig.root_folder_name];\n\nif (folderConfig.use_entity_folders && document.entity_type) {\n  segments.push(formatEntityTypeFolder(document.entity_type));\n}\n\nif (folderConfig.use_year_folders) {\n  const year = new Date(document.uploaded_at || document.created_at).getFullYear().toString();\n  segments.push(year);\n}\n\nif (folderConfig.use_month_folders) {\n  const date = new Date(document.uploaded_at || document.created_at);\n  const month = String(date.getMonth() + 1).padStart(2, '0');\n  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];\n  segments.push(month + '-' + monthNames[date.getMonth()]);\n}\n\nif (document.entity_name) {\n  segments.push(sanitizeFolderName(document.entity_name));\n}\n\nif (document.document_type) {\n  segments.push(formatDocumentTypeFolder(document.document_type));\n}\n\n// Generate unique file name\nconst extension = getFileExtension(document.file_name);\nconst baseName = sanitizeFileName(document.document_name || document.file_name);\nconst timestamp = new Date(document.uploaded_at || document.created_at).toISOString().replace(/[-:T]/g, '').substring(0, 14);\nconst fileName = extension ? baseName + '_' + timestamp + '.' + extension : baseName + '_' + timestamp;\n\nreturn {\n  document_id: document.id,\n  connection_id: connection.id,\n  folder_path: segments.join('/'),\n  folder_segments: segments,\n  file_name: fileName,\n  mime_type: document.mime_type || 'application/octet-stream',\n  file_url: document.file_url,\n  file_size: document.file_size,\n  root_folder_id: folderConfig.root_folder_id,\n  description: document.description || document.document_type + ' - ' + (document.document_name || document.file_name),\n  properties: {\n    gama_document_id: document.id,\n    gama_entity_type: document.entity_type || '',\n    gama_entity_id: document.entity_id || '',\n    gama_document_type: document.document_type || '',\n    gama_uploaded_at: document.uploaded_at || document.created_at\n  }\n};"
+      },
+      "id": "prepare-upload",
+      "name": "Prepare Upload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1130, 300]
+    },
+
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "external_id_mappings", "mode": "list", "cachedResultName": "external_id_mappings" },
+        "returnAll": false,
+        "limit": 1,
+        "filterType": "string",
+        "filterString": "={{ 'connection_id=eq.' + $json.connection_id + '&local_table=eq.attachments&local_id=eq.' + $json.document_id }}",
+        "options": {}
+      },
+      "id": "check-existing-mapping",
+      "name": "Check Existing Mapping",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1350, 300],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [{ "id": "has-mapping", "leftValue": "={{ $json.external_id }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } }],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-create-or-update",
+      "name": "Create or Update?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1570, 300]
+    },
+
+    {
+      "parameters": {
+        "jsCode": "// Create folder structure in Google Drive\nconst uploadData = $('Prepare Upload').first().json;\nconst segments = uploadData.folder_segments;\nlet currentParentId = uploadData.root_folder_id;\nconst folderIds = [currentParentId];\n\n// Return folder creation requests\nreturn segments.slice(1).map((segment, index) => ({\n  folder_name: segment,\n  parent_id: currentParentId,\n  segment_index: index\n}));"
+      },
+      "id": "prepare-folders",
+      "name": "Prepare Folders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1790, 400]
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "create",
+        "name": "={{ $json.folder_name }}",
+        "options": { "parents": ["={{ $json.parent_id }}"] }
+      },
+      "id": "create-drive-folder",
+      "name": "Create Drive Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2010, 400],
+      "credentials": { "googleDriveOAuth2Api": { "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}", "name": "Google Drive OAuth2" } }
+    },
+
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $('Prepare Upload').first().json.file_url }}",
+        "options": { "response": { "response": { "responseFormat": "file" } } }
+      },
+      "id": "download-file",
+      "name": "Download File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2230, 300]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "name": "={{ $('Prepare Upload').first().json.file_name }}",
+        "parents": ["={{ $('Create Drive Folder').last()?.json?.id || $('Prepare Upload').first().json.root_folder_id }}"],
+        "options": {
+          "mimeType": "={{ $('Prepare Upload').first().json.mime_type }}",
+          "description": "={{ $('Prepare Upload').first().json.description }}"
+        }
+      },
+      "id": "upload-to-drive",
+      "name": "Upload to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [2450, 300],
+      "credentials": { "googleDriveOAuth2Api": { "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}", "name": "Google Drive OAuth2" } }
+    },
+
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "update",
+        "fileId": "={{ $('Check Existing Mapping').first().json.external_id }}",
+        "options": {
+          "name": "={{ $('Prepare Upload').first().json.file_name }}",
+          "description": "={{ $('Prepare Upload').first().json.description }}"
+        }
+      },
+      "id": "update-drive-file",
+      "name": "Update Drive File",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [1790, 150],
+      "credentials": { "googleDriveOAuth2Api": { "id": "{{GOOGLE_DRIVE_CREDENTIAL_ID}}", "name": "Google Drive OAuth2" } }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "external_id_mappings", "mode": "list", "cachedResultName": "external_id_mappings" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "connection_id": "={{ $('Prepare Upload').first().json.connection_id }}",
+            "local_table": "attachments",
+            "local_id": "={{ $('Prepare Upload').first().json.document_id }}",
+            "external_id": "={{ $json.id }}",
+            "external_data": "={{ JSON.stringify({ drive_file_id: $json.id, drive_folder_id: $('Create Drive Folder').last()?.json?.id || $('Prepare Upload').first().json.root_folder_id, drive_web_link: 'https://drive.google.com/file/d/' + $json.id + '/view', drive_download_link: 'https://drive.google.com/uc?export=download&id=' + $json.id, folder_path: $('Prepare Upload').first().json.folder_path, sync_status: 'synced', version: 1 }) }}",
+            "synced_at": "={{ new Date().toISOString() }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "create-external-mapping",
+      "name": "Create External Mapping",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2670, 300],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "external_id_mappings", "mode": "list", "cachedResultName": "external_id_mappings" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "external_data": "={{ JSON.stringify({ drive_file_id: $('Check Existing Mapping').first().json.external_id, drive_web_link: 'https://drive.google.com/file/d/' + $('Check Existing Mapping').first().json.external_id + '/view', drive_download_link: 'https://drive.google.com/uc?export=download&id=' + $('Check Existing Mapping').first().json.external_id, folder_path: $('Prepare Upload').first().json.folder_path, sync_status: 'synced', version: (JSON.parse($('Check Existing Mapping').first().json.external_data || '{}').version || 0) + 1 }) }}",
+            "synced_at": "={{ new Date().toISOString() }}"
+          }
+        },
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Check Existing Mapping').first().json.id }}",
+        "options": {}
+      },
+      "id": "update-external-mapping",
+      "name": "Update External Mapping",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2010, 150],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "attachments", "mode": "list", "cachedResultName": "attachments" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sync_status": "synced",
+            "external_file_link": "={{ 'https://drive.google.com/file/d/' + ($json.id || $('Check Existing Mapping').first().json.external_id) + '/view' }}"
+          }
+        },
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Prepare Upload').first().json.document_id }}",
+        "options": {}
+      },
+      "id": "update-document-status",
+      "name": "Update Document Status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2890, 225],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "sync_log", "mode": "list", "cachedResultName": "sync_log" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "connection_id": "={{ $('Prepare Upload').first().json.connection_id }}",
+            "sync_type": "push",
+            "started_at": "={{ $('Webhook Trigger').first().json.timestamp || new Date().toISOString() }}",
+            "completed_at": "={{ new Date().toISOString() }}",
+            "records_processed": 1,
+            "records_created": "={{ $('Upload to Drive').item ? 1 : 0 }}",
+            "records_updated": "={{ $('Update Drive File').item ? 1 : 0 }}",
+            "records_failed": 0,
+            "status": "completed",
+            "error_details": null
+          }
+        },
+        "options": {}
+      },
+      "id": "log-sync-success",
+      "name": "Log Sync Success",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [3110, 225],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"document_id\": \"{{ $('Prepare Upload').first().json.document_id }}\",\n  \"drive_file_id\": \"{{ $('Upload to Drive').first()?.json?.id || $('Check Existing Mapping').first()?.json?.external_id }}\",\n  \"drive_web_link\": \"https://drive.google.com/file/d/{{ $('Upload to Drive').first()?.json?.id || $('Check Existing Mapping').first()?.json?.external_id }}/view\",\n  \"folder_path\": \"{{ $('Prepare Upload').first().json.folder_path }}\",\n  \"operation\": \"{{ $('Upload to Drive').item ? 'create' : 'update' }}\",\n  \"synced_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {}
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [3330, 225]
+    },
+
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"error\": \"Invalid input: document_id and connection_id are required\"\n}",
+        "options": { "responseCode": 400 }
+      },
+      "id": "validation-error",
+      "name": "Validation Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [690, 500]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "sync_log", "mode": "list", "cachedResultName": "sync_log" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "connection_id": "={{ $('Webhook Trigger').first().json.connection_id }}",
+            "sync_type": "push",
+            "started_at": "={{ $('Webhook Trigger').first().json.timestamp || new Date().toISOString() }}",
+            "completed_at": "={{ new Date().toISOString() }}",
+            "records_processed": 1,
+            "records_created": 0,
+            "records_updated": 0,
+            "records_failed": 1,
+            "status": "failed",
+            "error_details": "={{ JSON.stringify([{ record_id: $('Webhook Trigger').first().json.document_id, error_code: 'DRIVE_ERROR', error_message: $json.message || 'Failed to sync to Google Drive', timestamp: new Date().toISOString() }]) }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-sync-failure",
+      "name": "Log Sync Failure",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2670, 500],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "attachments", "mode": "list", "cachedResultName": "attachments" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "sync_status": "failed"
+          }
+        },
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Webhook Trigger').first().json.document_id }}",
+        "options": {}
+      },
+      "id": "update-document-failed",
+      "name": "Update Document Failed",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2890, 500],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"document_id\": \"{{ $('Webhook Trigger').first().json.document_id }}\",\n  \"error\": \"{{ $('Upload to Drive').first()?.json?.message || $('Update Drive File').first()?.json?.message || 'Failed to sync to Google Drive' }}\"\n}",
+        "options": { "responseCode": 500 }
+      },
+      "id": "error-response",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [3110, 500]
+    }
+  ],
+
+  "connections": {
+    "Webhook Trigger": { "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]] },
+    "Validate Input": { "main": [[{ "node": "Fetch Document", "type": "main", "index": 0 }, { "node": "Fetch Connection", "type": "main", "index": 0 }], [{ "node": "Validation Error", "type": "main", "index": 0 }]] },
+    "Fetch Document": { "main": [[{ "node": "Merge Data", "type": "main", "index": 0 }]] },
+    "Fetch Connection": { "main": [[{ "node": "Merge Data", "type": "main", "index": 1 }]] },
+    "Merge Data": { "main": [[{ "node": "Prepare Upload", "type": "main", "index": 0 }]] },
+    "Prepare Upload": { "main": [[{ "node": "Check Existing Mapping", "type": "main", "index": 0 }]] },
+    "Check Existing Mapping": { "main": [[{ "node": "Create or Update?", "type": "main", "index": 0 }]] },
+    "Create or Update?": { "main": [[{ "node": "Update Drive File", "type": "main", "index": 0 }], [{ "node": "Prepare Folders", "type": "main", "index": 0 }]] },
+    "Update Drive File": { "main": [[{ "node": "Update External Mapping", "type": "main", "index": 0 }]] },
+    "Update External Mapping": { "main": [[{ "node": "Update Document Status", "type": "main", "index": 0 }]] },
+    "Prepare Folders": { "main": [[{ "node": "Create Drive Folder", "type": "main", "index": 0 }]] },
+    "Create Drive Folder": { "main": [[{ "node": "Download File", "type": "main", "index": 0 }]] },
+    "Download File": { "main": [[{ "node": "Upload to Drive", "type": "main", "index": 0 }]] },
+    "Upload to Drive": { "main": [[{ "node": "Create External Mapping", "type": "main", "index": 0 }]] },
+    "Create External Mapping": { "main": [[{ "node": "Update Document Status", "type": "main", "index": 0 }]] },
+    "Update Document Status": { "main": [[{ "node": "Log Sync Success", "type": "main", "index": 0 }]] },
+    "Log Sync Success": { "main": [[{ "node": "Success Response", "type": "main", "index": 0 }]] },
+    "Log Sync Failure": { "main": [[{ "node": "Update Document Failed", "type": "main", "index": 0 }]] },
+    "Update Document Failed": { "main": [[{ "node": "Error Response", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "staticData": null,
+  "tags": [{ "name": "external-integrations" }, { "name": "storage" }, { "name": "google-drive" }],
+  "triggerCount": 1,
+  "meta": { "templateCredsSetupCompleted": false, "instanceId": "gama-erp" }
+}

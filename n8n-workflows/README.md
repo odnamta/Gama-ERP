@@ -1,13 +1,18 @@
-# n8n Document Generation Workflows
+# n8n Workflows for Gama ERP
 
-This directory contains n8n workflow JSON files for automated PDF document generation in Gama ERP.
+This directory contains n8n workflow JSON files for automated document generation and external system integrations in Gama ERP.
 
 ## Overview
 
-The document generation system automates the creation of professional PDF documents including:
+### Document Generation Workflows
 - **Invoices** - Customer billing documents
 - **Quotations** - Sales proposals and price quotes
 - **Delivery Notes** - Cargo handover documentation
+
+### External Integration Workflows (v0.69)
+- **Accounting Sync** - Synchronize invoices, payments, and customers with Accurate Online
+- **GPS Tracking** - Pull location data from GPS tracking systems
+- **Storage Sync** - Backup documents to Google Drive
 
 ## Prerequisites
 
@@ -28,6 +33,8 @@ Configure the following environment variables in your n8n instance:
 | `SUPABASE_SERVICE_KEY` | Supabase service role key (for storage) | `eyJhbGciOiJIUzI1NiIs...` |
 | `HTML2PDF_API_URL` | HTML to PDF conversion API endpoint | `https://api.html2pdf.app/v1/generate` |
 | `HTML2PDF_API_KEY` | API key for HTML2PDF service | `your-api-key` |
+| `ACCURATE_API_URL` | Accurate Online API base URL | `https://api.accurate.id` |
+| `GPS_API_URL` | GPS tracking provider API URL | `https://api.gps-provider.com` |
 
 ### Setting Environment Variables in n8n
 
@@ -61,6 +68,30 @@ Create a credential of type **HTTP Header Auth**:
 - **Header Name**: `Authorization`
 - **Header Value**: `Bearer YOUR_HTML2PDF_API_KEY`
 
+### 4. Accurate Online API Credential (for Accounting Sync)
+
+Create a credential of type **HTTP Header Auth**:
+
+- **Name**: `Accurate API Key`
+- **Header Name**: `Authorization`
+- **Header Value**: `Bearer YOUR_ACCURATE_API_KEY`
+
+### 5. GPS Tracking API Credential (for GPS Tracking)
+
+Create a credential of type **HTTP Header Auth**:
+
+- **Name**: `GPS API Key`
+- **Header Name**: `X-API-Key`
+- **Header Value**: `YOUR_GPS_API_KEY`
+
+### 6. Google Drive OAuth2 Credential (for Storage Sync)
+
+Create a credential of type **Google Drive OAuth2 API**:
+
+- **Name**: `Google Drive OAuth2`
+- Follow Google's OAuth2 setup process to obtain client ID and secret
+- Grant access to Google Drive API
+
 ## Importing Workflows
 
 ### Method 1: Import via n8n UI
@@ -82,6 +113,11 @@ n8n import:workflow --input=quotation-generation-workflow.json
 
 # Import delivery note workflow
 n8n import:workflow --input=delivery-note-generation-workflow.json
+
+# Import external integration workflows
+n8n import:workflow --input=accounting-sync-workflow.json
+n8n import:workflow --input=gps-tracking-workflow.json
+n8n import:workflow --input=storage-sync-workflow.json
 ```
 
 ## Workflow Files
@@ -305,6 +341,208 @@ async function generateInvoicePDF(invoiceId: string, userId: string) {
 ```
 
 Alternatively, use the built-in server actions in `lib/document-generator-actions.ts` which provide the same functionality without n8n.
+
+---
+
+## External Integration Workflows (v0.69)
+
+### 4. Accounting Sync (`accounting-sync-workflow.json`)
+
+Synchronizes invoices, payments, and customers with Accurate Online accounting software.
+
+**Webhook Endpoint**: `POST /webhook/sync-accounting`
+
+**Request Body**:
+```json
+{
+  "event_type": "invoice|payment|customer",
+  "entity_id": "uuid-of-entity",
+  "connection_id": "uuid-of-integration-connection",
+  "timestamp": "2025-01-15T10:30:00.000Z"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "sync_log_id": "uuid-of-sync-log",
+  "entity_type": "invoice",
+  "entity_id": "uuid-of-entity",
+  "operation": "create|update",
+  "synced_at": "2025-01-15T10:30:00.000Z"
+}
+```
+
+**Flow**:
+1. Webhook receives request with event_type, entity_id, and connection_id
+2. Validates input parameters
+3. Routes to appropriate handler based on event_type (invoice/payment/customer)
+4. Fetches entity data from Supabase
+5. Transforms data to Accurate Online format
+6. Checks external_id_mappings to determine create vs update
+7. Sends data to Accurate Online API
+8. Creates/updates external_id_mapping record
+9. Logs sync operation to sync_log table
+10. Returns success/error response
+
+**Supported Event Types**:
+- `invoice` - Syncs invoice with line items
+- `payment` - Syncs payment records
+- `customer` - Syncs customer master data
+
+### 5. GPS Tracking (`gps-tracking-workflow.json`)
+
+Pulls location data from GPS tracking systems on a scheduled interval.
+
+**Trigger**: Schedule (every 5 minutes by default)
+
+**Flow**:
+1. Schedule trigger fires at configured interval
+2. Fetches all active tracking integration connections
+3. For each connection:
+   - Fetches device-to-asset mappings from sync_mappings
+   - Calls GPS provider API to get latest locations
+   - Validates GPS data (coordinates, speed, heading)
+   - Transforms data to Gama format
+   - Updates asset current location in assets table
+   - Inserts location history records
+   - Logs sync operation with success/partial/failed status
+   - Updates connection last_sync_at timestamp
+
+**GPS Data Fields**:
+- `device_id` - GPS device identifier
+- `latitude`, `longitude` - Coordinates
+- `altitude` - Elevation (optional)
+- `speed` - Speed in km/h (optional)
+- `heading` - Direction in degrees 0-360 (optional)
+- `accuracy` - GPS accuracy in meters (optional)
+- `timestamp` - Data timestamp
+
+**Error Handling**:
+- Invalid coordinates are logged and skipped
+- Connection failures update last_error on connection
+- Partial failures (some devices fail) result in 'partial' status
+
+### 6. Storage Sync (`storage-sync-workflow.json`)
+
+Backs up documents to Google Drive with automatic folder structure.
+
+**Webhook Endpoint**: `POST /webhook/sync-storage`
+
+**Request Body**:
+```json
+{
+  "document_id": "uuid-of-attachment",
+  "connection_id": "uuid-of-storage-connection",
+  "timestamp": "2025-01-15T10:30:00.000Z"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "document_id": "uuid-of-attachment",
+  "drive_file_id": "google-drive-file-id",
+  "drive_web_link": "https://drive.google.com/file/d/.../view",
+  "folder_path": "Gama ERP Documents/Invoices/2025/01-January/Customer Name/Invoices",
+  "operation": "create|update",
+  "synced_at": "2025-01-15T10:30:00.000Z"
+}
+```
+
+**Flow**:
+1. Webhook receives request with document_id and connection_id
+2. Validates input parameters
+3. Fetches document metadata from attachments table
+4. Fetches connection configuration
+5. Generates folder path based on configuration:
+   - Root folder name
+   - Entity type folder (Customers, Projects, etc.)
+   - Year folder (2025)
+   - Month folder (01-January)
+   - Entity name folder
+   - Document type folder
+6. Checks external_id_mappings for existing sync
+7. If new: Creates folder structure, downloads file, uploads to Drive
+8. If existing: Updates file metadata in Drive
+9. Creates/updates external_id_mapping with Drive file ID
+10. Updates attachment with sync_status and external_file_link
+11. Logs sync operation
+12. Returns success/error response
+
+**Folder Structure Configuration** (in connection config):
+```json
+{
+  "folder_id": "google-drive-root-folder-id",
+  "root_folder_name": "Gama ERP Documents",
+  "use_year_folders": true,
+  "use_month_folders": true,
+  "use_entity_folders": true,
+  "folder_naming_pattern": "entity_name"
+}
+```
+
+---
+
+## Database Requirements for External Integrations
+
+### integration_connections
+Stores connection configurations for external systems.
+
+### sync_mappings
+Defines field mappings between local and external entities.
+
+### sync_log
+Tracks all synchronization operations with status and statistics.
+
+### external_id_mappings
+Maps local record IDs to external system IDs.
+
+### location_history (for GPS tracking)
+Stores historical GPS location data for assets.
+
+---
+
+## Integration with Gama ERP
+
+### Triggering External Sync from Next.js
+
+```typescript
+// Example: Trigger accounting sync when invoice is created
+async function syncInvoiceToAccounting(invoiceId: string, connectionId: string) {
+  const response = await fetch('https://your-n8n-instance/webhook/sync-accounting', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      event_type: 'invoice',
+      entity_id: invoiceId,
+      connection_id: connectionId,
+      timestamp: new Date().toISOString()
+    })
+  });
+  
+  return response.json();
+}
+
+// Example: Trigger document backup to Google Drive
+async function backupDocumentToDrive(documentId: string, connectionId: string) {
+  const response = await fetch('https://your-n8n-instance/webhook/sync-storage', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      document_id: documentId,
+      connection_id: connectionId,
+      timestamp: new Date().toISOString()
+    })
+  });
+  
+  return response.json();
+}
+```
+
+Alternatively, use the built-in server actions in `app/actions/sync-actions.ts` which provide the same functionality.
 
 ## License
 

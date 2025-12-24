@@ -1,0 +1,470 @@
+{
+  "name": "Accounting Sync - Accurate Online",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sync-accounting",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "accounting-sync"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "validate-event-type",
+              "leftValue": "={{ $json.event_type }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "validate-entity-id",
+              "leftValue": "={{ $json.entity_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [470, 300]
+    },
+
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.event_type }}",
+              "operation": "equals",
+              "value2": "invoice"
+            }
+          ]
+        }
+      },
+      "id": "route-event-type",
+      "name": "Route by Event Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [690, 300],
+      "parameters": {
+        "rules": {
+          "rules": [
+            {
+              "outputKey": "invoice",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [{ "leftValue": "={{ $json.event_type }}", "rightValue": "invoice", "operator": { "type": "string", "operation": "equals" } }],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "payment",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [{ "leftValue": "={{ $json.event_type }}", "rightValue": "payment", "operator": { "type": "string", "operation": "equals" } }],
+                "combinator": "and"
+              }
+            },
+            {
+              "outputKey": "customer",
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+                "conditions": [{ "leftValue": "={{ $json.event_type }}", "rightValue": "customer", "operator": { "type": "string", "operation": "equals" } }],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "invoices", "mode": "list", "cachedResultName": "invoices" },
+        "returnAll": false,
+        "limit": 1,
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Webhook Trigger').item.json.entity_id }}",
+        "options": { "queryName": "select=*,customers(id,name,email,phone,address)" }
+      },
+      "id": "fetch-invoice",
+      "name": "Fetch Invoice",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [910, 100],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "invoice_line_items", "mode": "list", "cachedResultName": "invoice_line_items" },
+        "returnAll": true,
+        "filterType": "string",
+        "filterString": "={{ 'invoice_id=eq.' + $('Webhook Trigger').item.json.entity_id }}",
+        "options": { "queryName": "order=line_number.asc" }
+      },
+      "id": "fetch-invoice-items",
+      "name": "Fetch Invoice Items",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [910, 250],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "payments", "mode": "list", "cachedResultName": "payments" },
+        "returnAll": false,
+        "limit": 1,
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Webhook Trigger').item.json.entity_id }}",
+        "options": { "queryName": "select=*,invoices(id,invoice_number)" }
+      },
+      "id": "fetch-payment",
+      "name": "Fetch Payment",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [910, 400],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "customers", "mode": "list", "cachedResultName": "customers" },
+        "returnAll": false,
+        "limit": 1,
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Webhook Trigger').item.json.entity_id }}",
+        "options": {}
+      },
+      "id": "fetch-customer",
+      "name": "Fetch Customer",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [910, 550],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+
+    {
+      "parameters": {
+        "jsCode": "// Transform invoice to Accurate Online format\nconst invoice = $('Fetch Invoice').first().json;\nconst lineItems = $('Fetch Invoice Items').all().map(item => item.json);\nconst webhookData = $('Webhook Trigger').first().json;\n\n// Format date helper\nfunction formatDate(dateString) {\n  if (!dateString) return new Date().toISOString().split('T')[0];\n  try {\n    return new Date(dateString).toISOString().split('T')[0];\n  } catch { return new Date().toISOString().split('T')[0]; }\n}\n\n// Generate customer code\nfunction generateCustomerCode(customerId) {\n  return 'CUST-' + customerId.substring(0, 8).toUpperCase();\n}\n\n// Generate item code\nfunction generateItemCode(description, index) {\n  const prefix = (description || '').substring(0, 10).toUpperCase().replace(/[^A-Z0-9]/g, '');\n  return 'ITEM-' + (prefix || 'SVC') + '-' + String(index + 1).padStart(3, '0');\n}\n\n// Transform line items\nconst detailItem = lineItems.map((item, index) => ({\n  itemNo: generateItemCode(item.description, index),\n  itemName: item.description || '',\n  quantity: Number(item.quantity) || 1,\n  unitPrice: Number(item.unit_price) || 0,\n  unit: item.unit || 'UNIT',\n  amount: item.subtotal !== null ? Number(item.subtotal) : (Number(item.quantity) || 1) * (Number(item.unit_price) || 0)\n}));\n\nconst accurateInvoice = {\n  transDate: formatDate(invoice.invoice_date),\n  transNo: invoice.invoice_number,\n  customerNo: invoice.customer_code || generateCustomerCode(invoice.customer_id),\n  dueDate: formatDate(invoice.due_date),\n  detailItem: detailItem,\n  subtotal: Number(invoice.subtotal) || 0,\n  taxAmount: Number(invoice.tax_amount) || 0,\n  totalAmount: Number(invoice.total_amount) || 0,\n  description: invoice.notes || 'Invoice ' + invoice.invoice_number\n};\n\nreturn {\n  entity_id: webhookData.entity_id,\n  entity_type: 'invoice',\n  local_table: 'invoices',\n  connection_id: webhookData.connection_id,\n  transformed_data: accurateInvoice,\n  original_data: invoice\n};"
+      },
+      "id": "transform-invoice",
+      "name": "Transform Invoice",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1130, 175]
+    },
+
+    {
+      "parameters": {
+        "jsCode": "// Transform payment to Accurate Online format\nconst payment = $('Fetch Payment').first().json;\nconst webhookData = $('Webhook Trigger').first().json;\n\n// Format date helper\nfunction formatDate(dateString) {\n  if (!dateString) return new Date().toISOString().split('T')[0];\n  try {\n    return new Date(dateString).toISOString().split('T')[0];\n  } catch { return new Date().toISOString().split('T')[0]; }\n}\n\n// Map payment method\nfunction mapPaymentMethod(method) {\n  const methodMap = {\n    'cash': 'CASH', 'bank_transfer': 'BANK_TRANSFER', 'transfer': 'BANK_TRANSFER',\n    'check': 'CHECK', 'cheque': 'CHECK', 'credit_card': 'CREDIT_CARD',\n    'debit_card': 'DEBIT_CARD', 'giro': 'GIRO', 'other': 'OTHER'\n  };\n  return methodMap[(method || '').toLowerCase()] || 'OTHER';\n}\n\nconst transNo = 'PAY-' + payment.id.substring(0, 8).toUpperCase();\nconst bankAccount = payment.bank_name && payment.bank_account\n  ? payment.bank_name + ' - ' + payment.bank_account\n  : payment.bank_name || payment.bank_account || '';\n\nconst accuratePayment = {\n  transDate: formatDate(payment.payment_date),\n  transNo: transNo,\n  invoiceNo: payment.invoices?.invoice_number || payment.invoice_id,\n  amount: Number(payment.amount) || 0,\n  paymentMethod: mapPaymentMethod(payment.payment_method),\n  bankAccount: bankAccount,\n  referenceNo: payment.reference_number || '',\n  description: payment.notes || 'Payment for ' + (payment.invoices?.invoice_number || payment.invoice_id)\n};\n\nreturn {\n  entity_id: webhookData.entity_id,\n  entity_type: 'payment',\n  local_table: 'payments',\n  connection_id: webhookData.connection_id,\n  transformed_data: accuratePayment,\n  original_data: payment\n};"
+      },
+      "id": "transform-payment",
+      "name": "Transform Payment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1130, 400]
+    },
+
+    {
+      "parameters": {
+        "jsCode": "// Transform customer to Accurate Online format\nconst customer = $('Fetch Customer').first().json;\nconst webhookData = $('Webhook Trigger').first().json;\n\n// Generate customer code\nfunction generateCustomerCode(customerId) {\n  return 'CUST-' + customerId.substring(0, 8).toUpperCase();\n}\n\nconst accurateCustomer = {\n  customerNo: generateCustomerCode(customer.id),\n  name: customer.name || '',\n  email: customer.email || '',\n  phone: customer.phone || '',\n  address: customer.address || '',\n  isActive: customer.is_active !== false\n};\n\nreturn {\n  entity_id: webhookData.entity_id,\n  entity_type: 'customer',\n  local_table: 'customers',\n  connection_id: webhookData.connection_id,\n  transformed_data: accurateCustomer,\n  original_data: customer\n};"
+      },
+      "id": "transform-customer",
+      "name": "Transform Customer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1130, 550]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": { "values": [] },
+        "combinationMode": "mergeByPosition",
+        "options": {}
+      },
+      "id": "merge-invoice-data",
+      "name": "Merge Invoice Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1130, 100]
+    },
+
+    {
+      "parameters": {
+        "operation": "select",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "external_id_mappings", "mode": "list", "cachedResultName": "external_id_mappings" },
+        "returnAll": false,
+        "limit": 1,
+        "filterType": "string",
+        "filterString": "={{ 'connection_id=eq.' + $json.connection_id + '&local_table=eq.' + $json.local_table + '&local_id=eq.' + $json.entity_id }}",
+        "options": {}
+      },
+      "id": "check-external-mapping",
+      "name": "Check External Mapping",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [1350, 300],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [{ "id": "has-mapping", "leftValue": "={{ $json.external_id }}", "rightValue": "", "operator": { "type": "string", "operation": "notEmpty" } }],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-create-or-update",
+      "name": "Create or Update?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1570, 300]
+    },
+
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $env.ACCURATE_API_URL }}/api/{{ $('Transform Invoice').item.json.entity_type || $('Transform Payment').item.json.entity_type || $('Transform Customer').item.json.entity_type }}/{{ $json.external_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Transform Invoice').item.json.transformed_data || $('Transform Payment').item.json.transformed_data || $('Transform Customer').item.json.transformed_data) }}",
+        "options": { "response": { "response": { "responseFormat": "json" } } }
+      },
+      "id": "update-accurate-record",
+      "name": "Update Accurate Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1790, 200],
+      "credentials": { "httpHeaderAuth": { "id": "{{ACCURATE_CREDENTIAL_ID}}", "name": "Accurate API Key" } }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.ACCURATE_API_URL }}/api/{{ $('Transform Invoice').item.json.entity_type || $('Transform Payment').item.json.entity_type || $('Transform Customer').item.json.entity_type }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($('Transform Invoice').item.json.transformed_data || $('Transform Payment').item.json.transformed_data || $('Transform Customer').item.json.transformed_data) }}",
+        "options": { "response": { "response": { "responseFormat": "json" } } }
+      },
+      "id": "create-accurate-record",
+      "name": "Create Accurate Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1790, 400],
+      "credentials": { "httpHeaderAuth": { "id": "{{ACCURATE_CREDENTIAL_ID}}", "name": "Accurate API Key" } }
+    },
+
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "external_id_mappings", "mode": "list", "cachedResultName": "external_id_mappings" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "external_data": "={{ JSON.stringify($json) }}",
+            "synced_at": "={{ new Date().toISOString() }}"
+          }
+        },
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Check External Mapping').first().json.id }}",
+        "options": {}
+      },
+      "id": "update-external-mapping",
+      "name": "Update External Mapping",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2010, 200],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "external_id_mappings", "mode": "list", "cachedResultName": "external_id_mappings" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "connection_id": "={{ $('Transform Invoice').item.json.connection_id || $('Transform Payment').item.json.connection_id || $('Transform Customer').item.json.connection_id }}",
+            "local_table": "={{ $('Transform Invoice').item.json.local_table || $('Transform Payment').item.json.local_table || $('Transform Customer').item.json.local_table }}",
+            "local_id": "={{ $('Transform Invoice').item.json.entity_id || $('Transform Payment').item.json.entity_id || $('Transform Customer').item.json.entity_id }}",
+            "external_id": "={{ $json.id || $json.transNo }}",
+            "external_data": "={{ JSON.stringify($json) }}",
+            "synced_at": "={{ new Date().toISOString() }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "create-external-mapping",
+      "name": "Create External Mapping",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2010, 400],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "sync_log", "mode": "list", "cachedResultName": "sync_log" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "connection_id": "={{ $('Webhook Trigger').first().json.connection_id }}",
+            "sync_type": "push",
+            "started_at": "={{ $('Webhook Trigger').first().json.timestamp || new Date().toISOString() }}",
+            "completed_at": "={{ new Date().toISOString() }}",
+            "records_processed": 1,
+            "records_created": "={{ $('Create Accurate Record').item ? 1 : 0 }}",
+            "records_updated": "={{ $('Update Accurate Record').item ? 1 : 0 }}",
+            "records_failed": 0,
+            "status": "completed",
+            "error_details": null
+          }
+        },
+        "options": {}
+      },
+      "id": "log-sync-success",
+      "name": "Log Sync Success",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2230, 300],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"sync_log_id\": \"{{ $json.id }}\",\n  \"entity_type\": \"{{ $('Webhook Trigger').first().json.event_type }}\",\n  \"entity_id\": \"{{ $('Webhook Trigger').first().json.entity_id }}\",\n  \"operation\": \"{{ $('Update Accurate Record').item ? 'update' : 'create' }}\",\n  \"synced_at\": \"{{ new Date().toISOString() }}\"\n}",
+        "options": {}
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2450, 300]
+    },
+
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"error\": \"Invalid input: event_type and entity_id are required\"\n}",
+        "options": { "responseCode": 400 }
+      },
+      "id": "validation-error",
+      "name": "Validation Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [690, 500]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "sync_log", "mode": "list", "cachedResultName": "sync_log" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "connection_id": "={{ $('Webhook Trigger').first().json.connection_id }}",
+            "sync_type": "push",
+            "started_at": "={{ $('Webhook Trigger').first().json.timestamp || new Date().toISOString() }}",
+            "completed_at": "={{ new Date().toISOString() }}",
+            "records_processed": 1,
+            "records_created": 0,
+            "records_updated": 0,
+            "records_failed": 1,
+            "status": "failed",
+            "error_details": "={{ JSON.stringify([{ record_id: $('Webhook Trigger').first().json.entity_id, error_code: 'API_ERROR', error_message: $json.message || 'Unknown error', timestamp: new Date().toISOString() }]) }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-sync-failure",
+      "name": "Log Sync Failure",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2010, 600],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"sync_log_id\": \"{{ $json.id }}\",\n  \"entity_type\": \"{{ $('Webhook Trigger').first().json.event_type }}\",\n  \"entity_id\": \"{{ $('Webhook Trigger').first().json.entity_id }}\",\n  \"error\": \"{{ $('Create Accurate Record').first()?.json?.message || $('Update Accurate Record').first()?.json?.message || 'Sync failed' }}\"\n}",
+        "options": { "responseCode": 500 }
+      },
+      "id": "error-response",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2230, 600]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": { "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]] },
+    "Validate Input": { "main": [[{ "node": "Route by Event Type", "type": "main", "index": 0 }], [{ "node": "Validation Error", "type": "main", "index": 0 }]] },
+    "Route by Event Type": { "main": [[{ "node": "Fetch Invoice", "type": "main", "index": 0 }, { "node": "Fetch Invoice Items", "type": "main", "index": 0 }], [{ "node": "Fetch Payment", "type": "main", "index": 0 }], [{ "node": "Fetch Customer", "type": "main", "index": 0 }]] },
+    "Fetch Invoice": { "main": [[{ "node": "Merge Invoice Data", "type": "main", "index": 0 }]] },
+    "Fetch Invoice Items": { "main": [[{ "node": "Merge Invoice Data", "type": "main", "index": 1 }]] },
+    "Merge Invoice Data": { "main": [[{ "node": "Transform Invoice", "type": "main", "index": 0 }]] },
+    "Fetch Payment": { "main": [[{ "node": "Transform Payment", "type": "main", "index": 0 }]] },
+    "Fetch Customer": { "main": [[{ "node": "Transform Customer", "type": "main", "index": 0 }]] },
+    "Transform Invoice": { "main": [[{ "node": "Check External Mapping", "type": "main", "index": 0 }]] },
+    "Transform Payment": { "main": [[{ "node": "Check External Mapping", "type": "main", "index": 0 }]] },
+    "Transform Customer": { "main": [[{ "node": "Check External Mapping", "type": "main", "index": 0 }]] },
+    "Check External Mapping": { "main": [[{ "node": "Create or Update?", "type": "main", "index": 0 }]] },
+    "Create or Update?": { "main": [[{ "node": "Update Accurate Record", "type": "main", "index": 0 }], [{ "node": "Create Accurate Record", "type": "main", "index": 0 }]] },
+    "Update Accurate Record": { "main": [[{ "node": "Update External Mapping", "type": "main", "index": 0 }]] },
+    "Create Accurate Record": { "main": [[{ "node": "Create External Mapping", "type": "main", "index": 0 }]] },
+    "Update External Mapping": { "main": [[{ "node": "Log Sync Success", "type": "main", "index": 0 }]] },
+    "Create External Mapping": { "main": [[{ "node": "Log Sync Success", "type": "main", "index": 0 }]] },
+    "Log Sync Success": { "main": [[{ "node": "Success Response", "type": "main", "index": 0 }]] },
+    "Log Sync Failure": { "main": [[{ "node": "Error Response", "type": "main", "index": 0 }]] }
+  },
+
+  "settings": { "executionOrder": "v1" },
+  "staticData": null,
+  "tags": [{ "name": "external-integrations" }, { "name": "accounting" }, { "name": "accurate-online" }],
+  "triggerCount": 1,
+  "meta": { "templateCredsSetupCompleted": false, "instanceId": "gama-erp" }
+}
