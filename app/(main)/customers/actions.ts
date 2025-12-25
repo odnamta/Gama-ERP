@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { trackCustomerCreation } from '@/lib/onboarding-tracker'
+import { invalidateCustomerCache } from '@/lib/cached-queries'
 
 const customerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -36,6 +37,9 @@ export async function createCustomer(data: CustomerFormData): Promise<{ error?: 
   // Track for onboarding
   await trackCustomerCreation()
 
+  // Invalidate customer cache (Requirement 6.4)
+  invalidateCustomerCache()
+
   revalidatePath('/customers')
   return {}
 }
@@ -64,6 +68,9 @@ export async function updateCustomer(
   if (error) {
     return { error: error.message }
   }
+
+  // Invalidate customer cache (Requirement 6.4)
+  invalidateCustomerCache()
 
   revalidatePath('/customers')
   revalidatePath(`/customers/${id}`)
@@ -99,6 +106,9 @@ export async function deleteCustomer(id: string): Promise<{ error?: string }> {
     return { error: error.message }
   }
 
+  // Invalidate customer cache (Requirement 6.4)
+  invalidateCustomerCache()
+
   revalidatePath('/customers')
   return {}
 }
@@ -114,6 +124,9 @@ export async function restoreCustomer(id: string): Promise<{ error?: string }> {
   if (error) {
     return { error: error.message }
   }
+
+  // Invalidate customer cache (Requirement 6.4)
+  invalidateCustomerCache()
 
   revalidatePath('/customers')
   return {}

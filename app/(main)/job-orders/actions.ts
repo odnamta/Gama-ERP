@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { JobOrderWithRelations, InvoiceTerm, parseInvoiceTerms } from '@/types'
 import { validateTermsTotal } from '@/lib/invoice-terms-utils'
+import { invalidateDashboardCache } from '@/lib/cached-queries'
 
 export async function getJobOrders(): Promise<JobOrderWithRelations[]> {
   const supabase = await createClient()
@@ -143,6 +144,9 @@ export async function markCompleted(joId: string): Promise<{ error?: string }> {
     console.error('Failed to send JO completion notification:', e)
   }
 
+  // Invalidate dashboard cache (Requirement 6.6)
+  invalidateDashboardCache()
+
   revalidatePath('/job-orders')
   revalidatePath(`/job-orders/${joId}`)
   return {}
@@ -228,6 +232,9 @@ export async function submitToFinance(joId: string): Promise<{ error?: string }>
       console.error('Failed to check revenue discrepancy:', e)
     }
   }
+
+  // Invalidate dashboard cache (Requirement 6.6)
+  invalidateDashboardCache()
 
   revalidatePath('/job-orders')
   revalidatePath(`/job-orders/${joId}`)

@@ -16,6 +16,7 @@ import {
 } from '@/lib/invoice-utils'
 import { calculateTermInvoiceTotals } from '@/lib/invoice-terms-utils'
 import { DEFAULT_SETTINGS } from '@/types/company-settings'
+import { invalidateDashboardCache } from '@/lib/cached-queries'
 
 /**
  * Generate the next sequential invoice number for the current year
@@ -233,6 +234,9 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
     console.error('Error updating JO status:', joUpdateError)
     // Don't rollback - invoice is created, just log the error
   }
+
+  // Invalidate dashboard cache (Requirement 6.6)
+  invalidateDashboardCache()
 
   revalidatePath('/invoices')
   revalidatePath('/job-orders')
@@ -459,6 +463,9 @@ export async function updateInvoiceStatus(
       })
       .eq('id', invoice.jo_id)
   }
+
+  // Invalidate dashboard cache (Requirement 6.6)
+  invalidateDashboardCache()
 
   revalidatePath('/invoices')
   revalidatePath(`/invoices/${id}`)

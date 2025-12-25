@@ -10,6 +10,47 @@ import {
 } from '@/types/database'
 
 /**
+ * Fetch dashboard stats using optimized database function
+ * Requirement 4.4: Call get_dashboard_stats instead of multiple separate queries
+ * Returns: active_jobs, revenue_mtd, profit_mtd, pending_invoices, ar_outstanding
+ */
+export async function fetchDashboardStats(): Promise<{
+  active_jobs: number;
+  revenue_mtd: number;
+  profit_mtd: number;
+  pending_invoices: number;
+  ar_outstanding: number;
+}> {
+  const supabase = await createClient()
+  
+  // Use the optimized database function (single query)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data, error } = await (supabase.rpc as any)('get_dashboard_stats')
+  
+  if (error) {
+    console.error('Error fetching dashboard stats:', error)
+    // Return defaults on error
+    return {
+      active_jobs: 0,
+      revenue_mtd: 0,
+      profit_mtd: 0,
+      pending_invoices: 0,
+      ar_outstanding: 0,
+    }
+  }
+  
+  const stats = Array.isArray(data) ? data[0] : data
+  
+  return {
+    active_jobs: Number(stats?.active_jobs || 0),
+    revenue_mtd: Number(stats?.revenue_mtd || 0),
+    profit_mtd: Number(stats?.profit_mtd || 0),
+    pending_invoices: Number(stats?.pending_invoices || 0),
+    ar_outstanding: Number(stats?.ar_outstanding || 0),
+  }
+}
+
+/**
  * Fetch all dashboard KPIs in parallel for optimal performance
  */
 export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {

@@ -12,6 +12,7 @@ import {
   Position,
 } from '@/types/employees';
 import { isValidEmployeeStatus, isValidEmploymentType, hasCircularReporting } from '@/lib/employee-utils';
+import { invalidateEmployeeCache } from '@/lib/cached-queries';
 
 /**
  * Get all employees with optional filters
@@ -180,6 +181,9 @@ export async function createEmployee(
     return { success: false, error: error.message };
   }
 
+  // Invalidate employee cache (Requirement 6.5)
+  invalidateEmployeeCache();
+
   revalidatePath('/hr/employees');
   return { success: true, employee: data as Employee };
 }
@@ -255,6 +259,9 @@ export async function updateEmployee(
     return { success: false, error: error.message };
   }
 
+  // Invalidate employee cache (Requirement 6.5)
+  invalidateEmployeeCache();
+
   revalidatePath('/hr/employees');
   revalidatePath(`/hr/employees/${id}`);
   return { success: true };
@@ -294,6 +301,9 @@ export async function updateEmployeeStatus(
     console.error('Error updating employee status:', error);
     return { success: false, error: error.message };
   }
+
+  // Invalidate employee cache (Requirement 6.5)
+  invalidateEmployeeCache();
 
   revalidatePath('/hr/employees');
   revalidatePath(`/hr/employees/${id}`);
