@@ -11,6 +11,7 @@ import { TourProvider } from '@/components/guided-tours'
 import { PreferencesProvider } from '@/contexts/preferences-context'
 import { getUserPreferences } from '@/app/(main)/settings/preferences/actions'
 import { DEFAULT_PREFERENCES } from '@/types/user-preferences'
+import { FeedbackButton } from '@/components/feedback'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -47,6 +48,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
               </div>
               <Toaster />
               <OnboardingRouteTracker userId={userProfile?.id || null} />
+              <FeedbackButton />
             </div>
           </TourProvider>
         </PreviewProviderWrapper>

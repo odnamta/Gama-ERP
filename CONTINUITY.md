@@ -1,55 +1,53 @@
 # Continuity Ledger
 
 ## Goal
-Implement v0.79 Security Hardening for Gama ERP - rate limiting, input validation, session management, API key management, security event logging, and IP blocking.
+Implement v0.81 Bug Report & Improvement Request System for Gama ERP - feedback submission, admin dashboard, comments, and notifications.
 
 ## Constraints/Assumptions
 - Use Supabase MCP for database migrations
 - Follow existing codebase patterns
 - TypeScript strict mode
-- Property-based testing with fast-check (min 100 iterations)
+- Property-based testing with fast-check
+- Integrate with existing notification system
 
 ## Key Decisions
-- 5 security tables: rate_limit_log, security_events, api_keys, blocked_ips, user_sessions
-- SHA-256 hashing for API keys and session tokens
-- Max 5 concurrent sessions per user
-- Configurable rate limits per endpoint type
+- 3 feedback tables: feedback_submissions, feedback_comments, feedback_status_history
+- Ticket number format: BUG-YYYY-NNNNN, REQ-YYYY-NNNNN (auto-generated via sequence)
+- Status workflow: new → reviewing → confirmed → in_progress → resolved/closed/wont_fix/duplicate
+- Screenshots stored as JSONB array in feedback_submissions
+- RLS policies: users see own submissions, admins see all
 
 ## State
 Done:
-- v0.77 Error Handling & Recovery ✅
 - v0.78 Performance Optimization ✅
-- v0.79 Security Hardening ✅ (ALL TASKS COMPLETE)
-  - Task 1: Database schema and types ✅
-  - Task 2: Input Validator ✅
-  - Task 3: Security Event Logger ✅
-  - Task 4: Rate Limiter ✅
-  - Task 5: Checkpoint - Core utilities ✅
-  - Task 6: API Key Manager ✅
-  - Task 7: Session Manager ✅
-  - Task 8: IP Blocker ✅
-  - Task 9: Checkpoint - Security services ✅
-  - Task 10: Security Middleware ✅
-  - Task 11: Security Admin UI ✅ (all 4 pages complete)
-    - 11.1 Security events viewer ✅
-    - 11.2 Blocked IPs management ✅
-    - 11.3 API keys management ✅
-    - 11.4 Active sessions viewer ✅
-  - Task 12: Server Actions ✅
-  - Task 13: Final checkpoint ✅ (88 security tests pass)
+- v0.79 Security Hardening ✅
+- v0.80 Production Readiness ✅
+- v0.81 Bug Report & Improvement Request System ✅
+  - Task 1: Database Schema and Types ✅
+  - Task 2: Core Utility Functions ✅
+  - Task 3: Server Actions ✅
+  - Task 4: Checkpoint (29 property tests) ✅
+  - Task 5: UI Components (FeedbackButton, FeedbackModal, ScreenshotCapture) ✅
+  - Task 6: Submission UI Checkpoint ✅
+  - Task 7: Admin Dashboard ✅
+  - Task 8: User Submissions View ✅
+  - Task 9: Notifications Integration ✅
+  - Task 10: Navigation ✅
+  - Task 11: Final Checkpoint ✅
 
-Now: Pushed to GitHub
+Now: v0.81 COMPLETE
 
-Next: None - v0.79 Security Hardening complete
+Next: Ready for next feature
 
 ## Open Questions
 None
 
 ## Working Set
-- .kiro/specs/v0.79-security-hardening/tasks.md
-- app/(main)/admin/security/events/
-- app/(main)/admin/security/blocked-ips/
-- app/(main)/admin/security/api-keys/
-- app/(main)/admin/security/sessions/
-- lib/security/*.ts
-- __tests__/*security*.test.ts
+- components/feedback/ (FeedbackButton, FeedbackModal, ScreenshotCapture)
+- app/(main)/admin/feedback/ (Admin dashboard)
+- app/(main)/feedback/ (User submissions)
+- app/actions/feedback.ts
+- lib/feedback-utils.ts
+- lib/notifications/feedback-notifications.ts
+- types/feedback.ts
+- __tests__/feedback-utils.property.test.ts (29 tests passing)

@@ -496,6 +496,10 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ['owner', 'admin'],
     children: [
       {
+        title: 'Feedback',
+        href: '/admin/feedback',
+      },
+      {
         title: 'Audit Logs',
         href: '/settings/audit-logs',
       },
