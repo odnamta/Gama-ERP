@@ -1,9 +1,11 @@
 {
-  "name": "GPS Tracking Sync",
+  "name": "GPS Tracking - Location Sync",
   "nodes": [
     {
       "parameters": {
-        "rule": { "interval": [{ "field": "minutes", "minutesInterval": 5 }] }
+        "rule": {
+          "interval": [{ "field": "minutes", "minutesInterval": 5 }]
+        }
       },
       "id": "schedule-trigger",
       "name": "Schedule Trigger",
@@ -38,23 +40,12 @@
         "options": {}
       },
       "id": "check-connections",
-      "name": "Has Connections?",
+      "name": "Check Connections",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [690, 300]
     },
 
-    {
-      "parameters": {
-        "batchSize": 1,
-        "options": {}
-      },
-      "id": "split-connections",
-      "name": "Split Connections",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [910, 200]
-    },
     {
       "parameters": {
         "operation": "select",
@@ -69,34 +60,45 @@
       "name": "Fetch Device Mappings",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
-      "position": [1130, 200],
+      "position": [910, 200],
       "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
     },
     {
       "parameters": {
-        "jsCode": "// Extract GPS API configuration from connection\nconst connection = $('Split Connections').first().json;\nconst config = connection.config || {};\n\nreturn {\n  connection_id: connection.id,\n  connection_code: connection.connection_code,\n  api_url: config.base_url || $env.GPS_API_URL,\n  api_key: connection.credentials?.api_key || '',\n  update_interval: config.update_interval || 5,\n  provider: connection.provider\n};"
+        "jsCode": "// Prepare GPS API request based on connection config\nconst connection = $('Check Connections').first().json;\nconst mappings = $('Fetch Device Mappings').all().map(item => item.json);\n\nconst config = connection.config || {};\nconst credentials = connection.credentials || {};\n\n// Extract device IDs from mappings\nconst deviceIds = mappings\n  .filter(m => m.field_mappings && m.field_mappings.length > 0)\n  .map(m => {\n    const deviceMapping = m.field_mappings.find(f => f.local_field === 'device_id');\n    return deviceMapping ? deviceMapping.remote_field : null;\n  })\n  .filter(Boolean);\n\nreturn {\n  connection_id: connection.id,\n  connection_code: connection.connection_code,\n  provider: connection.provider,\n  api_url: config.base_url || credentials.api_url || $env.GPS_API_URL,\n  api_key: credentials.api_key,\n  device_ids: deviceIds,\n  mappings: mappings,\n  update_interval: config.update_interval || 5,\n  last_sync_at: connection.last_sync_at\n};"
       },
-      "id": "prepare-api-request",
-      "name": "Prepare API Request",
+      "id": "prepare-gps-request",
+      "name": "Prepare GPS Request",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1130, 350]
+      "position": [1130, 200]
     },
 
     {
       "parameters": {
         "method": "GET",
-        "url": "={{ $json.api_url }}/api/devices/locations",
+        "url": "={{ $json.api_url }}/api/v1/devices/locations",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
-        "options": { "response": { "response": { "responseFormat": "json" } } }
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "device_ids", "value": "={{ $json.device_ids.join(',') }}" },
+            { "name": "since", "value": "={{ $json.last_sync_at || new Date(Date.now() - 15 * 60 * 1000).toISOString() }}" }
+          ]
+        },
+        "options": {
+          "response": { "response": { "responseFormat": "json" } },
+          "timeout": 30000
+        }
       },
-      "id": "fetch-gps-data",
-      "name": "Fetch GPS Data",
+      "id": "fetch-gps-locations",
+      "name": "Fetch GPS Locations",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1350, 300],
-      "credentials": { "httpHeaderAuth": { "id": "{{GPS_API_CREDENTIAL_ID}}", "name": "GPS API Key" } }
+      "position": [1350, 200],
+      "credentials": { "httpHeaderAuth": { "id": "{{GPS_CREDENTIAL_ID}}", "name": "GPS API Key" } },
+      "continueOnFail": true
     },
     {
       "parameters": {
@@ -108,46 +110,32 @@
         "options": {}
       },
       "id": "check-gps-data",
-      "name": "Has GPS Data?",
+      "name": "Check GPS Data",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [1570, 300]
+      "position": [1570, 200]
     },
+
     {
       "parameters": {
-        "jsCode": "// Transform GPS data to Gama format\nconst gpsResponse = $input.first().json;\nconst deviceMappings = $('Fetch Device Mappings').all().map(item => item.json);\nconst connectionConfig = $('Prepare API Request').first().json;\n\n// Validate coordinates\nfunction validateCoordinates(lat, lon) {\n  return typeof lat === 'number' && typeof lon === 'number' &&\n    !isNaN(lat) && !isNaN(lon) &&\n    lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;\n}\n\n// Validate heading\nfunction validateHeading(heading) {\n  if (heading === undefined || heading === null) return true;\n  return typeof heading === 'number' && !isNaN(heading) && heading >= 0 && heading <= 360;\n}\n\n// Validate speed\nfunction validateSpeed(speed) {\n  if (speed === undefined || speed === null) return true;\n  return typeof speed === 'number' && !isNaN(speed) && speed >= 0;\n}\n\nconst locationUpdates = [];\nconst historyRecords = [];\nconst errors = [];\n\nfor (const rawData of (gpsResponse.data || [])) {\n  // Find asset mapping for this device\n  const mapping = deviceMappings.find(m => {\n    const fieldMappings = m.field_mappings || [];\n    const deviceMapping = fieldMappings.find(f => f.remote_field === 'device_id');\n    return deviceMapping && deviceMapping.local_field === rawData.device_id;\n  });\n\n  if (!mapping) {\n    errors.push({ device_id: rawData.device_id, error: 'No asset mapping found' });\n    continue;\n  }\n\n  // Validate GPS data\n  if (!validateCoordinates(rawData.latitude, rawData.longitude)) {\n    errors.push({ device_id: rawData.device_id, error: 'Invalid coordinates' });\n    continue;\n  }\n\n  if (!validateHeading(rawData.heading)) {\n    errors.push({ device_id: rawData.device_id, error: 'Invalid heading' });\n    continue;\n  }\n\n  if (!validateSpeed(rawData.speed)) {\n    errors.push({ device_id: rawData.device_id, error: 'Invalid speed' });\n    continue;\n  }\n\n  const assetId = mapping.local_table.replace('assets:', '');\n\n  // Create asset location update\n  locationUpdates.push({\n    asset_id: assetId,\n    current_latitude: rawData.latitude,\n    current_longitude: rawData.longitude,\n    current_speed_kmh: rawData.speed || null,\n    current_heading: rawData.heading || null,\n    last_location_update: rawData.timestamp || new Date().toISOString(),\n    odometer_km: rawData.odometer || null,\n    engine_hours: rawData.engine_hours || null\n  });\n\n  // Create location history record\n  historyRecords.push({\n    asset_id: assetId,\n    device_id: rawData.device_id,\n    latitude: rawData.latitude,\n    longitude: rawData.longitude,\n    altitude: rawData.altitude || null,\n    speed_kmh: rawData.speed || null,\n    heading_degrees: rawData.heading || null,\n    accuracy_meters: rawData.accuracy || null,\n    recorded_at: rawData.timestamp || new Date().toISOString(),\n    metadata: JSON.stringify({\n      satellites: rawData.satellites,\n      battery_level: rawData.battery_level,\n      ignition: rawData.ignition,\n      odometer_km: rawData.odometer,\n      fuel_level_percent: rawData.fuel_level,\n      engine_hours: rawData.engine_hours\n    })\n  });\n}\n\nreturn {\n  connection_id: connectionConfig.connection_id,\n  location_updates: locationUpdates,\n  history_records: historyRecords,\n  errors: errors,\n  total_devices: (gpsResponse.data || []).length,\n  processed_count: locationUpdates.length,\n  error_count: errors.length\n};"
+        "jsCode": "// Transform GPS data to Gama format and validate\nconst gpsResponse = $('Fetch GPS Locations').first().json;\nconst requestData = $('Prepare GPS Request').first().json;\nconst mappings = requestData.mappings;\n\nconst gpsData = gpsResponse.data || [];\nconst results = [];\nconst errors = [];\n\n// Helper: Validate coordinates\nfunction validateCoordinates(lat, lon) {\n  return typeof lat === 'number' && typeof lon === 'number' &&\n    !isNaN(lat) && !isNaN(lon) &&\n    lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180;\n}\n\n// Helper: Validate heading (0-360)\nfunction validateHeading(heading) {\n  if (heading === undefined || heading === null) return true;\n  return typeof heading === 'number' && !isNaN(heading) && heading >= 0 && heading <= 360;\n}\n\n// Helper: Validate speed (non-negative)\nfunction validateSpeed(speed) {\n  if (speed === undefined || speed === null) return true;\n  return typeof speed === 'number' && !isNaN(speed) && speed >= 0;\n}\n\n// Find asset ID for device\nfunction findAssetId(deviceId) {\n  for (const mapping of mappings) {\n    if (!mapping.field_mappings) continue;\n    const deviceMapping = mapping.field_mappings.find(f => f.local_field === 'device_id');\n    const assetMapping = mapping.field_mappings.find(f => f.local_field === 'asset_id');\n    if (deviceMapping && deviceMapping.remote_field === deviceId && assetMapping) {\n      return assetMapping.remote_field;\n    }\n  }\n  return null;\n}\n\n// Process each GPS data point\nfor (const data of gpsData) {\n  const deviceId = data.device_id;\n  const assetId = findAssetId(deviceId);\n  \n  if (!assetId) {\n    errors.push({ device_id: deviceId, error: 'No asset mapping found' });\n    continue;\n  }\n  \n  // Validate coordinates\n  if (!validateCoordinates(data.latitude, data.longitude)) {\n    errors.push({ device_id: deviceId, asset_id: assetId, error: 'Invalid coordinates' });\n    continue;\n  }\n  \n  // Validate heading\n  if (!validateHeading(data.heading)) {\n    errors.push({ device_id: deviceId, asset_id: assetId, error: 'Invalid heading' });\n    continue;\n  }\n  \n  // Validate speed\n  if (!validateSpeed(data.speed)) {\n    errors.push({ device_id: deviceId, asset_id: assetId, error: 'Invalid speed' });\n    continue;\n  }\n  \n  // Transform to Gama format\n  results.push({\n    asset_id: assetId,\n    device_id: deviceId,\n    latitude: data.latitude,\n    longitude: data.longitude,\n    altitude: data.altitude ?? null,\n    speed_kmh: data.speed ?? null,\n    heading_degrees: data.heading ?? null,\n    accuracy_meters: data.accuracy ?? null,\n    recorded_at: data.timestamp || new Date().toISOString(),\n    metadata: {\n      satellites: data.satellites,\n      battery_level: data.battery_level,\n      ignition: data.ignition,\n      odometer_km: data.odometer,\n      fuel_level_percent: data.fuel_level,\n      engine_hours: data.engine_hours\n    }\n  });\n}\n\nreturn {\n  connection_id: requestData.connection_id,\n  locations: results,\n  errors: errors,\n  total_received: gpsData.length,\n  total_valid: results.length,\n  total_errors: errors.length\n};"
       },
       "id": "transform-gps-data",
       "name": "Transform GPS Data",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1790, 200]
+      "position": [1790, 100]
     },
 
     {
       "parameters": {
-        "conditions": {
-          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
-          "conditions": [{ "id": "has-updates", "leftValue": "={{ $json.location_updates.length }}", "rightValue": 0, "operator": { "type": "number", "operation": "gt" } }],
-          "combinator": "and"
-        },
-        "options": {}
+        "jsCode": "// Split locations for batch processing\nconst data = $('Transform GPS Data').first().json;\nreturn data.locations.map(loc => ({ ...loc, connection_id: data.connection_id }));"
       },
-      "id": "check-updates",
-      "name": "Has Updates?",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [2010, 200]
-    },
-    {
-      "parameters": {
-        "jsCode": "// Split location updates for batch processing\nconst data = $input.first().json;\nreturn data.location_updates.map(update => ({ ...update, connection_id: data.connection_id }));"
-      },
-      "id": "split-updates",
-      "name": "Split Updates",
+      "id": "split-locations",
+      "name": "Split Locations",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2230, 100]
+      "position": [2010, 100]
     },
     {
       "parameters": {
@@ -157,13 +145,13 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "current_latitude": "={{ $json.current_latitude }}",
-            "current_longitude": "={{ $json.current_longitude }}",
-            "current_speed_kmh": "={{ $json.current_speed_kmh }}",
-            "current_heading": "={{ $json.current_heading }}",
-            "last_location_update": "={{ $json.last_location_update }}",
-            "odometer_km": "={{ $json.odometer_km }}",
-            "engine_hours": "={{ $json.engine_hours }}"
+            "current_latitude": "={{ $json.latitude }}",
+            "current_longitude": "={{ $json.longitude }}",
+            "current_speed_kmh": "={{ $json.speed_kmh }}",
+            "current_heading": "={{ $json.heading_degrees }}",
+            "last_location_update": "={{ $json.recorded_at }}",
+            "odometer_km": "={{ $json.metadata?.odometer_km }}",
+            "engine_hours": "={{ $json.metadata?.engine_hours }}"
           }
         },
         "filterType": "string",
@@ -174,20 +162,11 @@
       "name": "Update Asset Location",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
-      "position": [2450, 100],
-      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+      "position": [2230, 100],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } },
+      "continueOnFail": true
     },
 
-    {
-      "parameters": {
-        "jsCode": "// Split history records for batch insert\nconst data = $('Transform GPS Data').first().json;\nreturn data.history_records;"
-      },
-      "id": "split-history",
-      "name": "Split History Records",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [2230, 250]
-    },
     {
       "parameters": {
         "operation": "insert",
@@ -205,7 +184,7 @@
             "heading_degrees": "={{ $json.heading_degrees }}",
             "accuracy_meters": "={{ $json.accuracy_meters }}",
             "recorded_at": "={{ $json.recorded_at }}",
-            "metadata": "={{ $json.metadata }}"
+            "metadata": "={{ JSON.stringify($json.metadata) }}"
           }
         },
         "options": {}
@@ -214,8 +193,19 @@
       "name": "Insert Location History",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
-      "position": [2450, 250],
-      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+      "position": [2450, 100],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Aggregate results for sync log\nconst transformData = $('Transform GPS Data').first().json;\nconst locationUpdates = $('Update Asset Location').all();\nconst historyInserts = $('Insert Location History').all();\n\nlet recordsCreated = 0;\nlet recordsUpdated = 0;\nlet recordsFailed = transformData.total_errors;\n\n// Count successful updates\nfor (const update of locationUpdates) {\n  if (update.json && !update.json.error) {\n    recordsUpdated++;\n  } else {\n    recordsFailed++;\n  }\n}\n\n// Count successful history inserts\nfor (const insert of historyInserts) {\n  if (insert.json && insert.json.id) {\n    recordsCreated++;\n  }\n}\n\nconst status = recordsFailed === 0 ? 'completed' : \n               (recordsUpdated > 0 || recordsCreated > 0) ? 'partial' : 'failed';\n\nreturn {\n  connection_id: transformData.connection_id,\n  records_processed: transformData.total_received,\n  records_created: recordsCreated,\n  records_updated: recordsUpdated,\n  records_failed: recordsFailed,\n  status: status,\n  errors: transformData.errors\n};"
+      },
+      "id": "aggregate-results",
+      "name": "Aggregate Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2670, 100]
     },
 
     {
@@ -226,25 +216,162 @@
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "connection_id": "={{ $('Transform GPS Data').first().json.connection_id }}",
+            "connection_id": "={{ $json.connection_id }}",
             "sync_type": "pull",
             "started_at": "={{ $('Schedule Trigger').first().json.timestamp || new Date().toISOString() }}",
             "completed_at": "={{ new Date().toISOString() }}",
-            "records_processed": "={{ $('Transform GPS Data').first().json.total_devices }}",
-            "records_created": "={{ $('Transform GPS Data').first().json.processed_count }}",
-            "records_updated": "={{ $('Transform GPS Data').first().json.processed_count }}",
-            "records_failed": "={{ $('Transform GPS Data').first().json.error_count }}",
-            "status": "={{ $('Transform GPS Data').first().json.error_count > 0 ? 'partial' : 'completed' }}",
-            "error_details": "={{ $('Transform GPS Data').first().json.errors.length > 0 ? JSON.stringify($('Transform GPS Data').first().json.errors) : null }}"
+            "records_processed": "={{ $json.records_processed }}",
+            "records_created": "={{ $json.records_created }}",
+            "records_updated": "={{ $json.records_updated }}",
+            "records_failed": "={{ $json.records_failed }}",
+            "status": "={{ $json.status }}",
+            "error_details": "={{ $json.errors.length > 0 ? JSON.stringify($json.errors.map(e => ({ record_id: e.device_id, error_code: 'GPS_ERROR', error_message: e.error, timestamp: new Date().toISOString() }))) : null }}"
           }
         },
         "options": {}
       },
-      "id": "log-sync-success",
-      "name": "Log Sync Success",
+      "id": "log-sync-result",
+      "name": "Log Sync Result",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
-      "position": [2670, 175],
+      "position": [2890, 100],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "integration_connections", "mode": "list", "cachedResultName": "integration_connections" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "last_sync_at": "={{ new Date().toISOString() }}",
+            "last_error": "={{ $('Aggregate Results').first().json.status === 'failed' ? 'GPS sync failed: ' + JSON.stringify($('Aggregate Results').first().json.errors.slice(0, 3)) : null }}"
+          }
+        },
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Aggregate Results').first().json.connection_id }}",
+        "options": {}
+      },
+      "id": "update-connection-status",
+      "name": "Update Connection Status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [3110, 100],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+
+    {
+      "parameters": {
+        "jsCode": "// Handle GPS API error - log failure\nconst requestData = $('Prepare GPS Request').first().json;\nconst errorResponse = $('Fetch GPS Locations').first().json;\n\nreturn {\n  connection_id: requestData.connection_id,\n  error_message: errorResponse.message || errorResponse.error || 'Failed to fetch GPS data',\n  error_code: errorResponse.code || 'GPS_API_ERROR'\n};"
+      },
+      "id": "handle-api-error",
+      "name": "Handle API Error",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1790, 350]
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "sync_log", "mode": "list", "cachedResultName": "sync_log" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "connection_id": "={{ $json.connection_id }}",
+            "sync_type": "pull",
+            "started_at": "={{ $('Schedule Trigger').first().json.timestamp || new Date().toISOString() }}",
+            "completed_at": "={{ new Date().toISOString() }}",
+            "records_processed": 0,
+            "records_created": 0,
+            "records_updated": 0,
+            "records_failed": 0,
+            "status": "failed",
+            "error_details": "={{ JSON.stringify([{ record_id: 'connection', error_code: $json.error_code, error_message: $json.error_message, timestamp: new Date().toISOString() }]) }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "log-api-failure",
+      "name": "Log API Failure",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2010, 350],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+
+    {
+      "parameters": {
+        "operation": "update",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "integration_connections", "mode": "list", "cachedResultName": "integration_connections" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "last_sync_at": "={{ new Date().toISOString() }}",
+            "last_error": "={{ $('Handle API Error').first().json.error_message }}"
+          }
+        },
+        "filterType": "string",
+        "filterString": "={{ 'id=eq.' + $('Handle API Error').first().json.connection_id }}",
+        "options": {}
+      },
+      "id": "update-connection-error",
+      "name": "Update Connection Error",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2230, 350],
+      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// No active tracking connections found - skip processing\nreturn { message: 'No active tracking connections found', skipped: true };"
+      },
+      "id": "no-connections",
+      "name": "No Connections",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [910, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "// No GPS data received - log empty sync\nconst requestData = $('Prepare GPS Request').first().json;\n\nreturn {\n  connection_id: requestData.connection_id,\n  message: 'No GPS data received from provider',\n  device_ids: requestData.device_ids\n};"
+      },
+      "id": "no-gps-data",
+      "name": "No GPS Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1790, 250]
+    },
+
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
+        "table": { "__rl": true, "value": "sync_log", "mode": "list", "cachedResultName": "sync_log" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "connection_id": "={{ $json.connection_id }}",
+            "sync_type": "pull",
+            "started_at": "={{ $('Schedule Trigger').first().json.timestamp || new Date().toISOString() }}",
+            "completed_at": "={{ new Date().toISOString() }}",
+            "records_processed": 0,
+            "records_created": 0,
+            "records_updated": 0,
+            "records_failed": 0,
+            "status": "completed",
+            "error_details": null
+          }
+        },
+        "options": {}
+      },
+      "id": "log-empty-sync",
+      "name": "Log Empty Sync",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [2010, 250],
       "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
     },
     {
@@ -260,108 +387,40 @@
           }
         },
         "filterType": "string",
-        "filterString": "={{ 'id=eq.' + $('Transform GPS Data').first().json.connection_id }}",
+        "filterString": "={{ 'id=eq.' + $('No GPS Data').first().json.connection_id }}",
         "options": {}
       },
-      "id": "update-connection-success",
-      "name": "Update Connection Success",
+      "id": "update-connection-empty",
+      "name": "Update Connection Empty",
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
-      "position": [2890, 175],
+      "position": [2230, 250],
       "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
-    },
-
-    {
-      "parameters": {
-        "operation": "insert",
-        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
-        "table": { "__rl": true, "value": "sync_log", "mode": "list", "cachedResultName": "sync_log" },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "connection_id": "={{ $('Prepare API Request').first().json.connection_id }}",
-            "sync_type": "pull",
-            "started_at": "={{ $('Schedule Trigger').first().json.timestamp || new Date().toISOString() }}",
-            "completed_at": "={{ new Date().toISOString() }}",
-            "records_processed": 0,
-            "records_created": 0,
-            "records_updated": 0,
-            "records_failed": 1,
-            "status": "failed",
-            "error_details": "={{ JSON.stringify([{ error_code: 'API_ERROR', error_message: $json.message || 'Failed to fetch GPS data', timestamp: new Date().toISOString() }]) }}"
-          }
-        },
-        "options": {}
-      },
-      "id": "log-sync-failure",
-      "name": "Log Sync Failure",
-      "type": "n8n-nodes-base.supabase",
-      "typeVersion": 1,
-      "position": [1790, 450],
-      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
-    },
-    {
-      "parameters": {
-        "operation": "update",
-        "schema": { "__rl": true, "value": "public", "mode": "list", "cachedResultName": "public" },
-        "table": { "__rl": true, "value": "integration_connections", "mode": "list", "cachedResultName": "integration_connections" },
-        "columns": {
-          "mappingMode": "defineBelow",
-          "value": {
-            "last_sync_at": "={{ new Date().toISOString() }}",
-            "last_error": "={{ $('Fetch GPS Data').first()?.json?.message || 'Failed to fetch GPS data' }}"
-          }
-        },
-        "filterType": "string",
-        "filterString": "={{ 'id=eq.' + $('Prepare API Request').first().json.connection_id }}",
-        "options": {}
-      },
-      "id": "update-connection-failure",
-      "name": "Update Connection Failure",
-      "type": "n8n-nodes-base.supabase",
-      "typeVersion": 1,
-      "position": [2010, 450],
-      "credentials": { "supabaseApi": { "id": "{{SUPABASE_CREDENTIAL_ID}}", "name": "Supabase API" } }
-    },
-
-    {
-      "parameters": {},
-      "id": "no-op-no-connections",
-      "name": "No Connections",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [910, 400]
-    },
-    {
-      "parameters": {},
-      "id": "no-op-no-updates",
-      "name": "No Updates",
-      "type": "n8n-nodes-base.noOp",
-      "typeVersion": 1,
-      "position": [2230, 350]
     }
   ],
+
   "connections": {
     "Schedule Trigger": { "main": [[{ "node": "Fetch Tracking Connections", "type": "main", "index": 0 }]] },
-    "Fetch Tracking Connections": { "main": [[{ "node": "Has Connections?", "type": "main", "index": 0 }]] },
-    "Has Connections?": { "main": [[{ "node": "Split Connections", "type": "main", "index": 0 }], [{ "node": "No Connections", "type": "main", "index": 0 }]] },
-    "Split Connections": { "main": [[{ "node": "Fetch Device Mappings", "type": "main", "index": 0 }, { "node": "Prepare API Request", "type": "main", "index": 0 }]] },
-    "Prepare API Request": { "main": [[{ "node": "Fetch GPS Data", "type": "main", "index": 0 }]] },
-    "Fetch GPS Data": { "main": [[{ "node": "Has GPS Data?", "type": "main", "index": 0 }]] },
-    "Has GPS Data?": { "main": [[{ "node": "Transform GPS Data", "type": "main", "index": 0 }], [{ "node": "Log Sync Failure", "type": "main", "index": 0 }]] },
-    "Transform GPS Data": { "main": [[{ "node": "Has Updates?", "type": "main", "index": 0 }]] },
-    "Has Updates?": { "main": [[{ "node": "Split Updates", "type": "main", "index": 0 }, { "node": "Split History Records", "type": "main", "index": 0 }], [{ "node": "No Updates", "type": "main", "index": 0 }]] },
-    "Split Updates": { "main": [[{ "node": "Update Asset Location", "type": "main", "index": 0 }]] },
-    "Split History Records": { "main": [[{ "node": "Insert Location History", "type": "main", "index": 0 }]] },
-    "Update Asset Location": { "main": [[{ "node": "Log Sync Success", "type": "main", "index": 0 }]] },
-    "Insert Location History": { "main": [[{ "node": "Log Sync Success", "type": "main", "index": 0 }]] },
-    "Log Sync Success": { "main": [[{ "node": "Update Connection Success", "type": "main", "index": 0 }]] },
-    "Log Sync Failure": { "main": [[{ "node": "Update Connection Failure", "type": "main", "index": 0 }]] },
-    "Update Connection Success": { "main": [[{ "node": "Split Connections", "type": "main", "index": 0 }]] }
+    "Fetch Tracking Connections": { "main": [[{ "node": "Check Connections", "type": "main", "index": 0 }]] },
+    "Check Connections": { "main": [[{ "node": "Fetch Device Mappings", "type": "main", "index": 0 }], [{ "node": "No Connections", "type": "main", "index": 0 }]] },
+    "Fetch Device Mappings": { "main": [[{ "node": "Prepare GPS Request", "type": "main", "index": 0 }]] },
+    "Prepare GPS Request": { "main": [[{ "node": "Fetch GPS Locations", "type": "main", "index": 0 }]] },
+    "Fetch GPS Locations": { "main": [[{ "node": "Check GPS Data", "type": "main", "index": 0 }]] },
+    "Check GPS Data": { "main": [[{ "node": "Transform GPS Data", "type": "main", "index": 0 }], [{ "node": "No GPS Data", "type": "main", "index": 0 }, { "node": "Handle API Error", "type": "main", "index": 0 }]] },
+    "Transform GPS Data": { "main": [[{ "node": "Split Locations", "type": "main", "index": 0 }]] },
+    "Split Locations": { "main": [[{ "node": "Update Asset Location", "type": "main", "index": 0 }]] },
+    "Update Asset Location": { "main": [[{ "node": "Insert Location History", "type": "main", "index": 0 }]] },
+    "Insert Location History": { "main": [[{ "node": "Aggregate Results", "type": "main", "index": 0 }]] },
+    "Aggregate Results": { "main": [[{ "node": "Log Sync Result", "type": "main", "index": 0 }]] },
+    "Log Sync Result": { "main": [[{ "node": "Update Connection Status", "type": "main", "index": 0 }]] },
+    "Handle API Error": { "main": [[{ "node": "Log API Failure", "type": "main", "index": 0 }]] },
+    "Log API Failure": { "main": [[{ "node": "Update Connection Error", "type": "main", "index": 0 }]] },
+    "No GPS Data": { "main": [[{ "node": "Log Empty Sync", "type": "main", "index": 0 }]] },
+    "Log Empty Sync": { "main": [[{ "node": "Update Connection Empty", "type": "main", "index": 0 }]] }
   },
   "settings": { "executionOrder": "v1" },
   "staticData": null,
-  "tags": [{ "name": "external-integrations" }, { "name": "gps-tracking" }],
+  "tags": [{ "name": "external-integrations" }, { "name": "tracking" }, { "name": "gps" }],
   "triggerCount": 1,
   "meta": { "templateCredsSetupCompleted": false, "instanceId": "gama-erp" }
 }

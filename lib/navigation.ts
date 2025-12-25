@@ -22,6 +22,7 @@ import {
   Package,
   Compass,
   Ship,
+  Zap,
 } from 'lucide-react'
 import { UserRole, UserPermissions } from '@/types/permissions'
 
@@ -460,6 +461,34 @@ export const NAV_ITEMS: NavItem[] = [
     roles: ['owner', 'admin', 'manager', 'ops', 'finance', 'sales', 'viewer'],
   },
   {
+    title: 'Automation',
+    href: '/settings/automation/scheduled-tasks',
+    icon: Zap,
+    roles: ['owner', 'admin'],
+    children: [
+      {
+        title: 'Scheduled Tasks',
+        href: '/settings/automation/scheduled-tasks',
+      },
+      {
+        title: 'Integrations',
+        href: '/settings/integrations',
+      },
+      {
+        title: 'Document Templates',
+        href: '/settings/document-templates',
+      },
+      {
+        title: 'Notification Templates',
+        href: '/settings/notification-templates',
+      },
+      {
+        title: 'Notification Logs',
+        href: '/settings/notification-logs',
+      },
+    ],
+  },
+  {
     title: 'Settings',
     href: '/settings',
     icon: Settings,
@@ -477,6 +506,26 @@ export const NAV_ITEMS: NavItem[] = [
       {
         title: 'Activity Log',
         href: '/settings/activity-log',
+      },
+      {
+        title: 'Scheduled Tasks',
+        href: '/settings/automation/scheduled-tasks',
+        roles: ['owner', 'admin'],
+      },
+      {
+        title: 'Integrations',
+        href: '/settings/integrations',
+        roles: ['owner', 'admin'],
+      },
+      {
+        title: 'Document Templates',
+        href: '/settings/document-templates',
+        roles: ['owner', 'admin'],
+      },
+      {
+        title: 'Notification Templates',
+        href: '/settings/notification-templates',
+        roles: ['owner', 'admin'],
       },
     ],
   },

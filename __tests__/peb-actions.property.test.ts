@@ -36,7 +36,7 @@ const validPEBFormDataGenerator = fc.record({
 
 const validPEBItemFormDataGenerator = fc.record({
   hs_code: fc.stringMatching(/^\d{4}\.\d{2}(\.\d{2})?$/),
-  goods_description: fc.string({ minLength: 1, maxLength: 500 }),
+  goods_description: fc.string({ minLength: 1, maxLength: 500 }).filter(s => s.trim().length > 0),
   quantity: fc.integer({ min: 1, max: 10000 }).map(n => n / 100),
   unit: fc.constantFrom('PCS', 'KG', 'MT', 'SET', 'UNIT'),
   unit_price: fc.integer({ min: 1, max: 1000000 }).map(n => n / 100),

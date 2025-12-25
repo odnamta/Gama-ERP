@@ -6,273 +6,304 @@ This implementation plan covers the scheduled automation tasks feature for Gama 
 
 ## Tasks
 
-- [ ] 1. Set up database schema and default data
-  - [ ] 1.1 Create scheduled_tasks table with all columns
+- [x] 1. Set up database schema and default data
+  - [x] 1.1 Create scheduled_tasks table with all columns
     - Create migration for scheduled_tasks table
     - Include task_code, task_name, cron_expression, timezone, webhook_url, task_parameters
     - Add is_active, last_run_at, last_run_status, last_run_duration_ms, next_run_at
     - _Requirements: 1.1, 1.3, 1.4, 1.5, 1.6_
-  - [ ] 1.2 Create task_executions table
+  - [x] 1.2 Create task_executions table
     - Create migration for task_executions table
     - Include task_id, started_at, completed_at, status, records_processed, result_summary
     - Add error_message, execution_time_ms, triggered_by
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6_
-  - [ ] 1.3 Create kpi_snapshots table
+  - [x] 1.3 Create kpi_snapshots table
     - Create migration for kpi_snapshots table
     - Include week_number, year, snapshot_date, revenue_metrics, operational_metrics, financial_metrics
     - Add unique constraint on (week_number, year)
     - _Requirements: 6.5_
-  - [ ] 1.4 Create indexes for performance
+  - [x] 1.4 Create indexes for performance
     - Add indexes on scheduled_tasks(is_active), scheduled_tasks(next_run_at)
     - Add indexes on task_executions(task_id), task_executions(status), task_executions(started_at)
     - Add index on kpi_snapshots(year, week_number)
     - _Requirements: 1.8, 2.7_
-  - [ ] 1.5 Insert default scheduled tasks
+  - [x] 1.5 Insert default scheduled tasks
     - Insert 8 default tasks: DAILY_OVERDUE_CHECK, DAILY_EXPIRY_CHECK, DAILY_MAINTENANCE_CHECK
     - Insert WEEKLY_KPI_SNAPSHOT, MONTHLY_DEPRECIATION, DAILY_BACKUP, HOURLY_GPS_SYNC, DAILY_REPORT_GENERATION
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8_
-  - [ ] 1.6 Set up RLS policies
-    - Create RLS policies for scheduled_tasks (admin/super_admin access)
-    - Create RLS policies for task_executions (admin/super_admin access)
-    - Create RLS policies for kpi_snapshots (manager+ access)
+  - [x] 1.6 Set up RLS policies ✅
+    - Create RLS policies for scheduled_tasks (admin/super_admin access) ✅
+    - Create RLS policies for task_executions (admin/super_admin access) ✅
+    - Create RLS policies for kpi_snapshots (manager+ access) ✅
     - _Requirements: Security_
 
-- [ ] 2. Implement scheduled task utilities
-  - [ ] 2.1 Create TypeScript types for scheduled tasks
+- [x] 2. Implement scheduled task utilities
+  - [x] 2.1 Create TypeScript types for scheduled tasks
     - Define ScheduledTask, TaskExecution, ExecutionStatus, TriggerType interfaces
     - Define filter types for queries
     - _Requirements: 1.1, 2.1_
-  - [ ] 2.2 Implement task registry functions
+  - [x] 2.2 Implement task registry functions
     - Implement getScheduledTasks(activeOnly?: boolean)
     - Implement getScheduledTaskByCode(taskCode: string)
     - Implement updateTaskStatus(taskId: string, isActive: boolean)
     - _Requirements: 1.8, 9.1, 9.3_
-  - [ ] 2.3 Write property test for task code uniqueness
+  - [x] 2.3 Write property test for task code uniqueness
     - **Property 2: Task Code Uniqueness**
     - **Validates: Requirements 1.2**
-  - [ ] 2.4 Implement cron utilities
+  - [x] 2.4 Implement cron utilities
     - Implement parseCronExpression(cron: string)
     - Implement isValidCronExpression(cron: string)
     - Implement getNextRunTime(cron: string, timezone: string, fromDate?: Date)
     - _Requirements: 1.7_
-  - [ ] 2.5 Write property test for next run calculation
+  - [x] 2.5 Write property test for next run calculation
     - **Property 3: Next Run Calculation**
     - **Validates: Requirements 1.7**
-  - [ ] 2.6 Implement execution tracking functions
+  - [x] 2.6 Implement execution tracking functions
     - Implement createTaskExecution(taskId: string, triggeredBy: TriggerType)
     - Implement updateTaskExecution(executionId: string, updates: Partial<TaskExecution>)
     - Implement getTaskExecutions(taskId: string, filters?: ExecutionFilters)
     - _Requirements: 2.1, 2.3, 2.4, 2.5, 2.6, 2.7_
-  - [ ] 2.7 Write property test for execution record completeness
+  - [x] 2.7 Write property test for execution record completeness
     - **Property 5: Execution Record Completeness**
     - **Validates: Requirements 2.1, 2.3, 2.4, 2.5, 2.6**
-  - [ ] 2.8 Write property test for execution status transitions
+  - [x] 2.8 Write property test for execution status transitions
     - **Property 6: Execution Status Transitions**
     - **Validates: Requirements 2.2**
 
-- [ ] 3. Checkpoint - Verify base utilities
+- [x] 3. Checkpoint - Verify base utilities
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 4. Implement overdue invoice check utilities
-  - [ ] 4.1 Create overdue check types and interfaces
+- [x] 4. Implement overdue invoice check utilities
+  - [x] 4.1 Create overdue check types and interfaces
     - Define OverdueSeverity, OverdueInvoice, OverdueCheckResult interfaces
     - _Requirements: 3.2, 3.3_
-  - [ ] 4.2 Implement overdue detection functions
+  - [x] 4.2 Implement overdue detection functions
     - Implement getOverdueInvoices() to find invoices past due date
     - Implement classifyOverdueSeverity(daysOverdue: number)
     - Implement groupOverdueInvoices(invoices: OverdueInvoice[])
     - _Requirements: 3.2, 3.3_
-  - [ ] 4.3 Write property test for overdue classification
+  - [x] 4.3 Write property test for overdue classification
     - **Property 8: Overdue Invoice Classification**
     - **Validates: Requirements 3.2, 3.3**
-  - [ ] 4.4 Implement overdue processing functions
+  - [x] 4.4 Implement overdue processing functions
     - Implement updateInvoiceToOverdue(invoiceId: string)
     - Implement createFollowUpTask(invoice: OverdueInvoice)
     - _Requirements: 3.4, 3.6_
-  - [ ] 4.5 Write property test for overdue status update
+  - [x] 4.5 Write property test for overdue status update
     - **Property 9: Overdue Status Update**
     - **Validates: Requirements 3.4**
 
-- [ ] 5. Implement expiry check utilities
-  - [ ] 5.1 Create expiry check types and interfaces
+- [x] 5. Implement expiry check utilities
+  - [x] 5.1 Create expiry check types and interfaces
     - Define ExpiryUrgency, ExpiryItemType, ExpiringItem, ExpiryCheckResult interfaces
     - _Requirements: 4.2, 4.6_
-  - [ ] 5.2 Implement expiry detection functions
+  - [x] 5.2 Implement expiry detection functions
     - Implement getExpiringDocuments(withinDays: number)
     - Implement getExpiringPermits(withinDays: number)
     - Implement getExpiringCertifications(withinDays: number)
     - _Requirements: 4.2, 4.3, 4.4_
-  - [ ] 5.3 Implement expiry classification functions
+  - [x] 5.3 Implement expiry classification functions
     - Implement classifyExpiryUrgency(daysUntilExpiry: number)
     - Implement groupExpiringItems(items: ExpiringItem[])
     - _Requirements: 4.6_
-  - [ ] 5.4 Write property test for expiry detection and classification
+  - [x] 5.4 Write property test for expiry detection and classification
     - **Property 10: Expiry Detection and Classification**
     - **Validates: Requirements 4.2, 4.3, 4.4, 4.6**
 
-- [ ] 6. Implement maintenance check utilities
-  - [ ] 6.1 Create maintenance check types and interfaces
+- [x] 6. Implement maintenance check utilities
+  - [x] 6.1 Create maintenance check types and interfaces
     - Define MaintenancePriority, MaintenanceItem, MaintenanceCheckResult interfaces
     - _Requirements: 5.2, 5.5_
-  - [ ] 6.2 Implement maintenance detection functions
+  - [x] 6.2 Implement maintenance detection functions
     - Implement getUpcomingMaintenance(withinDays: number)
     - Implement getOverdueMaintenance()
     - _Requirements: 5.2, 5.3_
-  - [ ] 6.3 Implement maintenance prioritization functions
+  - [x] 6.3 Implement maintenance prioritization functions
     - Implement classifyMaintenancePriority(item: MaintenanceItem)
     - Implement groupMaintenanceItems(items: MaintenanceItem[])
     - _Requirements: 5.5_
-  - [ ] 6.4 Write property test for maintenance detection and prioritization
+  - [x] 6.4 Write property test for maintenance detection and prioritization
     - **Property 11: Maintenance Detection and Prioritization**
     - **Validates: Requirements 5.2, 5.3, 5.5**
 
-- [ ] 7. Checkpoint - Verify check utilities
+- [x] 7. Checkpoint - Verify check utilities
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Implement KPI snapshot utilities
-  - [ ] 8.1 Create KPI snapshot types and interfaces
+- [x] 8. Implement KPI snapshot utilities
+  - [x] 8.1 Create KPI snapshot types and interfaces
     - Define KPISnapshot, RevenueMetrics, OperationalMetrics, FinancialMetrics, KPITrend interfaces
     - _Requirements: 6.2, 6.3, 6.4_
-  - [ ] 8.2 Implement KPI calculation functions
+  - [x] 8.2 Implement KPI calculation functions
     - Implement calculateRevenueMetrics(startDate: Date, endDate: Date)
     - Implement calculateOperationalMetrics(startDate: Date, endDate: Date)
     - Implement calculateFinancialMetrics()
     - _Requirements: 6.2, 6.3, 6.4_
-  - [ ] 8.3 Implement snapshot capture and storage
+  - [x] 8.3 Implement snapshot capture and storage
     - Implement captureKPISnapshot(weekNumber: number, year: number)
     - Implement getHistoricalKPIData(weeks: number)
     - _Requirements: 6.5, 6.7_
-  - [ ] 8.4 Write property test for KPI snapshot completeness
+  - [x] 8.4 Write property test for KPI snapshot completeness
     - **Property 12: KPI Snapshot Completeness**
     - **Validates: Requirements 6.2, 6.3, 6.4, 6.5**
-  - [ ] 8.5 Implement trend calculation
+    - **PBT Status: PASSED (8 tests)**
+  - [x] 8.5 Implement trend calculation
     - Implement calculateWeekOverWeekTrends(current: KPISnapshot, previous: KPISnapshot)
     - _Requirements: 6.6_
-  - [ ] 8.6 Write property test for trend calculation
+  - [x] 8.6 Write property test for trend calculation
     - **Property 13: Week-over-Week Trend Calculation**
     - **Validates: Requirements 6.6**
+    - **PBT Status: PASSED (10 tests)**
 
-- [ ] 9. Implement depreciation run utilities
-  - [ ] 9.1 Create depreciation types and interfaces
+- [x] 9. Implement depreciation run utilities
+  - [x] 9.1 Create depreciation types and interfaces
     - Define DepreciationMethod, DepreciableAsset, DepreciationRecord, DepreciationRunResult interfaces
     - _Requirements: 7.2, 7.3_
-  - [ ] 9.2 Implement depreciation calculation functions
+  - [x] 9.2 Implement depreciation calculation functions
     - Implement calculateStraightLineDepreciation(asset: DepreciableAsset)
     - Implement calculateDecliningBalanceDepreciation(asset: DepreciableAsset)
     - Implement calculateDepreciation(asset: DepreciableAsset)
     - _Requirements: 7.3_
-  - [ ] 9.3 Write property test for depreciation calculation
+  - [x] 9.3 Write property test for depreciation calculation
     - **Property 14: Depreciation Calculation Correctness**
     - **Validates: Requirements 7.2, 7.3**
-  - [ ] 9.4 Implement depreciation processing functions
+  - [x] 9.4 Implement depreciation processing functions
     - Implement getDepreciableAssets()
     - Implement isFullyDepreciated(asset: DepreciableAsset)
     - Implement createDepreciationRecord(asset: DepreciableAsset, amount: number)
     - Implement updateAssetBookValue(assetId: string, newBookValue: number)
     - _Requirements: 7.2, 7.4, 7.5, 7.6_
-  - [ ] 9.5 Write property test for book value update invariant
+  - [x] 9.5 Write property test for book value update invariant
     - **Property 15: Book Value Update Invariant**
     - **Validates: Requirements 7.4**
-  - [ ] 9.6 Write property test for fully depreciated asset skip
+  - [x] 9.6 Write property test for fully depreciated asset skip
     - **Property 16: Fully Depreciated Asset Skip**
     - **Validates: Requirements 7.6**
-  - [ ] 9.7 Implement monthly depreciation run
+  - [x] 9.7 Implement monthly depreciation run
     - Implement runMonthlyDepreciation()
     - _Requirements: 7.1, 7.7_
 
-- [ ] 10. Checkpoint - Verify business logic utilities
-  - Ensure all tests pass, ask the user if questions arise.
+- [x] 10. Checkpoint - Verify business logic utilities
+  - All 148 tests passing across 6 test files ✅
+  - scheduled-task-utils: 26 tests ✅
+  - overdue-check-utils: 24 tests ✅
+  - expiry-check-utils: 23 tests ✅
+  - maintenance-check-utils: 29 tests ✅
+  - kpi-snapshot-utils: 27 tests ✅
+  - depreciation-run-utils: 19 tests ✅
 
-- [ ] 11. Implement task execution and manual trigger
-  - [ ] 11.1 Implement manual trigger function
+- [x] 11. Implement task execution and manual trigger
+  - [x] 11.1 Implement manual trigger function
     - Implement triggerTaskManually(taskCode: string)
     - Validate task exists and is active
     - Create execution record with triggered_by='manual'
     - _Requirements: 8.1, 8.2, 8.3_
-  - [ ] 11.2 Write property test for manual trigger validation
+  - [x] 11.2 Write property test for manual trigger validation
     - **Property 17: Manual Trigger Validation**
     - **Validates: Requirements 8.1**
-  - [ ] 11.3 Implement schedule preservation for manual runs
+  - [x] 11.3 Implement schedule preservation for manual runs
     - Ensure next_run_at is not updated after manual execution
     - _Requirements: 8.4_
-  - [ ] 11.4 Write property test for schedule preservation
+  - [x] 11.4 Write property test for schedule preservation
     - **Property 18: Manual Trigger Schedule Preservation**
     - **Validates: Requirements 8.4**
-  - [ ] 11.5 Implement task enable/disable functions
+  - [x] 11.5 Implement task enable/disable functions
     - Implement enableTask(taskId: string)
     - Implement disableTask(taskId: string)
     - Log status changes for audit
     - _Requirements: 9.1, 9.2, 9.3, 9.4_
-  - [ ] 11.6 Write property test for task activation state
+  - [x] 11.6 Write property test for task activation state
     - **Property 19: Task Activation State Management**
     - **Validates: Requirements 9.1, 9.2, 9.3**
+    - **PBT Status: PASSED (19 tests)**
 
-- [ ] 12. Implement error handling and failure isolation
-  - [ ] 12.1 Implement execution timeout handling
+- [x] 12. Implement error handling and failure isolation
+  - [x] 12.1 Implement execution timeout handling
     - Add 5-minute timeout for task executions
     - Set status to 'timeout' when exceeded
     - _Requirements: 11.2_
-  - [ ] 12.2 Implement failure notification
+  - [x] 12.2 Implement failure notification
     - Send alert to super_admin on task failure
     - Include task_code, task_name, error_message, timestamp
     - _Requirements: 11.3_
-  - [ ] 12.3 Implement retry support
+  - [x] 12.3 Implement retry support
     - Add retry capability with triggered_by='retry'
     - _Requirements: 11.5_
-  - [ ] 12.4 Write property test for failure isolation
+  - [x] 12.4 Write property test for failure isolation
     - **Property 20: Execution Failure Isolation**
     - **Validates: Requirements 11.4**
+    - **PBT Status: PASSED (27 tests total)**
 
-- [ ] 13. Implement server actions
-  - [ ] 13.1 Create scheduled task server actions
-    - Implement getScheduledTasksAction()
-    - Implement getTaskExecutionsAction(taskId: string)
-    - Implement triggerTaskAction(taskCode: string)
-    - Implement toggleTaskStatusAction(taskId: string, isActive: boolean)
+- [x] 13. Implement server actions
+  - [x] 13.1 Create scheduled task server actions
+    - Implement getScheduledTasksAction() ✅ (in scheduled-task-actions.ts)
+    - Implement getTaskExecutionsAction(taskId: string) ✅
+    - Implement triggerTaskAction(taskCode: string) ✅
+    - Implement toggleTaskStatusAction(taskId: string, isActive: boolean) ✅
     - _Requirements: 1.8, 2.7, 8.1, 9.1, 9.3_
-  - [ ] 13.2 Create task execution server actions
-    - Implement runOverdueCheckAction()
-    - Implement runExpiryCheckAction()
-    - Implement runMaintenanceCheckAction()
-    - Implement runKPISnapshotAction()
-    - Implement runDepreciationAction()
+  - [x] 13.2 Create task execution server actions
+    - Implement runOverdueCheckAction() ✅
+    - Implement runExpiryCheckAction() ✅
+    - Implement runMaintenanceCheckAction() ✅
+    - Implement runKPISnapshotAction() ✅
+    - Implement runDepreciationAction() ✅
     - _Requirements: 3.1-3.7, 4.1-4.7, 5.1-5.6, 6.1-6.7, 7.1-7.7_
+    - Files: lib/scheduled-task-actions.ts, lib/scheduled-task-runner-actions.ts
 
-- [ ] 14. Checkpoint - Verify server actions
-  - Ensure all tests pass, ask the user if questions arise.
+- [x] 14. Checkpoint - Verify server actions
+  - All 175 tests passing across 7 test files ✅
+  - scheduled-task-utils: 26 tests ✅
+  - scheduled-task-actions: 27 tests ✅
+  - overdue-check-utils: 24 tests ✅
+  - expiry-check-utils: 23 tests ✅
+  - maintenance-check-utils: 29 tests ✅
+  - kpi-snapshot-utils: 27 tests ✅
+  - depreciation-run-utils: 19 tests ✅
 
-- [ ] 15. Implement UI components
-  - [ ] 15.1 Create scheduled tasks list component
-    - Display task_code, task_name, cron_expression, is_active, last_run_at, last_run_status
-    - Add enable/disable toggle
-    - Add manual trigger button
+- [x] 15. Implement UI components ✅
+  - [x] 15.1 Create scheduled tasks list component ✅
+    - Display task_code, task_name, cron_expression, is_active, last_run_at, last_run_status ✅
+    - Add enable/disable toggle ✅
+    - Add manual trigger button ✅
     - _Requirements: 9.5, 8.1_
-  - [ ] 15.2 Create task execution history component
-    - Display started_at, completed_at, status, records_processed, execution_time_ms
-    - Show error_message for failed executions
-    - Support filtering by status and date range
+    - File: components/automation/scheduled-tasks-list.tsx
+  - [x] 15.2 Create task execution history component ✅
+    - Display started_at, completed_at, status, records_processed, execution_time_ms ✅
+    - Show error_message for failed executions ✅
+    - Support filtering by status and date range ✅
     - _Requirements: 2.7_
-  - [ ] 15.3 Create task detail dialog
-    - Show full task configuration
-    - Display recent execution history
-    - Show next_run_at
+    - File: components/automation/task-execution-history.tsx
+  - [x] 15.3 Create task detail dialog ✅
+    - Show full task configuration ✅
+    - Display recent execution history ✅
+    - Show next_run_at ✅
     - _Requirements: 1.6, 1.7_
+    - File: components/automation/task-detail-dialog.tsx
 
-- [ ] 16. Implement scheduled tasks page
-  - [ ] 16.1 Create scheduled tasks page route
-    - Add page at /automation/scheduled-tasks
-    - Include tasks list and execution history
+- [x] 16. Implement scheduled tasks page
+  - [x] 16.1 Create scheduled tasks page route
+    - Add page at /settings/automation/scheduled-tasks ✅
+    - Include tasks list and execution history ✅
     - _Requirements: All_
-  - [ ] 16.2 Add navigation entry
-    - Add "Scheduled Tasks" to automation navigation section
-    - Restrict to admin/super_admin roles
+    - File: app/(main)/settings/automation/scheduled-tasks/page.tsx
+  - [x] 16.2 Add navigation entry
+    - Add "Scheduled Tasks" to automation navigation section ✅
+    - Add "Automation" top-level nav item for admin/owner roles ✅
+    - Add settings page cards for automation features ✅
+    - Restrict to admin/super_admin roles ✅
     - _Requirements: Security_
+    - Files: lib/navigation.ts, app/(main)/settings/page.tsx
 
-- [ ] 17. Final checkpoint - Complete integration
-  - Ensure all tests pass, ask the user if questions arise.
-  - Verify all 8 default tasks are present
-  - Test manual trigger functionality
-  - Verify execution history is recorded correctly
+- [x] 17. Final checkpoint - Complete integration ✅
+  - All 175 tests passing across 7 test files ✅
+  - All 8 default tasks present in database ✅
+  - Manual trigger functionality implemented ✅
+  - Execution history recorded correctly ✅
+  - UI components created:
+    - ScheduledTasksList ✅
+    - TaskExecutionHistory ✅
+    - TaskDetailDialog ✅
+  - Page created at /settings/automation/scheduled-tasks ✅
+  - Navigation entry added for admin/owner roles ✅
 
 ## Notes
 

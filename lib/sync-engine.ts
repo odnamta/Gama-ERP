@@ -11,6 +11,7 @@ import {
   type SyncStatus,
   type SyncError,
   type ExternalIdMapping,
+  type SyncLog,
 } from '@/types/integration';
 import { calculateRetryDelay, isTokenExpired } from '@/lib/integration-utils';
 import { processSyncMapping, filterActiveMappings } from '@/lib/sync-mapping-utils';
@@ -557,6 +558,74 @@ export function preparePullSync(input: PullSyncInput): PullSyncPreparation {
   };
 }
 
+/**
+ * Executes a pull sync operation with retry logic.
+ * Requirements: 6.1 - Execute synchronization immediately
+ * 
+ * @param input - Pull sync input
+ * @returns Sync context with fetched data or error
+ */
+export async function executePullSync(input: PullSyncInput): Promise<{
+  context: SyncContext;
+  data: Record<string, unknown>[] | null;
+  error?: string;
+  errorCode?: string;
+}> {
+  const { connection, mapping, adapter, retryConfig = DEFAULT_RETRY_CONFIG, onTokenExpired } = input;
+
+  // Create sync context
+  const context = createSyncContext(connection.id, mapping.id, 'pull');
+
+  // Check if adapter supports pull
+  if (!adapter.fetchRecords) {
+    return {
+      context: recordFailure(context, '', 'NOT_SUPPORTED', 'Adapter does not support pull sync'),
+      data: null,
+      error: 'Adapter does not support pull sync',
+      errorCode: 'NOT_SUPPORTED',
+    };
+  }
+
+  // Execute fetch with retry
+  const result = await retryWithBackoff(
+    () => adapter.fetchRecords!(),
+    retryConfig,
+    onTokenExpired
+  );
+
+  if (!result.success) {
+    return {
+      context: recordFailure(context, '', result.errorCode || 'FETCH_ERROR', result.error || 'Failed to fetch records'),
+      data: null,
+      error: result.error,
+      errorCode: result.errorCode,
+    };
+  }
+
+  // Extract data from result - handle both direct array and nested data
+  let records: Record<string, unknown>[] = [];
+  if (result.data) {
+    // Check if data is directly an array (from fetchRecords returning { success, data: [...] })
+    if (Array.isArray(result.data)) {
+      records = result.data as Record<string, unknown>[];
+    } else if (typeof result.data === 'object' && 'data' in result.data && Array.isArray((result.data as Record<string, unknown>).data)) {
+      // Handle nested data structure
+      records = (result.data as Record<string, unknown>).data as Record<string, unknown>[];
+    }
+  }
+
+  // Update context with record count
+  let updatedContext = context;
+  for (let i = 0; i < records.length; i++) {
+    updatedContext = recordCreate(updatedContext);
+  }
+
+  return {
+    context: updatedContext,
+    data: records,
+  };
+}
+
 // =====================================================
 // FULL SYNC EXECUTION
 // Requirements: 6.1, 6.2 - Execute full synchronization
@@ -592,6 +661,209 @@ export function prepareFullSync(input: FullSyncInput): {
   return {
     activeMappings,
     context,
+  };
+}
+
+/**
+ * Result of executing a full sync
+ */
+export interface FullSyncResult {
+  context: SyncContext;
+  mappingResults: Array<{
+    mappingId: string;
+    success: boolean;
+    recordsProcessed: number;
+    recordsCreated: number;
+    recordsUpdated: number;
+    recordsFailed: number;
+    error?: string;
+  }>;
+}
+
+/**
+ * Executes a full sync operation for all active mappings.
+ * Requirements: 6.1, 6.2 - Execute full synchronization
+ * 
+ * This function orchestrates sync for all active mappings on a connection.
+ * It aggregates results from individual mapping syncs.
+ * 
+ * @param input - Full sync input
+ * @param getMappingRecords - Function to get records for a mapping
+ * @param getExistingMappings - Function to get existing external ID mappings
+ * @param adapter - External API adapter
+ * @param retryConfig - Retry configuration
+ * @param onTokenExpired - Token refresh callback
+ * @returns Full sync result with aggregated context
+ */
+export async function executeFullSync(
+  input: FullSyncInput,
+  getMappingRecords: (mapping: SyncMapping) => Promise<Record<string, unknown>[]>,
+  getExistingMappings: (connectionId: string, localTable: string) => Promise<ExternalIdMapping[]>,
+  adapter: ExternalApiAdapter,
+  retryConfig: RetryConfig = DEFAULT_RETRY_CONFIG,
+  onTokenExpired?: TokenRefreshFn
+): Promise<FullSyncResult> {
+  const { connection, mappings } = input;
+
+  // Filter to only active mappings
+  const activeMappings = filterActiveMappings(mappings);
+
+  // Create sync context for full sync
+  let context = createSyncContext(connection.id, null, 'full_sync');
+
+  const mappingResults: FullSyncResult['mappingResults'] = [];
+
+  // Process each mapping
+  for (const mapping of activeMappings) {
+    try {
+      // Get records for this mapping
+      const records = await getMappingRecords(mapping);
+      
+      // Get existing external ID mappings
+      const existingMappings = await getExistingMappings(connection.id, mapping.local_table);
+
+      // Execute push sync for this mapping
+      const pushInput: PushSyncInput = {
+        connection,
+        mapping,
+        records,
+        existingMappings,
+        adapter,
+        retryConfig,
+        onTokenExpired,
+      };
+
+      const { preparedRecords, mappingLookup } = executePushSync(pushInput);
+
+      // Process the batch
+      const results = await processSyncBatch(
+        preparedRecords,
+        mappingLookup,
+        adapter,
+        retryConfig,
+        onTokenExpired
+      );
+
+      // Aggregate results
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.filter(r => !r.success).length;
+      const createCount = results.filter(r => r.success && r.operation === 'create').length;
+      const updateCount = results.filter(r => r.success && r.operation === 'update').length;
+
+      mappingResults.push({
+        mappingId: mapping.id,
+        success: failCount === 0,
+        recordsProcessed: results.length,
+        recordsCreated: createCount,
+        recordsUpdated: updateCount,
+        recordsFailed: failCount,
+      });
+
+      // Update overall context
+      for (const result of results) {
+        if (result.success) {
+          if (result.operation === 'create') {
+            context = recordCreate(context);
+          } else {
+            context = recordUpdate(context);
+          }
+        } else {
+          context = recordFailure(
+            context,
+            result.localId,
+            result.errorCode || 'UNKNOWN',
+            result.error || 'Unknown error'
+          );
+        }
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      mappingResults.push({
+        mappingId: mapping.id,
+        success: false,
+        recordsProcessed: 0,
+        recordsCreated: 0,
+        recordsUpdated: 0,
+        recordsFailed: 0,
+        error: errorMessage,
+      });
+      context = recordFailure(context, mapping.id, 'MAPPING_ERROR', errorMessage);
+    }
+  }
+
+  return {
+    context,
+    mappingResults,
+  };
+}
+
+/**
+ * Input for retry failed sync operation
+ */
+export interface RetryFailedInput {
+  syncLog: SyncLog;
+  failedRecordIds: string[];
+  records: Record<string, unknown>[];
+  existingMappings: ExternalIdMapping[];
+  adapter: ExternalApiAdapter;
+  retryConfig?: RetryConfig;
+  onTokenExpired?: TokenRefreshFn;
+}
+
+/**
+ * Retries failed records from a previous sync operation.
+ * Requirements: 9.5 - Provide option to retry failed records only
+ * 
+ * @param input - Retry failed input
+ * @returns Sync context with retry results
+ */
+export async function retryFailedSync(input: RetryFailedInput): Promise<{
+  context: SyncContext;
+  results: RecordSyncResult[];
+}> {
+  const {
+    syncLog,
+    failedRecordIds,
+    records,
+    existingMappings,
+    adapter,
+    retryConfig = DEFAULT_RETRY_CONFIG,
+    onTokenExpired,
+  } = input;
+
+  // Create sync context
+  const context = createSyncContext(syncLog.connection_id, syncLog.mapping_id, syncLog.sync_type);
+
+  // Filter records to only failed ones
+  const failedRecords = records.filter(r => {
+    const id = (r as Record<string, unknown>).id as string;
+    return failedRecordIds.includes(id);
+  });
+
+  // Prepare sync records
+  const preparedRecords: SyncRecord[] = failedRecords.map(data => ({
+    localId: (data as Record<string, unknown>).id as string,
+    data,
+  }));
+
+  // Create mapping lookup
+  const mappingLookup = createMappingLookup(existingMappings);
+
+  // Process the batch
+  const results = await processSyncBatch(
+    preparedRecords,
+    mappingLookup,
+    adapter,
+    retryConfig,
+    onTokenExpired
+  );
+
+  // Update context from results
+  const updatedContext = updateContextFromResults(context, results);
+
+  return {
+    context: updatedContext,
+    results,
   };
 }
 

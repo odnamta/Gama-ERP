@@ -23,12 +23,21 @@ import {
   processSyncBatch,
   checkTokenStatus,
   createTokenRefreshFn,
+  executePullSync,
+  executeFullSync,
+  retryFailedSync,
+  executePushSync,
+  prepareFullSync,
   type SyncRecord,
   type RecordSyncResult,
   type ExternalApiAdapter,
+  type PullSyncInput,
+  type FullSyncInput,
+  type RetryFailedInput,
+  type PushSyncInput,
 } from '@/lib/sync-engine';
 import { calculateRetryDelay } from '@/lib/integration-utils';
-import type { IntegrationConnection, ExternalIdMapping } from '@/types/integration';
+import type { IntegrationConnection, ExternalIdMapping, SyncMapping, SyncLog } from '@/types/integration';
 
 // =====================================================
 // ARBITRARIES (Generators)
@@ -605,6 +614,615 @@ describe('Sync Engine Property Tests', () => {
       // Allow some tolerance for timing
       expect(elapsed).toBeGreaterThanOrEqual(45);
       expect(elapsed).toBeLessThan(150);
+    });
+  });
+
+  // =====================================================
+  // Push Sync Execution Tests
+  // Requirements: 6.1 - Execute synchronization immediately
+  // =====================================================
+  describe('Push Sync Execution', () => {
+    it('executePushSync prepares records correctly', () => {
+      const connection: IntegrationConnection = {
+        id: 'conn-1',
+        connection_code: 'TEST',
+        connection_name: 'Test Connection',
+        integration_type: 'accounting',
+        provider: 'accurate',
+        credentials: null,
+        config: {},
+        is_active: true,
+        last_sync_at: null,
+        last_error: null,
+        access_token: null,
+        refresh_token: null,
+        token_expires_at: null,
+        created_by: null,
+        created_at: new Date().toISOString(),
+      };
+
+      const mapping: SyncMapping = {
+        id: 'map-1',
+        connection_id: 'conn-1',
+        local_table: 'invoices',
+        remote_entity: 'Invoice',
+        field_mappings: [
+          { local_field: 'id', remote_field: 'transNo' },
+          { local_field: 'amount', remote_field: 'totalAmount' },
+        ],
+        sync_direction: 'push',
+        sync_frequency: 'realtime',
+        filter_conditions: null,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      };
+
+      const records = [
+        { id: 'inv-1', amount: 100 },
+        { id: 'inv-2', amount: 200 },
+      ];
+
+      const adapter: ExternalApiAdapter = {
+        createRecord: async () => ({ success: true, externalId: 'ext-1' }),
+        updateRecord: async () => ({ success: true }),
+      };
+
+      const input: PushSyncInput = {
+        connection,
+        mapping,
+        records,
+        existingMappings: [],
+        adapter,
+      };
+
+      const result = executePushSync(input);
+
+      expect(result.preparedRecords).toHaveLength(2);
+      expect(result.context.connectionId).toBe('conn-1');
+      expect(result.context.mappingId).toBe('map-1');
+      expect(result.context.syncType).toBe('push');
+      expect(result.mappingLookup.size).toBe(0);
+    });
+
+    it('executePushSync uses existing mappings for update detection', () => {
+      const connection: IntegrationConnection = {
+        id: 'conn-1',
+        connection_code: 'TEST',
+        connection_name: 'Test Connection',
+        integration_type: 'accounting',
+        provider: 'accurate',
+        credentials: null,
+        config: {},
+        is_active: true,
+        last_sync_at: null,
+        last_error: null,
+        access_token: null,
+        refresh_token: null,
+        token_expires_at: null,
+        created_by: null,
+        created_at: new Date().toISOString(),
+      };
+
+      const mapping: SyncMapping = {
+        id: 'map-1',
+        connection_id: 'conn-1',
+        local_table: 'invoices',
+        remote_entity: 'Invoice',
+        field_mappings: [
+          { local_field: 'id', remote_field: 'transNo' },
+        ],
+        sync_direction: 'push',
+        sync_frequency: 'realtime',
+        filter_conditions: null,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      };
+
+      const records = [{ id: 'inv-1', amount: 100 }];
+
+      const existingMappings: ExternalIdMapping[] = [
+        {
+          id: 'eid-1',
+          connection_id: 'conn-1',
+          local_table: 'invoices',
+          local_id: 'inv-1',
+          external_id: 'ext-inv-1',
+          external_data: null,
+          synced_at: new Date().toISOString(),
+        },
+      ];
+
+      const adapter: ExternalApiAdapter = {
+        createRecord: async () => ({ success: true, externalId: 'ext-1' }),
+        updateRecord: async () => ({ success: true }),
+      };
+
+      const input: PushSyncInput = {
+        connection,
+        mapping,
+        records,
+        existingMappings,
+        adapter,
+      };
+
+      const result = executePushSync(input);
+
+      expect(result.mappingLookup.size).toBe(1);
+      expect(result.mappingLookup.get('inv-1')).toBeDefined();
+    });
+  });
+
+  // =====================================================
+  // Pull Sync Execution Tests
+  // Requirements: 6.1 - Execute synchronization immediately
+  // =====================================================
+  describe('Pull Sync Execution', () => {
+    it('executePullSync returns error when adapter does not support pull', async () => {
+      vi.useRealTimers();
+
+      const connection: IntegrationConnection = {
+        id: 'conn-1',
+        connection_code: 'TEST',
+        connection_name: 'Test Connection',
+        integration_type: 'tracking',
+        provider: 'accurate',
+        credentials: null,
+        config: {},
+        is_active: true,
+        last_sync_at: null,
+        last_error: null,
+        access_token: null,
+        refresh_token: null,
+        token_expires_at: null,
+        created_by: null,
+        created_at: new Date().toISOString(),
+      };
+
+      const mapping: SyncMapping = {
+        id: 'map-1',
+        connection_id: 'conn-1',
+        local_table: 'locations',
+        remote_entity: 'Location',
+        field_mappings: [],
+        sync_direction: 'pull',
+        sync_frequency: 'hourly',
+        filter_conditions: null,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      };
+
+      // Adapter without fetchRecords
+      const adapter: ExternalApiAdapter = {
+        createRecord: async () => ({ success: true, externalId: 'ext-1' }),
+        updateRecord: async () => ({ success: true }),
+      };
+
+      const input: PullSyncInput = {
+        connection,
+        mapping,
+        adapter,
+      };
+
+      const result = await executePullSync(input);
+
+      expect(result.data).toBeNull();
+      expect(result.errorCode).toBe('NOT_SUPPORTED');
+      expect(result.context.recordsFailed).toBe(1);
+    });
+
+    it('executePullSync fetches records successfully', async () => {
+      vi.useRealTimers();
+
+      const connection: IntegrationConnection = {
+        id: 'conn-1',
+        connection_code: 'TEST',
+        connection_name: 'Test Connection',
+        integration_type: 'tracking',
+        provider: 'accurate',
+        credentials: null,
+        config: {},
+        is_active: true,
+        last_sync_at: null,
+        last_error: null,
+        access_token: null,
+        refresh_token: null,
+        token_expires_at: null,
+        created_by: null,
+        created_at: new Date().toISOString(),
+      };
+
+      const mapping: SyncMapping = {
+        id: 'map-1',
+        connection_id: 'conn-1',
+        local_table: 'locations',
+        remote_entity: 'Location',
+        field_mappings: [],
+        sync_direction: 'pull',
+        sync_frequency: 'hourly',
+        filter_conditions: null,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      };
+
+      const mockRecords = [
+        { id: 'loc-1', lat: 1.0, lng: 2.0 },
+        { id: 'loc-2', lat: 3.0, lng: 4.0 },
+      ];
+
+      const adapter: ExternalApiAdapter = {
+        createRecord: async () => ({ success: true, externalId: 'ext-1' }),
+        updateRecord: async () => ({ success: true }),
+        fetchRecords: async () => ({ success: true, data: mockRecords }),
+      };
+
+      const input: PullSyncInput = {
+        connection,
+        mapping,
+        adapter,
+      };
+
+      const result = await executePullSync(input);
+
+      expect(result.data).toHaveLength(2);
+      expect(result.context.recordsCreated).toBe(2);
+      expect(result.error).toBeUndefined();
+    });
+
+    it('executePullSync handles fetch errors with retry', async () => {
+      vi.useRealTimers();
+
+      const connection: IntegrationConnection = {
+        id: 'conn-1',
+        connection_code: 'TEST',
+        connection_name: 'Test Connection',
+        integration_type: 'tracking',
+        provider: 'accurate',
+        credentials: null,
+        config: {},
+        is_active: true,
+        last_sync_at: null,
+        last_error: null,
+        access_token: null,
+        refresh_token: null,
+        token_expires_at: null,
+        created_by: null,
+        created_at: new Date().toISOString(),
+      };
+
+      const mapping: SyncMapping = {
+        id: 'map-1',
+        connection_id: 'conn-1',
+        local_table: 'locations',
+        remote_entity: 'Location',
+        field_mappings: [],
+        sync_direction: 'pull',
+        sync_frequency: 'hourly',
+        filter_conditions: null,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      };
+
+      const adapter: ExternalApiAdapter = {
+        createRecord: async () => ({ success: true, externalId: 'ext-1' }),
+        updateRecord: async () => ({ success: true }),
+        fetchRecords: async () => ({ success: false, error: 'API Error', errorCode: 'VALIDATION_ERROR' }),
+      };
+
+      const input: PullSyncInput = {
+        connection,
+        mapping,
+        adapter,
+        retryConfig: { maxRetries: 0, baseDelayMs: 10, maxDelayMs: 100 },
+      };
+
+      const result = await executePullSync(input);
+
+      expect(result.data).toBeNull();
+      expect(result.errorCode).toBe('VALIDATION_ERROR');
+    });
+  });
+
+  // =====================================================
+  // Full Sync Execution Tests
+  // Requirements: 6.1, 6.2 - Execute full synchronization
+  // =====================================================
+  describe('Full Sync Execution', () => {
+    it('prepareFullSync filters to active mappings only', () => {
+      const connection: IntegrationConnection = {
+        id: 'conn-1',
+        connection_code: 'TEST',
+        connection_name: 'Test Connection',
+        integration_type: 'accounting',
+        provider: 'accurate',
+        credentials: null,
+        config: {},
+        is_active: true,
+        last_sync_at: null,
+        last_error: null,
+        access_token: null,
+        refresh_token: null,
+        token_expires_at: null,
+        created_by: null,
+        created_at: new Date().toISOString(),
+      };
+
+      const mappings: SyncMapping[] = [
+        {
+          id: 'map-1',
+          connection_id: 'conn-1',
+          local_table: 'invoices',
+          remote_entity: 'Invoice',
+          field_mappings: [],
+          sync_direction: 'push',
+          sync_frequency: 'realtime',
+          filter_conditions: null,
+          is_active: true,
+          created_at: new Date().toISOString(),
+        },
+        {
+          id: 'map-2',
+          connection_id: 'conn-1',
+          local_table: 'customers',
+          remote_entity: 'Customer',
+          field_mappings: [],
+          sync_direction: 'push',
+          sync_frequency: 'realtime',
+          filter_conditions: null,
+          is_active: false, // Inactive
+          created_at: new Date().toISOString(),
+        },
+      ];
+
+      const input: FullSyncInput = { connection, mappings };
+      const result = prepareFullSync(input);
+
+      expect(result.activeMappings).toHaveLength(1);
+      expect(result.activeMappings[0].id).toBe('map-1');
+      expect(result.context.syncType).toBe('full_sync');
+    });
+
+    it('executeFullSync processes all active mappings', async () => {
+      vi.useRealTimers();
+
+      const connection: IntegrationConnection = {
+        id: 'conn-1',
+        connection_code: 'TEST',
+        connection_name: 'Test Connection',
+        integration_type: 'accounting',
+        provider: 'accurate',
+        credentials: null,
+        config: {},
+        is_active: true,
+        last_sync_at: null,
+        last_error: null,
+        access_token: null,
+        refresh_token: null,
+        token_expires_at: null,
+        created_by: null,
+        created_at: new Date().toISOString(),
+      };
+
+      const mappings: SyncMapping[] = [
+        {
+          id: 'map-1',
+          connection_id: 'conn-1',
+          local_table: 'invoices',
+          remote_entity: 'Invoice',
+          field_mappings: [{ local_field: 'id', remote_field: 'transNo' }],
+          sync_direction: 'push',
+          sync_frequency: 'realtime',
+          filter_conditions: null,
+          is_active: true,
+          created_at: new Date().toISOString(),
+        },
+      ];
+
+      const getMappingRecords = async () => [{ id: 'inv-1' }, { id: 'inv-2' }];
+      const getExistingMappings = async () => [];
+
+      let createCount = 0;
+      const adapter: ExternalApiAdapter = {
+        createRecord: async () => {
+          createCount++;
+          return { success: true, externalId: `ext-${createCount}` };
+        },
+        updateRecord: async () => ({ success: true }),
+      };
+
+      const input: FullSyncInput = { connection, mappings };
+      const result = await executeFullSync(
+        input,
+        getMappingRecords,
+        getExistingMappings,
+        adapter,
+        { maxRetries: 0, baseDelayMs: 10, maxDelayMs: 100 }
+      );
+
+      expect(result.mappingResults).toHaveLength(1);
+      expect(result.mappingResults[0].success).toBe(true);
+      expect(result.mappingResults[0].recordsCreated).toBe(2);
+      expect(result.context.recordsCreated).toBe(2);
+    });
+
+    it('executeFullSync handles mapping errors gracefully', async () => {
+      vi.useRealTimers();
+
+      const connection: IntegrationConnection = {
+        id: 'conn-1',
+        connection_code: 'TEST',
+        connection_name: 'Test Connection',
+        integration_type: 'accounting',
+        provider: 'accurate',
+        credentials: null,
+        config: {},
+        is_active: true,
+        last_sync_at: null,
+        last_error: null,
+        access_token: null,
+        refresh_token: null,
+        token_expires_at: null,
+        created_by: null,
+        created_at: new Date().toISOString(),
+      };
+
+      const mappings: SyncMapping[] = [
+        {
+          id: 'map-1',
+          connection_id: 'conn-1',
+          local_table: 'invoices',
+          remote_entity: 'Invoice',
+          field_mappings: [{ local_field: 'id', remote_field: 'transNo' }],
+          sync_direction: 'push',
+          sync_frequency: 'realtime',
+          filter_conditions: null,
+          is_active: true,
+          created_at: new Date().toISOString(),
+        },
+      ];
+
+      const getMappingRecords = async () => {
+        throw new Error('Database error');
+      };
+      const getExistingMappings = async () => [];
+
+      const adapter: ExternalApiAdapter = {
+        createRecord: async () => ({ success: true, externalId: 'ext-1' }),
+        updateRecord: async () => ({ success: true }),
+      };
+
+      const input: FullSyncInput = { connection, mappings };
+      const result = await executeFullSync(
+        input,
+        getMappingRecords,
+        getExistingMappings,
+        adapter
+      );
+
+      expect(result.mappingResults).toHaveLength(1);
+      expect(result.mappingResults[0].success).toBe(false);
+      expect(result.mappingResults[0].error).toBe('Database error');
+    });
+  });
+
+  // =====================================================
+  // Retry Failed Sync Tests
+  // Requirements: 9.5 - Retry failed records only
+  // =====================================================
+  describe('Retry Failed Sync', () => {
+    it('retryFailedSync only processes failed records', async () => {
+      vi.useRealTimers();
+
+      const syncLog: SyncLog = {
+        id: 'log-1',
+        connection_id: 'conn-1',
+        mapping_id: 'map-1',
+        sync_type: 'push',
+        started_at: new Date().toISOString(),
+        completed_at: new Date().toISOString(),
+        records_processed: 3,
+        records_created: 1,
+        records_updated: 0,
+        records_failed: 2,
+        status: 'partial',
+        error_details: [
+          { record_id: 'inv-2', error_code: 'API_ERROR', error_message: 'Failed', timestamp: new Date().toISOString() },
+          { record_id: 'inv-3', error_code: 'API_ERROR', error_message: 'Failed', timestamp: new Date().toISOString() },
+        ],
+        created_at: new Date().toISOString(),
+      };
+
+      const failedRecordIds = ['inv-2', 'inv-3'];
+      const records = [
+        { id: 'inv-1', amount: 100 },
+        { id: 'inv-2', amount: 200 },
+        { id: 'inv-3', amount: 300 },
+      ];
+
+      let createCount = 0;
+      const adapter: ExternalApiAdapter = {
+        createRecord: async () => {
+          createCount++;
+          return { success: true, externalId: `ext-${createCount}` };
+        },
+        updateRecord: async () => ({ success: true }),
+      };
+
+      const input: RetryFailedInput = {
+        syncLog,
+        failedRecordIds,
+        records,
+        existingMappings: [],
+        adapter,
+        retryConfig: { maxRetries: 0, baseDelayMs: 10, maxDelayMs: 100 },
+      };
+
+      const result = await retryFailedSync(input);
+
+      // Should only process 2 failed records
+      expect(result.results).toHaveLength(2);
+      expect(createCount).toBe(2);
+      expect(result.context.recordsCreated).toBe(2);
+    });
+
+    it('retryFailedSync uses existing mappings for update detection', async () => {
+      vi.useRealTimers();
+
+      const syncLog: SyncLog = {
+        id: 'log-1',
+        connection_id: 'conn-1',
+        mapping_id: 'map-1',
+        sync_type: 'push',
+        started_at: new Date().toISOString(),
+        completed_at: new Date().toISOString(),
+        records_processed: 1,
+        records_created: 0,
+        records_updated: 0,
+        records_failed: 1,
+        status: 'failed',
+        error_details: [
+          { record_id: 'inv-1', error_code: 'API_ERROR', error_message: 'Failed', timestamp: new Date().toISOString() },
+        ],
+        created_at: new Date().toISOString(),
+      };
+
+      const failedRecordIds = ['inv-1'];
+      const records = [{ id: 'inv-1', amount: 100 }];
+
+      const existingMappings: ExternalIdMapping[] = [
+        {
+          id: 'eid-1',
+          connection_id: 'conn-1',
+          local_table: 'invoices',
+          local_id: 'inv-1',
+          external_id: 'ext-inv-1',
+          external_data: null,
+          synced_at: new Date().toISOString(),
+        },
+      ];
+
+      let updateCalled = false;
+      const adapter: ExternalApiAdapter = {
+        createRecord: async () => ({ success: true, externalId: 'ext-1' }),
+        updateRecord: async () => {
+          updateCalled = true;
+          return { success: true };
+        },
+      };
+
+      const input: RetryFailedInput = {
+        syncLog,
+        failedRecordIds,
+        records,
+        existingMappings,
+        adapter,
+        retryConfig: { maxRetries: 0, baseDelayMs: 10, maxDelayMs: 100 },
+      };
+
+      const result = await retryFailedSync(input);
+
+      expect(updateCalled).toBe(true);
+      expect(result.results[0].operation).toBe('update');
+      expect(result.context.recordsUpdated).toBe(1);
     });
   });
 });
