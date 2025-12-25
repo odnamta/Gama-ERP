@@ -23,6 +23,7 @@ import {
   Compass,
   Ship,
   Zap,
+  Shield,
 } from 'lucide-react'
 import { UserRole, UserPermissions } from '@/types/permissions'
 
@@ -485,6 +486,30 @@ export const NAV_ITEMS: NavItem[] = [
       {
         title: 'Notification Logs',
         href: '/settings/notification-logs',
+      },
+    ],
+  },
+  {
+    title: 'Admin',
+    href: '/admin/audit-logs',
+    icon: Shield,
+    roles: ['owner', 'admin'],
+    children: [
+      {
+        title: 'Audit Logs',
+        href: '/settings/audit-logs',
+      },
+      {
+        title: 'System Logs',
+        href: '/settings/system-logs',
+      },
+      {
+        title: 'Login History',
+        href: '/admin/login-history',
+      },
+      {
+        title: 'Log Retention',
+        href: '/admin/audit-logs/retention',
       },
     ],
   },

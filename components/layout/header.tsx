@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { createClient } from '@/lib/supabase/client'
+import { signOutWithLogging } from '@/app/actions/auth-actions'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import { GlobalSearch } from '@/components/search/global-search'
 import { ContextualHelpPopover } from '@/components/help-center/contextual-help-popover'
@@ -45,9 +45,14 @@ export function Header({ user }: HeaderProps) {
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/login')
+    // Use server action that records logout before signing out (Requirement 3.2)
+    const result = await signOutWithLogging()
+    if (result.success) {
+      router.push('/login')
+    } else {
+      console.error('Sign out failed:', result.error)
+      setIsLoggingOut(false)
+    }
   }
 
   const showFallback = !user?.avatarUrl || avatarError

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { ensureUserProfile } from '@/lib/permissions-server'
+import { recordSuccessfulLogin, recordFailedLoginAttempt } from '@/app/actions/auth-actions'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -10,6 +11,13 @@ export async function GET(request: Request) {
 
   // Handle OAuth errors from Google
   if (error) {
+    // Record failed login attempt (Requirement 3.4)
+    await recordFailedLoginAttempt(
+      undefined, // email not available for OAuth errors
+      errorDescription || error,
+      'google'
+    )
+    
     const loginUrl = new URL('/login', origin)
     loginUrl.searchParams.set('error', errorDescription || error)
     return NextResponse.redirect(loginUrl)
@@ -20,6 +28,13 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
+      // Record failed login attempt (Requirement 3.4)
+      await recordFailedLoginAttempt(
+        undefined, // email not available at this point
+        error.message,
+        'google'
+      )
+      
       const loginUrl = new URL('/login', origin)
       loginUrl.searchParams.set('error', error.message)
       return NextResponse.redirect(loginUrl)
@@ -31,6 +46,11 @@ export async function GET(request: Request) {
     // Check if this is a first login (profile was just created or linked)
     if (profile) {
       const { data: { user } } = await supabase.auth.getUser()
+      
+      // Record successful login (Requirement 3.1)
+      if (user) {
+        await recordSuccessfulLogin(user.id, 'google')
+      }
       
       // Check if last_login_at was just set (within last minute) - indicates first login
       const lastLogin = profile.last_login_at ? new Date(profile.last_login_at) : null
@@ -64,6 +84,13 @@ export async function GET(request: Request) {
   }
 
   // No code provided - redirect to login with error
+  // Record failed login attempt (Requirement 3.4)
+  await recordFailedLoginAttempt(
+    undefined,
+    'Authentication failed. No authorization code provided.',
+    'google'
+  )
+  
   const loginUrl = new URL('/login', origin)
   loginUrl.searchParams.set('error', 'Authentication failed. Please try again.')
   return NextResponse.redirect(loginUrl)
