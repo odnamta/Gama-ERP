@@ -371,6 +371,8 @@ export function FeedbackModal({ open, onOpenChange, onSuccess }: FeedbackModalPr
               screenshots={screenshots}
               onScreenshotsChange={setScreenshots}
               maxScreenshots={5}
+              onModalClose={() => onOpenChange(false)}
+              onModalOpen={() => onOpenChange(true)}
             />
           </div>
 

@@ -4,36 +4,61 @@ import { useRef, useState } from 'react';
 import { Camera, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { CaptureOverlay } from './capture-overlay';
 import type { ScreenshotData } from '@/types/feedback';
 
 interface ScreenshotCaptureProps {
   screenshots: ScreenshotData[];
   onScreenshotsChange: (screenshots: ScreenshotData[]) => void;
   maxScreenshots?: number;
+  // Modal control props for close-capture-reopen flow
+  onModalClose?: () => void;
+  onModalOpen?: () => void;
 }
 
 export function ScreenshotCapture({
   screenshots,
   onScreenshotsChange,
   maxScreenshots = 5,
+  onModalClose,
+  onModalOpen,
 }: ScreenshotCaptureProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const { toast } = useToast();
 
   const handleCapture = async () => {
     if (screenshots.length >= maxScreenshots) return;
     
     setIsCapturing(true);
+    
+    // Step 1: Close modal instantly (if modal control is available)
+    if (onModalClose) {
+      onModalClose();
+    }
+    
+    // Step 2: Wait for modal to fully close and page to be visible
+    await new Promise(resolve => setTimeout(resolve, 150));
+    
     try {
       // Dynamically import html2canvas to avoid SSR issues
       const html2canvas = (await import('html2canvas')).default;
       
-      // Capture the current page
+      // Step 3: Capture the page content (excluding modal overlays)
       const canvas = await html2canvas(document.body, {
         logging: false,
         useCORS: true,
         allowTaint: true,
         scale: 0.5, // Reduce size for performance
+        ignoreElements: (element) => {
+          // Ignore any remaining overlays or modals
+          return element.classList.contains('modal-overlay') ||
+                 element.getAttribute('role') === 'dialog' ||
+                 element.getAttribute('data-radix-portal') !== null ||
+                 element.getAttribute('data-capture-overlay') === 'true' ||
+                 (element.classList.contains('fixed') && element.classList.contains('inset-0'));
+        },
       });
       
       const dataUrl = canvas.toDataURL('image/png');
@@ -42,10 +67,27 @@ export function ScreenshotCapture({
         filename: `screenshot-${Date.now()}.png`,
       };
       
+      // Step 4: Add screenshot to array
       onScreenshotsChange([...screenshots, newScreenshot]);
+      
+      // Show success toast
+      toast({
+        title: 'Screenshot captured!',
+        description: 'The screenshot has been added to your feedback.',
+      });
     } catch (error) {
       console.error('Failed to capture screenshot:', error);
+      // Show error toast
+      toast({
+        title: 'Capture failed',
+        description: 'Failed to capture screenshot. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
+      // Step 5: Reopen modal (if modal control is available)
+      if (onModalOpen) {
+        onModalOpen();
+      }
       setIsCapturing(false);
     }
   };
@@ -88,8 +130,12 @@ export function ScreenshotCapture({
   const canAddMore = screenshots.length < maxScreenshots;
 
   return (
-    <div className="space-y-3">
-      <Label>Screenshots ({screenshots.length}/{maxScreenshots})</Label>
+    <>
+      {/* Capture Overlay - shown during screenshot capture */}
+      <CaptureOverlay isCapturing={isCapturing} />
+      
+      <div className="space-y-3">
+        <Label>Screenshots ({screenshots.length}/{maxScreenshots})</Label>
       
       {/* Action Buttons */}
       <div className="flex gap-2">
@@ -163,6 +209,7 @@ export function ScreenshotCapture({
           Maximum {maxScreenshots} screenshots allowed
         </p>
       )}
-    </div>
+      </div>
+    </>
   );
 }
