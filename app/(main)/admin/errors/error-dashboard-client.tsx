@@ -93,8 +93,8 @@ export function ErrorDashboardClient({ initialErrors, initialSummary, currentUse
   const filteredErrors = errors.filter((error) => {
     const matchesStatus = statusFilter === 'all' || error.status === statusFilter
     const matchesSearch = searchQuery === '' || 
-      error.error_message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      error.error_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      error.error_message?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      error.error_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (error.module?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
     return matchesStatus && matchesSearch
   })
