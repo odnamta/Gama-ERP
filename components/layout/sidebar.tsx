@@ -33,14 +33,16 @@ export function Sidebar() {
           </>
         ) : (
           filteredNav.map((item) => {
-            const isActive = pathname.startsWith(item.href)
+            const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+            const hasActiveChild = item.children?.some(child => pathname === child.href || pathname.startsWith(child.href + '/'))
+            const showChildren = isActive || hasActiveChild
             return (
               <div key={item.title}>
                 <Link
                   href={item.href}
                   className={cn(
                     'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    isActive
+                    isActive || hasActiveChild
                       ? 'bg-primary text-primary-foreground'
                       : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                   )}
@@ -49,7 +51,7 @@ export function Sidebar() {
                   {item.title}
                 </Link>
                 {/* Render children if present */}
-                {item.children && item.children.length > 0 && isActive && (
+                {item.children && item.children.length > 0 && showChildren && (
                   <div className="ml-6 mt-1 space-y-1">
                     {item.children.map((child) => (
                       <Link
@@ -57,7 +59,7 @@ export function Sidebar() {
                         href={child.href}
                         className={cn(
                           'block rounded-lg px-3 py-2 text-sm transition-colors',
-                          pathname === child.href
+                          pathname === child.href || pathname.startsWith(child.href + '/')
                             ? 'bg-muted text-foreground'
                             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                         )}

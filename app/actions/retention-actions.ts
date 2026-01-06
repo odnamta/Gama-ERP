@@ -463,7 +463,7 @@ export async function archiveLogs(
     // 3. Then delete the records
     
     let recordsDeleted = 0;
-    let archivePath: string | null = null;
+    const archivePath: string | null = null;
     
     if (request.delete_after_archive !== false) {
       // Delete old records
@@ -755,7 +755,7 @@ export async function getArchiveHistory(
 /**
  * Formats bytes to human-readable size.
  */
-export function formatBytes(bytes: number): string {
+function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
   
   const k = 1024;

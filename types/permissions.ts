@@ -1,19 +1,81 @@
-// Role-Based Access Control Types
+// Role-Based Access Control Types - RBAC v0.9.11
 
-export type UserRole = 'owner' | 'admin' | 'manager' | 'ops' | 'finance' | 'sales' | 'viewer'
+/**
+ * All supported user roles in the system
+ * 11 roles total with hierarchical structure
+ */
+export type UserRole = 
+  | 'owner'          // Full system access, final approver (Dio)
+  | 'director'       // Executive oversight, can approve PJO/JO/BKK
+  | 'manager'        // Department head with department_scope
+  | 'sysadmin'       // IT administration, user management
+  | 'administration' // PJO preparation, invoices, document management
+  | 'finance'        // Payments, AR/AP, payroll, BKK preparation
+  | 'marketing'      // Customers, quotations, cost estimation
+  | 'ops'            // Job execution, NO revenue visibility
+  | 'engineer'       // Surveys, JMP, drawings, technical assessments
+  | 'hr'             // Employee management, attendance, payroll
+  | 'hse'            // Health, Safety, Environment modules
 
-export type DashboardType = 'owner' | 'admin' | 'manager' | 'ops' | 'finance' | 'sales' | 'viewer' | 'default'
+/**
+ * Department scopes for managers
+ * Managers can oversee multiple departments
+ */
+export type DepartmentScope = 
+  | 'marketing'
+  | 'engineering'
+  | 'administration'
+  | 'finance'
+  | 'operations'
+  | 'assets'
+  | 'hr'
+  | 'hse'
 
+/**
+ * Dashboard types based on role and department
+ */
+export type DashboardType = 
+  | 'executive'      // owner, director
+  | 'manager'        // department-scoped
+  | 'marketing'
+  | 'admin_finance'
+  | 'operations'
+  | 'engineering'
+  | 'hr'
+  | 'hse'
+  | 'sysadmin'
+  | 'default'
+  // Legacy values for backward compatibility
+  | 'owner'
+  | 'admin'
+  | 'ops'
+  | 'finance'
+  | 'sales'
+  | 'viewer'
+
+/**
+ * User permissions flags
+ */
 export interface UserPermissions {
   can_see_revenue: boolean
   can_see_profit: boolean
+  can_see_actual_costs: boolean
   can_approve_pjo: boolean
+  can_approve_jo: boolean
+  can_approve_bkk: boolean
+  can_check_pjo: boolean
+  can_check_jo: boolean
+  can_check_bkk: boolean
   can_manage_invoices: boolean
   can_manage_users: boolean
   can_create_pjo: boolean
   can_fill_costs: boolean
+  can_estimate_costs: boolean
 }
 
+/**
+ * User profile with role and permissions
+ */
 export interface UserProfile {
   id: string
   user_id: string | null  // null for pre-registered users
@@ -21,39 +83,156 @@ export interface UserProfile {
   full_name: string | null
   avatar_url: string | null
   role: UserRole
+  department_scope: DepartmentScope[]  // For managers
   custom_dashboard: DashboardType
   is_active: boolean
   created_at: string
   updated_at: string
-  last_login_at: string | null  // track login activity
+  last_login_at: string | null
   // Permissions
   can_see_revenue: boolean
   can_see_profit: boolean
+  can_see_actual_costs: boolean
   can_approve_pjo: boolean
+  can_approve_jo: boolean
+  can_approve_bkk: boolean
+  can_check_pjo: boolean
+  can_check_jo: boolean
+  can_check_bkk: boolean
   can_manage_invoices: boolean
   can_manage_users: boolean
   can_create_pjo: boolean
   can_fill_costs: boolean
+  can_estimate_costs: boolean
 }
 
+
+/**
+ * Feature keys for granular permission checks
+ */
 export type FeatureKey =
+  // Dashboard features
+  | 'dashboard.executive'
+  | 'dashboard.manager'
+  | 'dashboard.marketing'
+  | 'dashboard.operations'
+  | 'dashboard.finance'
+  | 'dashboard.hr'
+  | 'dashboard.hse'
+  | 'dashboard.engineering'
   | 'dashboard.full'
   | 'dashboard.ops'
-  | 'dashboard.finance'
+  // Workflow features
+  | 'workflow.pjo.create'
+  | 'workflow.pjo.check'
+  | 'workflow.pjo.approve'
+  | 'workflow.jo.check'
+  | 'workflow.jo.approve'
+  | 'workflow.bkk.create'
+  | 'workflow.bkk.check'
+  | 'workflow.bkk.approve'
+  // Customer & Marketing
   | 'customers.crud'
   | 'customers.view'
+  | 'customers.create'
+  | 'customers.edit'
+  | 'customers.delete'
+  // Quotations
+  | 'quotations.view'
+  | 'quotations.create'
+  | 'quotations.edit'
+  | 'quotations.approve'
+  | 'quotations.cost_estimation'
+  | 'quotations.engineering_review'
+  // Projects
   | 'projects.crud'
   | 'projects.view'
+  // PJO
   | 'pjo.create'
+  | 'pjo.view'
+  | 'pjo.edit'
   | 'pjo.view_revenue'
   | 'pjo.view_costs'
+  | 'pjo.check'
   | 'pjo.approve'
+  // Job Orders
+  | 'jo.view'
   | 'jo.view_full'
+  | 'jo.view_revenue'
   | 'jo.view_costs'
+  | 'jo.create'
+  | 'jo.edit'
+  | 'jo.add_expense'
   | 'jo.fill_costs'
+  | 'jo.check'
+  | 'jo.approve'
+  | 'jo.create_ba'
+  | 'jo.create_sj'
+  // Finance
   | 'invoices.crud'
   | 'invoices.view'
+  | 'invoices.create'
+  | 'invoices.edit'
+  | 'payments.view'
+  | 'payments.create'
+  | 'bkk.view'
+  | 'bkk.create'
+  | 'bkk.check'
+  | 'bkk.approve'
   | 'reports.pnl'
+  | 'reports.profit'
+  | 'reports.revenue'
+  // Equipment & Assets
+  | 'assets.view'
+  | 'assets.create'
+  | 'assets.edit'
+  | 'assets.change_status'
+  | 'assets.view_financials'
+  | 'assets.dispose'
+  | 'assets.upload_documents'
+  | 'assets.nav'
+  | 'maintenance.view'
+  | 'maintenance.create'
+  // HR
+  | 'hr.employees.view'
+  | 'hr.employees.view_own'
+  | 'hr.employees.create'
+  | 'hr.employees.edit'
+  | 'hr.employees.delete'
+  | 'hr.employees.salary'
+  | 'hr.attendance.view_all'
+  | 'hr.attendance.view_own'
+  | 'hr.leave.approve'
+  | 'hr.payroll.view'
+  | 'hr.payroll.run'
+  | 'hr.nav'
+  // HSE
+  | 'hse.incidents.view'
+  | 'hse.incidents.create'
+  | 'hse.incidents.investigate'
+  | 'hse.training.view'
+  | 'hse.training.view_own'
+  | 'hse.training.manage'
+  | 'hse.ppe.view'
+  | 'hse.ppe.manage'
+  | 'hse.nav'
+  // Engineering
+  | 'engineering.surveys.view'
+  | 'engineering.surveys.create'
+  | 'engineering.jmp.view'
+  | 'engineering.jmp.create'
+  | 'engineering.drawings.view'
+  | 'engineering.drawings.create'
+  | 'engineering.assessments.view'
+  | 'engineering.assessments.create'
+  | 'engineering.nav'
+  // System Administration
+  | 'admin.users.view'
+  | 'admin.users.create'
+  | 'admin.users.edit'
+  | 'admin.users.delete'
+  | 'admin.settings'
+  | 'admin.audit_logs'
   | 'users.manage'
   // Vendor permissions
   | 'vendors.view'
@@ -75,7 +254,7 @@ export type FeatureKey =
   | 'vendor_invoices.approve'
   | 'vendor_invoices.record_payment'
   | 'vendor_invoices.nav'
-  // Employee/HR permissions
+  // Employee/HR permissions (legacy)
   | 'employees.view'
   | 'employees.create'
   | 'employees.edit'
@@ -104,15 +283,6 @@ export type FeatureKey =
   | 'sales_engineering_dashboard.view_pipeline'
   | 'sales_engineering_dashboard.view_engineering'
   | 'sales_engineering_dashboard.refresh'
-  // Asset/Equipment permissions
-  | 'assets.view'
-  | 'assets.create'
-  | 'assets.edit'
-  | 'assets.change_status'
-  | 'assets.view_financials'
-  | 'assets.dispose'
-  | 'assets.upload_documents'
-  | 'assets.nav'
   // Training permissions
   | 'training.view'
   | 'training.view_own'

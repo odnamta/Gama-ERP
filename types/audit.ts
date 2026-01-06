@@ -1,336 +1,100 @@
-/**
- * Audit Types
- * 
- * Consolidated type definitions for the System Audit & Logging module.
- * Includes audit logs, system logs, login history, and data access logs.
- */
+// Audit Trail Types
 
-// =============================================================================
-// AUDIT LOG TYPES
-// =============================================================================
+import { UserRole } from './permissions'
 
 /**
  * Audit action types
  */
 export type AuditAction = 
-  | 'create' 
-  | 'update' 
-  | 'delete' 
-  | 'view' 
-  | 'export' 
-  | 'approve' 
-  | 'reject' 
-  | 'submit' 
-  | 'cancel'
-  | 'INSERT'
-  | 'UPDATE'
-  | 'DELETE';
+  | 'create'
+  | 'update'
+  | 'delete'
+  | 'view'
+  | 'export'
+  | 'submit'
+  | 'check'      // Manager reviews
+  | 'approve'    // Director/Owner approves
+  | 'reject'
+  | 'login'
+  | 'logout'
+  | 'role_change'
+  | 'permission_change'
 
 /**
- * Audit status
- */
-export type AuditStatus = 'success' | 'failure' | 'pending';
-
-/**
- * Audit log entry as stored in the database
+ * Audit log entry interface
  */
 export interface AuditLogEntry {
-  id: string;
-  timestamp: string;
-  
-  // User information
-  user_id: string | null;
-  user_email: string | null;
-  user_role: string | null;
-  
-  // Action details
-  action: AuditAction | string;
-  module: string;
-  
-  // Entity information
-  entity_type: string;
-  entity_id: string | null;
-  entity_reference: string | null;
-  description: string | null;
-  
-  // Change tracking
-  old_values: Record<string, unknown> | null;
-  new_values: Record<string, unknown> | null;
-  changed_fields: string[] | null;
-  
-  // Request context
-  ip_address: string | null;
-  user_agent: string | null;
-  session_id: string | null;
-  request_method: string | null;
-  request_path: string | null;
-  
-  // Status
-  status: AuditStatus | null;
-  error_message: string | null;
-  
-  // Additional data
-  metadata: Record<string, unknown>;
+  id?: string
+  userId: string
+  userName: string
+  userEmail: string
+  userRole: UserRole
+  action: AuditAction
+  module: string
+  recordId?: string
+  recordType?: string
+  recordNumber?: string
+  oldValues?: Record<string, unknown>
+  newValues?: Record<string, unknown>
+  changesSummary?: string
+  ipAddress?: string
+  userAgent?: string
+  sessionId?: string
+  workflowStatusFrom?: string
+  workflowStatusTo?: string
+  createdAt?: string
 }
 
 /**
- * Input for creating a new audit log entry
+ * Audit log filter options
  */
-export interface CreateAuditLogInput {
-  // Required fields
-  action: AuditAction | string;
-  module: string;
-  entity_type: string;
-  
-  // Optional user info (auto-captured if not provided)
-  user_id?: string;
-  user_email?: string;
-  user_role?: string;
-  
-  // Entity details
-  entity_id?: string;
-  entity_reference?: string;
-  description?: string;
-  
-  // Change tracking
-  old_values?: Record<string, unknown>;
-  new_values?: Record<string, unknown>;
-  changed_fields?: string[];
-  
-  // Request context
-  ip_address?: string;
-  user_agent?: string;
-  session_id?: string;
-  request_method?: string;
-  request_path?: string;
-  
-  // Status
-  status?: AuditStatus;
-  error_message?: string;
-  
-  // Additional data
-  metadata?: Record<string, unknown>;
+export interface AuditLogFilter {
+  userId?: string
+  recordId?: string
+  module?: string
+  action?: AuditAction
+  startDate?: string
+  endDate?: string
+  limit?: number
+  offset?: number
 }
 
 /**
- * Filters for querying audit logs
+ * Audit log query result
  */
-export interface AuditLogFilters {
-  user_id?: string;
-  user_email?: string;
-  action?: AuditAction | AuditAction[] | string | string[];
-  module?: string | string[];
-  entity_type?: string | string[];
-  entity_id?: string;
-  status?: AuditStatus | AuditStatus[];
-  search?: string;
-  start_date?: string;
-  end_date?: string;
+export interface AuditLogQueryResult {
+  logs: AuditLogEntry[]
+  total: number
+  hasMore: boolean
 }
 
 /**
- * Pagination options for audit log queries
+ * Module names for audit logging
  */
-export interface AuditLogPagination {
-  page: number;
-  page_size: number;
-  sort_by?: keyof AuditLogEntry;
-  sort_order?: 'asc' | 'desc';
-}
-
-/**
- * Paginated audit log response
- */
-export interface PaginatedAuditLogs {
-  data: AuditLogEntry[];
-  total: number;
-  page: number;
-  page_size: number;
-  total_pages: number;
-}
-
-/**
- * Entity audit history request
- */
-export interface EntityAuditHistoryRequest {
-  entity_type: string;
-  entity_id: string;
-  limit?: number;
-}
-
-/**
- * Audit log statistics
- */
-export interface AuditLogStats {
-  total_entries: number;
-  entries_by_action: Record<string, number>;
-  entries_by_module: Array<{
-    module: string;
-    count: number;
-  }>;
-  entries_by_entity_type: Array<{
-    entity_type: string;
-    count: number;
-  }>;
-  top_users: Array<{
-    user_id: string;
-    user_email: string | null;
-    count: number;
-  }>;
-  failure_rate: number;
-}
-
-// =============================================================================
-// RE-EXPORT EXISTING TYPES
-// =============================================================================
-
-// Re-export from individual type files for convenience
-export type {
-  LoginMethod,
-  DeviceType,
-  LoginStatus,
-  LoginHistoryEntry,
-  RecordLoginInput,
-  RecordFailedLoginInput,
-  LoginHistoryFilters,
-  LoginHistoryPagination,
-  PaginatedLoginHistory,
-  SessionStatistics,
-  ParsedUserAgent,
-  LoginDetails,
-  LoginHistoryExportOptions,
-} from './login-history';
-
-export type {
-  DataAccessType,
-  ExportFileFormat,
-  DataAccessLogEntry,
-  LogDataExportInput,
-  LogDataAccessInput,
-  DataAccessLogFilters,
-  DataAccessLogPagination,
-  PaginatedDataAccessLogs,
-  DataAccessStats,
-} from './data-access-log';
-
-export type {
-  SystemLogLevel,
-  SystemLogEntry,
-  CreateSystemLogInput,
-  SystemLogFilters,
-  SystemLogPagination,
-  PaginatedSystemLogs,
-  SystemLogStats,
-  ErrorContext,
-  LogContext,
-  SystemLogExportOptions,
-} from './system-log';
-
-// =============================================================================
-// RETENTION CONFIGURATION
-// =============================================================================
-
-/**
- * Log retention periods in days
- */
-export interface RetentionPeriods {
-  audit_logs: number;
-  system_logs: number;
-  login_history: number;
-  data_access_logs: number;
-}
-
-/**
- * Retention configuration
- */
-export interface RetentionConfig {
-  periods: RetentionPeriods;
-  archive_enabled: boolean;
-  archive_location: string | null;
-  auto_cleanup_enabled: boolean;
-  last_cleanup_at: string | null;
-  next_cleanup_at: string | null;
-}
-
-/**
- * Storage statistics for audit tables
- */
-export interface AuditStorageStats {
-  audit_logs: {
-    count: number;
-    size_bytes: number;
-    oldest_entry: string | null;
-    newest_entry: string | null;
-  };
-  system_logs: {
-    count: number;
-    size_bytes: number;
-    oldest_entry: string | null;
-    newest_entry: string | null;
-  };
-  login_history: {
-    count: number;
-    size_bytes: number;
-    oldest_entry: string | null;
-    newest_entry: string | null;
-  };
-  data_access_logs: {
-    count: number;
-    size_bytes: number;
-    oldest_entry: string | null;
-    newest_entry: string | null;
-  };
-  total_size_bytes: number;
-}
-
-/**
- * Archive request
- */
-export interface ArchiveRequest {
-  log_type: 'audit_logs' | 'system_logs' | 'login_history' | 'data_access_logs';
-  before_date: string;
-  delete_after_archive?: boolean;
-}
-
-/**
- * Archive result
- */
-export interface ArchiveResult {
-  success: boolean;
-  records_archived: number;
-  records_deleted: number;
-  archive_path: string | null;
-  error?: string;
-}
-
-// =============================================================================
-// UTILITY TYPES
-// =============================================================================
-
-/**
- * Changed field with old and new values
- */
-export interface ChangedField {
-  field: string;
-  old_value: unknown;
-  new_value: unknown;
-}
-
-/**
- * Formatted audit log description
- */
-export interface FormattedAuditDescription {
-  summary: string;
-  details: string | null;
-  changed_fields_summary: string | null;
-}
-
-/**
- * Audit log export options
- */
-export interface AuditLogExportOptions {
-  format: 'csv' | 'json';
-  filters?: AuditLogFilters;
-  columns?: (keyof AuditLogEntry)[];
-  include_values?: boolean;
-}
+export type AuditModule = 
+  | 'customers'
+  | 'projects'
+  | 'quotations'
+  | 'pjo'
+  | 'job_orders'
+  | 'invoices'
+  | 'payments'
+  | 'bkk'
+  | 'vendors'
+  | 'vendor_invoices'
+  | 'employees'
+  | 'attendance'
+  | 'leave'
+  | 'payroll'
+  | 'assets'
+  | 'maintenance'
+  | 'incidents'
+  | 'audits'
+  | 'training'
+  | 'ppe'
+  | 'surveys'
+  | 'jmp'
+  | 'drawings'
+  | 'users'
+  | 'settings'
+  | 'auth'

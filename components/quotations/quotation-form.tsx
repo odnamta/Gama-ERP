@@ -115,10 +115,10 @@ export function QuotationForm({ customers, projects, quotation }: QuotationFormP
           </div>
           <div className="space-y-2">
             <Label htmlFor="project_id">Project (optional)</Label>
-            <Select value={formData.project_id || ''} onValueChange={(v) => setFormData({ ...formData, project_id: v || undefined })}>
+            <Select value={formData.project_id || 'none'} onValueChange={(v) => setFormData({ ...formData, project_id: v === 'none' ? undefined : v })}>
               <SelectTrigger><SelectValue placeholder="Select project" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No project</SelectItem>
+                <SelectItem value="none">No project</SelectItem>
                 {filteredProjects.map(p => (
                   <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                 ))}
@@ -185,10 +185,10 @@ export function QuotationForm({ customers, projects, quotation }: QuotationFormP
           </div>
           <div className="space-y-2">
             <Label>Terrain Type</Label>
-            <Select value={formData.terrain_type || ''} onValueChange={(v) => setFormData({ ...formData, terrain_type: (v || undefined) as TerrainType | undefined })}>
+            <Select value={formData.terrain_type || 'normal'} onValueChange={(v) => setFormData({ ...formData, terrain_type: (v === 'normal' ? undefined : v) as TerrainType | undefined })}>
               <SelectTrigger><SelectValue placeholder="Select terrain" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Normal</SelectItem>
+                <SelectItem value="normal">Normal</SelectItem>
                 <SelectItem value="mountain">Mountain</SelectItem>
                 <SelectItem value="unpaved">Unpaved</SelectItem>
                 <SelectItem value="narrow">Narrow</SelectItem>

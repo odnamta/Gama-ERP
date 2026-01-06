@@ -344,11 +344,11 @@ export async function getAuditLogStats(
     // Count by module
     const moduleCountMap: Record<string, number> = {};
     for (const log of logs) {
-      const module = log.module || 'unknown';
-      moduleCountMap[module] = (moduleCountMap[module] || 0) + 1;
+      const moduleName = log.module || 'unknown';
+      moduleCountMap[moduleName] = (moduleCountMap[moduleName] || 0) + 1;
     }
     const entriesByModule = Object.entries(moduleCountMap)
-      .map(([module, count]) => ({ module, count }))
+      .map(([moduleName, count]) => ({ module: moduleName, count }))
       .sort((a, b) => b.count - a.count);
     
     // Count by entity type

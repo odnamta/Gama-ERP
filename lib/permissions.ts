@@ -1,6 +1,6 @@
-// Permission utilities for Role-Based Access Control
+// Permission utilities for Role-Based Access Control - RBAC v0.9.11
 
-import { UserRole, UserPermissions, UserProfile, FeatureKey } from '@/types/permissions'
+import { UserRole, UserPermissions, UserProfile, FeatureKey, DepartmentScope } from '@/types/permissions'
 
 /**
  * Owner email - auto-assigned owner role on login
@@ -8,72 +8,198 @@ import { UserRole, UserPermissions, UserProfile, FeatureKey } from '@/types/perm
 export const OWNER_EMAIL = 'dioatmando@gama-group.co'
 
 /**
- * Default permissions for each role
- * CRITICAL: ops role has can_see_revenue and can_see_profit set to false
+ * Department to staff role mapping for manager inheritance
+ */
+export const DEPARTMENT_STAFF_ROLES: Record<DepartmentScope, UserRole[]> = {
+  marketing: ['marketing'],
+  engineering: ['engineer'],
+  administration: ['administration'],
+  finance: ['finance'],
+  operations: ['ops'],
+  assets: ['ops'],  // Assets managed by ops team
+  hr: ['hr'],
+  hse: ['hse'],
+}
+
+/**
+ * Default permissions for each role (11 roles)
  */
 export const DEFAULT_PERMISSIONS: Record<UserRole, UserPermissions> = {
   owner: {
     can_see_revenue: true,
     can_see_profit: true,
+    can_see_actual_costs: true,
     can_approve_pjo: true,
+    can_approve_jo: true,
+    can_approve_bkk: true,
+    can_check_pjo: true,
+    can_check_jo: true,
+    can_check_bkk: true,
     can_manage_invoices: true,
     can_manage_users: true,
     can_create_pjo: true,
     can_fill_costs: true,
+    can_estimate_costs: true,
   },
-  admin: {
+  director: {
     can_see_revenue: true,
     can_see_profit: true,
+    can_see_actual_costs: true,
     can_approve_pjo: true,
+    can_approve_jo: true,
+    can_approve_bkk: true,
+    can_check_pjo: true,
+    can_check_jo: true,
+    can_check_bkk: true,
     can_manage_invoices: true,
     can_manage_users: true,
     can_create_pjo: true,
     can_fill_costs: true,
+    can_estimate_costs: true,
   },
   manager: {
     can_see_revenue: true,
     can_see_profit: true,
-    can_approve_pjo: true,
+    can_see_actual_costs: true,
+    can_approve_pjo: false,  // Can only CHECK, not approve
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: true,
+    can_check_jo: true,
+    can_check_bkk: true,
     can_manage_invoices: false,
     can_manage_users: false,
     can_create_pjo: true,
     can_fill_costs: true,
+    can_estimate_costs: true,
   },
-  ops: {
-    can_see_revenue: false, // CRITICAL: Hidden from ops
-    can_see_profit: false, // CRITICAL: Hidden from ops
+  sysadmin: {
+    can_see_revenue: false,
+    can_see_profit: false,
+    can_see_actual_costs: false,
     can_approve_pjo: false,
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: false,
+    can_check_jo: false,
+    can_check_bkk: false,
     can_manage_invoices: false,
-    can_manage_users: false,
+    can_manage_users: true,
     can_create_pjo: false,
-    can_fill_costs: true,
+    can_fill_costs: false,
+    can_estimate_costs: false,
   },
-  finance: {
+  administration: {
     can_see_revenue: true,
-    can_see_profit: true,
+    can_see_profit: false,
+    can_see_actual_costs: true,
     can_approve_pjo: false,
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: false,
+    can_check_jo: false,
+    can_check_bkk: false,
     can_manage_invoices: true,
     can_manage_users: false,
     can_create_pjo: true,
     can_fill_costs: false,
+    can_estimate_costs: false,
   },
-  sales: {
+  finance: {
     can_see_revenue: true,
-    can_see_profit: false, // Sales sees revenue but not profit margins
+    can_see_profit: true,
+    can_see_actual_costs: true,
     can_approve_pjo: false,
-    can_manage_invoices: false,
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: false,
+    can_check_jo: false,
+    can_check_bkk: false,
+    can_manage_invoices: true,
     can_manage_users: false,
-    can_create_pjo: true,
+    can_create_pjo: false,
     can_fill_costs: false,
+    can_estimate_costs: false,
   },
-  viewer: {
-    can_see_revenue: false,
+  marketing: {
+    can_see_revenue: true,
     can_see_profit: false,
+    can_see_actual_costs: false,  // Only sees estimates
     can_approve_pjo: false,
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: false,
+    can_check_jo: false,
+    can_check_bkk: false,
     can_manage_invoices: false,
     can_manage_users: false,
     can_create_pjo: false,
     can_fill_costs: false,
+    can_estimate_costs: true,
+  },
+  ops: {
+    can_see_revenue: false,  // CRITICAL: Hidden
+    can_see_profit: false,   // CRITICAL: Hidden
+    can_see_actual_costs: true,
+    can_approve_pjo: false,
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: false,
+    can_check_jo: false,
+    can_check_bkk: false,
+    can_manage_invoices: false,
+    can_manage_users: false,
+    can_create_pjo: false,
+    can_fill_costs: true,
+    can_estimate_costs: false,
+  },
+  engineer: {
+    can_see_revenue: false,
+    can_see_profit: false,
+    can_see_actual_costs: false,
+    can_approve_pjo: false,
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: false,
+    can_check_jo: false,
+    can_check_bkk: false,
+    can_manage_invoices: false,
+    can_manage_users: false,
+    can_create_pjo: false,
+    can_fill_costs: false,
+    can_estimate_costs: false,
+  },
+  hr: {
+    can_see_revenue: false,
+    can_see_profit: false,
+    can_see_actual_costs: false,
+    can_approve_pjo: false,
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: false,
+    can_check_jo: false,
+    can_check_bkk: false,
+    can_manage_invoices: false,
+    can_manage_users: false,
+    can_create_pjo: false,
+    can_fill_costs: false,
+    can_estimate_costs: false,
+  },
+  hse: {
+    can_see_revenue: false,
+    can_see_profit: false,
+    can_see_actual_costs: false,
+    can_approve_pjo: false,
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: false,
+    can_check_jo: false,
+    can_check_bkk: false,
+    can_manage_invoices: false,
+    can_manage_users: false,
+    can_create_pjo: false,
+    can_fill_costs: false,
+    can_estimate_costs: false,
   },
 }
 
@@ -81,134 +207,294 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, UserPermissions> = {
  * Get default permissions for a role
  */
 export function getDefaultPermissions(role: UserRole): UserPermissions {
-  return DEFAULT_PERMISSIONS[role] || DEFAULT_PERMISSIONS.viewer
+  return DEFAULT_PERMISSIONS[role] || DEFAULT_PERMISSIONS.ops
 }
 
 /**
- * Feature access mapping based on permissions
+ * Get inherited roles for a manager based on department scope
+ */
+export function getInheritedRoles(profile: UserProfile): UserRole[] {
+  if (profile.role !== 'manager' || !profile.department_scope?.length) {
+    return []
+  }
+  
+  const inheritedRoles: UserRole[] = []
+  for (const dept of profile.department_scope) {
+    const staffRoles = DEPARTMENT_STAFF_ROLES[dept]
+    if (staffRoles) {
+      inheritedRoles.push(...staffRoles)
+    }
+  }
+  
+  return [...new Set(inheritedRoles)]
+}
+
+
+/**
+ * Feature access mapping based on permissions (11 roles)
  */
 const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boolean> = {
-  'dashboard.full': (p) => p.role === 'owner' || (p.can_see_revenue && p.can_see_profit),
+  // Dashboard features
+  'dashboard.executive': (p) => ['owner', 'director'].includes(p.role),
+  'dashboard.manager': (p) => p.role === 'manager',
+  'dashboard.marketing': (p) => ['owner', 'director', 'manager', 'marketing'].includes(p.role),
+  'dashboard.operations': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
+  'dashboard.finance': (p) => ['owner', 'director', 'manager', 'finance', 'administration'].includes(p.role),
+  'dashboard.hr': (p) => ['owner', 'director', 'manager', 'hr'].includes(p.role),
+  'dashboard.hse': (p) => ['owner', 'director', 'manager', 'hse'].includes(p.role),
+  'dashboard.engineering': (p) => ['owner', 'director', 'manager', 'engineer'].includes(p.role),
+  'dashboard.full': (p) => p.role === 'owner' || p.role === 'director' || (p.can_see_revenue && p.can_see_profit),
   'dashboard.ops': (p) => p.can_fill_costs,
-  'dashboard.finance': (p) => p.can_manage_invoices || p.can_see_revenue,
-  'customers.crud': (p) => p.role === 'owner' || p.role === 'admin' || p.role === 'manager',
-  'customers.view': (p) => p.role !== 'ops',
-  'projects.crud': (p) => p.role === 'owner' || p.role === 'admin' || p.role === 'manager',
-  'projects.view': () => true,
+  
+  // Workflow permissions
+  'workflow.pjo.create': (p) => ['owner', 'director', 'manager', 'administration'].includes(p.role),
+  'workflow.pjo.check': (p) => ['owner', 'director', 'manager'].includes(p.role),
+  'workflow.pjo.approve': (p) => ['owner', 'director'].includes(p.role),
+  'workflow.jo.check': (p) => ['owner', 'director', 'manager'].includes(p.role),
+  'workflow.jo.approve': (p) => ['owner', 'director'].includes(p.role),
+  'workflow.bkk.create': (p) => ['owner', 'director', 'manager', 'administration', 'finance'].includes(p.role),
+  'workflow.bkk.check': (p) => ['owner', 'director', 'manager'].includes(p.role),
+  'workflow.bkk.approve': (p) => ['owner', 'director'].includes(p.role),
+  
+  // Customer & Marketing
+  'customers.crud': (p) => ['owner', 'director', 'manager', 'marketing'].includes(p.role),
+  'customers.view': (p) => !['sysadmin'].includes(p.role),
+  'customers.create': (p) => ['owner', 'director', 'manager', 'marketing'].includes(p.role),
+  'customers.edit': (p) => ['owner', 'director', 'manager', 'marketing'].includes(p.role),
+  'customers.delete': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  
+  // Quotations
+  'quotations.view': (p) => ['owner', 'director', 'manager', 'marketing', 'engineer', 'administration'].includes(p.role),
+  'quotations.create': (p) => ['owner', 'director', 'manager', 'marketing'].includes(p.role),
+  'quotations.edit': (p) => ['owner', 'director', 'manager', 'marketing'].includes(p.role),
+  'quotations.approve': (p) => ['owner', 'director', 'manager'].includes(p.role),
+  'quotations.cost_estimation': (p) => ['owner', 'director', 'manager', 'marketing'].includes(p.role),
+  'quotations.engineering_review': (p) => ['owner', 'director', 'manager', 'engineer'].includes(p.role),
+  
+  // Projects
+  'projects.crud': (p) => ['owner', 'director', 'manager', 'marketing', 'engineer'].includes(p.role),
+  'projects.view': (p) => !['sysadmin'].includes(p.role),
+  
+  // PJO
   'pjo.create': (p) => p.can_create_pjo,
+  'pjo.view': (p) => ['owner', 'director', 'manager', 'administration', 'finance', 'ops'].includes(p.role),
+  'pjo.edit': (p) => ['owner', 'director', 'manager', 'administration'].includes(p.role),
   'pjo.view_revenue': (p) => p.can_see_revenue,
   'pjo.view_costs': (p) => p.can_fill_costs || p.can_see_revenue,
+  'pjo.check': (p) => p.can_check_pjo,
   'pjo.approve': (p) => p.can_approve_pjo,
+  
+  // Job Orders
+  'jo.view': (p) => ['owner', 'director', 'manager', 'administration', 'finance', 'ops', 'marketing', 'engineer'].includes(p.role),
   'jo.view_full': (p) => p.can_see_revenue,
+  'jo.view_revenue': (p) => p.can_see_revenue,
   'jo.view_costs': (p) => p.can_fill_costs || p.can_see_revenue,
+  'jo.create': (p) => ['owner', 'director', 'manager'].includes(p.role),
+  'jo.edit': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
+  'jo.add_expense': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
   'jo.fill_costs': (p) => p.can_fill_costs,
+  'jo.check': (p) => p.can_check_jo,
+  'jo.approve': (p) => p.can_approve_jo,
+  'jo.create_ba': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
+  'jo.create_sj': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
+  
+  // Finance
   'invoices.crud': (p) => p.can_manage_invoices,
-  'invoices.view': (p) => p.can_manage_invoices || p.can_see_revenue,
+  'invoices.view': (p) => ['owner', 'director', 'manager', 'administration', 'finance'].includes(p.role),
+  'invoices.create': (p) => ['owner', 'director', 'manager', 'administration', 'finance'].includes(p.role),
+  'invoices.edit': (p) => ['owner', 'director', 'manager', 'administration', 'finance'].includes(p.role),
+  'payments.view': (p) => ['owner', 'director', 'manager', 'finance'].includes(p.role),
+  'payments.create': (p) => ['owner', 'director', 'manager', 'finance'].includes(p.role),
+  'bkk.view': (p) => ['owner', 'director', 'manager', 'administration', 'finance'].includes(p.role),
+  'bkk.create': (p) => ['owner', 'director', 'manager', 'administration', 'finance'].includes(p.role),
+  'bkk.check': (p) => p.can_check_bkk,
+  'bkk.approve': (p) => p.can_approve_bkk,
   'reports.pnl': (p) => p.can_see_revenue && p.can_see_profit,
+  'reports.profit': (p) => ['owner', 'director', 'manager', 'finance'].includes(p.role),
+  'reports.revenue': (p) => ['owner', 'director', 'manager', 'finance', 'marketing'].includes(p.role),
+  
+  // Equipment & Assets
+  'assets.view': (p) => ['owner', 'director', 'manager', 'ops', 'administration', 'finance', 'hse', 'engineer'].includes(p.role),
+  'assets.create': (p) => ['owner', 'director', 'manager'].includes(p.role),
+  'assets.edit': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
+  'assets.change_status': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
+  'assets.view_financials': (p) => ['owner', 'director', 'manager', 'finance'].includes(p.role),
+  'assets.dispose': (p) => ['owner', 'director'].includes(p.role),
+  'assets.upload_documents': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
+  'assets.nav': (p) => ['owner', 'director', 'manager', 'ops', 'finance'].includes(p.role),
+  'maintenance.view': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
+  'maintenance.create': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
+  
+  // HR Module
+  'hr.employees.view': (p) => ['owner', 'director', 'manager', 'hr'].includes(p.role),
+  'hr.employees.view_own': () => true,
+  'hr.employees.create': (p) => ['owner', 'director', 'sysadmin', 'hr'].includes(p.role),
+  'hr.employees.edit': (p) => ['owner', 'director', 'hr'].includes(p.role),
+  'hr.employees.delete': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'hr.employees.salary': (p) => ['owner', 'director', 'hr', 'finance'].includes(p.role),
+  'hr.attendance.view_all': (p) => ['owner', 'director', 'manager', 'hr'].includes(p.role),
+  'hr.attendance.view_own': () => true,
+  'hr.leave.approve': (p) => ['owner', 'director', 'manager', 'hr'].includes(p.role),
+  'hr.payroll.view': (p) => ['owner', 'director', 'hr', 'finance'].includes(p.role),
+  'hr.payroll.run': (p) => ['owner', 'director', 'hr', 'finance'].includes(p.role),
+  'hr.nav': (p) => ['owner', 'director', 'manager', 'hr'].includes(p.role),
+  
+  // HSE Module
+  'hse.incidents.view': (p) => ['owner', 'director', 'manager', 'ops', 'hse', 'engineer'].includes(p.role),
+  'hse.incidents.create': (p) => ['owner', 'director', 'manager', 'ops', 'hse'].includes(p.role),
+  'hse.incidents.investigate': (p) => ['owner', 'director', 'manager', 'hse'].includes(p.role),
+  'hse.training.view': (p) => ['owner', 'director', 'manager', 'hr', 'hse'].includes(p.role),
+  'hse.training.view_own': () => true,
+  'hse.training.manage': (p) => ['owner', 'director', 'manager', 'hr', 'hse'].includes(p.role),
+  'hse.ppe.view': (p) => ['owner', 'director', 'manager', 'hse', 'ops'].includes(p.role),
+  'hse.ppe.manage': (p) => ['owner', 'director', 'manager', 'hse'].includes(p.role),
+  'hse.nav': (p) => ['owner', 'director', 'manager', 'ops', 'hse'].includes(p.role),
+  
+  // Engineering Module
+  'engineering.surveys.view': (p) => ['owner', 'director', 'manager', 'engineer', 'ops', 'marketing'].includes(p.role),
+  'engineering.surveys.create': (p) => ['owner', 'director', 'manager', 'engineer'].includes(p.role),
+  'engineering.jmp.view': (p) => ['owner', 'director', 'manager', 'engineer', 'ops', 'marketing'].includes(p.role),
+  'engineering.jmp.create': (p) => ['owner', 'director', 'manager', 'engineer'].includes(p.role),
+  'engineering.drawings.view': (p) => ['owner', 'director', 'manager', 'engineer', 'ops'].includes(p.role),
+  'engineering.drawings.create': (p) => ['owner', 'director', 'manager', 'engineer'].includes(p.role),
+  'engineering.assessments.view': (p) => ['owner', 'director', 'manager', 'engineer'].includes(p.role),
+  'engineering.assessments.create': (p) => ['owner', 'director', 'manager', 'engineer'].includes(p.role),
+  'engineering.nav': (p) => ['owner', 'director', 'manager', 'engineer', 'ops'].includes(p.role),
+  
+  // System Administration
+  'admin.users.view': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'admin.users.create': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'admin.users.edit': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'admin.users.delete': (p) => ['owner', 'sysadmin'].includes(p.role),
+  'admin.settings': (p) => ['owner', 'sysadmin'].includes(p.role),
+  'admin.audit_logs': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
   'users.manage': (p) => p.can_manage_users,
+
+
   // Vendor permissions
-  'vendors.view': () => true, // All authenticated users can view
-  'vendors.create': (p) => ['owner', 'admin', 'ops'].includes(p.role),
-  'vendors.edit': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'vendors.delete': (p) => ['owner', 'admin'].includes(p.role),
-  'vendors.verify': (p) => ['owner', 'admin'].includes(p.role),
-  'vendors.set_preferred': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'vendors.add_equipment': (p) => ['owner', 'admin', 'manager', 'ops'].includes(p.role),
-  'vendors.rate': (p) => ['owner', 'admin', 'manager', 'finance', 'ops'].includes(p.role),
-  'vendors.view_bank': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
-  'vendors.nav': (p) => p.role !== 'viewer', // Show in nav for all except viewer
+  'vendors.view': () => true,
+  'vendors.create': (p) => ['owner', 'director', 'manager', 'administration', 'ops'].includes(p.role),
+  'vendors.edit': (p) => ['owner', 'director', 'manager'].includes(p.role),
+  'vendors.delete': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'vendors.verify': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'vendors.set_preferred': (p) => ['owner', 'director', 'manager'].includes(p.role),
+  'vendors.add_equipment': (p) => ['owner', 'director', 'manager', 'ops'].includes(p.role),
+  'vendors.rate': (p) => ['owner', 'director', 'manager', 'finance', 'ops'].includes(p.role),
+  'vendors.view_bank': (p) => ['owner', 'director', 'manager', 'finance'].includes(p.role),
+  'vendors.nav': (p) => !['sysadmin', 'hr'].includes(p.role),
+  
   // Vendor Invoice (AP) permissions
-  'vendor_invoices.view': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
-  'vendor_invoices.create': (p) => ['owner', 'admin', 'finance'].includes(p.role),
-  'vendor_invoices.edit': (p) => ['owner', 'admin', 'finance'].includes(p.role),
-  'vendor_invoices.delete': (p) => ['owner', 'admin'].includes(p.role),
-  'vendor_invoices.verify': (p) => ['owner', 'admin', 'finance'].includes(p.role),
-  'vendor_invoices.approve': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'vendor_invoices.record_payment': (p) => ['owner', 'admin', 'finance'].includes(p.role),
-  'vendor_invoices.nav': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
-  // Employee/HR permissions
-  'employees.view': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'employees.create': (p) => ['owner', 'admin'].includes(p.role),
-  'employees.edit': (p) => ['owner', 'admin'].includes(p.role),
-  'employees.delete': (p) => ['owner', 'admin'].includes(p.role),
-  'employees.view_salary': (p) => ['owner', 'admin', 'finance'].includes(p.role),
-  'employees.edit_salary': (p) => ['owner', 'admin'].includes(p.role),
-  'employees.nav': (p) => ['owner', 'admin', 'manager'].includes(p.role),
+  'vendor_invoices.view': (p) => ['owner', 'director', 'manager', 'administration', 'finance'].includes(p.role),
+  'vendor_invoices.create': (p) => ['owner', 'director', 'administration', 'finance'].includes(p.role),
+  'vendor_invoices.edit': (p) => ['owner', 'director', 'administration', 'finance'].includes(p.role),
+  'vendor_invoices.delete': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'vendor_invoices.verify': (p) => ['owner', 'director', 'administration', 'finance'].includes(p.role),
+  'vendor_invoices.approve': (p) => ['owner', 'director', 'manager'].includes(p.role),
+  'vendor_invoices.record_payment': (p) => ['owner', 'director', 'administration', 'finance'].includes(p.role),
+  'vendor_invoices.nav': (p) => ['owner', 'director', 'manager', 'administration', 'finance'].includes(p.role),
+  
+  // Employee/HR permissions (legacy compatibility)
+  'employees.view': (p) => ['owner', 'director', 'manager', 'hr'].includes(p.role),
+  'employees.create': (p) => ['owner', 'director', 'sysadmin', 'hr'].includes(p.role),
+  'employees.edit': (p) => ['owner', 'director', 'hr'].includes(p.role),
+  'employees.delete': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'employees.view_salary': (p) => ['owner', 'director', 'hr', 'finance'].includes(p.role),
+  'employees.edit_salary': (p) => ['owner', 'director', 'hr'].includes(p.role),
+  'employees.nav': (p) => ['owner', 'director', 'manager', 'hr'].includes(p.role),
+  
   // Attendance permissions
-  'attendance.view_own': () => true, // All authenticated users can view their own
-  'attendance.clock': () => true, // All authenticated users can clock in/out
-  'attendance.view_all': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'attendance.edit': (p) => ['owner', 'admin'].includes(p.role),
-  'attendance.manage_schedules': (p) => ['owner', 'admin'].includes(p.role),
-  'attendance.manage_holidays': (p) => ['owner', 'admin'].includes(p.role),
-  'attendance.view_reports': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
-  'attendance.nav': () => true, // All authenticated users can see attendance nav
+  'attendance.view_own': () => true,
+  'attendance.clock': () => true,
+  'attendance.view_all': (p) => ['owner', 'director', 'manager', 'hr'].includes(p.role),
+  'attendance.edit': (p) => ['owner', 'director', 'hr'].includes(p.role),
+  'attendance.manage_schedules': (p) => ['owner', 'director', 'hr'].includes(p.role),
+  'attendance.manage_holidays': (p) => ['owner', 'director', 'hr'].includes(p.role),
+  'attendance.view_reports': (p) => ['owner', 'director', 'manager', 'hr', 'finance'].includes(p.role),
+  'attendance.nav': () => true,
+  
   // Finance Dashboard Enhanced permissions
-  'finance_dashboard.view': (p) => ['finance', 'owner', 'admin', 'manager'].includes(p.role),
-  'finance_dashboard.view_ar_ap': (p) => ['finance', 'owner', 'admin', 'manager'].includes(p.role),
-  'finance_dashboard.view_cash_position': (p) => ['finance', 'owner', 'admin'].includes(p.role),
-  'finance_dashboard.view_profit_margins': (p) => ['finance', 'owner', 'admin'].includes(p.role),
-  'finance_dashboard.refresh': (p) => ['finance', 'owner', 'admin'].includes(p.role),
-  'finance_dashboard.view_bkk_pending': (p) => ['finance', 'owner', 'admin', 'manager'].includes(p.role),
+  'finance_dashboard.view': (p) => ['finance', 'owner', 'director', 'manager', 'administration'].includes(p.role),
+  'finance_dashboard.view_ar_ap': (p) => ['finance', 'owner', 'director', 'manager', 'administration'].includes(p.role),
+  'finance_dashboard.view_cash_position': (p) => ['finance', 'owner', 'director'].includes(p.role),
+  'finance_dashboard.view_profit_margins': (p) => ['finance', 'owner', 'director'].includes(p.role),
+  'finance_dashboard.refresh': (p) => ['finance', 'owner', 'director'].includes(p.role),
+  'finance_dashboard.view_bkk_pending': (p) => ['finance', 'owner', 'director', 'manager', 'administration'].includes(p.role),
+  
   // Sales/Engineering Dashboard permissions
-  'sales_engineering_dashboard.view': (p) => ['sales', 'owner', 'admin', 'manager'].includes(p.role),
-  'sales_engineering_dashboard.view_pipeline': (p) => ['sales', 'owner', 'admin', 'manager'].includes(p.role),
-  'sales_engineering_dashboard.view_engineering': (p) => ['sales', 'owner', 'admin', 'manager'].includes(p.role),
-  'sales_engineering_dashboard.refresh': (p) => ['sales', 'owner', 'admin', 'manager'].includes(p.role),
-  // Asset/Equipment permissions
-  'assets.view': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
-  'assets.create': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'assets.edit': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'assets.change_status': (p) => ['owner', 'admin', 'manager', 'ops'].includes(p.role),
-  'assets.view_financials': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
-  'assets.dispose': (p) => ['owner', 'admin'].includes(p.role),
-  'assets.upload_documents': (p) => ['owner', 'admin', 'manager', 'ops'].includes(p.role),
-  'assets.nav': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
+  'sales_engineering_dashboard.view': (p) => ['marketing', 'owner', 'director', 'manager', 'engineer'].includes(p.role),
+  'sales_engineering_dashboard.view_pipeline': (p) => ['marketing', 'owner', 'director', 'manager'].includes(p.role),
+  'sales_engineering_dashboard.view_engineering': (p) => ['marketing', 'owner', 'director', 'manager', 'engineer'].includes(p.role),
+  'sales_engineering_dashboard.refresh': (p) => ['marketing', 'owner', 'director', 'manager'].includes(p.role),
+  
   // Training permissions
-  'training.view': (p) => ['owner', 'admin', 'manager', 'ops', 'finance', 'sales', 'viewer'].includes(p.role),
-  'training.view_own': () => true, // All authenticated users can view their own training records
-  'training.create_course': (p) => ['owner', 'admin'].includes(p.role),
-  'training.edit_course': (p) => ['owner', 'admin'].includes(p.role),
-  'training.create_record': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'training.edit_record': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'training.create_session': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'training.manage_session': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'training.view_compliance': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'training.nav': () => true, // All authenticated users can see training nav
+  'training.view': () => true,
+  'training.view_own': () => true,
+  'training.create_course': (p) => ['owner', 'director', 'hr', 'hse'].includes(p.role),
+  'training.edit_course': (p) => ['owner', 'director', 'hr', 'hse'].includes(p.role),
+  'training.create_record': (p) => ['owner', 'director', 'manager', 'hr', 'hse'].includes(p.role),
+  'training.edit_record': (p) => ['owner', 'director', 'manager', 'hr', 'hse'].includes(p.role),
+  'training.create_session': (p) => ['owner', 'director', 'manager', 'hr', 'hse'].includes(p.role),
+  'training.manage_session': (p) => ['owner', 'director', 'manager', 'hr', 'hse'].includes(p.role),
+  'training.view_compliance': (p) => ['owner', 'director', 'manager', 'hr', 'hse'].includes(p.role),
+  'training.nav': () => true,
+  
   // Audit permissions
-  'audits.view': () => true, // All authenticated users can view audits
-  'audits.create': (p) => ['owner', 'admin', 'manager', 'ops'].includes(p.role),
-  'audits.conduct': (p) => ['owner', 'admin', 'manager', 'ops'].includes(p.role),
-  'audits.complete': (p) => ['owner', 'admin', 'manager', 'ops'].includes(p.role),
-  'audits.manage_types': (p) => ['owner', 'admin'].includes(p.role),
-  'audits.create_finding': (p) => ['owner', 'admin', 'manager', 'ops'].includes(p.role),
-  'audits.close_finding': (p) => ['owner', 'admin', 'manager', 'ops'].includes(p.role),
-  'audits.verify_finding': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'audits.nav': () => true, // All authenticated users can see audits nav
+  'audits.view': () => true,
+  'audits.create': (p) => ['owner', 'director', 'manager', 'ops', 'hse'].includes(p.role),
+  'audits.conduct': (p) => ['owner', 'director', 'manager', 'ops', 'hse'].includes(p.role),
+  'audits.complete': (p) => ['owner', 'director', 'manager', 'ops', 'hse'].includes(p.role),
+  'audits.manage_types': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'audits.create_finding': (p) => ['owner', 'director', 'manager', 'ops', 'hse'].includes(p.role),
+  'audits.close_finding': (p) => ['owner', 'director', 'manager', 'ops', 'hse'].includes(p.role),
+  'audits.verify_finding': (p) => ['owner', 'director', 'manager', 'hse'].includes(p.role),
+  'audits.nav': () => true,
+  
   // PIB (Customs Import) permissions
-  'pib.view': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
-  'pib.create': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'pib.edit': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'pib.delete': (p) => ['owner', 'admin'].includes(p.role),
-  'pib.view_duties': (p) => ['owner', 'admin', 'manager', 'finance'].includes(p.role),
-  'pib.update_status': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'pib.nav': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
+  'pib.view': (p) => ['owner', 'director', 'manager', 'ops', 'finance', 'administration'].includes(p.role),
+  'pib.create': (p) => ['owner', 'director', 'manager', 'administration'].includes(p.role),
+  'pib.edit': (p) => ['owner', 'director', 'manager', 'administration'].includes(p.role),
+  'pib.delete': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'pib.view_duties': (p) => ['owner', 'director', 'manager', 'finance', 'administration'].includes(p.role),
+  'pib.update_status': (p) => ['owner', 'director', 'manager', 'administration'].includes(p.role),
+  'pib.nav': (p) => ['owner', 'director', 'manager', 'ops', 'finance', 'administration'].includes(p.role),
+  
   // PEB (Customs Export) permissions
-  'peb.view': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
-  'peb.create': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'peb.edit': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'peb.delete': (p) => ['owner', 'admin'].includes(p.role),
-  'peb.update_status': (p) => ['owner', 'admin', 'manager'].includes(p.role),
-  'peb.nav': (p) => ['owner', 'admin', 'manager', 'ops', 'finance'].includes(p.role),
+  'peb.view': (p) => ['owner', 'director', 'manager', 'ops', 'finance', 'administration'].includes(p.role),
+  'peb.create': (p) => ['owner', 'director', 'manager', 'administration'].includes(p.role),
+  'peb.edit': (p) => ['owner', 'director', 'manager', 'administration'].includes(p.role),
+  'peb.delete': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
+  'peb.update_status': (p) => ['owner', 'director', 'manager', 'administration'].includes(p.role),
+  'peb.nav': (p) => ['owner', 'director', 'manager', 'ops', 'finance', 'administration'].includes(p.role),
 }
 
 /**
  * Check if a user profile can access a specific feature
+ * Includes manager inheritance logic
  */
 export function canAccessFeature(profile: UserProfile | null, feature: FeatureKey): boolean {
   if (!profile) return false
+  
   const checker = FEATURE_PERMISSION_MAP[feature]
-  return checker ? checker(profile) : false
+  if (!checker) return false
+  
+  // Direct role check
+  if (checker(profile)) {
+    return true
+  }
+  
+  // Manager inheritance check
+  if (profile.role === 'manager' && profile.department_scope?.length) {
+    const inheritedRoles = getInheritedRoles(profile)
+    
+    for (const inheritedRole of inheritedRoles) {
+      const virtualProfile = { ...profile, role: inheritedRole }
+      if (checker(virtualProfile)) {
+        return true
+      }
+    }
+  }
+  
+  return false
 }
 
 /**
@@ -235,47 +521,27 @@ export function isRole(profile: UserProfile | null, role: UserRole | UserRole[])
  * Get dashboard type for a user based on their role and custom setting
  */
 export function getDashboardType(profile: UserProfile | null): string {
-  if (!profile) return 'viewer'
-  if (profile.custom_dashboard !== 'default') {
+  if (!profile) return 'default'
+  if (profile.custom_dashboard && profile.custom_dashboard !== 'default') {
     return profile.custom_dashboard
   }
-  return profile.role
-}
-
-/**
- * Validate that at least one admin exists before removing admin permissions
- */
-export function canRemoveAdminPermission(
-  currentAdminCount: number,
-  targetUserId: string,
-  currentUserId: string
-): { allowed: boolean; reason?: string } {
-  if (currentAdminCount <= 1 && targetUserId === currentUserId) {
-    return {
-      allowed: false,
-      reason: 'Cannot remove admin permissions from the last admin user',
-    }
+  
+  // Map roles to dashboard types
+  const roleDashboardMap: Record<UserRole, string> = {
+    owner: 'executive',
+    director: 'executive',
+    manager: 'manager',
+    sysadmin: 'sysadmin',
+    administration: 'admin_finance',
+    finance: 'admin_finance',
+    marketing: 'marketing',
+    ops: 'operations',
+    engineer: 'engineering',
+    hr: 'hr',
+    hse: 'hse',
   }
-  return { allowed: true }
-}
-
-/**
- * Get roles that can be assigned through the UI
- * Owner role cannot be assigned - it's auto-assigned based on email
- */
-export function getAssignableRoles(): UserRole[] {
-  return ['admin', 'manager', 'ops', 'finance', 'sales', 'viewer']
-}
-
-/**
- * Check if a user can modify another user's role/permissions
- * Owner cannot be modified by anyone
- */
-export function canModifyUser(actorRole: UserRole, targetRole: UserRole): boolean {
-  // Owner cannot be modified by anyone
-  if (targetRole === 'owner') return false
-  // Only owner and admin with can_manage_users can modify users
-  return actorRole === 'owner' || actorRole === 'admin'
+  
+  return roleDashboardMap[profile.role] || 'default'
 }
 
 /**
@@ -286,681 +552,25 @@ export function isOwnerEmail(email: string): boolean {
 }
 
 /**
+ * Get roles that can be assigned through the UI
+ * Owner role cannot be assigned - it's auto-assigned based on email
+ */
+export function getAssignableRoles(): UserRole[] {
+  return ['director', 'manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse']
+}
+
+/**
+ * Check if a user can modify another user's role/permissions
+ */
+export function canModifyUser(actorRole: UserRole, targetRole: UserRole): boolean {
+  if (targetRole === 'owner') return false
+  return ['owner', 'director', 'sysadmin'].includes(actorRole)
+}
+
+/**
  * Check if a user profile is pending (pre-registered but not logged in)
  */
 export function isPendingUser(profile: UserProfile): boolean {
   return profile.user_id === null
 }
 
-// ============================================
-// Vendor Permission Helpers
-// ============================================
-
-/**
- * Check if user can view vendors
- */
-export function canViewVendors(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendors.view')
-}
-
-/**
- * Check if user can create vendors
- */
-export function canCreateVendor(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendors.create')
-}
-
-/**
- * Check if user can edit vendors
- */
-export function canEditVendor(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendors.edit')
-}
-
-/**
- * Check if user can delete vendors
- */
-export function canDeleteVendor(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendors.delete')
-}
-
-/**
- * Check if user can verify vendors
- */
-export function canVerifyVendor(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendors.verify')
-}
-
-/**
- * Check if user can set vendor as preferred
- */
-export function canSetPreferredVendor(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendors.set_preferred')
-}
-
-/**
- * Check if user can add equipment to vendors
- */
-export function canAddVendorEquipment(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendors.add_equipment')
-}
-
-/**
- * Check if user can rate vendors
- */
-export function canRateVendor(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendors.rate')
-}
-
-/**
- * Check if user can view vendor bank details
- */
-export function canViewVendorBankDetails(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendors.view_bank')
-}
-
-/**
- * Check if vendors should be shown in navigation
- */
-export function canSeeVendorsNav(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendors.nav')
-}
-
-// ============================================
-// Vendor Invoice (AP) Permission Helpers
-// ============================================
-
-/**
- * Check if user can view vendor invoices
- */
-export function canViewVendorInvoices(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendor_invoices.view')
-}
-
-/**
- * Check if user can create vendor invoices
- */
-export function canCreateVendorInvoice(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendor_invoices.create')
-}
-
-/**
- * Check if user can edit vendor invoices
- */
-export function canEditVendorInvoice(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendor_invoices.edit')
-}
-
-/**
- * Check if user can delete vendor invoices
- */
-export function canDeleteVendorInvoice(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendor_invoices.delete')
-}
-
-/**
- * Check if user can verify vendor invoices (3-way match)
- */
-export function canVerifyVendorInvoice(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendor_invoices.verify')
-}
-
-/**
- * Check if user can approve vendor invoices for payment
- */
-export function canApproveVendorInvoice(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendor_invoices.approve')
-}
-
-/**
- * Check if user can record payments for vendor invoices
- */
-export function canRecordVendorPayment(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendor_invoices.record_payment')
-}
-
-/**
- * Check if vendor invoices should be shown in navigation
- */
-export function canSeeVendorInvoicesNav(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'vendor_invoices.nav')
-}
-
-
-// ============================================
-// Employee/HR Permission Helpers
-// ============================================
-
-/**
- * Check if user can view employees
- */
-export function canViewEmployees(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'employees.view')
-}
-
-/**
- * Check if user can create employees
- */
-export function canCreateEmployee(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'employees.create')
-}
-
-/**
- * Check if user can edit employees
- */
-export function canEditEmployee(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'employees.edit')
-}
-
-/**
- * Check if user can delete employees
- */
-export function canDeleteEmployee(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'employees.delete')
-}
-
-/**
- * Check if user can view employee salary information
- */
-export function canViewEmployeeSalary(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'employees.view_salary')
-}
-
-/**
- * Check if user can edit employee salary information
- */
-export function canEditEmployeeSalary(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'employees.edit_salary')
-}
-
-/**
- * Check if employees/HR should be shown in navigation
- */
-export function canSeeEmployeesNav(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'employees.nav')
-}
-
-// ============================================
-// Attendance Permission Helpers
-// ============================================
-
-/**
- * Check if user can view their own attendance
- */
-export function canViewOwnAttendance(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'attendance.view_own')
-}
-
-/**
- * Check if user can clock in/out
- */
-export function canClockAttendance(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'attendance.clock')
-}
-
-/**
- * Check if user can view all attendance records
- */
-export function canViewAllAttendance(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'attendance.view_all')
-}
-
-/**
- * Check if user can edit attendance records
- */
-export function canEditAttendance(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'attendance.edit')
-}
-
-/**
- * Check if user can manage work schedules
- */
-export function canManageSchedules(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'attendance.manage_schedules')
-}
-
-/**
- * Check if user can manage holidays
- */
-export function canManageHolidays(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'attendance.manage_holidays')
-}
-
-/**
- * Check if user can view attendance reports
- */
-export function canViewAttendanceReports(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'attendance.view_reports')
-}
-
-/**
- * Check if attendance should be shown in navigation
- */
-export function canSeeAttendanceNav(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'attendance.nav')
-}
-
-
-// ============================================
-// Finance Dashboard Enhanced Permission Helpers
-// ============================================
-
-/**
- * Check if user can view the finance dashboard
- * Property 10: Role-Based Access Control - Finance role SHALL have access
- */
-export function canViewFinanceDashboard(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'finance_dashboard.view')
-}
-
-/**
- * Check if user can view AR/AP totals
- * Property 10: Roles in ['finance', 'owner', 'admin', 'manager'] SHALL have access
- */
-export function canViewARAPTotals(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'finance_dashboard.view_ar_ap')
-}
-
-/**
- * Check if user can view cash position details
- * Property 10: Roles in ['finance', 'owner', 'admin'] SHALL have access
- */
-export function canViewCashPosition(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'finance_dashboard.view_cash_position')
-}
-
-/**
- * Check if user can view profit margins
- * Property 10: Roles in ['finance', 'owner', 'admin'] SHALL have access
- */
-export function canViewProfitMargins(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'finance_dashboard.view_profit_margins')
-}
-
-/**
- * Check if user can refresh the finance dashboard data
- */
-export function canRefreshFinanceDashboard(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'finance_dashboard.refresh')
-}
-
-/**
- * Check if user can view pending BKK approvals
- */
-export function canViewPendingBKK(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'finance_dashboard.view_bkk_pending')
-}
-
-
-// ============================================
-// Sales/Engineering Dashboard Permission Helpers
-// ============================================
-
-/**
- * Check if user can view the sales/engineering dashboard
- * Property 11: Dashboard Routing - sales role and Hutami SHALL have access
- */
-export function canViewSalesEngineeringDashboard(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'sales_engineering_dashboard.view')
-}
-
-/**
- * Check if user can view sales pipeline data
- */
-export function canViewSalesPipeline(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'sales_engineering_dashboard.view_pipeline')
-}
-
-/**
- * Check if user can view engineering workload data
- */
-export function canViewEngineeringWorkload(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'sales_engineering_dashboard.view_engineering')
-}
-
-/**
- * Check if user can refresh the sales/engineering dashboard data
- */
-export function canRefreshSalesEngineeringDashboard(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'sales_engineering_dashboard.refresh')
-}
-
-
-// ============================================
-// Asset/Equipment Permission Helpers
-// ============================================
-
-/**
- * Check if user can view assets
- * Property 18: Owner, Admin, Manager, Ops, Finance roles SHALL have access
- */
-export function canViewAssets(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'assets.view')
-}
-
-/**
- * Check if user can create assets
- * Property 18: Only Owner, Admin, Manager roles SHALL have access
- */
-export function canCreateAsset(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'assets.create')
-}
-
-/**
- * Check if user can edit assets
- * Property 18: Only Owner, Admin, Manager roles SHALL have access
- */
-export function canEditAsset(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'assets.edit')
-}
-
-/**
- * Check if user can change asset status
- * Property 18: Owner, Admin, Manager, Ops roles SHALL have access
- */
-export function canChangeAssetStatus(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'assets.change_status')
-}
-
-/**
- * Check if user can view asset financial information
- * Property 18: Only Owner, Admin, Manager, Finance roles SHALL have access
- */
-export function canViewAssetFinancials(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'assets.view_financials')
-}
-
-/**
- * Check if user can dispose/delete assets
- * Property 18: Only Owner, Admin roles SHALL have access
- */
-export function canDisposeAsset(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'assets.dispose')
-}
-
-/**
- * Check if user can upload asset documents
- * Property 18: Owner, Admin, Manager, Ops roles SHALL have access
- */
-export function canUploadAssetDocuments(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'assets.upload_documents')
-}
-
-/**
- * Check if assets/equipment should be shown in navigation
- */
-export function canSeeAssetsNav(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'assets.nav')
-}
-
-
-// ============================================
-// Training Permission Helpers
-// ============================================
-
-/**
- * Check if user can view training module
- * Property 10: All authenticated users SHALL have view access
- */
-export function canViewTraining(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'training.view')
-}
-
-/**
- * Check if user can view their own training records
- * Property 10: All authenticated users SHALL have access to their own records
- */
-export function canViewOwnTraining(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'training.view_own')
-}
-
-/**
- * Check if user can create training courses
- * Property 10: Only Owner, Admin roles SHALL have access
- */
-export function canCreateTrainingCourse(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'training.create_course')
-}
-
-/**
- * Check if user can edit training courses
- * Property 10: Only Owner, Admin roles SHALL have access
- */
-export function canEditTrainingCourse(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'training.edit_course')
-}
-
-/**
- * Check if user can create training records
- * Property 10: Owner, Admin, Manager roles SHALL have access
- */
-export function canCreateTrainingRecord(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'training.create_record')
-}
-
-/**
- * Check if user can edit training records
- * Property 10: Owner, Admin, Manager roles SHALL have access
- */
-export function canEditTrainingRecord(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'training.edit_record')
-}
-
-/**
- * Check if user can create training sessions
- * Property 10: Owner, Admin, Manager roles SHALL have access
- */
-export function canCreateTrainingSession(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'training.create_session')
-}
-
-/**
- * Check if user can manage training sessions (complete, cancel, add participants)
- * Property 10: Owner, Admin, Manager roles SHALL have access
- */
-export function canManageTrainingSession(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'training.manage_session')
-}
-
-/**
- * Check if user can view compliance matrix and reports
- * Property 10: Owner, Admin, Manager roles SHALL have access
- */
-export function canViewTrainingCompliance(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'training.view_compliance')
-}
-
-/**
- * Check if training should be shown in navigation
- */
-export function canSeeTrainingNav(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'training.nav')
-}
-
-
-// ============================================
-// Audit Permission Helpers
-// ============================================
-
-/**
- * Check if user can view audits
- * Property: All authenticated users SHALL have view access
- */
-export function canViewAudits(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'audits.view')
-}
-
-/**
- * Check if user can create audits
- * Property: Owner, Admin, Manager, Ops roles SHALL have access
- */
-export function canCreateAudit(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'audits.create')
-}
-
-/**
- * Check if user can conduct audits
- * Property: Owner, Admin, Manager, Ops roles SHALL have access
- */
-export function canConductAudit(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'audits.conduct')
-}
-
-/**
- * Check if user can complete audits
- * Property: Owner, Admin, Manager, Ops roles SHALL have access
- */
-export function canCompleteAudit(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'audits.complete')
-}
-
-/**
- * Check if user can manage audit types
- * Property: Only Owner, Admin roles SHALL have access
- */
-export function canManageAuditTypes(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'audits.manage_types')
-}
-
-/**
- * Check if user can create findings
- * Property: Owner, Admin, Manager, Ops roles SHALL have access
- */
-export function canCreateFinding(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'audits.create_finding')
-}
-
-/**
- * Check if user can close findings
- * Property: Owner, Admin, Manager, Ops roles SHALL have access
- */
-export function canCloseFinding(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'audits.close_finding')
-}
-
-/**
- * Check if user can verify findings
- * Property: Owner, Admin, Manager roles SHALL have access
- */
-export function canVerifyFinding(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'audits.verify_finding')
-}
-
-/**
- * Check if audits should be shown in navigation
- */
-export function canSeeAuditsNav(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'audits.nav')
-}
-
-
-// ============================================
-// PIB (Customs Import) Permission Helpers
-// ============================================
-
-/**
- * Check if user can view PIB documents
- * Property 12: Owner, Admin, Manager, Ops, Finance roles SHALL have access
- */
-export function canViewPIB(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'pib.view')
-}
-
-/**
- * Check if user can create PIB documents
- * Property 12: Only Owner, Admin, Manager roles SHALL have access
- */
-export function canCreatePIB(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'pib.create')
-}
-
-/**
- * Check if user can edit PIB documents
- * Property 12: Only Owner, Admin, Manager roles SHALL have access
- */
-export function canEditPIB(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'pib.edit')
-}
-
-/**
- * Check if user can delete PIB documents
- * Property 12: Only Owner, Admin roles SHALL have access
- */
-export function canDeletePIB(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'pib.delete')
-}
-
-/**
- * Check if user can view PIB duty calculations
- * Property 12: Owner, Admin, Manager, Finance roles SHALL have access; Ops SHALL NOT
- */
-export function canViewPIBDuties(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'pib.view_duties')
-}
-
-/**
- * Check if user can update PIB status
- * Property 12: Owner, Admin, Manager roles SHALL have access
- */
-export function canUpdatePIBStatus(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'pib.update_status')
-}
-
-/**
- * Check if PIB/Customs should be shown in navigation
- */
-export function canSeePIBNav(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'pib.nav')
-}
-
-
-// ============================================
-// PEB (Customs Export) Permission Helpers
-// ============================================
-
-/**
- * Check if user can view PEB documents
- * Property 12: Owner, Admin, Manager, Ops, Finance roles SHALL have access
- */
-export function canViewPEB(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'peb.view')
-}
-
-/**
- * Check if user can create PEB documents
- * Property 12: Only Owner, Admin, Manager roles SHALL have access
- */
-export function canCreatePEB(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'peb.create')
-}
-
-/**
- * Check if user can edit PEB documents
- * Property 12: Only Owner, Admin, Manager roles SHALL have access
- */
-export function canEditPEB(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'peb.edit')
-}
-
-/**
- * Check if user can delete PEB documents
- * Property 12: Only Owner, Admin roles SHALL have access
- */
-export function canDeletePEB(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'peb.delete')
-}
-
-/**
- * Check if user can update PEB status
- * Property 12: Owner, Admin, Manager roles SHALL have access
- */
-export function canUpdatePEBStatus(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'peb.update_status')
-}
-
-/**
- * Check if PEB/Customs Export should be shown in navigation
- */
-export function canSeePEBNav(profile: UserProfile | null): boolean {
-  return canAccessFeature(profile, 'peb.nav')
-}

@@ -36,7 +36,7 @@ export async function getUserPreferences(): Promise<ActionResult<UserPreferences
     const { data: profile, error } = await supabase
       .from('user_profiles')
       .select('preferences')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single()
 
     if (error) {
@@ -70,7 +70,7 @@ export async function saveUserPreferences(
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('preferences')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single()
 
     const currentPrefs = mergePreferencesWithDefaults(profile?.preferences as Partial<UserPreferences>)
@@ -84,7 +84,7 @@ export async function saveUserPreferences(
     const { error } = await supabase
       .from('user_profiles')
       .update({ preferences: updatedPrefs })
-      .eq('id', user.id)
+      .eq('user_id', user.id)
 
     if (error) {
       console.error('Failed to save preferences:', error)
@@ -114,7 +114,7 @@ export async function resetPreferencesToDefaults(): Promise<ActionResult> {
     const { error } = await supabase
       .from('user_profiles')
       .update({ preferences: DEFAULT_PREFERENCES })
-      .eq('id', user.id)
+      .eq('user_id', user.id)
 
     if (error) {
       console.error('Failed to reset preferences:', error)
@@ -153,7 +153,7 @@ export async function getNotificationTypesWithPreferences(): Promise<
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single()
 
     const userRole = profile?.role || 'user'

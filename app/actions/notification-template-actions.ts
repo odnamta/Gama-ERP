@@ -15,7 +15,7 @@ import { validateTemplate } from '@/lib/notification-template-utils';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Type helper for tables not yet in generated types
-type AnySupabaseClient = SupabaseClient<any, any, any>;
+type AnySupabaseClient = SupabaseClient<Record<string, unknown>, string, Record<string, unknown>>;
 
 // ============================================================================
 // Template CRUD Actions

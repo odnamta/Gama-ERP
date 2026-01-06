@@ -35,29 +35,26 @@ function LoadingSkeleton() {
 }
 
 async function PIBContent({ filters }: { filters: PIBFilters }) {
+  // Parallel fetch - all 3 requests run simultaneously
   const [documentsResult, statisticsResult, officesResult] = await Promise.all([
     getPIBDocuments(filters),
     getPIBStatistics(),
     getCustomsOffices(),
   ])
 
-  const documents = documentsResult.data
+  const documents = documentsResult.data || []
   const statistics = statisticsResult.data || {
     active_pibs: 0,
     pending_clearance: 0,
     in_transit: 0,
     released_mtd: 0,
   }
-  const customsOffices = officesResult.data
+  const customsOffices = officesResult.data || []
 
   return (
     <div className="space-y-6">
       <PIBSummaryCards statistics={statistics} />
-      <PIBFiltersComponent
-        filters={filters}
-        customsOffices={customsOffices}
-        onFiltersChange={() => {}}
-      />
+      <PIBFiltersComponent filters={filters} customsOffices={customsOffices} />
       <PIBList documents={documents} />
     </div>
   )
@@ -105,7 +102,7 @@ export default async function CustomsImportPage({ searchParams }: PageProps) {
         )}
       </div>
 
-      {/* Content */}
+      {/* Content - single Suspense with parallel data fetching */}
       <Suspense fallback={<LoadingSkeleton />}>
         <PIBContent filters={filters} />
       </Suspense>

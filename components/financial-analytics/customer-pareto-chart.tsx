@@ -43,7 +43,7 @@ export function CustomerParetoChart({ customers, limit = 10 }: CustomerParetoCha
   });
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: { fullName: string; profit: number; cumulative_pct: number } }> }) => {
     if (active && payload && payload.length) {
       const item = payload[0].payload;
       return (

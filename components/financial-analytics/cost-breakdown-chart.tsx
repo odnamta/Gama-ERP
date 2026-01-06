@@ -26,7 +26,7 @@ export function CostBreakdownChart({ data }: CostBreakdownChartProps) {
   const sortedData = [...data].sort((a, b) => b.amount - a.amount);
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ payload: { category: string; amount: number; percentage: number } }> }) => {
     if (active && payload && payload.length) {
       const item = payload[0].payload;
       return (
@@ -45,11 +45,12 @@ export function CostBreakdownChart({ data }: CostBreakdownChartProps) {
   };
 
   // Custom legend
-  const renderLegend = (props: any) => {
+  const renderLegend = (props: { payload?: Array<{ color: string; value: string }> }) => {
     const { payload } = props;
+    if (!payload) return null;
     return (
       <div className="flex flex-wrap justify-center gap-4 mt-4">
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index: number) => (
           <div key={`legend-${index}`} className="flex items-center gap-2">
             <div
               className="w-3 h-3 rounded-full"

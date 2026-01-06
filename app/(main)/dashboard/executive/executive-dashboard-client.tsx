@@ -34,6 +34,8 @@ import {
   DashboardLayout,
   DashboardWidget,
 } from '@/types/executive-dashboard';
+import { PreviewDropdown } from '@/components/preview/preview-dropdown';
+import { usePreview } from '@/hooks/use-preview';
 import { Download, RefreshCw, Settings } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -46,6 +48,9 @@ export function ExecutiveDashboardClient({
   userRole,
   userId,
 }: ExecutiveDashboardClientProps) {
+  // Preview mode for owner role
+  const { effectiveRole, setPreviewRole, canUsePreview } = usePreview();
+  
   // Period state (Requirement 11.1)
   const [period, setPeriod] = useState<PeriodType>('mtd');
   const [customRange, setCustomRange] = useState<DateRange | undefined>();
@@ -198,6 +203,13 @@ export function ExecutiveDashboardClient({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Preview Dropdown for Owner */}
+          <PreviewDropdown
+            currentRole={effectiveRole}
+            onRoleSelect={setPreviewRole}
+            canUsePreview={canUsePreview}
+          />
+
           {/* Period Selector (Requirement 11.1) */}
           <PeriodSelector
             value={period}

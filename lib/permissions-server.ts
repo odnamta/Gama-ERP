@@ -1,8 +1,8 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { UserProfile, UserPermissions, UserRole } from '@/types/permissions'
-import { DEFAULT_PERMISSIONS, OWNER_EMAIL, isOwnerEmail, getAssignableRoles } from '@/lib/permissions'
+import { UserProfile, UserPermissions, UserRole, DepartmentScope } from '@/types/permissions'
+import { DEFAULT_PERMISSIONS, OWNER_EMAIL, isOwnerEmail, getAssignableRoles, getInheritedRoles, canAccessFeature, FeatureKey } from '@/lib/permissions'
 
 /**
  * Get the current user's profile from the database
@@ -30,6 +30,11 @@ export async function getUserProfile(): Promise<UserProfile | null> {
       .from('user_profiles')
       .update({ last_login_at: new Date().toISOString() })
       .eq('user_id', user.id)
+  }
+
+  // Ensure department_scope is always an array
+  if (profile && !profile.department_scope) {
+    profile.department_scope = []
   }
 
   return profile as UserProfile | null
@@ -99,13 +104,13 @@ export async function createUserProfile(
   const supabase = await createClient()
 
   // Determine role based on email domain
-  let role: UserRole = 'viewer'
-  let permissions = DEFAULT_PERMISSIONS.viewer
+  let role: UserRole = 'ops'  // Default to ops for new users
+  let permissions = DEFAULT_PERMISSIONS.ops
 
-  // Admin for dioatmando
+  // Owner for dioatmando
   if (email === 'dioatmando@gama-group.co') {
-    role = 'admin'
-    permissions = DEFAULT_PERMISSIONS.admin
+    role = 'owner'
+    permissions = DEFAULT_PERMISSIONS.owner
   }
   // Manager for other gama-group.co emails
   else if (email.endsWith('@gama-group.co')) {
@@ -121,7 +126,8 @@ export async function createUserProfile(
       full_name: fullName || null,
       avatar_url: avatarUrl || null,
       role,
-      custom_dashboard: role === 'admin' ? 'admin' : 'default',
+      department_scope: [],
+      custom_dashboard: role === 'owner' ? 'executive' : 'default',
       ...permissions,
     })
     .select()
@@ -217,16 +223,11 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
   }
 
   // Profile doesn't exist, create new one
-  let role: UserRole = 'viewer'
-  let permissions = DEFAULT_PERMISSIONS.viewer
+  let role: UserRole = 'ops'  // Default to ops for new users
+  let permissions = DEFAULT_PERMISSIONS.ops
 
   // Owner email gets owner role
   if (isOwnerEmail(email)) {
-    role = 'owner'
-    permissions = DEFAULT_PERMISSIONS.owner
-  }
-  // Admin for dioatmando (fallback, should be caught by owner check)
-  else if (email === 'dioatmando@gama-group.co') {
     role = 'owner'
     permissions = DEFAULT_PERMISSIONS.owner
   }
@@ -247,7 +248,8 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
       full_name: fullName || null,
       avatar_url: avatarUrl || null,
       role,
-      custom_dashboard: role === 'owner' ? 'owner' : (role === 'manager' ? 'manager' : 'default'),
+      department_scope: [],
+      custom_dashboard: role === 'owner' ? 'executive' : (role === 'manager' ? 'manager' : 'default'),
       last_login_at: new Date().toISOString(),
       ...permissions,
     })
@@ -546,14 +548,14 @@ export async function toggleUserActive(
  * Get owner dashboard data
  */
 export async function getOwnerDashboardData() {
-  await requireRole(['owner'])
+  await requireRole(['owner', 'director'])
 
   const supabase = await createClient()
 
   // Get user metrics
   const { data: users } = await supabase
     .from('user_profiles')
-    .select('id, role, is_active, user_id, last_login_at, email, full_name')
+    .select('id, role, is_active, user_id, last_login_at, email, full_name, department_scope')
 
   const userMetrics = {
     totalUsers: users?.length || 0,
@@ -562,12 +564,16 @@ export async function getOwnerDashboardData() {
     pendingUsers: users?.filter(u => u.user_id === null).length || 0,
     usersByRole: {
       owner: users?.filter(u => u.role === 'owner').length || 0,
-      admin: users?.filter(u => u.role === 'admin').length || 0,
+      director: users?.filter(u => u.role === 'director').length || 0,
       manager: users?.filter(u => u.role === 'manager').length || 0,
-      ops: users?.filter(u => u.role === 'ops').length || 0,
+      sysadmin: users?.filter(u => u.role === 'sysadmin').length || 0,
+      administration: users?.filter(u => u.role === 'administration').length || 0,
       finance: users?.filter(u => u.role === 'finance').length || 0,
-      sales: users?.filter(u => u.role === 'sales').length || 0,
-      viewer: users?.filter(u => u.role === 'viewer').length || 0,
+      marketing: users?.filter(u => u.role === 'marketing').length || 0,
+      ops: users?.filter(u => u.role === 'ops').length || 0,
+      engineer: users?.filter(u => u.role === 'engineer').length || 0,
+      hr: users?.filter(u => u.role === 'hr').length || 0,
+      hse: users?.filter(u => u.role === 'hse').length || 0,
     },
   }
 
@@ -610,4 +616,81 @@ export async function getOwnerDashboardData() {
     recentLogins,
     systemKPIs,
   }
+}
+
+/**
+ * Update a user's department scope (for managers)
+ */
+export async function updateUserDepartmentScope(
+  targetUserId: string,
+  departmentScope: DepartmentScope[]
+): Promise<{ success: boolean; error?: string }> {
+  // Verify caller has permission to manage users
+  const callerProfile = await requirePermission('can_manage_users')
+
+  const supabase = await createClient()
+
+  // Check if target is a manager
+  const { data: targetProfile } = await supabase
+    .from('user_profiles')
+    .select('role')
+    .eq('user_id', targetUserId)
+    .single()
+
+  if (!targetProfile) {
+    return { success: false, error: 'User not found' }
+  }
+
+  if (targetProfile.role !== 'manager') {
+    return { success: false, error: 'Department scope can only be set for managers' }
+  }
+
+  const { error } = await supabase
+    .from('user_profiles')
+    .update({
+      department_scope: departmentScope,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', targetUserId)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  // Log the activity
+  await supabase.from('activity_log').insert({
+    action_type: 'user_department_scope_changed',
+    document_type: 'user',
+    document_id: targetUserId,
+    document_number: departmentScope.join(', '),
+    user_id: callerProfile.user_id,
+    user_name: callerProfile.full_name || callerProfile.email,
+  })
+
+  return { success: true }
+}
+
+/**
+ * Check if user can access a feature (server-side)
+ */
+export async function checkFeatureAccess(feature: FeatureKey): Promise<boolean> {
+  const profile = await getUserProfile()
+  return canAccessFeature(profile, feature)
+}
+
+/**
+ * Require feature access - throws error if not authorized
+ */
+export async function requireFeatureAccess(feature: FeatureKey): Promise<UserProfile> {
+  const profile = await getUserProfile()
+
+  if (!profile) {
+    throw new Error('Unauthorized: Not logged in')
+  }
+
+  if (!canAccessFeature(profile, feature)) {
+    throw new Error(`Forbidden: No access to feature ${feature}`)
+  }
+
+  return profile
 }

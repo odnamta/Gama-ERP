@@ -581,7 +581,7 @@ export async function fetchInvoiceData(
  * @param lineItems - Array of invoice line items
  * @returns Object with subtotal, tax_amount (11%), and total_amount
  */
-export function calculateInvoiceTotals(
+function calculateInvoiceTotals(
   lineItems: Array<{ quantity: number; unit_price: number }>
 ): { subtotal: number; tax_amount: number; total_amount: number } {
   // Calculate subtotal as sum of all item amounts (quantity * unit_price)
@@ -612,7 +612,7 @@ export function calculateInvoiceTotals(
  * @param lineItems - Invoice line items
  * @returns InvoiceTemplateVariables for template substitution
  */
-export function buildInvoiceVariables(
+function buildInvoiceVariables(
   invoice: InvoiceData,
   lineItems: InvoiceLineItem[]
 ): InvoiceTemplateVariables {
@@ -672,7 +672,7 @@ export function buildInvoiceVariables(
  * @param _lineItems - Invoice line items (optional, for future validation)
  * @returns Validation result with errors if any
  */
-export function validateInvoiceData(
+function validateInvoiceData(
   invoice: InvoiceData | null,
   _lineItems?: InvoiceLineItem[]
 ): { valid: boolean; errors: string[] } {
@@ -847,7 +847,7 @@ export async function fetchQuotationData(
  * @param revenueItems - Quotation revenue items
  * @returns QuotationTemplateVariables for template substitution
  */
-export function buildQuotationVariables(
+function buildQuotationVariables(
   quotation: QuotationData,
   revenueItems: QuotationRevenueItemData[]
 ): QuotationTemplateVariables {
@@ -903,7 +903,7 @@ export function buildQuotationVariables(
  * @param _revenueItems - Quotation revenue items (optional, for future validation)
  * @returns Validation result with errors if any
  */
-export function validateQuotationData(
+function validateQuotationData(
   quotation: QuotationData | null,
   _revenueItems?: QuotationRevenueItemData[]
 ): { valid: boolean; errors: string[] } {
@@ -1387,7 +1387,7 @@ function mapDbRecordToGeneratedDocumentWithRelations(
  * @param documentType - The type of document being generated
  * @returns Validation result with errors if any
  */
-export function validateDocumentData(
+function validateDocumentData(
   variables: VariableContext,
   documentType: DocumentType
 ): { valid: boolean; errors: string[] } {
@@ -1586,7 +1586,7 @@ export async function fetchDeliveryNoteData(
  * @param items - Delivery note items
  * @returns DeliveryNoteTemplateVariables for template substitution
  */
-export function buildDeliveryNoteVariables(
+function buildDeliveryNoteVariables(
   jobOrder: JobOrderData,
   items: DeliveryNoteItem[]
 ): DeliveryNoteTemplateVariables {
@@ -1628,7 +1628,7 @@ export function buildDeliveryNoteVariables(
  * @param items - Delivery note items
  * @returns Validation result with errors if any
  */
-export function validateDeliveryNoteData(
+function validateDeliveryNoteData(
   jobOrder: JobOrderData | null,
   items?: DeliveryNoteItem[]
 ): { valid: boolean; errors: string[] } {
@@ -1738,7 +1738,7 @@ export async function generateDeliveryNote(
  * @param entityId - The entity ID to filter by (optional)
  * @returns true if document matches the filter
  */
-export function matchesEntityFilter(
+function matchesEntityFilter(
   document: GeneratedDocument | GeneratedDocumentWithRelations,
   entityType?: string,
   entityId?: string
@@ -1770,7 +1770,7 @@ export function matchesEntityFilter(
  * @param documentType - The document type to filter by (optional)
  * @returns true if document matches the filter
  */
-export function matchesDocumentTypeFilter(
+function matchesDocumentTypeFilter(
   document: GeneratedDocument | GeneratedDocumentWithRelations,
   documentType?: DocumentType
 ): boolean {
@@ -1792,7 +1792,7 @@ export function matchesDocumentTypeFilter(
  * @param toDate - The end date (inclusive, optional)
  * @returns true if document matches the filter
  */
-export function matchesDateRangeFilter(
+function matchesDateRangeFilter(
   document: GeneratedDocument | GeneratedDocumentWithRelations,
   fromDate?: string,
   toDate?: string
@@ -1832,7 +1832,7 @@ export function matchesDateRangeFilter(
  * @param filters - The filters to apply
  * @returns true if document matches ALL filters
  */
-export function matchesAllFilters(
+function matchesAllFilters(
   document: GeneratedDocument | GeneratedDocumentWithRelations,
   filters: DocumentHistoryFilters
 ): boolean {
@@ -1853,7 +1853,7 @@ export function matchesAllFilters(
  * @param filters - The filters to apply
  * @returns Filtered array of documents
  */
-export function filterDocumentHistory<T extends GeneratedDocument | GeneratedDocumentWithRelations>(
+function filterDocumentHistory<T extends GeneratedDocument | GeneratedDocumentWithRelations>(
   documents: T[],
   filters: DocumentHistoryFilters
 ): T[] {
@@ -1868,7 +1868,7 @@ export function filterDocumentHistory<T extends GeneratedDocument | GeneratedDoc
  * @param document - The document to validate
  * @returns Object with valid flag and missing fields
  */
-export function validateHistoryDataCompleteness(
+function validateHistoryDataCompleteness(
   document: GeneratedDocumentWithRelations
 ): { valid: boolean; missingFields: string[] } {
   const missingFields: string[] = []

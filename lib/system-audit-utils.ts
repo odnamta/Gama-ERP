@@ -517,8 +517,8 @@ export function countByModule(entries: AuditLogEntry[]): Record<string, number> 
   const counts: Record<string, number> = {};
   
   for (const entry of entries) {
-    const module = entry.module;
-    counts[module] = (counts[module] || 0) + 1;
+    const moduleName = entry.module;
+    counts[moduleName] = (counts[moduleName] || 0) + 1;
   }
   
   return counts;
