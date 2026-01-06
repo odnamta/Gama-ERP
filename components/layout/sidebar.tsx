@@ -7,6 +7,7 @@ import { usePermissions } from '@/components/providers/permission-provider'
 import { usePreview } from '@/hooks/use-preview'
 import { NAV_ITEMS, filterNavItems } from '@/lib/navigation'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Truck } from 'lucide-react'
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -20,10 +21,19 @@ export function Sidebar() {
 
   return (
     <div className="flex h-full w-64 flex-col border-r bg-card">
-      <div className="flex h-16 items-center border-b px-6">
-        <h1 className="text-xl font-bold text-primary">Gama ERP</h1>
+      {/* Logo area - matches header height */}
+      <div className="flex h-16 shrink-0 items-center border-b px-4">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+            <Truck className="h-5 w-5 text-primary-foreground" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-lg font-bold leading-tight text-foreground">Gama</span>
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">ERP System</span>
+          </div>
+        </Link>
       </div>
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
         {isLoading ? (
           // Loading skeleton
           <>

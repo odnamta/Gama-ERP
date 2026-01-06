@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { PermitType } from '@/types/safety-document';
 import { getPermitTypeLabel } from '@/lib/safety-document-utils';
-import { Flame, Box, ArrowUp, Shovel, Zap, Crane } from 'lucide-react';
+import { Flame, Box, ArrowUp, Shovel, Zap, Construction } from 'lucide-react';
 
 interface PermitTypeBadgeProps {
   type: PermitType;
@@ -16,7 +16,7 @@ const typeIcons: Record<PermitType, React.ReactNode> = {
   height_work: <ArrowUp className="h-3 w-3" />,
   excavation: <Shovel className="h-3 w-3" />,
   electrical: <Zap className="h-3 w-3" />,
-  lifting: <Crane className="h-3 w-3" />,
+  lifting: <Construction className="h-3 w-3" />,
 };
 
 const typeColors: Record<PermitType, string> = {

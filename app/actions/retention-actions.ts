@@ -755,7 +755,7 @@ export async function getArchiveHistory(
 /**
  * Formats bytes to human-readable size.
  */
-function formatBytes(bytes: number): string {
+export function formatBytes(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
   
   const k = 1024;
