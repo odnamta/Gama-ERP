@@ -14,7 +14,13 @@ function PreviewBannerWrapper() {
     return null
   }
 
-  return <PreviewBanner previewRole={previewRole} onExit={() => setPreviewRole(null)} />
+  return (
+    <PreviewBanner 
+      previewRole={previewRole} 
+      onExit={() => setPreviewRole(null)}
+      onRoleChange={setPreviewRole}
+    />
+  )
 }
 
 interface PreviewProviderWrapperProps {

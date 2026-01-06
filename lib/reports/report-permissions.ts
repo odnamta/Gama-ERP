@@ -16,7 +16,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'financial',
     href: '/reports/profit-loss',
     icon: 'TrendingUp',
-    allowedRoles: ['owner', 'admin', 'manager', 'finance'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'finance'],
   },
   {
     id: 'revenue-customer',
@@ -25,7 +25,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'financial',
     href: '/reports/revenue-customer',
     icon: 'Users',
-    allowedRoles: ['owner', 'admin', 'manager', 'finance', 'sales'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'finance', 'marketing'],
   },
   {
     id: 'cost-analysis',
@@ -34,7 +34,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'financial',
     href: '/reports/cost-analysis',
     icon: 'PieChart',
-    allowedRoles: ['owner', 'admin', 'manager', 'finance'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'finance'],
   },
   // Operational Reports
   {
@@ -44,7 +44,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'operational',
     href: '/reports/budget-variance',
     icon: 'BarChart3',
-    allowedRoles: ['owner', 'admin', 'manager', 'ops'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops'],
   },
   {
     id: 'jo-summary',
@@ -53,7 +53,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'operational',
     href: '/reports/jo-summary',
     icon: 'ClipboardList',
-    allowedRoles: ['owner', 'admin', 'manager', 'ops'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops'],
   },
   // Accounts Receivable Reports
   {
@@ -63,7 +63,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'ar',
     href: '/reports/ar-aging',
     icon: 'Clock',
-    allowedRoles: ['owner', 'admin', 'manager', 'finance'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'finance'],
   },
   {
     id: 'outstanding-invoices',
@@ -72,7 +72,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'ar',
     href: '/reports/outstanding-invoices',
     icon: 'FileText',
-    allowedRoles: ['owner', 'admin', 'manager', 'finance'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'finance'],
   },
   // Sales Reports
   {
@@ -82,7 +82,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'sales',
     href: '/reports/quotation-conversion',
     icon: 'TrendingUp',
-    allowedRoles: ['owner', 'admin', 'manager', 'sales'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'marketing'],
   },
   // Phase 2 Reports
   {
@@ -92,7 +92,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'financial',
     href: '/reports/revenue-by-customer',
     icon: 'Users',
-    allowedRoles: ['owner', 'admin', 'manager', 'finance', 'sales'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'finance', 'marketing'],
   },
   {
     id: 'revenue-by-project',
@@ -101,7 +101,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'financial',
     href: '/reports/revenue-by-project',
     icon: 'FolderKanban',
-    allowedRoles: ['owner', 'admin', 'manager'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager'],
   },
   {
     id: 'on-time-delivery',
@@ -110,7 +110,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'operational',
     href: '/reports/on-time-delivery',
     icon: 'Clock',
-    allowedRoles: ['owner', 'admin', 'manager', 'ops'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops'],
   },
   {
     id: 'vendor-performance',
@@ -119,7 +119,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'operational',
     href: '/reports/vendor-performance',
     icon: 'Truck',
-    allowedRoles: ['owner', 'admin', 'manager', 'ops'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops'],
   },
   {
     id: 'customer-payment-history',
@@ -128,7 +128,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'ar',
     href: '/reports/customer-payment-history',
     icon: 'CreditCard',
-    allowedRoles: ['owner', 'admin', 'manager', 'finance'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'finance'],
   },
   {
     id: 'sales-pipeline',
@@ -137,7 +137,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'sales',
     href: '/reports/sales-pipeline',
     icon: 'TrendingUp',
-    allowedRoles: ['owner', 'admin', 'manager', 'sales'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'marketing'],
   },
   {
     id: 'customer-acquisition',
@@ -146,7 +146,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'sales',
     href: '/reports/customer-acquisition',
     icon: 'UserPlus',
-    allowedRoles: ['owner', 'admin', 'manager', 'sales'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'marketing'],
   },
   {
     id: 'job-profitability',
@@ -155,7 +155,7 @@ export const REPORTS: ReportConfig[] = [
     category: 'financial',
     href: '/reports/job-profitability',
     icon: 'TrendingUp',
-    allowedRoles: ['owner', 'admin', 'manager', 'finance'],
+    allowedRoles: ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'finance'],
   },
 ]
 
@@ -221,10 +221,10 @@ export function getCategoryIcon(category: ReportCategory): string {
  */
 export function canAccessCategory(role: UserRole, category: ReportCategory): boolean {
   const categoryRoles: Record<ReportCategory, UserRole[]> = {
-    financial: ['owner', 'admin', 'manager', 'finance'],
-    operational: ['owner', 'admin', 'manager', 'ops'],
-    ar: ['owner', 'admin', 'manager', 'finance'],
-    sales: ['owner', 'admin', 'manager', 'sales'],
+    financial: ['owner', 'director', 'administration', 'manager', 'finance'],
+    operational: ['owner', 'director', 'administration', 'manager', 'ops'],
+    ar: ['owner', 'director', 'administration', 'manager', 'finance'],
+    sales: ['owner', 'director', 'administration', 'manager', 'marketing'],
   }
   return categoryRoles[category].includes(role)
 }
@@ -232,7 +232,7 @@ export function canAccessCategory(role: UserRole, category: ReportCategory): boo
 /**
  * Admin roles that have full access to all reports
  */
-export const ADMIN_ROLES: UserRole[] = ['owner', 'admin', 'manager']
+export const ADMIN_ROLES: UserRole[] = ['owner', 'director', 'administration', 'marketing_manager', 'finance_manager', 'operations_manager']
 
 /**
  * Check if a role is an admin role with full access

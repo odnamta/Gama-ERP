@@ -36,11 +36,11 @@ import {
 // =====================================================
 
 // Generate valid user roles
-const validRoleArb = fc.constantFrom<UserRole>('owner', 'admin', 'manager', 'finance', 'ops', 'sales', 'viewer')
+const validRoleArb = fc.constantFrom<UserRole>('owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse')
 
 // Generate invalid/unknown roles (excluding JS reserved words that could cause issues)
 const reservedWords = ['constructor', 'prototype', '__proto__', 'toString', 'valueOf', 'hasOwnProperty']
-const validRoles = ['owner', 'admin', 'manager', 'finance', 'ops', 'sales', 'viewer']
+const validRoles = ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse']
 const unknownRoleArb = fc.string({ minLength: 1, maxLength: 20 })
   .filter(s => !validRoles.includes(s) && !reservedWords.includes(s))
 
@@ -151,28 +151,36 @@ describe('Property 2: Role-to-Route Mapping Consistency', () => {
     expect(getRoleHomepage('owner')).toBe('/dashboard/executive')
   })
 
-  it('admin role should map to /dashboard/admin', () => {
-    expect(getRoleHomepage('admin')).toBe('/dashboard/admin')
+  it('director role should map to /dashboard/executive', () => {
+    expect(getRoleHomepage('director')).toBe('/dashboard/executive')
   })
 
-  it('manager role should map to /dashboard/manager', () => {
-    expect(getRoleHomepage('manager')).toBe('/dashboard/manager')
+  it('administration role should map to /dashboard/admin', () => {
+    expect(getRoleHomepage('administration')).toBe('/dashboard/admin')
+  })
+
+  it('marketing_manager role should map to /dashboard/marketing-manager', () => {
+    expect(getRoleHomepage('marketing_manager')).toBe('/dashboard/marketing-manager')
+  })
+
+  it('finance_manager role should map to /dashboard/finance-manager', () => {
+    expect(getRoleHomepage('finance_manager')).toBe('/dashboard/finance-manager')
+  })
+
+  it('operations_manager role should map to /dashboard/operations-manager', () => {
+    expect(getRoleHomepage('operations_manager')).toBe('/dashboard/operations-manager')
   })
 
   it('finance role should map to /dashboard/finance', () => {
     expect(getRoleHomepage('finance')).toBe('/dashboard/finance')
   })
 
-  it('ops role should map to /dashboard/operations', () => {
-    expect(getRoleHomepage('ops')).toBe('/dashboard/operations')
+  it('ops role should map to /dashboard/operation', () => {
+    expect(getRoleHomepage('ops')).toBe('/dashboard/operation')
   })
 
-  it('sales role should map to /dashboard/sales', () => {
-    expect(getRoleHomepage('sales')).toBe('/dashboard/sales')
-  })
-
-  it('viewer role should map to /dashboard/viewer', () => {
-    expect(getRoleHomepage('viewer')).toBe('/dashboard/viewer')
+  it('marketing role should map to /dashboard/marketing', () => {
+    expect(getRoleHomepage('marketing')).toBe('/dashboard/marketing')
   })
 
   it('role mapping should be deterministic', () => {
@@ -354,12 +362,18 @@ describe('Homepage Routing - Unit Tests', () => {
   describe('getRoleHomepage', () => {
     it('should return correct homepage for all valid roles', () => {
       expect(getRoleHomepage('owner')).toBe('/dashboard/executive')
-      expect(getRoleHomepage('admin')).toBe('/dashboard/admin')
-      expect(getRoleHomepage('manager')).toBe('/dashboard/manager')
+      expect(getRoleHomepage('director')).toBe('/dashboard/executive')
+      expect(getRoleHomepage('administration')).toBe('/dashboard/admin')
+      expect(getRoleHomepage('marketing_manager')).toBe('/dashboard/marketing-manager')
+      expect(getRoleHomepage('finance_manager')).toBe('/dashboard/finance-manager')
+      expect(getRoleHomepage('operations_manager')).toBe('/dashboard/operations-manager')
       expect(getRoleHomepage('finance')).toBe('/dashboard/finance')
-      expect(getRoleHomepage('ops')).toBe('/dashboard/operations')
-      expect(getRoleHomepage('sales')).toBe('/dashboard/sales')
-      expect(getRoleHomepage('viewer')).toBe('/dashboard/viewer')
+      expect(getRoleHomepage('ops')).toBe('/dashboard/operation')
+      expect(getRoleHomepage('marketing')).toBe('/dashboard/marketing')
+      expect(getRoleHomepage('engineer')).toBe('/dashboard/engineering')
+      expect(getRoleHomepage('hr')).toBe('/dashboard/hr')
+      expect(getRoleHomepage('hse')).toBe('/dashboard/hse')
+      expect(getRoleHomepage('sysadmin')).toBe('/dashboard/sysadmin')
     })
 
     it('should return fallback for invalid roles', () => {
@@ -369,8 +383,8 @@ describe('Homepage Routing - Unit Tests', () => {
   })
 
   describe('DEFAULT_ROLE_HOMEPAGES', () => {
-    it('should have all 7 standard roles configured', () => {
-      const roles: UserRole[] = ['owner', 'admin', 'manager', 'finance', 'ops', 'sales', 'viewer']
+    it('should have all 13 standard roles configured', () => {
+      const roles: UserRole[] = ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse']
       
       for (const role of roles) {
         expect(DEFAULT_ROLE_HOMEPAGES[role]).toBeDefined()
@@ -516,7 +530,7 @@ describe('Property 8: Dashboard Path Redirect', () => {
       '/dashboard/admin',
       '/dashboard/manager',
       '/dashboard/finance',
-      '/dashboard/operations',
+      '/dashboard/operation',
       '/dashboard/sales',
       '/dashboard/viewer',
     ]

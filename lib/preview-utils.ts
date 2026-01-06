@@ -11,12 +11,18 @@ import { getDefaultPermissions } from './permissions'
  */
 export const PREVIEW_ROLES: UserRole[] = [
   'owner',
-  'admin',
-  'manager',
+  'director',
+  'marketing_manager',
+  'finance_manager',
+  'operations_manager',
+  'sysadmin',
+  'administration',
   'finance',
-  'sales',
+  'marketing',
   'ops',
-  'viewer',
+  'engineer',
+  'hr',
+  'hse',
 ]
 
 /**
@@ -64,12 +70,18 @@ export function getEffectivePermissions(
 export function getRoleDisplayName(role: UserRole): string {
   const displayNames: Record<UserRole, string> = {
     owner: 'Owner',
-    admin: 'Admin',
-    manager: 'Manager',
+    director: 'Director',
+    marketing_manager: 'Marketing Manager',
+    finance_manager: 'Finance Manager',
+    operations_manager: 'Operations Manager',
+    sysadmin: 'System Admin',
+    administration: 'Administration',
     finance: 'Finance',
-    sales: 'Sales',
-    ops: 'Ops',
-    viewer: 'Viewer',
+    marketing: 'Marketing',
+    ops: 'Operations',
+    engineer: 'Engineer',
+    hr: 'Human Resources',
+    hse: 'Health & Safety',
   }
   return displayNames[role] || role
 }

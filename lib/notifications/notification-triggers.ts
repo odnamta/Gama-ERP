@@ -117,7 +117,7 @@ export async function notifyPjoDecision(
 
 /**
  * Notify when a cost item exceeds budget by more than 10%
- * Recipients: Owner, Manager, Finance roles
+ * Recipients: Owner, Director, Manager roles, Finance roles
  */
 export async function notifyBudgetExceeded(
   costItem: CostItemData,
@@ -126,7 +126,7 @@ export async function notifyBudgetExceeded(
   // Only notify if variance exceeds 10%
   if (costItem.variance_pct <= 10) return
 
-  const users = await getUsersByRoles(['owner', 'manager', 'finance'])
+  const users = await getUsersByRoles(['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance'])
   if (users.length === 0) return
 
   // Set priority based on variance
@@ -186,7 +186,7 @@ export async function notifyInvoiceStatusChange(
       },
     })
   } else if (newStatus === 'paid') {
-    const users = await getUsersByRoles(['finance', 'manager'])
+    const users = await getUsersByRoles(['finance', 'finance_manager'])
     if (users.length > 0) {
       await createBulkNotifications(
         {
@@ -208,7 +208,7 @@ export async function notifyInvoiceStatusChange(
       )
     }
   } else if (newStatus === 'overdue') {
-    const users = await getUsersByRoles(['finance', 'manager', 'owner'])
+    const users = await getUsersByRoles(['finance', 'finance_manager', 'owner'])
     if (users.length > 0) {
       await createBulkNotifications(
         {
@@ -267,7 +267,7 @@ export async function notifyJoStatusChange(
   newStatus: 'completed' | 'submitted_to_finance'
 ): Promise<void> {
   if (newStatus === 'completed') {
-    const users = await getUsersByRoles(['admin', 'finance'])
+    const users = await getUsersByRoles(['administration', 'finance'])
     if (users.length > 0) {
       await createBulkNotifications(
         {
@@ -324,7 +324,7 @@ export async function notifyUserActivity(
   const userName = user.full_name || user.email
 
   if (action === 'first_login') {
-    const admins = await getUsersByRoles(['owner', 'admin'])
+    const admins = await getUsersByRoles(['owner', 'sysadmin'])
     if (admins.length > 0) {
       await createBulkNotifications(
         {
@@ -425,7 +425,7 @@ interface RevenueDiscrepancyData {
  * This ensures no revenue is left behind when creating invoices
  */
 export async function notifyRevenueDiscrepancy(data: RevenueDiscrepancyData): Promise<void> {
-  const users = await getUsersByRoles(['finance', 'admin', 'manager'])
+  const users = await getUsersByRoles(['finance', 'administration', 'finance_manager'])
   if (users.length === 0) return
 
   const formatAmount = (amount: number) =>
@@ -466,7 +466,7 @@ interface UninvoicedRevenueData {
  * Triggered when JO is marked as closed but not all terms are invoiced
  */
 export async function notifyUninvoicedRevenue(data: UninvoicedRevenueData): Promise<void> {
-  const users = await getUsersByRoles(['finance', 'admin'])
+  const users = await getUsersByRoles(['finance', 'administration'])
   if (users.length === 0) return
 
   const formatAmount = (amount: number) =>
@@ -592,7 +592,7 @@ export async function notifyEngineeringWaived(data: {
   waived_by?: string
   waived_reason: string
 }): Promise<void> {
-  const managers = await getUsersByRoles(['manager', 'owner', 'super_admin'])
+  const managers = await getUsersByRoles(['marketing_manager', 'finance_manager', 'operations_manager', 'owner', 'director'])
   if (managers.length === 0) return
 
   await createBulkNotifications(
@@ -715,7 +715,7 @@ export async function notifyQuotationEngineeringCompleted(data: QuotationEnginee
  * Recipients: Admin and Finance roles
  */
 export async function notifyQuotationWon(quotation: QuotationData): Promise<void> {
-  const users = await getUsersByRoles(['admin', 'finance', 'manager'])
+  const users = await getUsersByRoles(['administration', 'finance', 'marketing_manager', 'finance_manager'])
   if (users.length === 0) return
 
   const amount = quotation.total_revenue

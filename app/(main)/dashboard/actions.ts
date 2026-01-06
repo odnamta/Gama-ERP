@@ -600,6 +600,19 @@ export async function fetchSalesDashboardData(
   }
 }
 
+/**
+ * Refresh sales dashboard data with new period
+ * Used as a server action for client-side period changes
+ */
+export async function refreshSalesDashboardData(
+  periodType: PeriodType,
+  customStart?: Date,
+  customEnd?: Date
+): Promise<SalesDashboardData> {
+  'use server'
+  return fetchSalesDashboardData(periodType, customStart, customEnd)
+}
+
 
 /**
  * Fetch manager dashboard data

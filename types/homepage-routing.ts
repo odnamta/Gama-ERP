@@ -51,12 +51,18 @@ export interface HomepageResolutionResult {
  */
 export const DEFAULT_ROLE_HOMEPAGES: Record<UserRole, string> = {
   owner: '/dashboard/executive',
-  admin: '/dashboard/admin',
-  manager: '/dashboard/manager',
+  director: '/dashboard/executive',
+  marketing_manager: '/dashboard/marketing-manager',
+  finance_manager: '/dashboard/finance-manager',
+  operations_manager: '/dashboard/operations-manager',
+  sysadmin: '/dashboard/sysadmin',
+  administration: '/dashboard/admin',
   finance: '/dashboard/finance',
-  ops: '/dashboard/operations',
-  sales: '/dashboard/sales',
-  viewer: '/dashboard/viewer',
+  marketing: '/dashboard/marketing',
+  ops: '/dashboard/operation',
+  engineer: '/dashboard/engineering',
+  hr: '/dashboard/hr',
+  hse: '/dashboard/hse',
 }
 
 /**

@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import {
   Select,
   SelectContent,
@@ -9,6 +10,7 @@ import {
 } from '@/components/ui/select'
 import { UserRole } from '@/types/permissions'
 import { PREVIEW_ROLES, getRoleDisplayName } from '@/lib/preview-utils'
+import { getDashboardPath } from '@/lib/navigation'
 import { Eye } from 'lucide-react'
 
 interface PreviewDropdownProps {
@@ -22,8 +24,21 @@ export function PreviewDropdown({
   onRoleSelect,
   canUsePreview,
 }: PreviewDropdownProps) {
+  const router = useRouter()
+
   if (!canUsePreview) {
     return null
+  }
+
+  const handleRoleSelect = (value: string) => {
+    const selectedRole = value as UserRole
+    
+    // Update the preview state
+    onRoleSelect(selectedRole)
+    
+    // Navigate to the appropriate dashboard for the selected role
+    const dashboardPath = getDashboardPath(selectedRole)
+    router.push(dashboardPath)
   }
 
   return (
@@ -32,9 +47,9 @@ export function PreviewDropdown({
       <span className="text-sm text-muted-foreground">Preview as:</span>
       <Select
         value={currentRole}
-        onValueChange={(value) => onRoleSelect(value as UserRole)}
+        onValueChange={handleRoleSelect}
       >
-        <SelectTrigger className="w-[140px] h-8">
+        <SelectTrigger className="w-[160px] h-8">
           <SelectValue placeholder="Select role" />
         </SelectTrigger>
         <SelectContent>

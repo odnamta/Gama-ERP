@@ -47,14 +47,14 @@ export interface NavSubItem {
 
 /**
  * Navigation items with role-based access control
- * Updated for 11 roles: owner, director, manager, sysadmin, administration, finance, marketing, ops, engineer, hr, hse
+ * Updated for 13 roles: owner, director, marketing_manager, finance_manager, operations_manager, sysadmin, administration, finance, marketing, ops, engineer, hr, hse
  */
 export const NAV_ITEMS: NavItem[] = [
   {
     title: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
-    roles: ['owner', 'director', 'manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
     children: [
       {
         title: 'Overview',
@@ -63,22 +63,27 @@ export const NAV_ITEMS: NavItem[] = [
       {
         title: 'Executive KPI',
         href: '/dashboard/executive',
-        roles: ['owner', 'director', 'manager', 'finance'],
+        roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance'],
       },
       {
         title: 'Financial Analytics',
         href: '/dashboard/executive/finance',
-        roles: ['owner', 'director', 'manager', 'finance'],
+        roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance'],
       },
       {
         title: 'AI Insights',
         href: '/dashboard/executive/ai',
-        roles: ['owner', 'director', 'manager', 'finance'],
+        roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance'],
       },
       {
         title: 'Predictive Analytics',
         href: '/dashboard/executive/predictions',
-        roles: ['owner', 'director', 'manager', 'finance'],
+        roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance'],
+      },
+      {
+        title: 'Assets Dashboard',
+        href: '/dashboard/assets',
+        roles: ['owner', 'director', 'operations_manager', 'ops'],
       },
     ],
   },
@@ -86,55 +91,55 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Customers',
     href: '/customers',
     icon: Users,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance', 'marketing'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'administration', 'finance', 'marketing'],
   },
   {
     title: 'Projects',
     href: '/projects',
     icon: FolderKanban,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance', 'marketing', 'ops', 'engineer'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'marketing', 'ops', 'engineer'],
   },
   {
     title: 'Quotations',
     href: '/quotations',
     icon: FileQuestion,
-    roles: ['owner', 'director', 'manager', 'administration', 'marketing', 'engineer'],
+    roles: ['owner', 'director', 'marketing_manager', 'administration', 'marketing', 'engineer'],
   },
   {
     title: 'Proforma JO',
     href: '/proforma-jo',
     icon: FileText,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance', 'ops'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops'],
   },
   {
     title: 'Cost Entry',
     href: '/cost-entry',
     icon: Calculator,
-    roles: ['owner', 'director', 'manager', 'ops'],
+    roles: ['owner', 'director', 'operations_manager', 'ops'],
   },
   {
     title: 'Job Orders',
     href: '/job-orders',
     icon: Briefcase,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance', 'ops'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops'],
   },
   {
     title: 'Disbursements (BKK)',
     href: '/disbursements',
     icon: Wallet,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance'],
+    roles: ['owner', 'director', 'finance_manager', 'operations_manager', 'administration', 'finance'],
   },
   {
     title: 'Vendors',
     href: '/vendors',
     icon: Building2,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance', 'ops'],
+    roles: ['owner', 'director', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops'],
   },
   {
     title: 'Agency',
     href: '/agency/shipping-lines',
     icon: Ship,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance', 'marketing', 'ops'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'marketing', 'ops'],
     children: [
       {
         title: 'Bookings',
@@ -191,17 +196,17 @@ export const NAV_ITEMS: NavItem[] = [
       {
         title: 'Profitability Report',
         href: '/agency/reports/profitability',
-        roles: ['owner', 'director', 'manager', 'finance'],
+        roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'finance'],
       },
       {
         title: 'Unbilled Revenue',
         href: '/agency/reports/unbilled',
-        roles: ['owner', 'director', 'manager', 'finance'],
+        roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'finance'],
       },
       {
         title: 'Vendor Payables',
         href: '/agency/reports/payables',
-        roles: ['owner', 'director', 'manager', 'finance'],
+        roles: ['owner', 'director', 'finance_manager', 'operations_manager', 'finance'],
       },
     ],
   },
@@ -209,7 +214,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Equipment',
     href: '/equipment',
     icon: Truck,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance', 'ops'],
+    roles: ['owner', 'director', 'operations_manager', 'administration', 'finance', 'ops'],
     children: [
       {
         title: 'Asset Registry',
@@ -237,7 +242,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'HSE',
     href: '/hse',
     icon: ShieldAlert,
-    roles: ['owner', 'director', 'manager', 'administration', 'ops', 'hse', 'engineer'],
+    roles: ['owner', 'director', 'operations_manager', 'administration', 'ops', 'hse', 'engineer'],
     children: [
       {
         title: 'Dashboard',
@@ -317,7 +322,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Engineering',
     href: '/engineering/surveys',
     icon: Compass,
-    roles: ['owner', 'director', 'manager', 'ops', 'engineer', 'marketing'],
+    roles: ['owner', 'director', 'marketing_manager', 'operations_manager', 'ops', 'engineer', 'marketing'],
     children: [
       {
         title: 'Resources',
@@ -349,7 +354,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Customs',
     href: '/customs/import',
     icon: Package,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance', 'ops'],
+    roles: ['owner', 'director', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops'],
     children: [
       {
         title: 'Import Documents (PIB)',
@@ -393,38 +398,38 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Invoices',
     href: '/invoices',
     icon: Receipt,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'administration', 'finance'],
     permission: 'can_manage_invoices',
   },
   {
     title: 'Vendor Invoices',
     href: '/finance/vendor-invoices',
     icon: FileStack,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance'],
+    roles: ['owner', 'director', 'finance_manager', 'operations_manager', 'administration', 'finance'],
   },
   {
     title: 'Reports',
     href: '/reports',
     icon: BarChart3,
-    roles: ['owner', 'director', 'manager', 'administration', 'finance', 'marketing', 'ops'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'marketing', 'ops'],
   },
   {
     title: 'My Attendance',
     href: '/hr/my-attendance',
     icon: Clock,
-    roles: ['owner', 'director', 'manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
   },
   {
     title: 'My Leave',
     href: '/hr/my-leave',
     icon: Calendar,
-    roles: ['owner', 'director', 'manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
   },
   {
     title: 'HR',
     href: '/hr/employees',
     icon: UserCog,
-    roles: ['owner', 'director', 'manager', 'hr'],
+    roles: ['owner', 'director', 'hr'],
     children: [
       {
         title: 'Employees',
@@ -468,7 +473,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Notifications',
     href: '/notifications',
     icon: Bell,
-    roles: ['owner', 'director', 'manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
   },
   {
     title: 'Automation',
@@ -542,7 +547,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Settings',
     href: '/settings',
     icon: Settings,
-    roles: ['owner', 'director', 'manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
     children: [
       {
         title: 'Users',
@@ -583,7 +588,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Help',
     href: '/help',
     icon: HelpCircle,
-    roles: ['owner', 'director', 'manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
     children: [
       {
         title: 'Help Center',
@@ -613,7 +618,7 @@ export function filterNavItems(
 ): NavItem[] {
   // Get inherited roles for managers
   const effectiveRoles: UserRole[] = [userRole]
-  if (profile && profile.role === 'manager' && profile.department_scope?.length) {
+  if (profile && ['marketing_manager', 'finance_manager', 'operations_manager'].includes(profile.role) && profile.department_scope?.length) {
     const inheritedRoles = getInheritedRoles(profile)
     effectiveRoles.push(...inheritedRoles)
   }
@@ -661,13 +666,15 @@ export function filterNavItems(
 export function getDashboardPath(role: UserRole): string {
   const dashboardMap: Record<UserRole, string> = {
     owner: '/dashboard',
-    director: '/dashboard',
-    manager: '/dashboard/manager',
-    sysadmin: '/dashboard',
-    administration: '/dashboard',
+    director: '/dashboard/director',
+    marketing_manager: '/dashboard/marketing-manager',
+    finance_manager: '/dashboard/finance-manager',
+    operations_manager: '/dashboard/operations-manager',
+    sysadmin: '/dashboard/sysadmin',
+    administration: '/dashboard/admin',
     finance: '/dashboard/finance',
     marketing: '/dashboard/marketing',
-    ops: '/dashboard/ops',
+    ops: '/dashboard/operation',
     engineer: '/dashboard/engineering',
     hr: '/dashboard/hr',
     hse: '/dashboard/hse',
@@ -681,7 +688,7 @@ export function getDashboardPath(role: UserRole): string {
 export function getManagerScopedNavItems(
   profile: UserProfile
 ): NavItem[] {
-  if (profile.role !== 'manager' || !profile.department_scope?.length) {
+  if (!['marketing_manager', 'finance_manager', 'operations_manager'].includes(profile.role) || !profile.department_scope?.length) {
     return filterNavItems(NAV_ITEMS, profile.role, profile)
   }
   

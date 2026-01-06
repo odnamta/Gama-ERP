@@ -2,20 +2,22 @@
 
 /**
  * All supported user roles in the system
- * 11 roles total with hierarchical structure
+ * 13 roles total with hierarchical structure
  */
 export type UserRole = 
-  | 'owner'          // Full system access, final approver (Dio)
-  | 'director'       // Executive oversight, can approve PJO/JO/BKK
-  | 'manager'        // Department head with department_scope
-  | 'sysadmin'       // IT administration, user management
-  | 'administration' // PJO preparation, invoices, document management
-  | 'finance'        // Payments, AR/AP, payroll, BKK preparation
-  | 'marketing'      // Customers, quotations, cost estimation
-  | 'ops'            // Job execution, NO revenue visibility
-  | 'engineer'       // Surveys, JMP, drawings, technical assessments
-  | 'hr'             // Employee management, attendance, payroll
-  | 'hse'            // Health, Safety, Environment modules
+  | 'owner'              // Full system access, final approver (Dio)
+  | 'director'           // Executive oversight, can approve PJO/JO/BKK
+  | 'marketing_manager'  // Marketing + Engineering departments (Hutami)
+  | 'finance_manager'    // Administration + Finance departments (Feri)
+  | 'operations_manager' // Operations + Assets departments (Reza)
+  | 'sysadmin'          // IT administration, user management
+  | 'administration'    // PJO preparation, invoices, document management
+  | 'finance'           // Payments, AR/AP, payroll, BKK preparation
+  | 'marketing'         // Customers, quotations, cost estimation
+  | 'ops'               // Job execution, NO revenue visibility
+  | 'engineer'          // Surveys, JMP, drawings, technical assessments
+  | 'hr'                // Employee management, attendance, payroll
+  | 'hse'               // Health, Safety, Environment modules
 
 /**
  * Department scopes for managers
@@ -35,8 +37,10 @@ export type DepartmentScope =
  * Dashboard types based on role and department
  */
 export type DashboardType = 
-  | 'executive'      // owner, director
-  | 'manager'        // department-scoped
+  | 'executive'          // owner, director
+  | 'marketing_manager'  // marketing + engineering focus
+  | 'finance_manager'    // administration + finance focus
+  | 'operations_manager' // operations + assets focus
   | 'marketing'
   | 'admin_finance'
   | 'operations'
@@ -48,6 +52,7 @@ export type DashboardType =
   // Legacy values for backward compatibility
   | 'owner'
   | 'admin'
+  | 'manager'
   | 'ops'
   | 'finance'
   | 'sales'

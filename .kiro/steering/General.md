@@ -87,6 +87,25 @@ npx shadcn@latest add <component-name>
 | `drawing_revisions` | Drawing version history | id, drawing_id, revision_number, change_description |
 | `drawing_transmittals` | Drawing distribution tracking | id, transmittal_number, recipient_company, status |
 
+### Assets Management Tables
+| Table | Purpose | Key Fields |
+|-------|---------|------------|
+| `assets` | Equipment, vehicles, machinery | id, asset_number, category_id, status, current_location_id |
+| `asset_categories` | Asset classification | id, category_code, category_name, parent_category_id |
+| `asset_locations` | Asset tracking locations | id, location_code, location_name, address, city |
+| `asset_assignments` | Asset job assignments | id, asset_id, job_order_id, employee_id, assigned_by |
+| `maintenance_records` | Asset maintenance history | id, asset_id, maintenance_type_id, scheduled_date, completed_date |
+| `maintenance_schedules` | Preventive maintenance | id, asset_id, maintenance_type_id, frequency_days, next_due_date |
+
+### Customs Documentation Tables
+| Table | Purpose | Key Fields |
+|-------|---------|------------|
+| `peb_documents` | Export customs documents | id, peb_number, job_order_id, exporter_name, customs_office_id, status |
+| `peb_items` | Export document line items | id, peb_id, hs_code, goods_description, quantity, unit_price |
+| `pib_documents` | Import customs documents | id, pib_number, job_order_id, importer_name, customs_office_id, status |
+| `pib_items` | Import document line items | id, pib_id, hs_code, goods_description, quantity, unit_price |
+| `customs_offices` | Customs office master data | id, office_code, office_name, city, province |
+
 ### Key Relationships
 ```
 customers → projects (1:many)
@@ -109,6 +128,23 @@ projects → drawings (1:many)
 drawing_categories → drawings (1:many)
 drawings → drawing_revisions (1:many)
 projects → drawing_transmittals (1:many)
+
+# Assets Module
+asset_categories → assets (1:many)
+asset_locations → assets (1:many)
+assets → asset_assignments (1:many)
+job_orders → asset_assignments (1:many)
+employees → asset_assignments (1:many)
+assets → maintenance_records (1:many)
+assets → maintenance_schedules (1:many)
+
+# Customs Module
+job_orders → peb_documents (1:many)
+job_orders → pib_documents (1:many)
+customs_offices → peb_documents (1:many)
+customs_offices → pib_documents (1:many)
+peb_documents → peb_items (1:many)
+pib_documents → pib_items (1:many)
 ```
 
 ### Cost Categories
@@ -120,19 +156,96 @@ projects → drawing_transmittals (1:many)
 
 | Role | Department | Can Do | Dashboard Shows |
 |------|-----------|--------|-----------------|
-| `sales` | Marketing | Create/Edit Quotations, Manage Customers | My Quotations, Win Rate |
-| `engineer` | Engineering | Assess Complex Quotations, Create JMP | Quotations Needing Review |
-| `admin` | Administration | Convert Quotations to PJO, Create JO/Invoices | PJOs Pending, Unpaid Invoices |
-| `ops` | Operations | View Budget, Submit Expenses | My Jobs, Budget vs Actual |
-| `manager` | All | Approve PJOs, View All, Reports | Full Dashboard, P&L |
-| `finance` | Finance | View Financials, Profit Margins | Revenue, Costs, Margins |
-| `super_admin` | System | Manage Users, System Settings | System Health, User Activity |
+| `owner` | All | Full system access, final approver | Executive Dashboard |
+| `director` | All | Executive oversight, approve PJO/JO/BKK | Executive Dashboard |
+| `manager` | Multi-dept | Department head with scope (marketing+engineering, admin+finance, ops+assets) | Manager Dashboard |
+| `sysadmin` | IT | User management, system administration | System Admin Dashboard |
+| `administration` | Admin | PJO preparation, invoices, document management | Admin Dashboard |
+| `finance` | Finance | Payments, AR/AP, payroll, BKK preparation | Finance Dashboard |
+| `marketing` | Marketing | Customers, quotations, cost estimation | Marketing Dashboard |
+| `ops` | Operations | Job execution, NO revenue visibility | Operations Dashboard |
+| `engineer` | Engineering | Surveys, JMP, drawings, technical assessments | Engineering Dashboard |
+| `hr` | HR | Employee management, attendance, payroll | HR Dashboard |
+| `hse` | HSE | Health, Safety, Environment modules | HSE Dashboard |
+
+**Manager Department Scopes:**
+- Hutami Arini: marketing + engineering
+- Feri Supriono: administration + finance  
+- Reza Pramana: operations + assets
 
 **Note**: `ops` role does NOT have access to Quotations module (they only see JOs after award).
 
 ---
 
-## 5. Code Conventions
+## 5. Additional Modules
+
+### Assets Management Module
+**Purpose**: Track and manage company equipment, vehicles, and machinery
+
+**Key Features**:
+- Asset registration with categories and locations
+- Maintenance scheduling and tracking
+- Asset assignments to jobs and employees
+- Depreciation calculations
+- Utilization reporting
+- Asset dashboard with performance metrics
+
+**Workflows**:
+```
+Asset Registration → Category Assignment → Location Tracking → Job Assignment → Maintenance Scheduling
+```
+
+**Access Control**:
+- View: owner, director, manager, ops
+- Create/Edit: owner, director, manager
+- Assign: manager, ops
+- Maintenance: ops, maintenance staff
+
+### Customs Documentation Module
+**Purpose**: Handle import/export customs documentation (PEB/PIB)
+
+**Key Features**:
+- PEB (Export) document creation and management
+- PIB (Import) document creation and management
+- HS code management and validation
+- Customs office integration
+- Document status tracking
+- Automated calculations (duties, taxes)
+
+**Workflows**:
+```
+# Export Flow (PEB)
+Job Order → Create PEB → Add Items → Submit to Customs → Track Status → Archive
+
+# Import Flow (PIB)
+Job Order → Create PIB → Add Items → Calculate Duties → Submit to Customs → Track Status → Archive
+```
+
+**Access Control**:
+- View: owner, director, manager, administration
+- Create/Edit: owner, director, manager, administration
+- Submit: administration, customs staff
+- Delete: owner, director only
+
+### Engineering Module (Enhanced)
+**Purpose**: Technical assessments, route surveys, and drawing management
+
+**Key Features**:
+- Route surveys with GPS waypoints
+- Journey Management Plans (JMP)
+- Technical assessments and calculations
+- Drawing management with revisions
+- Drawing transmittals and approvals
+- Engineering resource scheduling
+
+**Workflows**:
+```
+Project Award → Route Survey → Technical Assessment → JMP Creation → Drawing Production → Approval → Transmittal
+```
+
+---
+
+## 6. Code Conventions
 
 ### File Structure
 ```
@@ -160,7 +273,7 @@ const { data, error } = await supabase.from('customers').select('*')
 
 ---
 
-## 6. Current Tasks
+## 7. Current Tasks
 
 ### Phase 1 - Foundation ✅
 
@@ -185,7 +298,7 @@ const { data, error } = await supabase.from('customers').select('*')
 
 ---
 
-## 7. Critical Constraints
+## 8. Critical Constraints
 
 ### ⚠️ Security (MUST FOLLOW)
 1. All tables MUST have RLS policies
@@ -208,7 +321,7 @@ const { data, error } = await supabase.from('customers').select('*')
 
 ---
 
-## 8. Common Patterns
+## 9. Common Patterns
 
 ### Auto-generated Numbers
 ```
@@ -247,7 +360,7 @@ estimated → confirmed (actual ≤ estimated)
 
 ---
 
-## 9. When Generating Code
+## 10. When Generating Code
 
 ### ✅ Do
 - Check existing components before creating new ones

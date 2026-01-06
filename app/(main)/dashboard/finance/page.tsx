@@ -14,7 +14,7 @@ export default async function FinanceDashboardPage() {
   const profile = await getUserProfile()
   
   // Finance role and above can access finance dashboard
-  if (!profile || !['owner', 'admin', 'manager', 'finance'].includes(profile.role)) {
+  if (!profile || !['owner', 'director', 'administration', 'manager', 'finance'].includes(profile.role)) {
     redirect('/dashboard')
   }
 

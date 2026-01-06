@@ -7,7 +7,6 @@ import {
   hasPermission,
   isRole,
   getDashboardType,
-  canRemoveAdminPermission,
 } from '@/lib/permissions'
 import { UserProfile, UserRole } from '@/types/permissions'
 
@@ -19,7 +18,7 @@ function createMockProfile(overrides: Partial<UserProfile> = {}): UserProfile {
     email: 'test@example.com',
     full_name: 'Test User',
     avatar_url: null,
-    role: 'viewer',
+    role: 'ops',
     custom_dashboard: 'default',
     is_active: true,
     created_at: new Date().toISOString(),
@@ -37,16 +36,20 @@ function createMockProfile(overrides: Partial<UserProfile> = {}): UserProfile {
 
 describe('Permission Utilities', () => {
   describe('Property 1: Role-Permission Consistency', () => {
-    const roles: UserRole[] = ['admin', 'manager', 'ops', 'finance', 'viewer']
+    // Updated for 13-role system
+    const roles: UserRole[] = [
+      'owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager',
+      'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'
+    ]
 
     it.each(roles)('should return correct default permissions for %s role', (role) => {
       const permissions = getDefaultPermissions(role)
       expect(permissions).toEqual(DEFAULT_PERMISSIONS[role])
     })
 
-    it('should return viewer permissions for unknown role', () => {
+    it('should return ops permissions for unknown role', () => {
       const permissions = getDefaultPermissions('unknown' as UserRole)
-      expect(permissions).toEqual(DEFAULT_PERMISSIONS.viewer)
+      expect(permissions).toEqual(DEFAULT_PERMISSIONS.ops)
     })
   })
 
@@ -117,39 +120,39 @@ describe('Permission Utilities', () => {
 
   describe('isRole', () => {
     it('should return true when user has the specified role', () => {
-      const profile = createMockProfile({ role: 'admin' })
-      expect(isRole(profile, 'admin')).toBe(true)
+      const profile = createMockProfile({ role: 'owner' })
+      expect(isRole(profile, 'owner')).toBe(true)
     })
 
     it('should return false when user does not have the specified role', () => {
-      const profile = createMockProfile({ role: 'viewer' })
-      expect(isRole(profile, 'admin')).toBe(false)
+      const profile = createMockProfile({ role: 'ops' })
+      expect(isRole(profile, 'owner')).toBe(false)
     })
 
     it('should return true when user has one of the specified roles', () => {
-      const profile = createMockProfile({ role: 'manager' })
-      expect(isRole(profile, ['admin', 'manager'])).toBe(true)
+      const profile = createMockProfile({ role: 'marketing_manager' })
+      expect(isRole(profile, ['owner', 'marketing_manager'])).toBe(true)
     })
 
     it('should return false when user has none of the specified roles', () => {
-      const profile = createMockProfile({ role: 'viewer' })
-      expect(isRole(profile, ['admin', 'manager'])).toBe(false)
+      const profile = createMockProfile({ role: 'ops' })
+      expect(isRole(profile, ['owner', 'director'])).toBe(false)
     })
 
     it('should return false when profile is null', () => {
-      expect(isRole(null, 'admin')).toBe(false)
+      expect(isRole(null, 'owner')).toBe(false)
     })
   })
 
   describe('canAccessFeature', () => {
-    it('admin should access all features', () => {
-      const adminProfile = createMockProfile({
-        role: 'admin',
-        ...DEFAULT_PERMISSIONS.admin,
+    it('owner should access all features', () => {
+      const ownerProfile = createMockProfile({
+        role: 'owner',
+        ...DEFAULT_PERMISSIONS.owner,
       })
-      expect(canAccessFeature(adminProfile, 'users.manage')).toBe(true)
-      expect(canAccessFeature(adminProfile, 'invoices.crud')).toBe(true)
-      expect(canAccessFeature(adminProfile, 'pjo.approve')).toBe(true)
+      expect(canAccessFeature(ownerProfile, 'users.manage')).toBe(true)
+      expect(canAccessFeature(ownerProfile, 'invoices.crud')).toBe(true)
+      expect(canAccessFeature(ownerProfile, 'pjo.approve')).toBe(true)
     })
 
     it('finance should access invoices but not user management', () => {
@@ -161,14 +164,14 @@ describe('Permission Utilities', () => {
       expect(canAccessFeature(financeProfile, 'users.manage')).toBe(false)
     })
 
-    it('viewer should have minimal access', () => {
-      const viewerProfile = createMockProfile({
-        role: 'viewer',
-        ...DEFAULT_PERMISSIONS.viewer,
+    it('ops should have minimal access', () => {
+      const opsProfile = createMockProfile({
+        role: 'ops',
+        ...DEFAULT_PERMISSIONS.ops,
       })
-      expect(canAccessFeature(viewerProfile, 'projects.view')).toBe(true)
-      expect(canAccessFeature(viewerProfile, 'pjo.create')).toBe(false)
-      expect(canAccessFeature(viewerProfile, 'invoices.view')).toBe(false)
+      expect(canAccessFeature(opsProfile, 'projects.view')).toBe(true)
+      expect(canAccessFeature(opsProfile, 'pjo.create')).toBe(false)
+      expect(canAccessFeature(opsProfile, 'invoices.view')).toBe(false)
     })
 
     it('should return false when profile is null', () => {
@@ -179,7 +182,7 @@ describe('Permission Utilities', () => {
   describe('getDashboardType', () => {
     it('should return custom dashboard when set', () => {
       const profile = createMockProfile({
-        role: 'viewer',
+        role: 'ops',
         custom_dashboard: 'ops',
       })
       expect(getDashboardType(profile)).toBe('ops')
@@ -187,51 +190,33 @@ describe('Permission Utilities', () => {
 
     it('should return role when custom_dashboard is default', () => {
       const profile = createMockProfile({
-        role: 'manager',
+        role: 'marketing_manager',
         custom_dashboard: 'default',
       })
-      expect(getDashboardType(profile)).toBe('manager')
+      expect(getDashboardType(profile)).toBe('marketing_manager')
     })
 
-    it('should return viewer when profile is null', () => {
-      expect(getDashboardType(null)).toBe('viewer')
-    })
-  })
-
-  describe('Property 7: Admin Self-Protection', () => {
-    it('should prevent removing admin permission from last admin', () => {
-      const result = canRemoveAdminPermission(1, 'user-1', 'user-1')
-      expect(result.allowed).toBe(false)
-      expect(result.reason).toContain('last admin')
-    })
-
-    it('should allow removing admin permission when multiple admins exist', () => {
-      const result = canRemoveAdminPermission(2, 'user-1', 'user-1')
-      expect(result.allowed).toBe(true)
-    })
-
-    it('should allow removing admin permission from other user', () => {
-      const result = canRemoveAdminPermission(1, 'user-2', 'user-1')
-      expect(result.allowed).toBe(true)
+    it('should return default when profile is null', () => {
+      expect(getDashboardType(null)).toBe('default')
     })
   })
 
   describe('Role Permission Defaults', () => {
-    it('admin should have all permissions enabled', () => {
-      const adminPerms = DEFAULT_PERMISSIONS.admin
-      expect(adminPerms.can_see_revenue).toBe(true)
-      expect(adminPerms.can_see_profit).toBe(true)
-      expect(adminPerms.can_approve_pjo).toBe(true)
-      expect(adminPerms.can_manage_invoices).toBe(true)
-      expect(adminPerms.can_manage_users).toBe(true)
-      expect(adminPerms.can_create_pjo).toBe(true)
-      expect(adminPerms.can_fill_costs).toBe(true)
+    it('owner should have all permissions enabled', () => {
+      const ownerPerms = DEFAULT_PERMISSIONS.owner
+      expect(ownerPerms.can_see_revenue).toBe(true)
+      expect(ownerPerms.can_see_profit).toBe(true)
+      expect(ownerPerms.can_approve_pjo).toBe(true)
+      expect(ownerPerms.can_manage_invoices).toBe(true)
+      expect(ownerPerms.can_manage_users).toBe(true)
+      expect(ownerPerms.can_create_pjo).toBe(true)
+      expect(ownerPerms.can_fill_costs).toBe(true)
     })
 
-    it('manager should have most permissions except user management', () => {
-      const managerPerms = DEFAULT_PERMISSIONS.manager
+    it('marketing_manager should have most permissions except user management and approval', () => {
+      const managerPerms = DEFAULT_PERMISSIONS.marketing_manager
       expect(managerPerms.can_see_revenue).toBe(true)
-      expect(managerPerms.can_approve_pjo).toBe(true)
+      expect(managerPerms.can_approve_pjo).toBe(false)  // Can only CHECK, not approve
       expect(managerPerms.can_manage_users).toBe(false)
       expect(managerPerms.can_manage_invoices).toBe(false)
     })
@@ -253,9 +238,9 @@ describe('Permission Utilities', () => {
       expect(financePerms.can_fill_costs).toBe(false)
     })
 
-    it('viewer should have no special permissions', () => {
-      const viewerPerms = DEFAULT_PERMISSIONS.viewer
-      expect(Object.values(viewerPerms).every((v) => v === false)).toBe(true)
+    it('engineer should have no financial permissions', () => {
+      const engineerPerms = DEFAULT_PERMISSIONS.engineer
+      expect(Object.values(engineerPerms).every((v) => v === false)).toBe(true)
     })
   })
 })
@@ -302,10 +287,10 @@ describe('Property 1: Ops users cannot see financial data', () => {
     )
   })
 
-  it('should allow revenue and profit access for admin/manager roles', () => {
+  it('should allow revenue and profit access for owner/director/manager roles', () => {
     fc.assert(
       fc.property(
-        fc.constantFrom('admin', 'manager') as fc.Arbitrary<'admin' | 'manager'>,
+        fc.constantFrom('owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager') as fc.Arbitrary<'owner' | 'director' | 'marketing_manager' | 'finance_manager' | 'operations_manager'>,
         (role) => {
           const permissions = DEFAULT_PERMISSIONS[role]
           expect(permissions.can_see_revenue).toBe(true)

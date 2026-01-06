@@ -2,7 +2,7 @@
  * Operations Dashboard Route
  * v0.35: Role-Based Homepage Routing
  * 
- * This route serves as the dedicated entry point for ops users (Reza).
+ * This route serves as the dedicated entry point for ops users.
  * SECURITY: This dashboard does NOT expose revenue or profit data.
  */
 
@@ -14,8 +14,8 @@ import { getEnhancedOpsDashboardData } from '@/lib/ops-dashboard-enhanced-utils'
 export default async function OperationsDashboardPage() {
   const profile = await getUserProfile()
   
-  // Ops role and above can access operations dashboard
-  if (!profile || !['owner', 'admin', 'manager', 'ops'].includes(profile.role)) {
+  // Operations role and above can access operations dashboard
+  if (!profile || !['owner', 'director', 'operations_manager', 'administration', 'ops'].includes(profile.role)) {
     redirect('/dashboard')
   }
 

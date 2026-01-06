@@ -43,22 +43,34 @@ interface UserManagementClientProps {
 
 const ROLE_LABELS: Record<UserRole, string> = {
   owner: 'Owner',
-  admin: 'Administrator',
-  manager: 'Manager',
-  ops: 'Operations',
+  director: 'Director',
+  marketing_manager: 'Marketing Manager',
+  finance_manager: 'Finance Manager',
+  operations_manager: 'Operations Manager',
+  sysadmin: 'System Administrator',
+  administration: 'Administration',
   finance: 'Finance',
-  sales: 'Sales',
-  viewer: 'Viewer',
+  marketing: 'Marketing',
+  ops: 'Operations',
+  engineer: 'Engineer',
+  hr: 'Human Resources',
+  hse: 'Health, Safety & Environment',
 }
 
 const ROLE_COLORS: Record<UserRole, string> = {
   owner: 'bg-amber-100 text-amber-800',
-  admin: 'bg-red-100 text-red-800',
-  manager: 'bg-blue-100 text-blue-800',
-  ops: 'bg-green-100 text-green-800',
+  director: 'bg-indigo-100 text-indigo-800',
+  marketing_manager: 'bg-pink-100 text-pink-800',
+  finance_manager: 'bg-purple-100 text-purple-800',
+  operations_manager: 'bg-green-100 text-green-800',
+  sysadmin: 'bg-red-100 text-red-800',
+  administration: 'bg-orange-100 text-orange-800',
   finance: 'bg-purple-100 text-purple-800',
-  sales: 'bg-yellow-100 text-yellow-800',
-  viewer: 'bg-gray-100 text-gray-800',
+  marketing: 'bg-pink-100 text-pink-800',
+  ops: 'bg-green-100 text-green-800',
+  engineer: 'bg-cyan-100 text-cyan-800',
+  hr: 'bg-teal-100 text-teal-800',
+  hse: 'bg-yellow-100 text-yellow-800',
 }
 
 export function UserManagementClient({ users, currentUserId }: UserManagementClientProps) {
@@ -366,9 +378,9 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
                   {assignableRoles.map((role) => (
                     <SelectItem key={role} value={role}>
                       <div className="flex items-center gap-2">
-                        {role === 'admin' ? (
+                        {role === 'sysadmin' ? (
                           <ShieldCheck className="h-4 w-4 text-red-600" />
-                        ) : role === 'viewer' ? (
+                        ) : role === 'ops' ? (
                           <ShieldX className="h-4 w-4 text-gray-600" />
                         ) : (
                           <Shield className="h-4 w-4 text-blue-600" />

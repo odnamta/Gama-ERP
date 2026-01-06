@@ -10,8 +10,8 @@ import {
 import { getDefaultPermissions, DEFAULT_PERMISSIONS } from '@/lib/permissions'
 import { UserRole, UserPermissions } from '@/types/permissions'
 
-const ALL_ROLES: UserRole[] = ['owner', 'admin', 'manager', 'finance', 'sales', 'ops', 'viewer']
-const NON_OWNER_ROLES: UserRole[] = ['admin', 'manager', 'finance', 'sales', 'ops', 'viewer']
+const ALL_ROLES: UserRole[] = ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse']
+const NON_OWNER_ROLES: UserRole[] = ['director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse']
 
 const roleArb = fc.constantFrom(...ALL_ROLES)
 const nonOwnerRoleArb = fc.constantFrom(...NON_OWNER_ROLES)

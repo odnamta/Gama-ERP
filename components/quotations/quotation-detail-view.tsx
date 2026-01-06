@@ -91,8 +91,8 @@ export function QuotationDetailView({ quotation, userRole, userId }: QuotationDe
   const canMarkOutcome = status === 'submitted'
   const canConvert = status === 'won'
   
-  // Profit margin visibility - only owner, admin, manager, finance can see
-  const canViewProfitMargin = ['owner', 'admin', 'manager', 'finance', 'super_admin'].includes(userRole || '')
+  // Profit margin visibility - only owner, director, administration, manager, finance can see
+  const canViewProfitMargin = ['owner', 'director', 'administration', 'manager', 'finance', 'sysadmin'].includes(userRole || '')
 
   const loadAssessments = async () => {
     if (!requiresEngineering) return
