@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default async function NewSurveyPage() {
   const [customersResult, quotationsResult, projectsResult, employeesResult] = await Promise.all([
     getCustomers(),

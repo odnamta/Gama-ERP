@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import { getTemplates } from '@/lib/template-actions';
 import { TemplateList } from '@/components/customs-templates';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Document Templates | Customs',
   description: 'Manage customs document templates',

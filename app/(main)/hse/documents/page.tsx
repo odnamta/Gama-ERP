@@ -3,6 +3,8 @@ import { DocumentsClient } from './documents-client';
 import { getDocumentCategories, getSafetyDocuments, getDocumentStatistics } from '@/lib/safety-document-actions';
 import { DocumentStatistics } from '@/types/safety-document';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Dokumen Keselamatan - HSE',
   description: 'Kelola dokumen keselamatan kerja',

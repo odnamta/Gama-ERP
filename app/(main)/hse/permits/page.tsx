@@ -3,6 +3,8 @@ import { PermitsClient } from './permits-client';
 import { getSafetyPermits, getPermitStatistics } from '@/lib/safety-permit-actions';
 import { PermitStatistics, PermitType, PermitStatus } from '@/types/safety-document';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Izin Kerja - HSE',
   description: 'Kelola izin kerja (PTW)',
