@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { getHRDashboardMetrics } from '@/lib/dashboard/hr-dashboard-data'
 import { Users, Calendar, FileText, Award, TrendingUp, Clock, AlertCircle } from 'lucide-react'
@@ -128,18 +129,18 @@ export default async function HRDashboardPage() {
       <div className="rounded-lg border p-4">
         <h3 className="font-semibold mb-3">Quick Actions</h3>
         <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
-          <a href="/hr/employees" className="text-sm text-blue-600 hover:underline">
+          <Link href="/hr/employees" className="text-sm text-blue-600 hover:underline">
             → View All Employees
-          </a>
-          <a href="/hr/attendance" className="text-sm text-blue-600 hover:underline">
+          </Link>
+          <Link href="/hr/attendance" className="text-sm text-blue-600 hover:underline">
             → Attendance Records
-          </a>
-          <a href="/hr/leave" className="text-sm text-blue-600 hover:underline">
+          </Link>
+          <Link href="/hr/leave" className="text-sm text-blue-600 hover:underline">
             → Leave Management
-          </a>
-          <a href="/hr/skills" className="text-sm text-blue-600 hover:underline">
+          </Link>
+          <Link href="/hr/skills" className="text-sm text-blue-600 hover:underline">
             → Skills & Training
-          </a>
+          </Link>
         </div>
       </div>
     </div>
