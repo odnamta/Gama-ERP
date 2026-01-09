@@ -18,6 +18,8 @@ export type UserRole =
   | 'engineer'          // Surveys, JMP, drawings, technical assessments
   | 'hr'                // Employee management, attendance, payroll
   | 'hse'               // Health, Safety, Environment modules
+  | 'agency'            // Agency division: shipping, bookings, B/L operations
+  | 'customs'           // Customs clearance: PIB, PEB, HS codes, duties
 
 /**
  * Department scopes for managers
@@ -48,6 +50,8 @@ export type DashboardType =
   | 'hr'
   | 'hse'
   | 'sysadmin'
+  | 'agency'             // agency division dashboard
+  | 'customs'            // customs clearance dashboard
   | 'default'
   // Legacy values for backward compatibility
   | 'owner'

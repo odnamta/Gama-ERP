@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { Json } from '@/types/database'
+import { getUserProfile } from '@/lib/permissions-server'
 import {
   QuotationCreateInput,
   QuotationUpdateInput,
@@ -59,7 +60,11 @@ export async function createQuotation(
     if (!user) {
       return { success: false, error: 'Not authenticated' }
     }
-    
+
+    // Get user profile to determine entity_type
+    const profile = await getUserProfile()
+    const entityType = profile?.role === 'agency' ? 'gama_agency' : 'gama_main'
+
     // Get count of quotations this year for number generation
     const year = new Date().getFullYear()
     const { count } = await supabase
@@ -136,6 +141,7 @@ export async function createQuotation(
         status: initialStatus,
         created_by: user.id,
         notes: data.notes,
+        entity_type: entityType,
       })
       .select()
       .single()
@@ -1006,6 +1012,7 @@ export async function convertToPJO(
           total_cost_estimated: costTotal,
           status: 'draft',
           created_by: user.id,
+          entity_type: quotation.entity_type || 'gama_main',
         })
         .select()
         .single()

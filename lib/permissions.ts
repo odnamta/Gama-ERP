@@ -233,6 +233,38 @@ export const DEFAULT_PERMISSIONS: Record<UserRole, UserPermissions> = {
     can_fill_costs: false,
     can_estimate_costs: false,
   },
+  agency: {
+    can_see_revenue: false,  // Can only see agency revenue
+    can_see_profit: false,
+    can_see_actual_costs: false,
+    can_approve_pjo: false,
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: false,
+    can_check_jo: false,
+    can_check_bkk: false,
+    can_manage_invoices: false, // Can view agency invoices only
+    can_manage_users: false,
+    can_create_pjo: false,
+    can_fill_costs: false,
+    can_estimate_costs: false,
+  },
+  customs: {
+    can_see_revenue: false,
+    can_see_profit: false,
+    can_see_actual_costs: false,
+    can_approve_pjo: false,
+    can_approve_jo: false,
+    can_approve_bkk: false,
+    can_check_pjo: false,
+    can_check_jo: false,
+    can_check_bkk: false,
+    can_manage_invoices: false,
+    can_manage_users: false,
+    can_create_pjo: false,
+    can_fill_costs: false,
+    can_estimate_costs: false,
+  },
 }
 
 /**
@@ -290,6 +322,7 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   
   // Customer & Marketing
   'customers.crud': (p) => ['owner', 'director', 'marketing_manager', 'marketing'].includes(p.role),
+  // Customers view - agency and customs can view
   'customers.view': (p) => !['sysadmin'].includes(p.role),
   'customers.create': (p) => ['owner', 'director', 'marketing_manager', 'marketing'].includes(p.role),
   'customers.edit': (p) => ['owner', 'director', 'marketing_manager', 'marketing'].includes(p.role),
@@ -317,7 +350,8 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'pjo.approve': (p) => p.can_approve_pjo,
   
   // Job Orders
-  'jo.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops', 'marketing', 'engineer'].includes(p.role),
+  // Job Orders - customs can view to link customs documents
+  'jo.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops', 'marketing', 'engineer', 'customs'].includes(p.role),
   'jo.view_full': (p) => p.can_see_revenue,
   'jo.view_revenue': (p) => p.can_see_revenue,
   'jo.view_costs': (p) => p.can_fill_costs || p.can_see_revenue,
@@ -481,22 +515,22 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'audits.verify_finding': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'hse'].includes(p.role),
   'audits.nav': () => true,
   
-  // PIB (Customs Import) permissions
-  'pib.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'finance', 'administration'].includes(p.role),
-  'pib.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration'].includes(p.role),
-  'pib.edit': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration'].includes(p.role),
+  // PIB (Customs Import) permissions - customs role has full access
+  'pib.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'finance', 'administration', 'customs'].includes(p.role),
+  'pib.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'customs'].includes(p.role),
+  'pib.edit': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'customs'].includes(p.role),
   'pib.delete': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
-  'pib.view_duties': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance', 'administration'].includes(p.role),
-  'pib.update_status': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration'].includes(p.role),
-  'pib.nav': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'finance', 'administration'].includes(p.role),
+  'pib.view_duties': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance', 'administration', 'customs'].includes(p.role),
+  'pib.update_status': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'customs'].includes(p.role),
+  'pib.nav': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'finance', 'administration', 'customs'].includes(p.role),
   
-  // PEB (Customs Export) permissions
-  'peb.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'finance', 'administration'].includes(p.role),
-  'peb.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration'].includes(p.role),
-  'peb.edit': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration'].includes(p.role),
+  // PEB (Customs Export) permissions - customs role has full access
+  'peb.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'finance', 'administration', 'customs'].includes(p.role),
+  'peb.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'customs'].includes(p.role),
+  'peb.edit': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'customs'].includes(p.role),
   'peb.delete': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
-  'peb.update_status': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration'].includes(p.role),
-  'peb.nav': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'finance', 'administration'].includes(p.role),
+  'peb.update_status': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'customs'].includes(p.role),
+  'peb.nav': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'finance', 'administration', 'customs'].includes(p.role),
 }
 
 /**
@@ -573,6 +607,8 @@ export function getDashboardType(profile: UserProfile | null): string {
     engineer: 'engineering',
     hr: 'hr',
     hse: 'hse',
+    agency: 'agency',
+    customs: 'customs',
   }
   
   return roleDashboardMap[profile.role] || 'default'
@@ -590,7 +626,7 @@ export function isOwnerEmail(email: string): boolean {
  * Owner role cannot be assigned - it's auto-assigned based on email
  */
 export function getAssignableRoles(): UserRole[] {
-  return ['director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse']
+  return ['director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse', 'agency', 'customs']
 }
 
 /**

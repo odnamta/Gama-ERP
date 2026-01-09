@@ -52,7 +52,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
-    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse', 'agency', 'customs'],
     children: [
       {
         title: 'Overview',
@@ -89,7 +89,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Customers',
     href: '/customers',
     icon: Users,
-    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'administration', 'finance', 'marketing'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'administration', 'finance', 'marketing', 'agency', 'customs'],
   },
   {
     title: 'Projects',
@@ -119,7 +119,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Job Orders',
     href: '/job-orders',
     icon: Briefcase,
-    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops', 'customs'],
   },
   {
     title: 'Disbursements (BKK)',
@@ -137,7 +137,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Agency',
     href: '/agency/shipping-lines',
     icon: Ship,
-    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'marketing', 'ops'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'marketing', 'ops', 'agency'],
     children: [
       {
         title: 'Bookings',
@@ -352,7 +352,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Customs',
     href: '/customs/import',
     icon: Package,
-    roles: ['owner', 'director', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops'],
+    roles: ['owner', 'director', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops', 'customs'],
     children: [
       {
         title: 'Import Documents (PIB)',
@@ -451,7 +451,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Notifications',
     href: '/notifications',
     icon: Bell,
-    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse', 'agency', 'customs'],
   },
   {
     title: 'Automation',
@@ -573,7 +573,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Help',
     href: '/help',
     icon: HelpCircle,
-    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse', 'agency', 'customs'],
     children: [
       {
         title: 'Help Center',
@@ -663,6 +663,8 @@ export function getDashboardPath(role: UserRole): string {
     engineer: '/dashboard/engineering',
     hr: '/dashboard/hr',
     hse: '/dashboard/hse',
+    agency: '/dashboard/agency',
+    customs: '/dashboard/customs',
   }
   return dashboardMap[role] || '/dashboard'
 }

@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { getFinanceManagerMetrics } from '@/lib/dashboard/finance-manager-data'
+import { formatCurrencyIDRCompact } from '@/lib/utils/format'
 
 export default async function FinanceManagerDashboardPage() {
   const supabase = await createClient()
@@ -27,6 +29,8 @@ export default async function FinanceManagerDashboardPage() {
     redirect('/dashboard')
   }
 
+  const metrics = await getFinanceManagerMetrics()
+
   return (
     <div className="space-y-6">
       <div>
@@ -45,17 +49,17 @@ export default async function FinanceManagerDashboardPage() {
             <div className="rounded-lg border p-4 bg-orange-50">
               <h3 className="font-semibold">Pending PJOs</h3>
               <p className="text-sm text-muted-foreground">Awaiting preparation</p>
-              <div className="text-2xl font-bold text-orange-700 mt-2">7</div>
+              <div className="text-2xl font-bold text-orange-700 mt-2">{metrics.pendingPJOs}</div>
             </div>
             <div className="rounded-lg border p-4 bg-orange-50">
               <h3 className="font-semibold">Draft Invoices</h3>
               <p className="text-sm text-muted-foreground">Ready to send</p>
-              <div className="text-2xl font-bold text-orange-700 mt-2">4</div>
+              <div className="text-2xl font-bold text-orange-700 mt-2">{metrics.draftInvoices}</div>
             </div>
             <div className="rounded-lg border p-4 bg-orange-50">
               <h3 className="font-semibold">Document Queue</h3>
               <p className="text-sm text-muted-foreground">Processing required</p>
-              <div className="text-2xl font-bold text-orange-700 mt-2">15</div>
+              <div className="text-2xl font-bold text-orange-700 mt-2">{metrics.documentQueue}</div>
             </div>
           </div>
         </div>
@@ -67,18 +71,24 @@ export default async function FinanceManagerDashboardPage() {
             <div className="rounded-lg border p-4 bg-purple-50">
               <h3 className="font-semibold">Pending Payments</h3>
               <p className="text-sm text-muted-foreground">BKK approvals needed</p>
-              <div className="text-2xl font-bold text-purple-700 mt-2">9</div>
+              <div className="text-2xl font-bold text-purple-700 mt-2">{metrics.pendingBKK}</div>
             </div>
             <div className="rounded-lg border p-4 bg-purple-50">
               <h3 className="font-semibold">AR Outstanding</h3>
-              <p className="text-sm text-muted-foreground">Overdue invoices</p>
-              <div className="text-2xl font-bold text-purple-700 mt-2">Rp 1.2B</div>
+              <p className="text-sm text-muted-foreground">Unpaid invoices</p>
+              <div className="text-2xl font-bold text-purple-700 mt-2">
+                {formatCurrencyIDRCompact(metrics.arOutstanding)}
+              </div>
             </div>
-            <div className="rounded-lg border p-4 bg-purple-50">
-              <h3 className="font-semibold">Cash Position</h3>
-              <p className="text-sm text-muted-foreground">Available funds</p>
-              <div className="text-2xl font-bold text-purple-700 mt-2">Rp 850M</div>
-            </div>
+            {metrics.cashPosition > 0 && (
+              <div className="rounded-lg border p-4 bg-purple-50">
+                <h3 className="font-semibold">Cash Position</h3>
+                <p className="text-sm text-muted-foreground">Available funds</p>
+                <div className="text-2xl font-bold text-purple-700 mt-2">
+                  {formatCurrencyIDRCompact(metrics.cashPosition)}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -87,22 +97,30 @@ export default async function FinanceManagerDashboardPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-lg border p-4">
           <h3 className="font-semibold">Revenue MTD</h3>
-          <div className="text-2xl font-bold text-green-600 mt-2">Rp 3.2B</div>
-          <p className="text-sm text-green-600">+12% vs last month</p>
+          <div className="text-2xl font-bold text-green-600 mt-2">
+            {formatCurrencyIDRCompact(metrics.revenueMTD)}
+          </div>
+          <p className={`text-sm ${metrics.revenueMTDChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {metrics.revenueMTDChange >= 0 ? '+' : ''}{metrics.revenueMTDChange}% vs last month
+          </p>
         </div>
         <div className="rounded-lg border p-4">
           <h3 className="font-semibold">Gross Margin</h3>
-          <div className="text-2xl font-bold text-blue-600 mt-2">28%</div>
-          <p className="text-sm text-blue-600">+2% vs target</p>
+          <div className="text-2xl font-bold text-blue-600 mt-2">{metrics.grossMargin}%</div>
+          <p className={`text-sm ${metrics.grossMarginVsTarget >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
+            {metrics.grossMarginVsTarget >= 0 ? '+' : ''}{metrics.grossMarginVsTarget}% vs target
+          </p>
         </div>
         <div className="rounded-lg border p-4">
           <h3 className="font-semibold">Collection Rate</h3>
-          <div className="text-2xl font-bold text-purple-600 mt-2">85%</div>
-          <p className="text-sm text-purple-600">Within target</p>
+          <div className="text-2xl font-bold text-purple-600 mt-2">{metrics.collectionRate}%</div>
+          <p className={`text-sm ${metrics.collectionRate >= 80 ? 'text-purple-600' : 'text-orange-600'}`}>
+            {metrics.collectionRate >= 80 ? 'Within target' : 'Below target'}
+          </p>
         </div>
         <div className="rounded-lg border p-4">
           <h3 className="font-semibold">Cost Control</h3>
-          <div className="text-2xl font-bold text-orange-600 mt-2">92%</div>
+          <div className="text-2xl font-bold text-orange-600 mt-2">{metrics.costControl}%</div>
           <p className="text-sm text-orange-600">Budget adherence</p>
         </div>
       </div>
@@ -111,14 +129,21 @@ export default async function FinanceManagerDashboardPage() {
       <div className="rounded-lg border p-4 bg-blue-50">
         <h3 className="font-semibold text-blue-700 mb-2">Cross-Department Updates</h3>
         <div className="space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span>Marketing: 5 quotations won, ready for PJO</span>
-            <span className="text-blue-600 cursor-pointer hover:underline">View →</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Operations: Equipment maintenance budget exceeded</span>
-            <span className="text-blue-600 cursor-pointer hover:underline">View →</span>
-          </div>
+          {metrics.quotationsWonPendingPJO > 0 && (
+            <div className="flex justify-between">
+              <span>Marketing: {metrics.quotationsWonPendingPJO} quotation{metrics.quotationsWonPendingPJO > 1 ? 's' : ''} won, ready for PJO</span>
+              <span className="text-blue-600 cursor-pointer hover:underline">View →</span>
+            </div>
+          )}
+          {metrics.budgetExceededCount > 0 && (
+            <div className="flex justify-between">
+              <span>Operations: {metrics.budgetExceededCount} cost item{metrics.budgetExceededCount > 1 ? 's' : ''} exceeded budget</span>
+              <span className="text-blue-600 cursor-pointer hover:underline">View →</span>
+            </div>
+          )}
+          {metrics.quotationsWonPendingPJO === 0 && metrics.budgetExceededCount === 0 && (
+            <p className="text-muted-foreground">No pending cross-department items</p>
+          )}
         </div>
       </div>
     </div>

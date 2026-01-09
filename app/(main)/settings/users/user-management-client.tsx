@@ -55,6 +55,8 @@ const ROLE_LABELS: Record<UserRole, string> = {
   engineer: 'Engineer',
   hr: 'Human Resources',
   hse: 'Health, Safety & Environment',
+  agency: 'Agency Staff',
+  customs: 'Customs Specialist',
 }
 
 const ROLE_COLORS: Record<UserRole, string> = {
@@ -71,6 +73,8 @@ const ROLE_COLORS: Record<UserRole, string> = {
   engineer: 'bg-cyan-100 text-cyan-800',
   hr: 'bg-teal-100 text-teal-800',
   hse: 'bg-yellow-100 text-yellow-800',
+  agency: 'bg-sky-100 text-sky-800',
+  customs: 'bg-lime-100 text-lime-800',
 }
 
 export function UserManagementClient({ users, currentUserId }: UserManagementClientProps) {

@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { trackCustomerCreation } from '@/lib/onboarding-tracker'
 import { invalidateCustomerCache } from '@/lib/cached-queries'
+import { getUserProfile } from '@/lib/permissions-server'
 
 const customerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -23,11 +24,16 @@ export async function createCustomer(data: CustomerFormData): Promise<{ error?: 
 
   const supabase = await createClient()
 
+  // Get user profile to determine entity_type
+  const profile = await getUserProfile()
+  const entityType = profile?.role === 'agency' ? 'gama_agency' : 'gama_main'
+
   const { error } = await supabase.from('customers').insert({
     name: data.name,
     email: data.email || '',
     phone: data.phone || null,
     address: data.address || null,
+    entity_type: entityType,
   })
 
   if (error) {

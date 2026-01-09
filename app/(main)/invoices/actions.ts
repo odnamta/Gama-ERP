@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getUserProfile } from '@/lib/permissions-server'
 import {
   InvoiceWithRelations,
   InvoiceFormData,
@@ -152,10 +153,10 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
 }> {
   const supabase = await createClient()
 
-  // Validate JO status
+  // Validate JO status and get entity_type
   const { data: jo, error: joError } = await supabase
     .from('job_orders')
-    .select('status')
+    .select('status, entity_type')
     .eq('id', data.jo_id)
     .single()
 
@@ -191,6 +192,7 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
       invoice_term: data.invoice_term || null,
       term_percentage: data.term_percentage || null,
       term_description: data.term_description || null,
+      entity_type: jo.entity_type || 'gama_main',
     })
     .select('id, invoice_number')
     .single()
@@ -499,7 +501,7 @@ export async function generateSplitInvoice(
 
   // Parse invoice terms
   const terms = parseInvoiceTerms(jo.invoice_terms)
-  
+
   if (terms.length === 0) {
     return { error: 'No invoice terms configured for this Job Order' }
   }
@@ -551,6 +553,7 @@ export async function generateSplitInvoice(
       invoice_term: term.term,
       term_percentage: term.percentage,
       term_description: term.description,
+      entity_type: jo.entity_type || 'gama_main',
     })
     .select('id, invoice_number')
     .single()

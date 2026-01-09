@@ -63,6 +63,8 @@ export const DEFAULT_ROLE_HOMEPAGES: Record<UserRole, string> = {
   engineer: '/dashboard/engineering',
   hr: '/dashboard/hr',
   hse: '/dashboard/hse',
+  agency: '/dashboard/agency',
+  customs: '/dashboard/customs',
 }
 
 /**
