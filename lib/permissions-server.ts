@@ -6,7 +6,7 @@ import { DEFAULT_PERMISSIONS, OWNER_EMAIL, isOwnerEmail, getAssignableRoles, get
 
 /**
  * Get the current user's profile from the database
- * Also updates last_login_at timestamp
+ * Note: last_login_at is updated via auth trigger, not here (for performance)
  */
 export async function getUserProfile(): Promise<UserProfile | null> {
   const supabase = await createClient()
@@ -23,14 +23,6 @@ export async function getUserProfile(): Promise<UserProfile | null> {
     .select('*')
     .eq('user_id', user.id)
     .single()
-
-  if (profile) {
-    // Update last_login_at
-    await supabase
-      .from('user_profiles')
-      .update({ last_login_at: new Date().toISOString() })
-      .eq('user_id', user.id)
-  }
 
   // Ensure department_scope is always an array
   if (profile && !profile.department_scope) {

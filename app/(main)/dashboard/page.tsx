@@ -1,7 +1,5 @@
-import { Suspense } from 'react'
 import { DashboardSelector } from '@/components/dashboard/dashboard-selector'
 import { OwnerDashboardWithPreview } from '@/components/dashboard/owner-dashboard-with-preview'
-import { OwnerDashboardSkeleton } from '@/components/dashboard/owner-dashboard-skeleton'
 import {
   fetchDashboardKPIs,
   fetchBudgetAlerts,
@@ -23,36 +21,6 @@ import { fetchCachedOwnerDashboardData } from '@/lib/dashboard-cache-actions'
 // Hutami's email - Marketing Manager who also manages Engineering
 const HUTAMI_EMAIL = 'hutamiarini@gama-group.co'
 
-/**
- * Server component that fetches owner dashboard data
- * Uses caching for fast load times
- */
-async function OwnerDashboardLoader({
-  userId,
-  userName,
-  userEmail,
-  onboardingData,
-}: {
-  userId: string
-  userName?: string
-  userEmail: string
-  onboardingData: Awaited<ReturnType<typeof getUserOnboardingProgress>> | null
-}) {
-  // Fetch only owner-specific data (fast - cached)
-  // Preview data is fetched lazily on client when needed
-  const ownerData = await fetchCachedOwnerDashboardData()
-
-  return (
-    <OwnerDashboardWithPreview
-      ownerData={ownerData}
-      userName={userName}
-      userEmail={userEmail}
-      userId={userId}
-      onboardingData={onboardingData}
-    />
-  )
-}
-
 export default async function DashboardPage() {
   // Get user profile for role-based rendering
   const profile = await getUserProfile()
@@ -60,24 +28,27 @@ export default async function DashboardPage() {
   const userEmail = profile?.email || ''
   const userId = profile?.id || ''
 
-  // Fetch onboarding data for all users
-  const onboardingData = userId ? await getUserOnboardingProgress(userId) : null
-
-  // For owner users, use optimized loading:
-  // - Owner dashboard data loads immediately (cached, <500ms)
-  // - Preview data loads lazily only when user activates preview mode
+  // For owner users, use optimized loading with parallel data fetching
   if (userRole === 'owner') {
+    // Fetch owner data and onboarding in parallel
+    const [ownerData, onboardingData] = await Promise.all([
+      fetchCachedOwnerDashboardData(),
+      userId ? getUserOnboardingProgress(userId) : Promise.resolve(null),
+    ])
+
     return (
-      <Suspense fallback={<OwnerDashboardSkeleton />}>
-        <OwnerDashboardLoader
-          userId={userId}
-          userName={profile?.full_name || undefined}
-          userEmail={userEmail}
-          onboardingData={onboardingData}
-        />
-      </Suspense>
+      <OwnerDashboardWithPreview
+        ownerData={ownerData}
+        userName={profile?.full_name || undefined}
+        userEmail={userEmail}
+        userId={userId}
+        onboardingData={onboardingData}
+      />
     )
   }
+
+  // Fetch onboarding data for non-owner users
+  const onboardingData = userId ? await getUserOnboardingProgress(userId) : null
 
   // For non-owner users, fetch only their specific dashboard data
   if (userRole === 'ops') {
