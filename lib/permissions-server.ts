@@ -226,6 +226,15 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
       return null
     }
 
+    // Initialize onboarding for newly linked pre-registered user
+    try {
+      const { initializeOnboardingForUser } = await import('@/lib/onboarding-actions')
+      await initializeOnboardingForUser(user.id, linkedProfile.role)
+    } catch (e) {
+      console.error('Failed to initialize onboarding for linked user:', e)
+      // Don't fail the profile linking if onboarding initialization fails
+    }
+
     return linkedProfile as UserProfile
   }
 
@@ -432,6 +441,8 @@ export async function getAllUsers(): Promise<UserProfile[]> {
     console.error('Error fetching users:', error)
     return []
   }
+
+  console.log(`getAllUsers: Fetched ${data?.length || 0} users`)
 
   return data as UserProfile[]
 }
