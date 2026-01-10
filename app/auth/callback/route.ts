@@ -6,10 +6,16 @@ import { syncUserMetadataToAuth } from '@/lib/supabase/sync-user-metadata'
 import { initializeOnboardingForUser } from '@/lib/onboarding-actions'
 
 export async function GET(request: Request) {
+  console.log('========================================')
+  console.log('[AUTH CALLBACK] ROUTE CALLED - START')
+  console.log('========================================')
+
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const error = searchParams.get('error')
   const errorDescription = searchParams.get('error_description')
+
+  console.log('[AUTH CALLBACK] Query params - code:', code ? 'EXISTS' : 'NULL', 'error:', error, 'errorDescription:', errorDescription)
 
   // Handle OAuth errors from Google
   if (error) {
