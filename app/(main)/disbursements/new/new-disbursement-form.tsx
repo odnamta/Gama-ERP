@@ -35,9 +35,9 @@ const formSchema = z.object({
   vendor_id: z.string().optional(),
   date: z.string().min(1, 'Date is required'),
   description: z.string().min(1, 'Description is required'),
-  amount: z.coerce.number().positive('Amount must be positive'),
+  amount: z.number().positive('Amount must be positive'),
   currency: z.enum(['IDR', 'USD']),
-  exchange_rate: z.coerce.number().positive().default(1),
+  exchange_rate: z.number().positive(),
   payment_method: z.enum(['cash', 'transfer', 'check', 'giro']).optional(),
   bank_account: z.string().optional(),
   reference_number: z.string().optional(),
@@ -48,7 +48,7 @@ type FormValues = z.infer<typeof formSchema>
 
 interface Vendor {
   id: string
-  name: string
+  vendor_name: string
   vendor_code: string | null
   bank_name: string | null
   bank_account: string | null
@@ -58,7 +58,6 @@ interface Vendor {
 interface JobOrder {
   id: string
   jo_number: string
-  customer_name: string | null
 }
 
 interface NewDisbursementFormProps {
@@ -182,7 +181,7 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
                           <SelectContent>
                             {jobOrders.map((jo) => (
                               <SelectItem key={jo.id} value={jo.id}>
-                                {jo.jo_number} - {jo.customer_name || 'N/A'}
+                                {jo.jo_number}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -209,7 +208,7 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
                           <SelectContent>
                             {vendors.map((vendor) => (
                               <SelectItem key={vendor.id} value={vendor.id}>
-                                {vendor.name} {vendor.vendor_code && `(${vendor.vendor_code})`}
+                                {vendor.vendor_name} {vendor.vendor_code && `(${vendor.vendor_code})`}
                               </SelectItem>
                             ))}
                           </SelectContent>

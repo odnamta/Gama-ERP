@@ -52,23 +52,9 @@ export async function createDisbursement(input: CreateDisbursementInput) {
     // Generate BKK number
     const bkkNumber = await generateBKKNumber()
 
-    // Determine entity_type
-    let entityType = 'gama_main'
-
-    if (input.job_order_id) {
-      // If linked to JO, inherit entity_type from JO
-      const { data: jo } = await supabase
-        .from('job_orders')
-        .select('entity_type')
-        .eq('id', input.job_order_id)
-        .single()
-
-      entityType = jo?.entity_type || 'gama_main'
-    } else {
-      // Otherwise, determine from user role
-      const profile = await getUserProfile()
-      entityType = profile?.role === 'agency' ? 'gama_agency' : 'gama_main'
-    }
+    // Determine entity_type from user role
+    const profile = await getUserProfile()
+    const entityType = profile?.role === 'agency' ? 'gama_agency' : 'gama_main'
 
     const { data, error } = await supabase
       .from('bkk_records')

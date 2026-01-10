@@ -2875,6 +2875,154 @@ export type Database = {
           },
         ]
       }
+      bkk_records: {
+        Row: {
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          bank_account: string | null
+          bkk_number: string
+          checked_at: string | null
+          checked_by: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          job_order_id: string | null
+          paid_at: string | null
+          paid_by: string | null
+          payment_method: string | null
+          reference_number: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
+          updated_at: string | null
+          vendor_id: string | null
+          vendor_invoice_id: string | null
+          workflow_status: string | null
+        }
+        Insert: {
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          bank_account?: string | null
+          bkk_number: string
+          checked_at?: string | null
+          checked_by?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          job_order_id?: string | null
+          paid_at?: string | null
+          paid_by?: string | null
+          payment_method?: string | null
+          reference_number?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          updated_at?: string | null
+          vendor_id?: string | null
+          vendor_invoice_id?: string | null
+          workflow_status?: string | null
+        }
+        Update: {
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          bank_account?: string | null
+          bkk_number?: string
+          checked_at?: string | null
+          checked_by?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          job_order_id?: string | null
+          paid_at?: string | null
+          paid_by?: string | null
+          payment_method?: string | null
+          reference_number?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
+          updated_at?: string | null
+          vendor_id?: string | null
+          vendor_invoice_id?: string | null
+          workflow_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disbursements_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disbursements_checked_by_fkey"
+            columns: ["checked_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disbursements_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disbursements_job_order_id_fkey"
+            columns: ["job_order_id"]
+            isOneToOne: false
+            referencedRelation: "job_customs_costs"
+            referencedColumns: ["job_order_id"]
+          },
+          {
+            foreignKeyName: "disbursements_job_order_id_fkey"
+            columns: ["job_order_id"]
+            isOneToOne: false
+            referencedRelation: "job_equipment_summary_view"
+            referencedColumns: ["job_order_id"]
+          },
+          {
+            foreignKeyName: "disbursements_job_order_id_fkey"
+            columns: ["job_order_id"]
+            isOneToOne: false
+            referencedRelation: "job_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disbursements_job_order_id_fkey"
+            columns: ["job_order_id"]
+            isOneToOne: false
+            referencedRelation: "operations_job_list"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disbursements_paid_by_fkey"
+            columns: ["paid_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disbursements_rejected_by_fkey"
+            columns: ["rejected_by"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blocked_ips: {
         Row: {
           blocked_at: string | null
@@ -4479,154 +4627,6 @@ export type Database = {
           version?: string
         }
         Relationships: []
-      }
-      disbursements: {
-        Row: {
-          amount: number
-          approved_at: string | null
-          approved_by: string | null
-          bank_account: string | null
-          bkk_number: string
-          checked_at: string | null
-          checked_by: string | null
-          created_at: string | null
-          created_by: string | null
-          currency: string | null
-          description: string | null
-          id: string
-          is_active: boolean | null
-          job_order_id: string | null
-          paid_at: string | null
-          paid_by: string | null
-          payment_method: string | null
-          reference_number: string | null
-          rejected_at: string | null
-          rejected_by: string | null
-          rejection_reason: string | null
-          updated_at: string | null
-          vendor_id: string | null
-          vendor_invoice_id: string | null
-          workflow_status: string | null
-        }
-        Insert: {
-          amount: number
-          approved_at?: string | null
-          approved_by?: string | null
-          bank_account?: string | null
-          bkk_number: string
-          checked_at?: string | null
-          checked_by?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          currency?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          job_order_id?: string | null
-          paid_at?: string | null
-          paid_by?: string | null
-          payment_method?: string | null
-          reference_number?: string | null
-          rejected_at?: string | null
-          rejected_by?: string | null
-          rejection_reason?: string | null
-          updated_at?: string | null
-          vendor_id?: string | null
-          vendor_invoice_id?: string | null
-          workflow_status?: string | null
-        }
-        Update: {
-          amount?: number
-          approved_at?: string | null
-          approved_by?: string | null
-          bank_account?: string | null
-          bkk_number?: string
-          checked_at?: string | null
-          checked_by?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          currency?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          job_order_id?: string | null
-          paid_at?: string | null
-          paid_by?: string | null
-          payment_method?: string | null
-          reference_number?: string | null
-          rejected_at?: string | null
-          rejected_by?: string | null
-          rejection_reason?: string | null
-          updated_at?: string | null
-          vendor_id?: string | null
-          vendor_invoice_id?: string | null
-          workflow_status?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "disbursements_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disbursements_checked_by_fkey"
-            columns: ["checked_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disbursements_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disbursements_job_order_id_fkey"
-            columns: ["job_order_id"]
-            isOneToOne: false
-            referencedRelation: "job_customs_costs"
-            referencedColumns: ["job_order_id"]
-          },
-          {
-            foreignKeyName: "disbursements_job_order_id_fkey"
-            columns: ["job_order_id"]
-            isOneToOne: false
-            referencedRelation: "job_equipment_summary_view"
-            referencedColumns: ["job_order_id"]
-          },
-          {
-            foreignKeyName: "disbursements_job_order_id_fkey"
-            columns: ["job_order_id"]
-            isOneToOne: false
-            referencedRelation: "job_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disbursements_job_order_id_fkey"
-            columns: ["job_order_id"]
-            isOneToOne: false
-            referencedRelation: "operations_job_list"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disbursements_paid_by_fkey"
-            columns: ["paid_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "disbursements_rejected_by_fkey"
-            columns: ["rejected_by"]
-            isOneToOne: false
-            referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       document_attachments: {
         Row: {

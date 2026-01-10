@@ -20,24 +20,23 @@ export default async function NewDisbursementPage() {
   // Fetch vendors and job orders for selection
   const supabase = await createClient()
   
-  const [vendorsResult, jobOrdersResult] = await Promise.all([
-    supabase
-      .from('vendors')
-      .select('id, name, vendor_code, bank_name, bank_account, bank_account_name')
-      .eq('status', 'active')
-      .order('name'),
-    supabase
-      .from('job_orders')
-      .select('id, jo_number, customer_name')
-      .in('status', ['active', 'in_progress', 'pending', 'completed'])
-      .order('created_at', { ascending: false })
-      .limit(100),
-  ])
+  const { data: vendors } = await supabase
+    .from('vendors')
+    .select('id, vendor_name, vendor_code, bank_name, bank_account, bank_account_name')
+    .eq('is_active', true)
+    .order('vendor_name')
+
+  const { data: jobOrders } = await supabase
+    .from('job_orders')
+    .select('id, jo_number')
+    .in('status', ['active', 'in_progress', 'pending', 'completed'])
+    .order('created_at', { ascending: false })
+    .limit(100)
 
   return (
     <NewDisbursementForm
-      vendors={vendorsResult.data || []}
-      jobOrders={jobOrdersResult.data || []}
+      vendors={vendors || []}
+      jobOrders={jobOrders || []}
       userId={profile?.id || ''}
     />
   )

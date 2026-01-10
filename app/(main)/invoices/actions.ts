@@ -153,10 +153,10 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
 }> {
   const supabase = await createClient()
 
-  // Validate JO status and get entity_type
+  // Validate JO status
   const { data: jo, error: joError } = await supabase
     .from('job_orders')
-    .select('status, entity_type')
+    .select('status')
     .eq('id', data.jo_id)
     .single()
 
@@ -169,10 +169,14 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
   }
 
   // Calculate totals
-  const { subtotal, vatAmount, grandTotal } = calculateInvoiceTotals(data.line_items)
+  const { subtotal, vatAmount, grandTotal} = calculateInvoiceTotals(data.line_items)
 
   // Generate invoice number
   const invoiceNumber = await generateInvoiceNumber()
+
+  // Determine entity_type from user role
+  const profile = await getUserProfile()
+  const entityType = profile?.role === 'agency' ? 'gama_agency' : 'gama_main'
 
   // Create invoice with optional term metadata
   const { data: invoice, error: invoiceError } = await supabase
@@ -192,7 +196,7 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
       invoice_term: data.invoice_term || null,
       term_percentage: data.term_percentage || null,
       term_description: data.term_description || null,
-      entity_type: jo.entity_type || 'gama_main',
+      entity_type: entityType,
     })
     .select('id, invoice_number')
     .single()
@@ -537,6 +541,10 @@ export async function generateSplitInvoice(
 
   const dueDate = getDefaultDueDate(paymentTerms)
 
+  // Determine entity_type from user role
+  const profile = await getUserProfile()
+  const entityType = profile?.role === 'agency' ? 'gama_agency' : 'gama_main'
+
   // Create invoice with term metadata
   const { data: invoice, error: invoiceError } = await supabase
     .from('invoices')
@@ -553,7 +561,7 @@ export async function generateSplitInvoice(
       invoice_term: term.term,
       term_percentage: term.percentage,
       term_description: term.description,
-      entity_type: jo.entity_type || 'gama_main',
+      entity_type: entityType,
     })
     .select('id, invoice_number')
     .single()

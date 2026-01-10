@@ -82,6 +82,8 @@ export function getRoleDisplayName(role: UserRole): string {
     engineer: 'Engineer',
     hr: 'Human Resources',
     hse: 'Health & Safety',
+    agency: 'Agency',
+    customs: 'Customs',
   }
   return displayNames[role] || role
 }

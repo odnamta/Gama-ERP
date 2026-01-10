@@ -1012,7 +1012,7 @@ export async function convertToPJO(
           total_cost_estimated: costTotal,
           status: 'draft',
           created_by: user.id,
-          entity_type: quotation.entity_type || 'gama_main',
+          entity_type: user.role === 'agency' ? 'gama_agency' : 'gama_main',
         })
         .select()
         .single()

@@ -91,6 +91,9 @@ export const HIDDEN_FIELDS: Record<UserRole, Record<string, string[]>> = {
   finance_manager: {},
   operations_manager: {},
   administration: {},
+  // New roles (to be configured)
+  agency: {},
+  customs: {},
 }
 
 /**
