@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { usePreview } from '@/hooks/use-preview'
 import { DashboardClient } from '@/components/dashboard/dashboard-client'
 import { OpsDashboard, EnhancedOpsDashboard } from '@/components/dashboard/ops'
@@ -10,6 +11,8 @@ import { ManagerDashboard } from '@/components/dashboard/manager/manager-dashboa
 import { AdminDashboard } from '@/components/dashboard/admin/admin-dashboard'
 import { OwnerDashboard } from '@/components/dashboard/owner-dashboard'
 import { OnboardingWidget } from '@/components/onboarding'
+import { WelcomeModal } from '@/components/onboarding/welcome-modal'
+import { UserRole } from '@/types/permissions'
 import type { SalesEngineeringDashboardData } from '@/lib/sales-engineering-dashboard-utils'
 import type { EnhancedOpsDashboardData } from '@/lib/ops-dashboard-enhanced-utils'
 import type { UserOnboardingData } from '@/types/onboarding'
@@ -55,27 +58,46 @@ export function DashboardSelector({
   onboardingData,
 }: DashboardSelectorProps) {
   const { effectiveRole, isPreviewActive } = usePreview()
+  const [showWelcomeModal, setShowWelcomeModal] = useState(
+    onboardingData?.status?.show_welcome_modal ?? false
+  )
 
   // Use effective role for dashboard selection (supports preview mode)
   const roleToRender = effectiveRole
 
   // Check if onboarding widget should be shown
-  const showOnboarding = userId && 
-    onboardingData?.status?.show_onboarding_widget && 
+  const showOnboarding = userId &&
+    onboardingData?.status?.show_onboarding_widget &&
     !onboardingData?.status?.is_onboarding_complete
 
-  // Wrapper component to add onboarding widget
+  // Wrapper component to add onboarding widget and welcome modal
   const DashboardWrapper = ({ children }: { children: React.ReactNode }) => {
-    if (!showOnboarding || !userId) {
-      return <>{children}</>
-    }
     return (
-      <div className="flex flex-col xl:flex-row gap-6">
-        <div className="flex-1 min-w-0">{children}</div>
-        <div className="xl:w-80 shrink-0">
-          <OnboardingWidget userId={userId} />
-        </div>
-      </div>
+      <>
+        {/* Welcome Modal for first-time users */}
+        {userId && userName && userEmail && showWelcomeModal && (
+          <WelcomeModal
+            userId={userId}
+            userName={userName}
+            userRole={actualRole as UserRole}
+            userEmail={userEmail}
+            open={showWelcomeModal}
+            onOpenChange={setShowWelcomeModal}
+          />
+        )}
+
+        {/* Dashboard content with optional onboarding widget */}
+        {!showOnboarding || !userId ? (
+          <>{children}</>
+        ) : (
+          <div className="flex flex-col xl:flex-row gap-6">
+            <div className="flex-1 min-w-0">{children}</div>
+            <div className="xl:w-80 shrink-0">
+              <OnboardingWidget userId={userId} />
+            </div>
+          </div>
+        )}
+      </>
     )
   }
 

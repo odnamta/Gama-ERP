@@ -425,3 +425,74 @@ export async function dismissWelcomeModal(
 
   return { success: true };
 }
+
+/**
+ * Request role change - notifies owner/sysadmin
+ */
+export async function requestRoleChange(
+  userId: string,
+  userEmail: string,
+  userName: string,
+  currentRole: string
+): Promise<{ success: boolean; error?: string }> {
+  const supabase = await createClient();
+
+  try {
+    // Get all users with can_manage_users permission (owners and sysadmins)
+    const { data: admins, error: adminsError } = await supabase
+      .from('user_profiles')
+      .select('user_id, email, full_name')
+      .eq('can_manage_users', true)
+      .eq('is_active', true);
+
+    if (adminsError) {
+      console.error('Error fetching admins:', adminsError);
+      return { success: false, error: 'Failed to find administrators' };
+    }
+
+    if (!admins || admins.length === 0) {
+      return { success: false, error: 'No administrators found' };
+    }
+
+    // Create notification for each admin (filter out null user_ids)
+    const notifications = admins
+      .filter((admin) => admin.user_id !== null)
+      .map((admin) => ({
+        user_id: admin.user_id!,
+        title: 'Role Change Request',
+        message: `${userName} (${userEmail}) has requested a role change. Current role: ${currentRole}`,
+        type: 'user_activity',
+        link: '/settings/users',
+        is_read: false,
+      }));
+
+    if (notifications.length === 0) {
+      return { success: false, error: 'No valid administrators found' };
+    }
+
+    const { error: notificationError } = await supabase
+      .from('notifications')
+      .insert(notifications);
+
+    if (notificationError) {
+      console.error('Error creating notifications:', notificationError);
+      return { success: false, error: 'Failed to send notifications' };
+    }
+
+    // Log the role change request
+    await supabase.from('activity_log').insert({
+      action_type: 'role_change_requested',
+      document_type: 'user',
+      document_id: userId,
+      document_number: userEmail,
+      user_id: userId,
+      user_name: userName,
+      details: `Current role: ${currentRole}`,
+    });
+
+    return { success: true };
+  } catch (e: any) {
+    console.error('Error in requestRoleChange:', e);
+    return { success: false, error: e.message || 'Unknown error occurred' };
+  }
+}
