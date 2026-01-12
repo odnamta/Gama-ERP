@@ -19,6 +19,7 @@ export async function getAttendanceRecords(
 ): Promise<{ data: AttendanceRecord[] | null; error: string | null }> {
   const supabase = await createClient();
 
+  // Use explicit FK hint to avoid PGRST201 ambiguous relationship error
   let query = supabase
     .from('attendance_records')
     .select(`
@@ -28,7 +29,7 @@ export async function getAttendanceRecords(
         employee_code,
         full_name,
         department_id,
-        department:departments(id, department_name)
+        department:departments!employees_department_id_fkey(id, department_name)
       )
     `)
     .order('attendance_date', { ascending: false });
@@ -357,6 +358,7 @@ export async function getEmployeesWithAttendance(
   const supabase = await createClient();
 
   // Get all active employees
+  // Use explicit FK hint to avoid PGRST201 ambiguous relationship error
   let employeeQuery = supabase
     .from('employees')
     .select(`
@@ -364,7 +366,7 @@ export async function getEmployeesWithAttendance(
       employee_code,
       full_name,
       department_id,
-      department:departments(department_name)
+      department:departments!employees_department_id_fkey(department_name)
     `)
     .eq('status', 'active')
     .order('employee_code');

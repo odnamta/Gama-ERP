@@ -219,6 +219,7 @@ export async function createPayrollPeriod(
 export async function getPayrollRecords(periodId: string): Promise<PayrollRecord[]> {
   const supabase = await createClient();
   
+  // Use explicit FK hint to avoid PGRST201 ambiguous relationship error
   const { data, error } = await supabase
     .from('payroll_records')
     .select(`
@@ -227,7 +228,7 @@ export async function getPayrollRecords(periodId: string): Promise<PayrollRecord
         id,
         employee_code,
         full_name,
-        department:departments(id, department_name),
+        department:departments!employees_department_id_fkey(id, department_name),
         position:positions(id, position_name),
         base_salary,
         bank_name,
@@ -252,6 +253,7 @@ export async function getPayrollRecords(periodId: string): Promise<PayrollRecord
 export async function getPayrollRecord(recordId: string): Promise<PayrollRecord | null> {
   const supabase = await createClient();
   
+  // Use explicit FK hint to avoid PGRST201 ambiguous relationship error
   const { data, error } = await supabase
     .from('payroll_records')
     .select(`
@@ -260,7 +262,7 @@ export async function getPayrollRecord(recordId: string): Promise<PayrollRecord 
         id,
         employee_code,
         full_name,
-        department:departments(id, department_name),
+        department:departments!employees_department_id_fkey(id, department_name),
         position:positions(id, position_name),
         base_salary,
         bank_name,
@@ -604,6 +606,7 @@ export async function getManpowerCostByDepartment(
   }
 
   // Get records with department info
+  // Use explicit FK hint to avoid PGRST201 ambiguous relationship error
   const { data: records, error } = await supabase
     .from('payroll_records')
     .select(`
@@ -611,7 +614,7 @@ export async function getManpowerCostByDepartment(
       net_salary,
       total_company_cost,
       employee:employees(
-        department:departments(id, department_name)
+        department:departments!employees_department_id_fkey(id, department_name)
       )
     `)
     .eq('period_id', period.id);

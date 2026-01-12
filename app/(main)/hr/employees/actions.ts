@@ -24,13 +24,14 @@ export async function getEmployees(
 
   // Use explicit relationship names to avoid PGRST201 ambiguous relationship error
   // departments has two FKs: employees_department_id_fkey and fk_department_manager
+  // For self-joins, use column name syntax (employees!reporting_to) not FK constraint name
   let query = supabase
     .from('employees')
     .select(`
       *,
       department:departments!employees_department_id_fkey(id, department_code, department_name),
-      position:positions!employees_position_id_fkey(id, position_code, position_name, level),
-      reporting_manager:employees!employees_reporting_to_fkey(full_name, employee_code)
+      position:positions(id, position_code, position_name, level),
+      reporting_manager:employees!reporting_to(full_name, employee_code)
     `)
     .order('employee_code');
 
@@ -70,8 +71,8 @@ export async function getEmployee(
     .select(`
       *,
       department:departments!employees_department_id_fkey(id, department_code, department_name),
-      position:positions!employees_position_id_fkey(id, position_code, position_name, level),
-      reporting_manager:employees!employees_reporting_to_fkey(full_name, employee_code)
+      position:positions(id, position_code, position_name, level),
+      reporting_manager:employees!reporting_to(full_name, employee_code)
     `)
     .eq('id', id)
     .single();
