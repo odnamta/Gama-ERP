@@ -22,34 +22,15 @@ export async function getEmployees(
 ): Promise<{ data: EmployeeWithRelations[] | null; error: string | null }> {
   const supabase = await createClient();
 
-  // Debug: Check auth status
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  console.log('[getEmployees] Auth check:', {
-    hasUser: !!user,
-    userId: user?.id,
-    email: user?.email,
-    authError: authError?.message
-  });
-
-  // Try simple query first
-  const { data: simpleData, error: simpleError } = await supabase
-    .from('employees')
-    .select('id, employee_code, full_name')
-    .limit(5);
-
-  console.log('[getEmployees] Simple query result:', {
-    count: simpleData?.length,
-    error: simpleError?.message,
-    data: simpleData
-  });
-
+  // Use explicit relationship names to avoid PGRST201 ambiguous relationship error
+  // departments has two FKs: employees_department_id_fkey and fk_department_manager
   let query = supabase
     .from('employees')
     .select(`
       *,
-      department:departments(id, department_code, department_name),
-      position:positions(id, position_code, position_name, level),
-      reporting_manager:employees!reporting_to(full_name, employee_code)
+      department:departments!employees_department_id_fkey(id, department_code, department_name),
+      position:positions!employees_position_id_fkey(id, position_code, position_name, level),
+      reporting_manager:employees!employees_reporting_to_fkey(full_name, employee_code)
     `)
     .order('employee_code');
 
@@ -67,12 +48,6 @@ export async function getEmployees(
 
   const { data, error } = await query;
 
-  console.log('[getEmployees] Full query result:', {
-    count: data?.length,
-    error: error?.message,
-    errorDetails: error
-  });
-
   if (error) {
     console.error('Error fetching employees:', error);
     return { data: null, error: error.message };
@@ -89,13 +64,14 @@ export async function getEmployee(
 ): Promise<{ data: EmployeeWithRelations | null; error: string | null }> {
   const supabase = await createClient();
 
+  // Use explicit relationship names to avoid PGRST201 ambiguous relationship error
   const { data, error } = await supabase
     .from('employees')
     .select(`
       *,
-      department:departments(id, department_code, department_name),
-      position:positions(id, position_code, position_name, level),
-      reporting_manager:employees!reporting_to(full_name, employee_code)
+      department:departments!employees_department_id_fkey(id, department_code, department_name),
+      position:positions!employees_position_id_fkey(id, position_code, position_name, level),
+      reporting_manager:employees!employees_reporting_to_fkey(full_name, employee_code)
     `)
     .eq('id', id)
     .single();
