@@ -22,6 +22,27 @@ export async function getEmployees(
 ): Promise<{ data: EmployeeWithRelations[] | null; error: string | null }> {
   const supabase = await createClient();
 
+  // Debug: Check auth status
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  console.log('[getEmployees] Auth check:', {
+    hasUser: !!user,
+    userId: user?.id,
+    email: user?.email,
+    authError: authError?.message
+  });
+
+  // Try simple query first
+  const { data: simpleData, error: simpleError } = await supabase
+    .from('employees')
+    .select('id, employee_code, full_name')
+    .limit(5);
+
+  console.log('[getEmployees] Simple query result:', {
+    count: simpleData?.length,
+    error: simpleError?.message,
+    data: simpleData
+  });
+
   let query = supabase
     .from('employees')
     .select(`
@@ -45,6 +66,12 @@ export async function getEmployees(
   }
 
   const { data, error } = await query;
+
+  console.log('[getEmployees] Full query result:', {
+    count: data?.length,
+    error: error?.message,
+    errorDetails: error
+  });
 
   if (error) {
     console.error('Error fetching employees:', error);
