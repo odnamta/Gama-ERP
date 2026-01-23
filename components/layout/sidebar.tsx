@@ -8,6 +8,7 @@ import { usePreview } from '@/hooks/use-preview'
 import { NAV_ITEMS, filterNavItems } from '@/lib/navigation'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Truck } from 'lucide-react'
+import { ChangelogNotificationDot } from '@/components/changelog/changelog-notification-dot'
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -68,13 +69,15 @@ export function Sidebar() {
                         key={child.href}
                         href={child.href}
                         className={cn(
-                          'block rounded-lg px-3 py-2 text-sm transition-colors',
+                          'flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors',
                           pathname === child.href || pathname.startsWith(child.href + '/')
                             ? 'bg-muted text-foreground'
                             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                         )}
                       >
-                        {child.title}
+                        <span>{child.title}</span>
+                        {/* Show notification dot for What's New */}
+                        {child.href === '/changelog' && <ChangelogNotificationDot />}
                       </Link>
                     ))}
                   </div>

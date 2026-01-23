@@ -23,6 +23,7 @@ import {
   Zap,
   Shield,
   Wallet,
+  Sparkles,
 } from 'lucide-react'
 import { UserRole, UserPermissions, UserProfile, DepartmentScope } from '@/types/permissions'
 import { getInheritedRoles, DEPARTMENT_STAFF_ROLES } from '@/lib/permissions'
@@ -586,6 +587,10 @@ export const NAV_ITEMS: NavItem[] = [
       {
         title: 'Onboarding',
         href: '/onboarding',
+      },
+      {
+        title: "What's New",
+        href: '/changelog',
       },
     ],
   },
