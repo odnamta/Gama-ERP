@@ -39,6 +39,8 @@ CREATE INDEX IF NOT EXISTS idx_changelog_published_at ON changelog_entries(publi
 -- Valid values: 'feature', 'improvement', 'bugfix', 'security'
 
 -- Trigger for automatically updating updated_at on row updates
+-- Drop if exists to make migration idempotent
+DROP TRIGGER IF EXISTS update_changelog_entries_updated_at ON changelog_entries;
 CREATE TRIGGER update_changelog_entries_updated_at
     BEFORE UPDATE ON changelog_entries
     FOR EACH ROW
