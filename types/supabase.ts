@@ -3680,6 +3680,45 @@ export type Database = {
           },
         ]
       }
+      changelog_entries: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_major: boolean | null
+          published_at: string | null
+          title: string
+          updated_at: string | null
+          version: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_major?: boolean | null
+          published_at?: string | null
+          title: string
+          updated_at?: string | null
+          version?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_major?: boolean | null
+          published_at?: string | null
+          title?: string
+          updated_at?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
       company_settings: {
         Row: {
           id: string
@@ -16672,6 +16711,51 @@ export type Database = {
           },
         ]
       }
+      user_activity_log: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          page_path: string | null
+          resource_id: string | null
+          resource_type: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          page_path?: string | null
+          resource_id?: string | null
+          resource_type?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          page_path?: string | null
+          resource_id?: string | null
+          resource_type?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_notification_type_preferences: {
         Row: {
           created_at: string | null
@@ -16810,7 +16894,7 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "user_profiles"
-            referencedColumns: ["id"]
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -20385,6 +20469,21 @@ export type Database = {
       generate_bkk_number: { Args: never; Returns: string }
       generate_drawing_number: { Args: { prefix: string }; Returns: string }
       generate_transmittal_number: { Args: never; Returns: string }
+      get_activity_stats: {
+        Args: { p_days?: number }
+        Returns: {
+          created_at: string
+          user_email: string
+          user_id: string
+        }[]
+      }
+      get_activity_users: {
+        Args: never
+        Returns: {
+          user_email: string
+          user_id: string
+        }[]
+      }
       get_current_user_role: { Args: never; Returns: string }
       get_dashboard_stats: {
         Args: never
@@ -20394,6 +20493,20 @@ export type Database = {
           pending_invoices: number
           profit_mtd: number
           revenue_mtd: number
+        }[]
+      }
+      get_recent_activity: {
+        Args: { p_limit?: number }
+        Returns: {
+          action_type: string
+          created_at: string
+          id: string
+          metadata: Json
+          page_path: string
+          resource_id: string
+          resource_type: string
+          user_email: string
+          user_id: string
         }[]
       }
       get_user_role: { Args: never; Returns: string }
@@ -20412,9 +20525,25 @@ export type Database = {
       is_admin_or_owner: { Args: never; Returns: boolean }
       is_admin_or_super_admin: { Args: never; Returns: boolean }
       is_finance_user: { Args: never; Returns: boolean }
+      is_hr_user: { Args: never; Returns: boolean }
       is_manager: { Args: never; Returns: boolean }
       is_manager_or_above: { Args: never; Returns: boolean }
       is_ops_user: { Args: never; Returns: boolean }
+      log_user_activity: {
+        Args: {
+          p_action_type?: string
+          p_ip_address?: string
+          p_metadata?: string
+          p_page_path?: string
+          p_resource_id?: string
+          p_resource_type?: string
+          p_session_id?: string
+          p_user_agent?: string
+          p_user_email?: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       refresh_asset_tco_summary: { Args: never; Returns: undefined }
       refresh_asset_utilization: { Args: never; Returns: undefined }
       refresh_finance_dashboard: { Args: never; Returns: undefined }

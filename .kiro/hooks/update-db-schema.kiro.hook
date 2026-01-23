@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Update Database Schema",
+  "description": "Automatically updates the database-schema.md steering file when types/supabase.ts is modified (after running npx supabase gen types)",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "types/supabase.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The types/supabase.ts file has been updated (likely from `npx supabase gen types`). Please review the changes and update `.kiro/steering/database-schema.md` if there are new tables, columns, or schema changes. Focus on:\n1. New tables that need to be documented\n2. New columns added to existing tables\n3. Changed status values or enums\n4. New foreign key relationships\nKeep the existing format and structure. Update the \"Last Updated\" date at the bottom."
+  }
+}
