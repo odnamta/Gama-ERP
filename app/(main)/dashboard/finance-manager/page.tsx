@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getFinanceManagerMetrics } from '@/lib/dashboard/finance-manager-data'
 import { formatCurrencyIDRCompact } from '@/lib/utils/format'
+import { format } from 'date-fns'
 
 export default async function FinanceManagerDashboardPage() {
   const supabase = await createClient()
@@ -40,9 +41,35 @@ export default async function FinanceManagerDashboardPage() {
         </p>
       </div>
 
+      {/* Financial Overview Section - Task 3.1 */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-lg border p-4 bg-green-50">
+          <h3 className="font-semibold">Revenue YTD</h3>
+          <p className="text-sm text-muted-foreground">Year-to-date revenue</p>
+          <div className="text-2xl font-bold text-green-700 mt-2">
+            {formatCurrencyIDRCompact(metrics.revenueYTD)}
+          </div>
+        </div>
+        <div className="rounded-lg border p-4 bg-amber-50">
+          <h3 className="font-semibold">Expenses MTD</h3>
+          <p className="text-sm text-muted-foreground">Month-to-date expenses</p>
+          <div className="text-2xl font-bold text-amber-700 mt-2">
+            {formatCurrencyIDRCompact(metrics.expensesMTD)}
+          </div>
+        </div>
+        <div className="rounded-lg border p-4 bg-blue-50">
+          <h3 className="font-semibold">Gross Profit</h3>
+          <p className="text-sm text-muted-foreground">Revenue MTD - Expenses MTD</p>
+          <div className={`text-2xl font-bold mt-2 ${metrics.grossProfit >= 0 ? 'text-blue-700' : 'text-red-600'}`}>
+            {metrics.grossProfit < 0 && '-'}
+            {formatCurrencyIDRCompact(Math.abs(metrics.grossProfit))}
+          </div>
+        </div>
+      </div>
+
       {/* Primary Focus: Administration & Finance */}
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Administration Section */}
+        {/* Administration Section - Task 3.2 */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-orange-700">Administration Department</h2>
           <div className="grid gap-4">
@@ -50,6 +77,16 @@ export default async function FinanceManagerDashboardPage() {
               <h3 className="font-semibold">Pending PJOs</h3>
               <p className="text-sm text-muted-foreground">Awaiting preparation</p>
               <div className="text-2xl font-bold text-orange-700 mt-2">{metrics.pendingPJOs}</div>
+            </div>
+            <div className="rounded-lg border p-4 bg-orange-50">
+              <h3 className="font-semibold">PJOs Ready for JO</h3>
+              <p className="text-sm text-muted-foreground">Approved, awaiting conversion</p>
+              <div className="text-2xl font-bold text-orange-700 mt-2">{metrics.pjosReadyForJO}</div>
+            </div>
+            <div className="rounded-lg border p-4 bg-orange-50">
+              <h3 className="font-semibold">JOs Pending Invoice</h3>
+              <p className="text-sm text-muted-foreground">Completed, awaiting billing</p>
+              <div className="text-2xl font-bold text-orange-700 mt-2">{metrics.josPendingInvoice}</div>
             </div>
             <div className="rounded-lg border p-4 bg-orange-50">
               <h3 className="font-semibold">Draft Invoices</h3>
@@ -60,6 +97,32 @@ export default async function FinanceManagerDashboardPage() {
               <h3 className="font-semibold">Document Queue</h3>
               <p className="text-sm text-muted-foreground">Processing required</p>
               <div className="text-2xl font-bold text-orange-700 mt-2">{metrics.documentQueue}</div>
+            </div>
+          </div>
+          
+          {/* Admin Pipeline Visual - Task 3.2 */}
+          <div className="rounded-lg border p-4 bg-orange-50">
+            <h3 className="font-semibold mb-3">Document Workflow Pipeline</h3>
+            <div className="flex items-center justify-between text-sm">
+              <div className="text-center">
+                <div className="text-lg font-bold text-orange-700">{metrics.adminPipeline.draftPJOs}</div>
+                <div className="text-muted-foreground">Draft PJOs</div>
+              </div>
+              <div className="text-orange-400">→</div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-orange-700">{metrics.adminPipeline.pendingApprovalPJOs}</div>
+                <div className="text-muted-foreground">Pending Approval</div>
+              </div>
+              <div className="text-orange-400">→</div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-orange-700">{metrics.adminPipeline.activeJOs}</div>
+                <div className="text-muted-foreground">Active JOs</div>
+              </div>
+              <div className="text-orange-400">→</div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-orange-700">{metrics.adminPipeline.completedJOs}</div>
+                <div className="text-muted-foreground">Completed</div>
+              </div>
             </div>
           </div>
         </div>
@@ -80,6 +143,22 @@ export default async function FinanceManagerDashboardPage() {
                 {formatCurrencyIDRCompact(metrics.arOutstanding)}
               </div>
             </div>
+            {/* AP Outstanding - Task 3.4 */}
+            <div className="rounded-lg border p-4 bg-purple-50">
+              <h3 className="font-semibold">AP Outstanding</h3>
+              <p className="text-sm text-muted-foreground">Pending disbursements</p>
+              <div className="text-2xl font-bold text-purple-700 mt-2">
+                {formatCurrencyIDRCompact(metrics.apOutstanding)}
+              </div>
+            </div>
+            {/* AP Due This Week - Task 3.4 */}
+            <div className="rounded-lg border p-4 bg-purple-50">
+              <h3 className="font-semibold">AP Due This Week</h3>
+              <p className="text-sm text-muted-foreground">Urgent payments</p>
+              <div className="text-2xl font-bold text-purple-700 mt-2">
+                {formatCurrencyIDRCompact(metrics.apDueThisWeek)}
+              </div>
+            </div>
             {metrics.cashPosition > 0 && (
               <div className="rounded-lg border p-4 bg-purple-50">
                 <h3 className="font-semibold">Cash Position</h3>
@@ -89,6 +168,106 @@ export default async function FinanceManagerDashboardPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* AR Enhancement Section - Task 3.3 */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-lg border p-4">
+          <h3 className="font-semibold text-red-700 mb-3">AR Overdue</h3>
+          <div className="grid gap-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Overdue Amount</p>
+                <div className="text-2xl font-bold text-red-600">
+                  {formatCurrencyIDRCompact(metrics.arOverdue)}
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Overdue Invoices</p>
+                <div className="text-2xl font-bold text-red-600">
+                  {metrics.overdueInvoicesCount}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* AR Aging Breakdown - Task 3.3 */}
+        <div className="rounded-lg border p-4">
+          <h3 className="font-semibold mb-3">AR Aging Breakdown</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm">0-30 days (Current)</span>
+              <div className="text-right">
+                <span className="font-semibold">{metrics.arAging.current.count} inv</span>
+                <span className="text-muted-foreground ml-2">
+                  {formatCurrencyIDRCompact(metrics.arAging.current.amount)}
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-sm">31-60 days</span>
+              <div className="text-right">
+                <span className="font-semibold">{metrics.arAging.days31to60.count} inv</span>
+                <span className="text-muted-foreground ml-2">
+                  {formatCurrencyIDRCompact(metrics.arAging.days31to60.amount)}
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center text-orange-600">
+              <span className="text-sm font-medium">61-90 days</span>
+              <div className="text-right">
+                <span className="font-semibold">{metrics.arAging.days61to90.count} inv</span>
+                <span className="ml-2">
+                  {formatCurrencyIDRCompact(metrics.arAging.days61to90.amount)}
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between items-center text-red-600">
+              <span className="text-sm font-medium">90+ days</span>
+              <div className="text-right">
+                <span className="font-semibold">{metrics.arAging.over90.count} inv</span>
+                <span className="ml-2">
+                  {formatCurrencyIDRCompact(metrics.arAging.over90.amount)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Approval Queue Section - Task 3.5 */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-lg border p-4 bg-yellow-50">
+          <h3 className="font-semibold text-yellow-700">Pending PJO Approvals</h3>
+          <div className="mt-2 flex justify-between items-end">
+            <div>
+              <p className="text-sm text-muted-foreground">Count</p>
+              <div className="text-2xl font-bold text-yellow-700">{metrics.pendingPJOApprovals.count}</div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Total Value</p>
+              <div className="text-xl font-bold text-yellow-700">
+                {formatCurrencyIDRCompact(metrics.pendingPJOApprovals.totalValue)}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-lg border p-4 bg-yellow-50">
+          <h3 className="font-semibold text-yellow-700">Pending Disbursement Approvals</h3>
+          <div className="mt-2 flex justify-between items-end">
+            <div>
+              <p className="text-sm text-muted-foreground">Count</p>
+              <div className="text-2xl font-bold text-yellow-700">{metrics.pendingDisbursementApprovals.count}</div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-muted-foreground">Total Value</p>
+              <div className="text-xl font-bold text-yellow-700">
+                {formatCurrencyIDRCompact(metrics.pendingDisbursementApprovals.totalValue)}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -122,6 +301,91 @@ export default async function FinanceManagerDashboardPage() {
           <h3 className="font-semibold">Cost Control</h3>
           <div className="text-2xl font-bold text-orange-600 mt-2">{metrics.costControl}%</div>
           <p className="text-sm text-orange-600">Budget adherence</p>
+        </div>
+      </div>
+
+      {/* Recent Activity Section - Task 3.6 */}
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Recent Invoices */}
+        <div className="rounded-lg border p-4">
+          <h3 className="font-semibold mb-3">Recent Invoices</h3>
+          <div className="space-y-3">
+            {metrics.recentInvoices.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No recent invoices</p>
+            ) : (
+              metrics.recentInvoices.map((invoice) => (
+                <div key={invoice.id} className="flex justify-between items-start text-sm border-b pb-2 last:border-0">
+                  <div>
+                    <div className="font-medium">{invoice.invoice_number}</div>
+                    <div className="text-muted-foreground text-xs">{invoice.customer_name}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-medium">{formatCurrencyIDRCompact(invoice.total_amount)}</div>
+                    <div className={`text-xs ${
+                      invoice.status === 'paid' ? 'text-green-600' :
+                      invoice.status === 'overdue' ? 'text-red-600' :
+                      invoice.status === 'sent' ? 'text-blue-600' :
+                      'text-muted-foreground'
+                    }`}>
+                      {invoice.status}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Recent Payments */}
+        <div className="rounded-lg border p-4">
+          <h3 className="font-semibold mb-3">Recent Payments</h3>
+          <div className="space-y-3">
+            {metrics.recentPayments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No recent payments</p>
+            ) : (
+              metrics.recentPayments.map((payment) => (
+                <div key={payment.id} className="flex justify-between items-start text-sm border-b pb-2 last:border-0">
+                  <div>
+                    <div className="font-medium">{payment.invoice_number}</div>
+                    <div className="text-muted-foreground text-xs">{payment.customer_name}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-medium text-green-600">{formatCurrencyIDRCompact(payment.total_amount)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {payment.paid_at ? format(new Date(payment.paid_at), 'dd/MM/yyyy') : '-'}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Recent PJO Approvals */}
+        <div className="rounded-lg border p-4">
+          <h3 className="font-semibold mb-3">Recent PJO Approvals</h3>
+          <div className="space-y-3">
+            {metrics.recentPJOApprovals.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No recent approvals</p>
+            ) : (
+              metrics.recentPJOApprovals.map((pjo) => (
+                <div key={pjo.id} className="flex justify-between items-start text-sm border-b pb-2 last:border-0">
+                  <div>
+                    <div className="font-medium">{pjo.pjo_number}</div>
+                    <div className="text-muted-foreground text-xs truncate max-w-[150px]">{pjo.description}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-medium">{formatCurrencyIDRCompact(pjo.estimated_amount)}</div>
+                    <div className={`text-xs font-medium ${
+                      pjo.status === 'approved' ? 'text-green-600' : 'text-red-600'
+                    }`}>
+                      {pjo.status === 'approved' ? '✓ Approved' : '✗ Rejected'}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
 
