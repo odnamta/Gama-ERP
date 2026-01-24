@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { AssetsDashboardClient } from './assets-dashboard-client'
 import { UserRole } from '@/types/permissions'
+import { getAssetsDashboardMetrics } from '@/lib/dashboard/assets-data'
 
 export default async function AssetsDashboardPage() {
   const supabase = await createClient()
@@ -29,5 +30,8 @@ export default async function AssetsDashboardPage() {
     redirect('/dashboard')
   }
 
-  return <AssetsDashboardClient userRole={profile.role as UserRole} />
+  // Fetch dashboard metrics server-side with caching
+  const metrics = await getAssetsDashboardMetrics()
+
+  return <AssetsDashboardClient userRole={profile.role as UserRole} metrics={metrics} />
 }
