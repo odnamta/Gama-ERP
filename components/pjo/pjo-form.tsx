@@ -11,12 +11,14 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, FileQuestion } from 'lucide-react'
+import { Loader2, FileQuestion, AlertCircle } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import { ProformaJobOrder, PJORevenueItem, PJOCostItem } from '@/types'
 import { ProjectWithCustomer } from '@/components/projects/project-table'
 import { createPJO, updatePJO } from '@/app/(main)/proforma-jo/actions'
 import type { PJOFormData } from '@/app/(main)/proforma-jo/actions'
 import { useToast } from '@/hooks/use-toast'
+import { debugLog, debugError } from '@/lib/utils/debug-logger'
 // formatIDR is used in FinancialSummary component
 import { PlacesAutocomplete, LocationData } from '@/components/ui/places-autocomplete'
 import { RevenueItemsTable, RevenueItemRow } from './revenue-items-table'
@@ -291,51 +293,89 @@ export function PJOForm({ projects, pjo, existingRevenueItems = [], existingCost
   }
 
   async function onSubmit(data: Omit<PJOFormValues, 'revenue_items' | 'cost_items'>) {
-    if (!validateRevenueItems()) return
-    if (!validateCostItems()) return
-    const formData: PJOFormData = {
-      ...data,
-      quantity: data.quantity ?? 0,
-      total_revenue: calculatedTotalRevenue,
-      total_expenses: calculatedTotalCost,
-      revenue_items: revenueItems.map(item => ({
-        id: item.id, description: item.description, quantity: item.quantity,
-        unit: item.unit, unit_price: item.unit_price,
-        source_type: item.source_type || 'manual', source_id: item.source_id,
-      })),
-      cost_items: costItems.map(item => ({
-        id: item.id, category: item.category, description: item.description,
-        estimated_amount: item.estimated_amount,
-      })),
-      // Market classification fields
-      cargo_weight_kg: cargoSpecs.cargo_weight_kg,
-      cargo_length_m: cargoSpecs.cargo_length_m,
-      cargo_width_m: cargoSpecs.cargo_width_m,
-      cargo_height_m: cargoSpecs.cargo_height_m,
-      cargo_value: cargoSpecs.cargo_value,
-      duration_days: cargoSpecs.duration_days,
-      is_new_route: routeChars.is_new_route,
-      terrain_type: routeChars.terrain_type,
-      requires_special_permit: routeChars.requires_special_permit,
-      is_hazardous: routeChars.is_hazardous,
-      market_type: classification?.market_type ?? null,
-      complexity_score: classification?.complexity_score ?? null,
-      complexity_factors: classification?.complexity_factors ?? null,
-      pricing_approach: pricingApproach,
-      pricing_notes: pricingNotes || null,
+    // Debug logging: Log when submission is attempted with form state
+    debugLog('PJO Form', 'Submission attempted', { 
+      isLoading, 
+      revenueItemsCount: revenueItems.length,
+      costItemsCount: costItems.length 
+    })
+
+    // Validation checks - return early if invalid (no loading state change needed)
+    if (!validateRevenueItems()) {
+      debugLog('PJO Form', 'Revenue items validation failed')
+      return
     }
+    if (!validateCostItems()) {
+      debugLog('PJO Form', 'Cost items validation failed')
+      return
+    }
+
     setIsLoading(true)
+    debugLog('PJO Form', 'Loading state set to true')
+
     try {
+      const formData: PJOFormData = {
+        ...data,
+        quantity: data.quantity ?? 0,
+        total_revenue: calculatedTotalRevenue,
+        total_expenses: calculatedTotalCost,
+        revenue_items: revenueItems.map(item => ({
+          id: item.id, description: item.description, quantity: item.quantity,
+          unit: item.unit, unit_price: item.unit_price,
+          source_type: item.source_type || 'manual', source_id: item.source_id,
+        })),
+        cost_items: costItems.map(item => ({
+          id: item.id, category: item.category, description: item.description,
+          estimated_amount: item.estimated_amount,
+        })),
+        // Market classification fields
+        cargo_weight_kg: cargoSpecs.cargo_weight_kg,
+        cargo_length_m: cargoSpecs.cargo_length_m,
+        cargo_width_m: cargoSpecs.cargo_width_m,
+        cargo_height_m: cargoSpecs.cargo_height_m,
+        cargo_value: cargoSpecs.cargo_value,
+        duration_days: cargoSpecs.duration_days,
+        is_new_route: routeChars.is_new_route,
+        terrain_type: routeChars.terrain_type,
+        requires_special_permit: routeChars.requires_special_permit,
+        is_hazardous: routeChars.is_hazardous,
+        market_type: classification?.market_type ?? null,
+        complexity_score: classification?.complexity_score ?? null,
+        complexity_factors: classification?.complexity_factors ?? null,
+        pricing_approach: pricingApproach,
+        pricing_notes: pricingNotes || null,
+      }
+
       if (mode === 'create') {
         const result = await createPJO(formData)
-        if (result.error) toast({ title: 'Error', description: result.error, variant: 'destructive' })
-        else { toast({ title: 'Success', description: 'PJO created successfully' }); router.push(`/proforma-jo/${result.id}`) }
+        if (result.error) {
+          toast({ title: 'Error', description: result.error, variant: 'destructive' })
+        } else {
+          toast({ title: 'Success', description: 'PJO created successfully' })
+          router.push(`/proforma-jo/${result.id}`)
+        }
       } else if (pjo) {
         const result = await updatePJO(pjo.id, formData)
-        if (result.error) toast({ title: 'Error', description: result.error, variant: 'destructive' })
-        else { toast({ title: 'Success', description: 'PJO updated successfully' }); router.push(`/proforma-jo/${pjo.id}`) }
+        if (result.error) {
+          toast({ title: 'Error', description: result.error, variant: 'destructive' })
+        } else {
+          toast({ title: 'Success', description: 'PJO updated successfully' })
+          router.push(`/proforma-jo/${pjo.id}`)
+        }
       }
-    } finally { setIsLoading(false) }
+    } catch (error) {
+      // Catch unexpected errors that might occur during submission
+      debugError('PJO Form', 'Unexpected error:', error)
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive'
+      })
+    } finally {
+      // CRITICAL: Always reset loading state regardless of success/failure/error
+      setIsLoading(false)
+      debugLog('PJO Form', 'Loading state reset to false')
+    }
   }
 
 
@@ -479,8 +519,30 @@ export function PJOForm({ projects, pjo, existingRevenueItems = [], existingCost
         </CardContent>
       </Card>
 
+      {/* Validation Error Summary */}
+      {Object.keys(errors).length > 0 && (
+        <div className="rounded-md bg-destructive/10 p-4">
+          <div className="flex items-center gap-2 text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            <span className="font-medium">Please fix the following errors:</span>
+          </div>
+          <ul className="mt-2 list-disc list-inside text-sm text-destructive">
+            {Object.entries(errors).map(([field, error]) => (
+              <li key={field}>{error?.message || `${field} is invalid`}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="flex gap-4">
-        <Button type="submit" disabled={isLoading}>
+        <Button 
+          type="submit" 
+          disabled={isLoading}
+          className={cn(
+            "min-w-[140px]",
+            isLoading && "cursor-not-allowed"
+          )}
+        >
           {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : mode === 'edit' ? 'Update PJO' : 'Create PJO'}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()} disabled={isLoading}>Cancel</Button>
