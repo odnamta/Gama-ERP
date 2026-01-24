@@ -84,7 +84,7 @@ describe('Navigation Properties', () => {
 })
 
 describe('Role-specific navigation', () => {
-  it('administration sees Dashboard, Customers, Projects, Quotations, Proforma JO, Job Orders, Disbursements, Vendors, Equipment, HSE, Customs, Invoices, Vendor Invoices, Reports, Notifications, Help', () => {
+  it('administration sees Dashboard, Customers, Projects, Quotations, Proforma JO, Job Orders, Disbursements, Vendors, Equipment, HSE, Invoices, Vendor Invoices, Reports, Notifications, Help', () => {
     const adminPermissions = DEFAULT_PERMISSIONS.administration
     const filteredItems = filterNavItems(NAV_ITEMS, 'administration', adminPermissions)
     const titles = filteredItems.map(item => item.title)
@@ -99,17 +99,17 @@ describe('Role-specific navigation', () => {
     expect(titles).toContain('Vendors')
     expect(titles).toContain('Equipment')
     expect(titles).toContain('HSE')
-    expect(titles).toContain('Customs')
     expect(titles).toContain('Invoices')
     expect(titles).toContain('Vendor Invoices')
     expect(titles).toContain('Reports')
     expect(titles).toContain('Notifications')
     expect(titles).toContain('Help')
-    // Settings is now hidden from regular staff
+    // Settings and Customs are hidden from administration
     expect(titles).not.toContain('Settings')
+    expect(titles).not.toContain('Customs')
   })
 
-  it('ops sees Dashboard, Projects, Proforma JO, Cost Entry, Job Orders, Vendors, Agency, Equipment, HSE, Engineering, Customs, Reports, Notifications, Help (no Customers, no Invoices, no Settings)', () => {
+  it('ops sees Dashboard, Projects, Proforma JO, Cost Entry, Job Orders, Vendors, Equipment, HSE, Engineering, Reports, Notifications, Help (no Customers, no Invoices, no Settings, no Agency, no Customs)', () => {
     const opsPermissions = DEFAULT_PERMISSIONS.ops
     const filteredItems = filterNavItems(NAV_ITEMS, 'ops', opsPermissions)
     const titles = filteredItems.map(item => item.title)
@@ -120,20 +120,20 @@ describe('Role-specific navigation', () => {
     expect(titles).toContain('Cost Entry')
     expect(titles).toContain('Job Orders')
     expect(titles).toContain('Vendors')
-    expect(titles).toContain('Agency')
     expect(titles).toContain('Equipment')
     expect(titles).toContain('HSE')
     expect(titles).toContain('Engineering')
-    expect(titles).toContain('Customs')
     expect(titles).toContain('Reports')
     expect(titles).toContain('Notifications')
     expect(titles).toContain('Help')
     expect(titles).not.toContain('Customers')
     expect(titles).not.toContain('Invoices')
     expect(titles).not.toContain('Settings')
+    expect(titles).not.toContain('Agency')
+    expect(titles).not.toContain('Customs')
   })
 
-  it('finance sees Dashboard, Customers, Projects, Proforma JO, Job Orders, Disbursements, Vendors, Agency, Equipment, Customs, Invoices, Vendor Invoices, Reports, Notifications, Help (no Cost Entry, no Settings)', () => {
+  it('finance sees Dashboard, Customers, Projects, Proforma JO, Job Orders, Disbursements, Vendors, Equipment, Invoices, Vendor Invoices, Reports, Notifications, Help (no Cost Entry, no Settings, no Agency, no Customs)', () => {
     const financePermissions = DEFAULT_PERMISSIONS.finance
     const filteredItems = filterNavItems(NAV_ITEMS, 'finance', financePermissions)
     const titles = filteredItems.map(item => item.title)
@@ -145,9 +145,7 @@ describe('Role-specific navigation', () => {
     expect(titles).toContain('Job Orders')
     expect(titles).toContain('Disbursements (BKK)')
     expect(titles).toContain('Vendors')
-    expect(titles).toContain('Agency')
     expect(titles).toContain('Equipment')
-    expect(titles).toContain('Customs')
     expect(titles).toContain('Invoices')
     expect(titles).toContain('Vendor Invoices')
     expect(titles).toContain('Reports')
@@ -155,9 +153,11 @@ describe('Role-specific navigation', () => {
     expect(titles).toContain('Help')
     expect(titles).not.toContain('Cost Entry')
     expect(titles).not.toContain('Settings')
+    expect(titles).not.toContain('Agency')
+    expect(titles).not.toContain('Customs')
   })
 
-  it('marketing sees Dashboard, Customers, Projects, Quotations, Agency, Engineering, Reports, Notifications, Help (no Job Orders, no Vendors, no Invoices, no Cost Entry, no Settings)', () => {
+  it('marketing sees Dashboard, Customers, Projects, Quotations, Engineering, Reports, Notifications, Help (no Job Orders, no Vendors, no Invoices, no Cost Entry, no Settings, no Agency)', () => {
     const marketingPermissions = DEFAULT_PERMISSIONS.marketing
     const filteredItems = filterNavItems(NAV_ITEMS, 'marketing', marketingPermissions)
     const titles = filteredItems.map(item => item.title)
@@ -166,7 +166,6 @@ describe('Role-specific navigation', () => {
     expect(titles).toContain('Customers')
     expect(titles).toContain('Projects')
     expect(titles).toContain('Quotations')
-    expect(titles).toContain('Agency')
     expect(titles).toContain('Engineering')
     expect(titles).toContain('Reports')
     expect(titles).toContain('Notifications')
@@ -176,6 +175,7 @@ describe('Role-specific navigation', () => {
     expect(titles).not.toContain('Invoices')
     expect(titles).not.toContain('Cost Entry')
     expect(titles).not.toContain('Settings')
+    expect(titles).not.toContain('Agency')
   })
 
   it('owner sees Settings in navigation', () => {

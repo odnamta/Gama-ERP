@@ -22,6 +22,30 @@ interface UserMetadataFromJWT {
 // Routes that don't require authentication
 const PUBLIC_ROUTES = ['/login', '/auth/callback', '/account-deactivated']
 
+// Routes that authenticated users without a role can access
+// These routes are excluded from the role-required redirect
+const NO_ROLE_REQUIRED_ROUTES = ['/request-access']
+
+// Valid roles that grant access to the application
+// Users without one of these roles will be redirected to /request-access
+const VALID_ROLES: UserRole[] = [
+  'owner',
+  'director',
+  'marketing_manager',
+  'finance_manager',
+  'operations_manager',
+  'sysadmin',
+  'administration',
+  'finance',
+  'marketing',
+  'ops',
+  'engineer',
+  'hr',
+  'hse',
+  'agency',
+  'customs',
+]
+
 // Routes restricted from ops users
 const OPS_RESTRICTED_ROUTES = ['/customers', '/invoices', '/settings', '/reports']
 
@@ -114,6 +138,26 @@ export async function middleware(request: NextRequest) {
     if (!isActive && pathname !== '/account-deactivated') {
       const deactivatedUrl = new URL('/account-deactivated', request.url)
       return NextResponse.redirect(deactivatedUrl)
+    }
+
+    // v0.84: Role Request System - Handle users without valid roles
+    // Check if user has a valid role that grants access to the application
+    const hasValidRole = role && VALID_ROLES.includes(role as UserRole)
+    const isNoRoleRequiredRoute = NO_ROLE_REQUIRED_ROUTES.some(route => pathname.startsWith(route))
+    
+    // Redirect users WITHOUT a valid role to /request-access
+    // (unless they're already on a no-role-required route)
+    if (!hasValidRole && !isNoRoleRequiredRoute) {
+      const requestAccessUrl = new URL('/request-access', request.url)
+      return NextResponse.redirect(requestAccessUrl)
+    }
+    
+    // Redirect users WITH a valid role AWAY from /request-access to their dashboard
+    // (they don't need to request access if they already have a role)
+    if (hasValidRole && isNoRoleRequiredRoute) {
+      const homepage = getHomepageForRole(role!, customHomepage)
+      const homepageUrl = new URL(homepage, request.url)
+      return NextResponse.redirect(homepageUrl)
     }
 
     // v0.35: Role-based homepage routing

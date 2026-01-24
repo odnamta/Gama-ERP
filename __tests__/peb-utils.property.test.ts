@@ -369,14 +369,14 @@ describe('Property 11: Role-Based Permission Consistency', () => {
    * Feature: customs-export-documentation
    * Property 11: Role-Based Permission Consistency
    * For any user role and PEB action:
-   * - View: Owner, Admin, Manager, Customs SHALL have access
-   * - Create/Edit: Owner, Admin, Manager, Customs SHALL have access; Ops, Finance SHALL NOT
-   * - Delete: Owner, Admin SHALL have access; Manager, Customs, Ops, Finance SHALL NOT
+   * - View: Owner, Director, Sysadmin, Customs, Finance SHALL have access
+   * - Create/Edit: Owner, Director, Sysadmin, Customs SHALL have access
+   * - Delete: Owner, Director, Sysadmin SHALL have access
    * Validates: Requirements 8.1, 8.2, 8.4
    */
   it('should grant view access to correct roles', () => {
-    const viewAllowedRoles: UserRole[] = ['owner', 'admin', 'manager', 'customs'];
-    const viewDeniedRoles: UserRole[] = ['ops', 'finance'];
+    const viewAllowedRoles: UserRole[] = ['owner', 'director', 'sysadmin', 'customs', 'finance', 'finance_manager'];
+    const viewDeniedRoles: UserRole[] = ['ops', 'marketing', 'hr', 'hse', 'engineer'];
 
     viewAllowedRoles.forEach(role => {
       expect(canViewPEB(role)).toBe(true);
@@ -388,8 +388,8 @@ describe('Property 11: Role-Based Permission Consistency', () => {
   });
 
   it('should grant edit access to correct roles', () => {
-    const editAllowedRoles: UserRole[] = ['owner', 'admin', 'manager', 'customs'];
-    const editDeniedRoles: UserRole[] = ['ops', 'finance'];
+    const editAllowedRoles: UserRole[] = ['owner', 'director', 'sysadmin', 'customs'];
+    const editDeniedRoles: UserRole[] = ['ops', 'finance', 'marketing', 'hr', 'hse', 'engineer'];
 
     editAllowedRoles.forEach(role => {
       expect(canEditPEB(role)).toBe(true);
@@ -400,9 +400,9 @@ describe('Property 11: Role-Based Permission Consistency', () => {
     });
   });
 
-  it('should grant delete access only to owner and admin', () => {
-    const deleteAllowedRoles: UserRole[] = ['owner', 'admin'];
-    const deleteDeniedRoles: UserRole[] = ['manager', 'customs', 'ops', 'finance'];
+  it('should grant delete access only to owner, director, and sysadmin', () => {
+    const deleteAllowedRoles: UserRole[] = ['owner', 'director', 'sysadmin'];
+    const deleteDeniedRoles: UserRole[] = ['customs', 'ops', 'finance', 'marketing', 'hr', 'hse', 'engineer'];
 
     deleteAllowedRoles.forEach(role => {
       expect(canDeletePEB(role)).toBe(true);

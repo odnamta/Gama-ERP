@@ -84,8 +84,31 @@ export async function requireRole(
 }
 
 /**
+ * Minimal permissions for users without a role (pending role request)
+ * These users can only access /request-access page
+ */
+const PENDING_USER_PERMISSIONS: UserPermissions = {
+  can_see_revenue: false,
+  can_see_profit: false,
+  can_see_actual_costs: false,
+  can_approve_pjo: false,
+  can_approve_jo: false,
+  can_approve_bkk: false,
+  can_check_pjo: false,
+  can_check_jo: false,
+  can_check_bkk: false,
+  can_manage_invoices: false,
+  can_manage_users: false,
+  can_create_pjo: false,
+  can_fill_costs: false,
+  can_estimate_costs: false,
+}
+
+/**
  * Create a user profile for a new user
  * Called after OAuth login if profile doesn't exist
+ * 
+ * v0.84: New users get NULL role (except special emails) and must request access
  */
 export async function createUserProfile(
   userId: string,
@@ -95,9 +118,10 @@ export async function createUserProfile(
 ): Promise<UserProfile | null> {
   const supabase = await createClient()
 
-  // Determine role based on email domain
-  let role: UserRole = 'ops'  // Default to ops for new users
-  let permissions = DEFAULT_PERMISSIONS.ops
+  // Determine role based on email - only special emails get auto-assigned roles
+  // All other users get NULL role and must request access
+  let role: UserRole | null = null
+  let permissions = PENDING_USER_PERMISSIONS
 
   // Owner for dioatmando
   if (email === 'dioatmando@gama-group.co') {
@@ -119,11 +143,8 @@ export async function createUserProfile(
     role = 'operations_manager'
     permissions = DEFAULT_PERMISSIONS.operations_manager
   }
-  // Default to marketing for other gama-group.co emails
-  else if (email.endsWith('@gama-group.co')) {
-    role = 'marketing'
-    permissions = DEFAULT_PERMISSIONS.marketing
-  }
+  // v0.84: All other users get NULL role - they must request access
+  // This includes @gama-group.co emails that are not in the special list above
 
   const { data, error } = await supabase
     .from('user_profiles')
@@ -260,8 +281,10 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
   // Profile doesn't exist, create new one
   console.log('[ensureUserProfile] No pre-registered profile, creating new profile for:', email)
 
-  let role: UserRole = 'ops'  // Default to ops for new users
-  let permissions = DEFAULT_PERMISSIONS.ops
+  // v0.84: New users get NULL role (except special emails) and must request access
+  // Only special emails get auto-assigned roles
+  let role: UserRole | null = null
+  let permissions = PENDING_USER_PERMISSIONS
 
   // Owner email gets owner role
   if (isOwnerEmail(email)) {
@@ -283,13 +306,11 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
     role = 'operations_manager'
     permissions = DEFAULT_PERMISSIONS.operations_manager
   }
-  // Default to marketing for other gama-group.co emails
-  else if (email.endsWith('@gama-group.co')) {
-    role = 'marketing'
-    permissions = DEFAULT_PERMISSIONS.marketing
-  }
+  // v0.84: All other users get NULL role - they must request access via /request-access
+  // This includes @gama-group.co emails that are not in the special list above
+  // Middleware will redirect them to /request-access page
 
-  console.log('[ensureUserProfile] Assigned role:', role)
+  console.log('[ensureUserProfile] Assigned role:', role ?? 'null (pending role request)')
 
   const fullName = user.user_metadata?.full_name || user.user_metadata?.name
   const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
@@ -303,7 +324,7 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
       avatar_url: avatarUrl || null,
       role,
       department_scope: [],
-      custom_dashboard: role === 'owner' ? 'executive' : (['marketing_manager', 'finance_manager', 'operations_manager'].includes(role) ? 'manager' : 'default'),
+      custom_dashboard: role === 'owner' ? 'executive' : (role && ['marketing_manager', 'finance_manager', 'operations_manager'].includes(role) ? 'manager' : 'default'),
       last_login_at: new Date().toISOString(),
       ...permissions,
     })

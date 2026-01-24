@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import * as fc from 'fast-check'
 import { renderHook, act } from '@testing-library/react'
 import { PreviewProvider, usePreviewContext } from '@/contexts/preview-context'
@@ -28,6 +28,12 @@ function createWrapper(actualRole: UserRole) {
 }
 
 describe('PreviewContext', () => {
+  // Clear sessionStorage before each test to ensure clean state
+  beforeEach(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.clear()
+    }
+  })
   /**
    * Property 2: Preview role selection updates effective role
    * **Feature: v0.9.7-role-preview, Property 2: Preview role selection updates effective role**

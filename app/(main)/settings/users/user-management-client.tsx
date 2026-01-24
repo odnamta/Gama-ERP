@@ -32,13 +32,17 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/hooks/use-toast'
 import { UserProfile, UserRole } from '@/types/permissions'
+import { RoleRequestWithUser } from '@/types/role-request'
 import { DEFAULT_PERMISSIONS, getAssignableRoles, isPendingUser } from '@/lib/permissions'
 import { updateUserRoleAction, createPreregisteredUserAction, toggleUserActiveAction } from './actions'
+import { PendingRequestsSection } from './pending-requests'
+import { ApproveDialog, RejectDialog } from './approve-reject-dialog'
 import { Pencil, Shield, ShieldCheck, ShieldX, UserPlus, Crown, Clock } from 'lucide-react'
 
 interface UserManagementClientProps {
   users: UserProfile[]
   currentUserId: string
+  pendingRequests: RoleRequestWithUser[]
 }
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -77,7 +81,7 @@ const ROLE_COLORS: Record<UserRole, string> = {
   customs: 'bg-lime-100 text-lime-800',
 }
 
-export function UserManagementClient({ users, currentUserId }: UserManagementClientProps) {
+export function UserManagementClient({ users, currentUserId, pendingRequests }: UserManagementClientProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null)
@@ -99,7 +103,38 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
   const [newUserName, setNewUserName] = useState('')
   const [newUserRole, setNewUserRole] = useState<UserRole>('ops')
 
+  // Role request dialog state
+  const [selectedRequest, setSelectedRequest] = useState<RoleRequestWithUser | null>(null)
+  const [showApproveDialog, setShowApproveDialog] = useState(false)
+  const [showRejectDialog, setShowRejectDialog] = useState(false)
+  const [isProcessingRequest, setIsProcessingRequest] = useState(false)
+
   const assignableRoles = getAssignableRoles()
+
+  // Handle approve button click from pending requests section
+  const handleApproveClick = (requestId: string) => {
+    const request = pendingRequests.find(r => r.id === requestId)
+    if (request) {
+      setSelectedRequest(request)
+      setShowApproveDialog(true)
+    }
+  }
+
+  // Handle reject button click from pending requests section
+  const handleRejectClick = (requestId: string) => {
+    const request = pendingRequests.find(r => r.id === requestId)
+    if (request) {
+      setSelectedRequest(request)
+      setShowRejectDialog(true)
+    }
+  }
+
+  // Handle successful approve/reject - refresh the page data
+  const handleRequestProcessed = () => {
+    setSelectedRequest(null)
+    setIsProcessingRequest(false)
+    router.refresh()
+  }
 
   const handleEditUser = (user: UserProfile) => {
     // Cannot edit owner
@@ -259,6 +294,14 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
 
   return (
     <>
+      {/* Pending Role Requests Section */}
+      <PendingRequestsSection
+        requests={pendingRequests}
+        onApprove={handleApproveClick}
+        onReject={handleRejectClick}
+        isProcessing={isProcessingRequest}
+      />
+
       <div className="flex justify-end mb-4">
         <Button onClick={() => setShowAddDialog(true)}>
           <UserPlus className="mr-2 h-4 w-4" />
@@ -491,6 +534,22 @@ export function UserManagementClient({ users, currentUserId }: UserManagementCli
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Approve Role Request Dialog */}
+      <ApproveDialog
+        request={selectedRequest}
+        open={showApproveDialog}
+        onOpenChange={setShowApproveDialog}
+        onSuccess={handleRequestProcessed}
+      />
+
+      {/* Reject Role Request Dialog */}
+      <RejectDialog
+        request={selectedRequest}
+        open={showRejectDialog}
+        onOpenChange={setShowRejectDialog}
+        onSuccess={handleRequestProcessed}
+      />
     </>
   )
 }

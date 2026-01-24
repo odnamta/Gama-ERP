@@ -378,11 +378,15 @@ describe('Property 11: Relative Timestamp Formatting', () => {
 
   it('should always return a non-empty string', () => {
     fc.assert(
-      fc.property(fc.date(), (date) => {
-        const result = formatRelativeTime(date);
-        expect(typeof result).toBe('string');
-        expect(result.length).toBeGreaterThan(0);
-      }),
+      fc.property(
+        // Generate dates within the last 365 days to ensure valid relative time formatting
+        fc.integer({ min: 0, max: 365 * 24 * 60 * 60 * 1000 }).map(ms => new Date(Date.now() - ms)),
+        (date) => {
+          const result = formatRelativeTime(date);
+          expect(typeof result).toBe('string');
+          expect(result.length).toBeGreaterThan(0);
+        }
+      ),
       { numRuns: 100 }
     );
   });

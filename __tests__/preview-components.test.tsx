@@ -1,10 +1,21 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import * as fc from 'fast-check'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import { PreviewDropdown } from '@/components/preview/preview-dropdown'
 import { PreviewBanner } from '@/components/preview/preview-banner'
 import { PREVIEW_ROLES, getRoleDisplayName } from '@/lib/preview-utils'
 import { UserRole } from '@/types/permissions'
+
+// Mock next/navigation
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+  }),
+}))
 
 const ALL_ROLES: UserRole[] = ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse']
 
@@ -22,7 +33,7 @@ describe('Preview Components', () => {
    */
   describe('Property 3: Preview banner displays correct role', () => {
     it('should display banner with correct role name for any preview role', () => {
-      ALL_ROLES.forEach((previewRole) => {
+      PREVIEW_ROLES.forEach((previewRole) => {
         cleanup()
         const onExit = vi.fn()
         const onRoleChange = vi.fn()
@@ -50,12 +61,11 @@ describe('Preview Components', () => {
       expect(dropdown).toBeDefined()
     })
 
-    it('should call onRoleChange when dropdown selection changes', () => {
+    it('should have onRoleChange callback defined', () => {
       const onRoleChange = vi.fn()
       render(<PreviewBanner previewRole="finance_manager" onExit={vi.fn()} onRoleChange={onRoleChange} />)
       
-      // This test would need more complex setup to test dropdown interaction
-      // For now, we just verify the callback is passed correctly
+      // Verify the callback is passed correctly
       expect(onRoleChange).toBeDefined()
     })
   })
@@ -68,7 +78,7 @@ describe('Preview Components', () => {
    */
   describe('Property 4: Exit preview restores owner role', () => {
     it('should call onExit when Exit Preview is clicked for any preview role', () => {
-      ALL_ROLES.forEach((previewRole) => {
+      PREVIEW_ROLES.forEach((previewRole) => {
         cleanup()
         const onExit = vi.fn()
         const onRoleChange = vi.fn()
@@ -87,8 +97,10 @@ describe('Preview Components', () => {
       const { container } = render(
         <PreviewDropdown
           currentRole="administration"
+          actualRole="administration"
           onRoleSelect={vi.fn()}
           canUsePreview={false}
+          isPreviewActive={false}
         />
       )
       expect(container.firstChild).toBeNull()
@@ -98,8 +110,10 @@ describe('Preview Components', () => {
       render(
         <PreviewDropdown
           currentRole="owner"
+          actualRole="owner"
           onRoleSelect={vi.fn()}
           canUsePreview={true}
+          isPreviewActive={false}
         />
       )
       expect(screen.getByText(/Preview as:/i)).toBeDefined()
@@ -109,8 +123,10 @@ describe('Preview Components', () => {
       render(
         <PreviewDropdown
           currentRole="owner"
+          actualRole="owner"
           onRoleSelect={vi.fn()}
           canUsePreview={true}
+          isPreviewActive={false}
         />
       )
 

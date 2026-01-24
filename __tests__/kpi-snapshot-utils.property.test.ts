@@ -292,9 +292,13 @@ describe('KPI Snapshot Utils Property Tests', () => {
   });
 
   describe('Date Utilities', () => {
+    // Custom date generator that ensures valid dates
+    const validDateArb = fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') })
+      .filter(d => !isNaN(d.getTime()));
+
     it('should return valid week numbers (1-53)', () => {
       fc.assert(
-        fc.property(fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') }), (date) => {
+        fc.property(validDateArb, (date) => {
           const weekNum = getWeekNumber(date);
           return weekNum >= 1 && weekNum <= 53;
         }),

@@ -19,15 +19,23 @@ const previewRoleArb = fc.constantFrom(...PREVIEW_ROLES)
 
 describe('Preview Utils', () => {
   describe('PREVIEW_ROLES', () => {
-    it('should contain all 7 roles', () => {
-      expect(PREVIEW_ROLES).toHaveLength(7)
+    it('should contain all 15 roles', () => {
+      expect(PREVIEW_ROLES).toHaveLength(15)
       expect(PREVIEW_ROLES).toContain('owner')
-      expect(PREVIEW_ROLES).toContain('admin')
-      expect(PREVIEW_ROLES).toContain('manager')
+      expect(PREVIEW_ROLES).toContain('director')
+      expect(PREVIEW_ROLES).toContain('marketing_manager')
+      expect(PREVIEW_ROLES).toContain('finance_manager')
+      expect(PREVIEW_ROLES).toContain('operations_manager')
+      expect(PREVIEW_ROLES).toContain('sysadmin')
+      expect(PREVIEW_ROLES).toContain('administration')
       expect(PREVIEW_ROLES).toContain('finance')
-      expect(PREVIEW_ROLES).toContain('sales')
+      expect(PREVIEW_ROLES).toContain('marketing')
       expect(PREVIEW_ROLES).toContain('ops')
-      expect(PREVIEW_ROLES).toContain('viewer')
+      expect(PREVIEW_ROLES).toContain('engineer')
+      expect(PREVIEW_ROLES).toContain('hr')
+      expect(PREVIEW_ROLES).toContain('hse')
+      expect(PREVIEW_ROLES).toContain('agency')
+      expect(PREVIEW_ROLES).toContain('customs')
     })
   })
 

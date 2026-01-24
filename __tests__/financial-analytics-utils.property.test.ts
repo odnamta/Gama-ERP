@@ -162,9 +162,13 @@ describe('Financial Analytics Properties', () => {
    * Validates: Requirements 2.5
    */
   it('Property 4: Net Cash Flow Calculation', () => {
+    // Use constrained date range to avoid invalid dates
+    const validDateArb = fc.date({ min: new Date('2020-01-01'), max: new Date('2030-12-31') })
+      .filter(d => !isNaN(d.getTime()));
+    
     const transactionArb = fc.record({
       id: fc.uuid(),
-      transaction_date: fc.date().map(d => d.toISOString().split('T')[0]),
+      transaction_date: validDateArb.map(d => d.toISOString().split('T')[0]),
       flow_type: fc.constantFrom('inflow' as const, 'outflow' as const),
       category: fc.constantFrom('customer_payment', 'vendor_payment'),
       description: fc.constant(null),
@@ -173,7 +177,7 @@ describe('Financial Analytics Properties', () => {
       bkk_id: fc.constant(null),
       bkm_id: fc.constant(null),
       bank_account: fc.constant(null),
-      created_at: fc.date().map(d => d.toISOString()),
+      created_at: validDateArb.map(d => d.toISOString()),
     }) as fc.Arbitrary<CashFlowTransaction>;
 
     fc.assert(

@@ -158,13 +158,13 @@ const data = result.data as { column: string }[] | null  // Explicit cast
 - [ ] User activity tracking (v0.13.1)
 
 ## Recent Changes
+- 2026-01-25: v0.84 - Role Request System implementation complete (364 tests, self-service onboarding)
+- 2026-01-24: Fixed 10 failing test files (34 tests) - date generators, role names, currency formatting
 - 2026-01-24: v0.9.16 - Assets Dashboard real data implementation complete (53 tests passing)
 - 2026-01-24: v0.9.15 - Agency Dashboard with real data (bookings, B/L, shipping lines, vessels)
 - 2026-01-24: v0.83 - Date & currency formatting standardization (`lib/utils/format.ts`)
 - 2026-01-24: Added formatting-standards.md steering rule
 - 2026-01-20: PJO form button state fixes
-- 2026-01-15: Finance Manager dashboard real data implementation
-- 2026-01-10: Fixed Vercel deployment (type regeneration)
 
 ---
-*Last Updated: January 24, 2026*
+*Last Updated: January 25, 2026*

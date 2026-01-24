@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getUserProfile, getAllUsers } from '@/lib/permissions-server'
 import { UserManagementClient } from './user-management-client'
+import { getPendingRoleRequests } from './actions'
 
 export default async function UsersPage() {
   const profile = await getUserProfile()
@@ -10,7 +11,11 @@ export default async function UsersPage() {
     redirect('/dashboard')
   }
 
-  const users = await getAllUsers()
+  // Fetch users and pending role requests in parallel
+  const [users, pendingRequests] = await Promise.all([
+    getAllUsers(),
+    getPendingRoleRequests(),
+  ])
 
   return (
     <div className="space-y-6">
@@ -19,7 +24,11 @@ export default async function UsersPage() {
         <p className="text-muted-foreground">Manage user roles and permissions</p>
       </div>
 
-      <UserManagementClient users={users} currentUserId={profile.user_id ?? ''} />
+      <UserManagementClient 
+        users={users} 
+        currentUserId={profile.user_id ?? ''} 
+        pendingRequests={pendingRequests}
+      />
     </div>
   )
 }

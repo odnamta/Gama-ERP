@@ -22,6 +22,31 @@ export const DEPARTMENT_STAFF_ROLES: Record<DepartmentScope, UserRole[]> = {
 }
 
 /**
+ * Department to allowed roles mapping for role request system
+ * Maps organizational departments to the roles that can be requested for each
+ */
+export const DEPARTMENT_ROLES: Record<string, UserRole[]> = {
+  'Operations': ['ops', 'operations_manager'],
+  'Finance': ['finance', 'finance_manager', 'administration'],
+  'Marketing': ['marketing', 'marketing_manager'],
+  'HR': ['hr'],
+  'HSE': ['hse'],
+  'Engineering': ['engineer'],
+  'Agency': ['agency'],
+  'Customs': ['customs'],
+  'Administration': ['administration'],
+}
+
+/**
+ * Get allowed roles for a department in the role request system
+ * @param department - The department name (e.g., 'Operations', 'Finance')
+ * @returns Array of UserRole values allowed for that department, or empty array if unknown
+ */
+export function getDepartmentRoles(department: string): UserRole[] {
+  return DEPARTMENT_ROLES[department] || []
+}
+
+/**
  * Default permissions for each role (11 roles)
  */
 export const DEFAULT_PERMISSIONS: Record<UserRole, UserPermissions> = {

@@ -477,8 +477,12 @@ describe('Assets Dashboard Data - Property Tests', () => {
         fc.property(
           fc.array(
             fc.record({
-              ...assetArb.model,
+              id: fc.uuid(),
+              asset_code: fc.string({ minLength: 3, maxLength: 10 }),
+              asset_name: fc.string({ minLength: 5, maxLength: 50 }),
               status: fc.constantFrom('maintenance', 'repair', 'retired', 'sold'),
+              category_id: fc.uuid(),
+              assigned_to_job_id: fc.option(fc.uuid(), { nil: null }),
             }),
             { minLength: 0, maxLength: 50 }
           ),

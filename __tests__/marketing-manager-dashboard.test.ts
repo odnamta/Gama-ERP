@@ -16,30 +16,19 @@ import type { MarketingManagerMetrics, RecentQuotation, RecentCustomer } from '@
  * 
  * *For any* numeric value representing IDR currency, the formatted output SHALL match 
  * the pattern with thousands separators (e.g., 1000000 → "1.000.000" or "Rp 1.000.000").
+ * Uses Indonesian abbreviations: M (miliar/billion), jt (juta/million)
  * 
  * **Validates: Requirements 8.3**
  */
 describe('Marketing Manager Dashboard - Currency Formatting (Requirement 8.3)', () => {
   describe('formatCurrencyIDRCompact', () => {
-    it('should format values >= 1 billion with B suffix', () => {
+    it('should format values >= 1 billion with M (miliar) suffix', () => {
       fc.assert(
         fc.property(
           fc.integer({ min: 1_000_000_000, max: 999_000_000_000 }),
           (amount) => {
             const result = formatCurrencyIDRCompact(amount)
-            return result.includes('B') && result.startsWith('Rp ')
-          }
-        ),
-        { numRuns: 100 }
-      )
-    })
-
-    it('should format values >= 1 million with M suffix', () => {
-      fc.assert(
-        fc.property(
-          fc.integer({ min: 1_000_000, max: 999_999_999 }),
-          (amount) => {
-            const result = formatCurrencyIDRCompact(amount)
+            // Indonesian uses M for miliar (billion)
             return result.includes('M') && result.startsWith('Rp ')
           }
         ),
@@ -47,29 +36,30 @@ describe('Marketing Manager Dashboard - Currency Formatting (Requirement 8.3)', 
       )
     })
 
-    it('should format values >= 1 thousand with K suffix', () => {
+    it('should format values >= 1 million with jt (juta) suffix', () => {
       fc.assert(
         fc.property(
-          fc.integer({ min: 1_000, max: 999_999 }),
+          fc.integer({ min: 1_000_000, max: 999_999_999 }),
           (amount) => {
             const result = formatCurrencyIDRCompact(amount)
-            return result.includes('K') && result.startsWith('Rp ')
+            // Indonesian uses jt for juta (million)
+            return result.includes('jt') && result.startsWith('Rp ')
           }
         ),
         { numRuns: 100 }
       )
     })
 
-    it('should format values < 1 thousand without suffix', () => {
+    it('should format values < 1 million with standard formatting', () => {
       fc.assert(
         fc.property(
-          fc.integer({ min: 0, max: 999 }),
+          fc.integer({ min: 0, max: 999_999 }),
           (amount) => {
             const result = formatCurrencyIDRCompact(amount)
-            return result.startsWith('Rp ') && 
-                   !result.includes('K') && 
-                   !result.includes('M') && 
-                   !result.includes('B')
+            // Values under 1 million use standard Rp formatting
+            return result.startsWith('Rp') && 
+                   !result.includes('jt') && 
+                   !result.includes('M')
           }
         ),
         { numRuns: 100 }
@@ -79,7 +69,8 @@ describe('Marketing Manager Dashboard - Currency Formatting (Requirement 8.3)', 
     it('should handle zero values', () => {
       const result = formatCurrencyIDRCompact(0)
       expect(result).toBeDefined()
-      expect(result).toBe('Rp 0')
+      // Intl.NumberFormat uses non-breaking space, so we normalize
+      expect(result.replace(/\u00A0/g, ' ')).toBe('Rp 0')
     })
 
     it('should always start with Rp prefix', () => {
@@ -88,44 +79,48 @@ describe('Marketing Manager Dashboard - Currency Formatting (Requirement 8.3)', 
           fc.integer({ min: 0, max: 1_000_000_000_000 }),
           (amount) => {
             const result = formatCurrencyIDRCompact(amount)
-            return result.startsWith('Rp ')
+            // Note: Intl.NumberFormat may use non-breaking space (U+00A0)
+            return result.startsWith('Rp')
           }
         ),
         { numRuns: 100 }
       )
     })
 
-    // Specific value tests for exact formatting
+    // Specific value tests for exact formatting (Indonesian style)
     it('should format 1 billion correctly', () => {
-      expect(formatCurrencyIDRCompact(1_000_000_000)).toBe('Rp 1.0B')
+      expect(formatCurrencyIDRCompact(1_000_000_000)).toBe('Rp 1,0 M')
     })
 
     it('should format 1.5 billion correctly', () => {
-      expect(formatCurrencyIDRCompact(1_500_000_000)).toBe('Rp 1.5B')
+      expect(formatCurrencyIDRCompact(1_500_000_000)).toBe('Rp 1,5 M')
     })
 
     it('should format 1 million correctly', () => {
-      expect(formatCurrencyIDRCompact(1_000_000)).toBe('Rp 1.0M')
+      expect(formatCurrencyIDRCompact(1_000_000)).toBe('Rp 1,0 jt')
     })
 
     it('should format 2.5 million correctly', () => {
-      expect(formatCurrencyIDRCompact(2_500_000)).toBe('Rp 2.5M')
+      expect(formatCurrencyIDRCompact(2_500_000)).toBe('Rp 2,5 jt')
     })
 
     it('should format 1 thousand correctly', () => {
-      expect(formatCurrencyIDRCompact(1_000)).toBe('Rp 1.0K')
+      // Values under 1 million use standard currency formatting
+      // Intl.NumberFormat uses non-breaking space, so we normalize
+      expect(formatCurrencyIDRCompact(1_000).replace(/\u00A0/g, ' ')).toBe('Rp 1.000')
     })
 
     it('should format 500 correctly', () => {
-      expect(formatCurrencyIDRCompact(500)).toBe('Rp 500')
+      // Intl.NumberFormat uses non-breaking space, so we normalize
+      expect(formatCurrencyIDRCompact(500).replace(/\u00A0/g, ' ')).toBe('Rp 500')
     })
 
     it('should format typical pipeline values correctly', () => {
-      // Common business values
-      expect(formatCurrencyIDRCompact(50_000_000)).toBe('Rp 50.0M')
-      expect(formatCurrencyIDRCompact(100_000_000)).toBe('Rp 100.0M')
-      expect(formatCurrencyIDRCompact(250_000_000)).toBe('Rp 250.0M')
-      expect(formatCurrencyIDRCompact(500_000_000)).toBe('Rp 500.0M')
+      // Common business values (Indonesian style)
+      expect(formatCurrencyIDRCompact(50_000_000)).toBe('Rp 50,0 jt')
+      expect(formatCurrencyIDRCompact(100_000_000)).toBe('Rp 100,0 jt')
+      expect(formatCurrencyIDRCompact(250_000_000)).toBe('Rp 250,0 jt')
+      expect(formatCurrencyIDRCompact(500_000_000)).toBe('Rp 500,0 jt')
     })
   })
 })
@@ -291,7 +286,8 @@ describe('Marketing Manager Dashboard - Edge Cases', () => {
 
     it('should format zero currency values correctly', () => {
       const result = formatCurrencyIDRCompact(0)
-      expect(result).toBe('Rp 0')
+      // Intl.NumberFormat uses non-breaking space, so we normalize
+      expect(result.replace(/\u00A0/g, ' ')).toBe('Rp 0')
     })
   })
 
@@ -364,10 +360,10 @@ describe('Marketing Manager Dashboard - Edge Cases', () => {
 
   describe('Large values handling', () => {
     it('should format very large pipeline values correctly', () => {
-      // 10 trillion IDR
+      // 10 trillion IDR - uses M (miliar) suffix in Indonesian
       const result = formatCurrencyIDRCompact(10_000_000_000_000)
-      expect(result).toContain('B')
-      expect(result).toBe('Rp 10000.0B')
+      expect(result).toContain('M')
+      expect(result).toBe('Rp 10000,0 M')
     })
 
     it('should handle large customer counts', () => {
@@ -439,7 +435,8 @@ describe('Marketing Manager Dashboard - Display Integration', () => {
             }
             const formatted = formatCurrencyIDRCompact(metrics.pipelineValue)
             // Formatted value should be a non-empty string starting with Rp
-            return formatted.length > 0 && formatted.startsWith('Rp ')
+            // Note: Intl.NumberFormat may use non-breaking space (U+00A0)
+            return formatted.length > 0 && (formatted.startsWith('Rp ') || formatted.startsWith('Rp\u00A0'))
           }
         ),
         { numRuns: 100 }

@@ -11,6 +11,7 @@ import type {
   TemplateMatch,
   AI_INSIGHTS_ALLOWED_ROLES,
 } from '@/types/ai-insights';
+import { formatDate } from '@/lib/utils/format';
 
 // =====================================================
 // SQL VALIDATION
@@ -430,7 +431,6 @@ export function formatRelativeTime(timestamp: string | Date): string {
   }
 
   // Format as date for older timestamps
-  const { formatDate } = require('@/lib/utils/format');
   return formatDate(date);
 }
 

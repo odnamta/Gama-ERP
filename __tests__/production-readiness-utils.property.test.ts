@@ -78,7 +78,7 @@ describe('Production Readiness Utils Property Tests', () => {
     // Generator for a valid health response
     const healthResponseArb = fc.record({
       status: healthStatusLevelArb,
-      version: fc.string({ minLength: 1, maxLength: 20 }),
+      version: fc.string({ minLength: 1, maxLength: 20 }).filter(s => s.trim().length > 0),
       timestamp: validISODateArb,
       components: fc.tuple(
         // Generate exactly 4 components with required names
