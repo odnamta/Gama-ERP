@@ -5,6 +5,87 @@ All notable changes to GAMA ERP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.83] - 2026-01-24 - Date & Currency Formatting Standardization
+
+### ✨ Features
+- Centralized formatting utility (`lib/utils/format.ts`) for all date/currency formatting
+- Indonesian locale support for relative dates ("2 hari yang lalu")
+- Document date format with full Indonesian month names ("15 Januari 2026")
+- Compact currency format for dashboards ("Rp 1,5 jt", "Rp 2,3 M")
+
+### 🔧 Developer Experience
+- Added `formatting-standards.md` steering rule for AI agents
+- Added `update-project-context` hook for auto-documentation
+- 299 tests (111 unit + 188 property tests) for formatting utilities
+- Updated CLAUDE.md with formatting standards
+
+### 📦 Migrations
+- Migrated 70+ components from inline formatting to centralized utilities
+- Deprecated `formatIDR`/`formatDate` from `lib/pjo-utils.ts`
+
+---
+
+## [0.9.14] - 2026-01-15 - Finance Manager Dashboard Real Data
+
+### ✨ Features
+- Finance Manager dashboard with real Supabase data
+- AR/AP overview cards with aging analysis
+- Revenue trend charts
+- Pending BKK approvals table
+
+---
+
+## [0.9.13] - 2026-01-23 - Operations Manager Dashboard Real Data
+
+### ✨ Features
+- Operations Manager dashboard with real Supabase data
+- Job order metrics (active, completed, pending handover)
+- Cost tracking with budget utilization (NO revenue data - business rule)
+- Equipment/asset utilization metrics
+- Team/manpower utilization tracking
+- 5-minute cache for performance
+
+### 🔒 Security
+- Enforced revenue hiding for operations roles
+
+---
+
+## [0.9.12] - 2026-01-23 - Marketing Manager Dashboard Real Data
+
+### ✨ Features
+- Marketing Manager dashboard with real Supabase data
+- Sales pipeline metrics (quotations, win rate)
+- Customer acquisition statistics
+- Engineering department status
+- Recent activity lists
+- 5-minute cache for performance
+
+---
+
+## [0.82] - 2026-01-22 - Changelog Feature
+
+### ✨ Features
+- Changelog page at `/changelog` with timeline view
+- "What's New" sidebar menu with notification dot for unread updates
+- Admin changelog editor at `/admin/changelog`
+- Category badges (feature, improvement, bugfix, security)
+- Major update highlighting
+- Markdown rendering for descriptions
+
+### 🗄️ Database
+- Added `changelog_entries` table with RLS policies
+- Initial changelog data seeded
+
+---
+
+## [0.4.5] - 2026-01-20 - PJO Form Button Fix
+
+### 🐛 Bug Fixes
+- Fixed PJO form button not clickable issue
+- Improved button state management during form submission
+
+---
+
 ## [0.9.2] - 2026-01-08 - Performance Optimization Release
 
 ### 🚀 Performance Improvements
