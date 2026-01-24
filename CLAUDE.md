@@ -185,10 +185,10 @@ const data = result.data as TableType[] | null
 - [ ] QA testing with real users
 
 ## Recent Changes
+- 2026-01-24: v0.9.15 - Agency Dashboard with real data (bookings, B/L, shipping lines, vessels)
 - 2026-01-24: v0.83 - Date & currency formatting standardization (`lib/utils/format.ts`)
 - 2026-01-20: PJO form button state fixes
 - 2026-01-15: Finance Manager dashboard real data implementation
 - 2026-01-10: Fixed Vercel deployment (type regeneration)
 - 2026-01-10: Renamed disbursements → bkk_records
 - 2026-01-09: Added agency & customs roles
-- 2026-01-08: v0.9.2 - Performance optimization (Lighthouse 40 → 95-97)
