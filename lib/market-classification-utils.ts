@@ -8,7 +8,7 @@ import {
   COMPLEXITY_THRESHOLDS,
   parseAutoDetectRules,
 } from '@/types/market-classification'
-import { formatIDR } from './pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 
 /**
  * Classify market type based on complexity score
@@ -134,7 +134,7 @@ export function getTriggeredDisplayValue(
     case 'cargo_height_m':
       return `${fieldValue} m`
     case 'cargo_value':
-      return formatIDR(Number(fieldValue))
+      return formatCurrency(Number(fieldValue))
     case 'duration_days':
       return `${fieldValue} days`
     case 'is_new_route':

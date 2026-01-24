@@ -31,7 +31,7 @@ import {
   ASSIGNMENT_STATUS_LABELS,
 } from '@/types/resource-scheduling'
 import { updateAssignmentStatus, deleteAssignment } from '@/lib/resource-scheduling-actions'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatDate } from '@/lib/utils/format'
 import { toast } from 'sonner'
 import { MoreHorizontal, Play, CheckCircle, XCircle, Trash2, Clock, MapPin } from 'lucide-react'
 

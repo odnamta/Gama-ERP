@@ -2,8 +2,7 @@
 
 import { CheckCircle2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatCurrency } from '@/lib/utils/format'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatCurrency, formatDate } from '@/lib/utils/format'
 import type { RecentPayment } from '@/lib/finance-dashboard-utils'
 
 interface RecentPaymentsTableProps {

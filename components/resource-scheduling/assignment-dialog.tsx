@@ -33,7 +33,7 @@ import {
 } from '@/types/resource-scheduling'
 import { createAssignment, updateAssignmentStatus, deleteAssignment } from '@/lib/resource-scheduling-actions'
 import { toast } from 'sonner'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatDate } from '@/lib/utils/format'
 import { Loader2, Trash2, Clock, MapPin } from 'lucide-react'
 
 interface AssignmentDialogProps {

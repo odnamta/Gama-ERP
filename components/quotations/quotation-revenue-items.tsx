@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
-import { formatIDR } from '@/lib/pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 import { addRevenueItem, updateRevenueItem, deleteRevenueItem } from '@/app/(main)/quotations/actions'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 
@@ -140,8 +140,8 @@ export function QuotationRevenueItems({ quotationId, items, isEditable }: Quotat
                   <TableCell>{item.description}</TableCell>
                   <TableCell className="text-right">{item.quantity}</TableCell>
                   <TableCell>{item.unit}</TableCell>
-                  <TableCell className="text-right">{formatIDR(item.unit_price)}</TableCell>
-                  <TableCell className="text-right font-medium">{formatIDR(item.subtotal || 0)}</TableCell>
+                  <TableCell className="text-right">{formatCurrency(item.unit_price)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatCurrency(item.subtotal || 0)}</TableCell>
                   {isEditable && (
                     <TableCell>
                       <div className="flex gap-1">
@@ -159,7 +159,7 @@ export function QuotationRevenueItems({ quotationId, items, isEditable }: Quotat
             )}
             <TableRow className="bg-muted/50">
               <TableCell colSpan={5} className="font-medium">Total Revenue</TableCell>
-              <TableCell className="text-right font-bold">{formatIDR(total)}</TableCell>
+              <TableCell className="text-right font-bold">{formatCurrency(total)}</TableCell>
               {isEditable && <TableCell></TableCell>}
             </TableRow>
           </TableBody>
@@ -201,7 +201,7 @@ export function QuotationRevenueItems({ quotationId, items, isEditable }: Quotat
                 </div>
               </div>
               <div className="text-right text-sm text-muted-foreground">
-                Subtotal: {formatIDR(formData.quantity * formData.unit_price)}
+                Subtotal: {formatCurrency(formData.quantity * formData.unit_price)}
               </div>
             </div>
             <DialogFooter>

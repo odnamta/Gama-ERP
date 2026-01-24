@@ -502,12 +502,9 @@ export function formatIncidentCurrency(amount: number): string {
  * Format date for display
  */
 export function formatIncidentDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  if (!dateString) return '-';
+  const { formatDate } = require('@/lib/utils/format');
+  return formatDate(dateString);
 }
 
 /**
@@ -523,14 +520,9 @@ export function formatIncidentTime(timeString: string): string {
  * Format datetime for display
  */
 export function formatIncidentDateTime(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  if (!dateString) return '-';
+  const { formatDateTime } = require('@/lib/utils/format');
+  return formatDateTime(dateString);
 }
 
 // =====================================================

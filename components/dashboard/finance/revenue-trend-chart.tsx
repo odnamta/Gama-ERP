@@ -4,8 +4,8 @@ import Link from 'next/link'
 import { TrendingUp, ExternalLink } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { formatCurrencyShort } from '@/lib/utils/format'
 import {
-  formatCurrencyCompact,
   formatMonthLabel,
   MonthlyRevenueData,
 } from '@/lib/finance-dashboard-enhanced-utils'
@@ -50,8 +50,8 @@ export function RevenueTrendChart({ data }: RevenueTrendChartProps) {
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-medium w-12">{formatMonthLabel(month.month)}</span>
                       <div className="flex gap-4 text-muted-foreground">
-                        <span className="text-blue-600">{formatCurrencyCompact(month.revenue)}</span>
-                        <span className="text-green-600">{formatCurrencyCompact(month.collected)}</span>
+                        <span className="text-blue-600">{formatCurrencyShort(month.revenue)}</span>
+                        <span className="text-green-600">{formatCurrencyShort(month.collected)}</span>
                       </div>
                     </div>
                     <div className="relative h-4 bg-muted rounded-full overflow-hidden">

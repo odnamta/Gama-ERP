@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/table'
 import Link from 'next/link'
 import { type RecentDocument, type WorkItemType, filterDocumentsByType } from '@/lib/admin-dashboard-utils'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatDate } from '@/lib/utils/format'
 
 interface RecentDocumentsTableProps {
   documents: RecentDocument[]

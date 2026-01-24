@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertTriangle, Clock, Wrench, DollarSign } from 'lucide-react'
 import { MaintenanceDashboardStats } from '@/types/maintenance'
-import { formatIDR } from '@/lib/pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 
 interface MaintenanceSummaryCardsProps {
   stats: MaintenanceDashboardStats
@@ -57,7 +57,7 @@ export function MaintenanceSummaryCards({ stats }: MaintenanceSummaryCardsProps)
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatIDR(stats.costMTD)}</div>
+          <div className="text-2xl font-bold">{formatCurrency(stats.costMTD)}</div>
           <p className="text-xs text-muted-foreground">
             Month to date
           </p>

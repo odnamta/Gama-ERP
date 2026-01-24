@@ -6,7 +6,7 @@ import { MapPin, Calendar, User } from 'lucide-react';
 import { SafetyPermit } from '@/types/safety-document';
 import { PermitStatusBadge } from './permit-status-badge';
 import { PermitTypeBadge } from './permit-type-badge';
-import { formatDate } from '@/lib/pjo-utils';
+import { formatDate } from '@/lib/utils/format';
 
 interface PermitCardProps {
   permit: SafetyPermit;

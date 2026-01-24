@@ -10,7 +10,7 @@ import {
   AssignmentStatusBadge,
 } from '@/components/ui/resource-status-badge'
 import { ResourceWithDetails, ResourceAssignment } from '@/types/resource-scheduling'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatDate } from '@/lib/utils/format'
 import { getCertificationStatus } from '@/lib/resource-scheduling-utils'
 import {
   Pencil,

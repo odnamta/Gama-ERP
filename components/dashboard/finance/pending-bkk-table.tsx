@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { BKKStatusBadge } from '@/components/ui/bkk-status-badge'
-import { formatIDR, formatDate } from '@/lib/pjo-utils'
+import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { approveBKK, rejectBKK } from '@/app/(main)/job-orders/bkk-actions'
 import { useToast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
@@ -121,7 +121,7 @@ export function PendingBKKTable({ bkks }: PendingBKKTableProps) {
                     {bkk.purpose}
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {formatIDR(bkk.amount_requested)}
+                    {formatCurrency(bkk.amount_requested)}
                   </TableCell>
                   <TableCell>{bkk.requester?.full_name || '-'}</TableCell>
                   <TableCell>{bkk.requested_at ? formatDate(bkk.requested_at) : '-'}</TableCell>

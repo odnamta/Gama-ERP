@@ -12,21 +12,12 @@ import {
 } from '@/components/ui/table'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatCurrencyShort } from '@/lib/utils/format'
 import { type TopCustomer } from '@/lib/sales-dashboard-utils'
 
 interface TopCustomersTableProps {
   customers: TopCustomer[]
   isLoading?: boolean
-}
-
-function formatCurrency(value: number): string {
-  if (value >= 1000000000) {
-    return `Rp ${(value / 1000000000).toFixed(1)}B`
-  }
-  if (value >= 1000000) {
-    return `Rp ${(value / 1000000).toFixed(0)}M`
-  }
-  return `Rp ${value.toLocaleString('id-ID')}`
 }
 
 const trendConfig = {
@@ -94,11 +85,11 @@ export function TopCustomersTable({ customers, isLoading }: TopCustomersTablePro
                       </Link>
                     </TableCell>
                     <TableCell className="text-right font-medium">
-                      {formatCurrency(customer.totalValue)}
+                      {formatCurrencyShort(customer.totalValue)}
                     </TableCell>
                     <TableCell className="text-right">{customer.jobCount}</TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(customer.avgValue)}
+                      {formatCurrencyShort(customer.avgValue)}
                     </TableCell>
                     <TableCell className={cn('text-right', trend.className)}>
                       {trend.prefix}{customer.trendPercentage}%

@@ -29,6 +29,7 @@ import {
   formatTravelTime,
   formatCurrency,
 } from '@/lib/survey-utils';
+import { formatDate } from '@/lib/utils/format';
 import { WaypointTable } from './waypoint-table';
 import { ChecklistSection } from './checklist-section';
 import { RouteOverview } from './route-overview';
@@ -336,7 +337,7 @@ function DetailsTab({ survey }: { survey: RouteSurveyWithRelations }) {
             <span className="text-muted-foreground">Survey Date</span>
             <span className="font-medium">
               {survey.surveyDate
-                ? new Date(survey.surveyDate).toLocaleDateString('id-ID')
+                ? formatDate(survey.surveyDate)
                 : '-'}
             </span>
           </div>

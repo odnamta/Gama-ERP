@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MaintenanceCostSummary as CostSummaryType } from '@/types/maintenance'
-import { formatIDR, formatDate } from '@/lib/pjo-utils'
+import { formatCurrency, formatDate } from '@/lib/utils/format'
 
 interface MaintenanceCostSummaryProps {
   data: CostSummaryType[]
@@ -72,10 +72,10 @@ export function MaintenanceCostSummary({ data, title = 'Cost Summary by Asset' }
                 </TableCell>
                 <TableCell>{formatDate(row.month + '-01')}</TableCell>
                 <TableCell className="text-center">{row.maintenanceCount}</TableCell>
-                <TableCell className="text-right">{formatIDR(row.totalLabor)}</TableCell>
-                <TableCell className="text-right">{formatIDR(row.totalParts)}</TableCell>
-                <TableCell className="text-right">{formatIDR(row.totalExternal)}</TableCell>
-                <TableCell className="text-right font-medium">{formatIDR(row.totalCost)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(row.totalLabor)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(row.totalParts)}</TableCell>
+                <TableCell className="text-right">{formatCurrency(row.totalExternal)}</TableCell>
+                <TableCell className="text-right font-medium">{formatCurrency(row.totalCost)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -83,10 +83,10 @@ export function MaintenanceCostSummary({ data, title = 'Cost Summary by Asset' }
             <TableRow>
               <TableCell colSpan={2} className="font-medium">Total</TableCell>
               <TableCell className="text-center font-medium">{totals.maintenanceCount}</TableCell>
-              <TableCell className="text-right font-medium">{formatIDR(totals.totalLabor)}</TableCell>
-              <TableCell className="text-right font-medium">{formatIDR(totals.totalParts)}</TableCell>
-              <TableCell className="text-right font-medium">{formatIDR(totals.totalExternal)}</TableCell>
-              <TableCell className="text-right font-bold">{formatIDR(totals.totalCost)}</TableCell>
+              <TableCell className="text-right font-medium">{formatCurrency(totals.totalLabor)}</TableCell>
+              <TableCell className="text-right font-medium">{formatCurrency(totals.totalParts)}</TableCell>
+              <TableCell className="text-right font-medium">{formatCurrency(totals.totalExternal)}</TableCell>
+              <TableCell className="text-right font-bold">{formatCurrency(totals.totalCost)}</TableCell>
             </TableRow>
           </TableFooter>
         </Table>

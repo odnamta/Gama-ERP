@@ -24,7 +24,7 @@ import {
   MaintenancePerformedAt 
 } from '@/types/maintenance'
 import { Asset } from '@/types/assets'
-import { formatIDR } from '@/lib/pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 import { calculatePartsCost, calculateTotalCost, validateMaintenanceRecordInput } from '@/lib/maintenance-utils'
 import { createMaintenanceRecord } from '@/lib/maintenance-actions'
 import { Loader2 } from 'lucide-react'
@@ -329,7 +329,7 @@ export function MaintenanceRecordForm({
             <div className="space-y-2">
               <Label>Parts Cost</Label>
               <Input
-                value={formatIDR(partsCost)}
+                value={formatCurrency(partsCost)}
                 disabled
                 className="bg-muted"
               />
@@ -351,7 +351,7 @@ export function MaintenanceRecordForm({
 
           <div className="flex justify-between items-center">
             <span className="text-lg font-medium">Total Cost:</span>
-            <span className="text-2xl font-bold">{formatIDR(totalCost)}</span>
+            <span className="text-2xl font-bold">{formatCurrency(totalCost)}</span>
           </div>
         </CardContent>
       </Card>

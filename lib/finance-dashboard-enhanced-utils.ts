@@ -642,6 +642,9 @@ export function formatPercentage(value: number, decimals: number = 1): string {
  * Format month for chart display
  */
 export function formatMonthLabel(monthStr: string): string {
-  const date = new Date(monthStr)
-  return date.toLocaleDateString('en-US', { month: 'short' })
+  if (!monthStr) return '-';
+  const date = new Date(monthStr);
+  if (isNaN(date.getTime())) return '-';
+  // Use Indonesian locale for month abbreviation
+  return date.toLocaleDateString('id-ID', { month: 'short' });
 }

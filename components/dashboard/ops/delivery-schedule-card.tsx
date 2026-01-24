@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { DeliveryItem } from '@/lib/ops-dashboard-enhanced-utils'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatDate } from '@/lib/utils/format'
 
 interface DeliveryScheduleCardProps {
   deliveries: DeliveryItem[]

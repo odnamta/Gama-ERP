@@ -28,6 +28,7 @@ import {
   ExternalLink,
   FileText,
 } from 'lucide-react';
+import { formatDate } from '@/lib/utils/format';
 
 interface VendorInvoicesListProps {
   invoices: AgencyVendorInvoice[];
@@ -52,14 +53,6 @@ export function VendorInvoicesList({
       currency: currency === 'IDR' ? 'IDR' : currency,
       minimumFractionDigits: currency === 'IDR' ? 0 : 2,
     }).format(value);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
   };
 
   const getPaymentStatusBadge = (status: VendorInvoicePaymentStatus) => {

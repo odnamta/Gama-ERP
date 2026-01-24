@@ -406,12 +406,8 @@ export function formatVendorInvoiceCurrency(amount: number | null | undefined): 
  */
 export function formatVendorInvoiceDate(date: string | null | undefined): string {
   if (!date) return '-';
-  const d = new Date(date);
-  return d.toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  const { formatDate } = require('@/lib/utils/format');
+  return formatDate(date);
 }
 
 /**

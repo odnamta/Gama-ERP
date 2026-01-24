@@ -1,7 +1,7 @@
 'use client'
 
 import { SuratJalanWithRelations } from '@/types'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatDate } from '@/lib/utils/format'
 import { getSJStatusLabel } from '@/lib/sj-utils'
 
 interface SuratJalanPrintViewProps {

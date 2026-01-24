@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Update Project Context",
+  "description": "After completing significant work (new features, fixes, refactors), automatically updates the Recent Changes section in Project Context.md and CLAUDE.md to keep documentation in sync.",
+  "version": "1",
+  "when": {
+    "type": "agentStop"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "If you just completed a significant change (new feature, bug fix, refactor, or spec implementation), update the \"Recent Changes\" section in both:\n1. `.kiro/steering/Project Context.md`\n2. `CLAUDE.md`\n\nAdd a one-line entry with today's date and brief description. Keep only the 7 most recent entries. Skip this if the work was minor (typo fixes, small tweaks) or if you already updated these files in this session."
+  }
+}

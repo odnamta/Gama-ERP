@@ -310,7 +310,8 @@ export function getTimeUntilNextRun(nextRunAt: string | Date): string {
   if (diffHours < 24) return `in ${diffHours} hour${diffHours !== 1 ? 's' : ''}`;
   if (diffDays < 7) return `in ${diffDays} day${diffDays !== 1 ? 's' : ''}`;
   
-  return nextRun.toLocaleDateString('id-ID');
+  const { formatDate } = require('@/lib/utils/format');
+  return formatDate(nextRun);
 }
 
 /**

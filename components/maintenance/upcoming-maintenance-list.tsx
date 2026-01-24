@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, Clock, CheckCircle, Wrench, Calendar } from 'lucide-react'
 import { UpcomingMaintenance, MaintenanceUrgency } from '@/types/maintenance'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatDate } from '@/lib/utils/format'
 
 interface UpcomingMaintenanceListProps {
   items: UpcomingMaintenance[]

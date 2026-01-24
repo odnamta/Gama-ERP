@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, AlertTriangle, Play } from 'lucide-react';
 import { AuditScheduleItem } from '@/types/audit';
-import { formatDate } from '@/lib/pjo-utils';
+import { formatDate } from '@/lib/utils/format';
 
 interface UpcomingAuditsListProps {
   audits: AuditScheduleItem[];

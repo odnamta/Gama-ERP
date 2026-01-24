@@ -5,8 +5,7 @@ import { Bell, ChevronRight } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { formatCurrency } from '@/lib/utils/format'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatCurrency, formatDate } from '@/lib/utils/format'
 import type { OverdueInvoice, OverdueSeverity } from '@/lib/finance-dashboard-utils'
 
 interface OverdueInvoicesTableProps {

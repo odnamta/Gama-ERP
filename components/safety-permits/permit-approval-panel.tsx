@@ -8,7 +8,7 @@ import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import { SafetyPermit } from '@/types/safety-document';
 import { approveBySupervisor, approveByHSE, activatePermit, cancelPermit } from '@/lib/safety-permit-actions';
 import { useToast } from '@/hooks/use-toast';
-import { formatDate } from '@/lib/pjo-utils';
+import { formatDate } from '@/lib/utils/format';
 
 interface PermitApprovalPanelProps {
   permit: SafetyPermit;

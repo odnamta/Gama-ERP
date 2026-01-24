@@ -3,21 +3,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TrendingUp, TrendingDown, Target, Users, FileText, DollarSign } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatCurrencyShort } from '@/lib/utils/format'
 import { type SalesKPIs } from '@/lib/sales-dashboard-utils'
 
 interface SalesKPICardsProps {
   kpis: SalesKPIs
   isLoading?: boolean
-}
-
-function formatCurrency(value: number): string {
-  if (value >= 1000000000) {
-    return `Rp ${(value / 1000000000).toFixed(1)}B`
-  }
-  if (value >= 1000000) {
-    return `Rp ${(value / 1000000).toFixed(0)}M`
-  }
-  return `Rp ${value.toLocaleString('id-ID')}`
 }
 
 export function SalesKPICards({ kpis, isLoading }: SalesKPICardsProps) {
@@ -52,7 +43,7 @@ export function SalesKPICards({ kpis, isLoading }: SalesKPICardsProps) {
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(kpis.pipelineValue)}</div>
+          <div className="text-2xl font-bold">{formatCurrencyShort(kpis.pipelineValue)}</div>
           <p className="text-xs text-muted-foreground">
             {kpis.pipelineCount} opportunities
           </p>

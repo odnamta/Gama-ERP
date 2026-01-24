@@ -17,7 +17,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { convertToPJO } from '@/app/(main)/quotations/actions'
 import { QuotationWithRelations } from '@/types/quotation'
-import { formatIDR } from '@/lib/pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 import { calculatePursuitCostPerShipment } from '@/lib/quotation-utils'
 
 interface ConvertToPJODialogProps {
@@ -117,13 +117,13 @@ export function ConvertToPJODialog({
               <span className="font-medium">{splitByShipments ? shipmentCount : 1}</span>
               
               <span className="text-muted-foreground">Revenue per PJO:</span>
-              <span className="font-medium">{formatIDR(revenuePerPJO)}</span>
+              <span className="font-medium">{formatCurrency(revenuePerPJO)}</span>
               
               <span className="text-muted-foreground">Cost per PJO:</span>
-              <span className="font-medium">{formatIDR(costPerPJO)}</span>
+              <span className="font-medium">{formatCurrency(costPerPJO)}</span>
               
               <span className="text-muted-foreground">Pursuit cost allocation:</span>
-              <span className="font-medium">{formatIDR(pursuitCostPerShipment)}</span>
+              <span className="font-medium">{formatCurrency(pursuitCostPerShipment)}</span>
             </div>
           </div>
 

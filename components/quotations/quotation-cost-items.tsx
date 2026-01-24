@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
-import { formatIDR } from '@/lib/pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 import { addCostItem, updateCostItem, deleteCostItem } from '@/app/(main)/quotations/actions'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 
@@ -135,7 +135,7 @@ export function QuotationCostItems({ quotationId, items, isEditable }: Quotation
                   <TableCell>{QUOTATION_COST_CATEGORY_LABELS[item.category as QuotationCostCategory] || item.category}</TableCell>
                   <TableCell>{item.description}</TableCell>
                   <TableCell>{item.vendor_name || '-'}</TableCell>
-                  <TableCell className="text-right font-medium">{formatIDR(item.estimated_amount)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatCurrency(item.estimated_amount)}</TableCell>
                   {isEditable && (
                     <TableCell>
                       <div className="flex gap-1">
@@ -153,7 +153,7 @@ export function QuotationCostItems({ quotationId, items, isEditable }: Quotation
             )}
             <TableRow className="bg-muted/50">
               <TableCell colSpan={3} className="font-medium">Total Estimated Cost</TableCell>
-              <TableCell className="text-right font-bold">{formatIDR(total)}</TableCell>
+              <TableCell className="text-right font-bold">{formatCurrency(total)}</TableCell>
               {isEditable && <TableCell></TableCell>}
             </TableRow>
           </TableBody>

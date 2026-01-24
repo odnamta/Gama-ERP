@@ -31,7 +31,7 @@ import {
 import { MoreHorizontal, Edit, Trash2, Calendar, Gauge, Clock } from 'lucide-react'
 import { MaintenanceSchedule, MaintenanceType } from '@/types/maintenance'
 import { Asset } from '@/types/assets'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatDate } from '@/lib/utils/format'
 import { deleteMaintenanceSchedule } from '@/lib/maintenance-actions'
 import { useRouter } from 'next/navigation'
 

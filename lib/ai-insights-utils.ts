@@ -430,11 +430,8 @@ export function formatRelativeTime(timestamp: string | Date): string {
   }
 
   // Format as date for older timestamps
-  return date.toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+  const { formatDate } = require('@/lib/utils/format');
+  return formatDate(date);
 }
 
 // =====================================================

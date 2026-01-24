@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ChecklistForm } from './checklist-form';
 import { Audit, AuditType, AuditFinding } from '@/types/audit';
-import { formatDate } from '@/lib/pjo-utils';
+import { formatDate } from '@/lib/utils/format';
 import {
   formatAuditStatus,
   formatAuditRating,

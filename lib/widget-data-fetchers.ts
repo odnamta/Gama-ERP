@@ -199,7 +199,7 @@ export async function getRevenueTrend(): Promise<ChartData> {
     const date = new Date();
     date.setMonth(date.getMonth() - i);
     const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    months.push(date.toLocaleDateString('en-US', { month: 'short' }));
+    months.push(date.toLocaleDateString('id-ID', { month: 'short' }));
     monthlyRevenue[key] = 0;
   }
   

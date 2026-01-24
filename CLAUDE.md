@@ -99,6 +99,25 @@ Staff Tier:
 4. **Currency**: All amounts in IDR (Indonesian Rupiah), format with thousands separator
 5. **BKK Numbers**: Format BKK-YYYYMM-XXXX, auto-increment per month
 
+## Date & Currency Formatting (IMPORTANT)
+Always use centralized formatters from `lib/utils/format.ts`:
+
+```typescript
+import { 
+  formatDate,           // "15 Jan 2026" - tables, cards, UI
+  formatDateTime,       // "15 Jan 2026, 14:30" - with time
+  formatRelative,       // "2 hari yang lalu" - Indonesian relative
+  formatDocumentDate,   // "15 Januari 2026" - formal documents/PDFs
+  toInputDate,          // "2026-01-15" - HTML form inputs
+  formatCurrency,       // "Rp 1.500.000" - full currency
+  formatCurrencyShort,  // "Rp 1,5 jt" - compact for dashboards
+  formatNumber,         // "1.500.000" - number with separators
+  formatPercent,        // "75,5%" - percentage
+} from '@/lib/utils/format'
+```
+
+**DO NOT use**: `toLocaleDateString()`, `new Intl.DateTimeFormat()` directly, or `formatIDR`/`formatDate` from `lib/pjo-utils.ts` (deprecated)
+
 ## Database Patterns
 ```sql
 -- Soft delete query
@@ -166,8 +185,10 @@ const data = result.data as TableType[] | null
 - [ ] QA testing with real users
 
 ## Recent Changes
+- 2026-01-24: v0.83 - Date & currency formatting standardization (`lib/utils/format.ts`)
+- 2026-01-20: PJO form button state fixes
+- 2026-01-15: Finance Manager dashboard real data implementation
 - 2026-01-10: Fixed Vercel deployment (type regeneration)
 - 2026-01-10: Renamed disbursements → bkk_records
 - 2026-01-09: Added agency & customs roles
-- 2026-01-09: Completed disbursement (BKK) module
-- 2026-01-09: Finance Manager dashboard - real data
+- 2026-01-08: v0.9.2 - Performance optimization (Lighthouse 40 → 95-97)

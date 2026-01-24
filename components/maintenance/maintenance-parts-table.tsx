@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/table'
 import { Plus, Trash2 } from 'lucide-react'
 import { MaintenancePartInput } from '@/types/maintenance'
-import { formatIDR } from '@/lib/pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 import { calculatePartsCost } from '@/lib/maintenance-utils'
 
 interface MaintenancePartsTableProps {
@@ -145,7 +145,7 @@ export function MaintenancePartsTable({
                   </TableCell>
                   <TableCell>
                     {readOnly ? (
-                      formatIDR(part.unitPrice)
+                      formatCurrency(part.unitPrice)
                     ) : (
                       <Input
                         type="number"
@@ -157,7 +157,7 @@ export function MaintenancePartsTable({
                     )}
                   </TableCell>
                   <TableCell className="font-medium">
-                    {formatIDR(part.quantity * part.unitPrice)}
+                    {formatCurrency(part.quantity * part.unitPrice)}
                   </TableCell>
                   <TableCell>
                     {readOnly ? (
@@ -192,7 +192,7 @@ export function MaintenancePartsTable({
                 <TableCell colSpan={5} className="text-right font-medium">
                   Total Parts Cost:
                 </TableCell>
-                <TableCell className="font-bold">{formatIDR(totalCost)}</TableCell>
+                <TableCell className="font-bold">{formatCurrency(totalCost)}</TableCell>
                 <TableCell colSpan={readOnly ? 1 : 2}></TableCell>
               </TableRow>
             </TableFooter>

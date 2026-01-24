@@ -12,7 +12,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { SJStatusBadge } from '@/components/ui/sj-status-badge'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatDate } from '@/lib/utils/format'
 import { isSJTerminalStatus } from '@/lib/sj-utils'
 import { Eye, Printer, RefreshCw } from 'lucide-react'
 

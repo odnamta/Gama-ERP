@@ -19,7 +19,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
-import { formatIDR, formatDate } from '@/lib/pjo-utils'
+import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { calculatePursuitCostPerShipment } from '@/lib/quotation-utils'
 import { addPursuitCost, updatePursuitCost, deletePursuitCost } from '@/app/(main)/quotations/actions'
 import { Plus, Pencil, Trash2, CalendarIcon } from 'lucide-react'
@@ -154,7 +154,7 @@ export function PursuitCostsSection({ quotationId, items, estimatedShipments, is
                   <TableCell>{formatDate(item.cost_date)}</TableCell>
                   <TableCell>{PURSUIT_COST_CATEGORY_LABELS[item.category as PursuitCostCategory] || item.category}</TableCell>
                   <TableCell>{item.description}</TableCell>
-                  <TableCell className="text-right font-medium">{formatIDR(item.amount)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatCurrency(item.amount)}</TableCell>
                   {isEditable && (
                     <TableCell>
                       <div className="flex gap-1">
@@ -172,14 +172,14 @@ export function PursuitCostsSection({ quotationId, items, estimatedShipments, is
             )}
             <TableRow className="bg-muted/50">
               <TableCell colSpan={3} className="font-medium">Total Pursuit Cost</TableCell>
-              <TableCell className="text-right font-bold">{formatIDR(total)}</TableCell>
+              <TableCell className="text-right font-bold">{formatCurrency(total)}</TableCell>
               {isEditable && <TableCell></TableCell>}
             </TableRow>
             <TableRow className="bg-muted/50">
               <TableCell colSpan={3} className="text-muted-foreground">
                 Per Shipment ({estimatedShipments} shipment{estimatedShipments > 1 ? 's' : ''})
               </TableCell>
-              <TableCell className="text-right font-medium">{formatIDR(perShipment)}</TableCell>
+              <TableCell className="text-right font-medium">{formatCurrency(perShipment)}</TableCell>
               {isEditable && <TableCell></TableCell>}
             </TableRow>
           </TableBody>

@@ -6,7 +6,7 @@ import { FileText, Calendar, User } from 'lucide-react';
 import { SafetyDocument } from '@/types/safety-document';
 import { DocumentStatusBadge } from './document-status-badge';
 import { ValidityBadge } from './validity-badge';
-import { formatDate } from '@/lib/pjo-utils';
+import { formatDate } from '@/lib/utils/format';
 
 interface DocumentCardProps {
   document: SafetyDocument;

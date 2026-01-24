@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/table';
 import { Eye, Edit, Search } from 'lucide-react';
 import { Audit, AUDIT_STATUSES } from '@/types/audit';
-import { formatDate } from '@/lib/pjo-utils';
+import { formatDate } from '@/lib/utils/format';
 import { formatAuditStatus, getAuditStatusColor, getAuditRatingColor, formatAuditRating } from '@/lib/audit-utils';
 
 interface AuditListProps {

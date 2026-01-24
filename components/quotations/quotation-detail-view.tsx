@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { formatIDR, formatDate } from '@/lib/pjo-utils'
+import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { useToast } from '@/hooks/use-toast'
 import { Pencil, Send, Trophy, XCircle, ArrowRight, AlertTriangle } from 'lucide-react'
 import { MarketTypeBadge } from '@/components/ui/market-type-badge'
@@ -472,7 +472,7 @@ export function QuotationDetailView({ quotation, userRole, userId }: QuotationDe
               {quotation.cargo_value && (
                 <div>
                   <Label className="text-muted-foreground">Cargo Value</Label>
-                  <p className="font-medium">{formatIDR(Number(quotation.cargo_value))}</p>
+                  <p className="font-medium">{formatCurrency(Number(quotation.cargo_value))}</p>
                 </div>
               )}
             </div>
@@ -518,18 +518,18 @@ export function QuotationDetailView({ quotation, userRole, userId }: QuotationDe
         <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <div>
             <Label className="text-muted-foreground">Total Revenue</Label>
-            <p className="text-lg font-semibold">{formatIDR(quotation.total_revenue || 0)}</p>
+            <p className="text-lg font-semibold">{formatCurrency(quotation.total_revenue || 0)}</p>
           </div>
           <div>
             <Label className="text-muted-foreground">Total Cost</Label>
-            <p className="text-lg font-semibold">{formatIDR(quotation.total_cost || 0)}</p>
+            <p className="text-lg font-semibold">{formatCurrency(quotation.total_cost || 0)}</p>
           </div>
           {canViewProfitMargin && (
             <>
               <div>
                 <Label className="text-muted-foreground">Gross Profit</Label>
                 <p className={`text-lg font-semibold ${(quotation.gross_profit || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {formatIDR(quotation.gross_profit || 0)}
+                  {formatCurrency(quotation.gross_profit || 0)}
                 </p>
               </div>
               <div>
@@ -542,7 +542,7 @@ export function QuotationDetailView({ quotation, userRole, userId }: QuotationDe
           )}
           <div>
             <Label className="text-muted-foreground">Pursuit Cost</Label>
-            <p className="text-lg font-semibold">{formatIDR(quotation.total_pursuit_cost || 0)}</p>
+            <p className="text-lg font-semibold">{formatCurrency(quotation.total_pursuit_cost || 0)}</p>
           </div>
         </CardContent>
       </Card>

@@ -11,9 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
+import { formatCurrencyShort } from '@/lib/utils/format'
 import {
-  formatCurrency,
-  formatCurrencyCompact,
   AgingBucket,
   hasCriticalOverdue,
   AGING_BUCKET_ORDER,
@@ -74,7 +73,7 @@ function AgingBreakdownChart({ buckets, total }: { buckets: AgingBucket[]; total
             <div className="flex items-center justify-between text-xs">
               <span className={BUCKET_TEXT_COLORS[bucketName]}>{bucketName}</span>
               <span className="text-muted-foreground">
-                {formatCurrencyCompact(amount)} ({count})
+                {formatCurrencyShort(amount)} ({count})
               </span>
             </div>
             <Progress
@@ -119,12 +118,12 @@ export function AROverviewCard({
         {/* Summary Stats */}
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <div className="text-2xl font-bold">{formatCurrencyCompact(totalAR)}</div>
+            <div className="text-2xl font-bold">{formatCurrencyShort(totalAR)}</div>
             <div className="text-xs text-muted-foreground">Total Outstanding</div>
           </div>
           <div>
             <div className={`text-2xl font-bold ${overdueAR > 0 ? 'text-red-600' : ''}`}>
-              {formatCurrencyCompact(overdueAR)}
+              {formatCurrencyShort(overdueAR)}
             </div>
             <div className="text-xs text-muted-foreground">Overdue</div>
           </div>
@@ -179,12 +178,12 @@ export function APOverviewCard({
         {/* Summary Stats */}
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
-            <div className="text-2xl font-bold">{formatCurrencyCompact(totalAP)}</div>
+            <div className="text-2xl font-bold">{formatCurrencyShort(totalAP)}</div>
             <div className="text-xs text-muted-foreground">Total Outstanding</div>
           </div>
           <div>
             <div className={`text-2xl font-bold ${overdueAP > 0 ? 'text-red-600' : ''}`}>
-              {formatCurrencyCompact(overdueAP)}
+              {formatCurrencyShort(overdueAP)}
             </div>
             <div className="text-xs text-muted-foreground">Overdue</div>
           </div>

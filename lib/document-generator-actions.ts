@@ -1219,11 +1219,8 @@ function formatDateForTemplate(dateString: string | null | undefined): string {
     if (isNaN(date.getTime())) {
       return dateString
     }
-    return date.toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    })
+    const { formatDate } = require('@/lib/utils/format')
+    return formatDate(date)
   } catch {
     return dateString
   }

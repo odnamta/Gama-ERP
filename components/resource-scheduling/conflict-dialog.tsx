@@ -13,7 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { UnavailabilityTypeBadge } from '@/components/ui/resource-status-badge'
 import { ConflictResult, ConflictDetail } from '@/types/resource-scheduling'
-import { formatDate } from '@/lib/pjo-utils'
+import { formatDate } from '@/lib/utils/format'
 import { AlertTriangle, Calendar, Clock, FileText } from 'lucide-react'
 
 interface ConflictDialogProps {

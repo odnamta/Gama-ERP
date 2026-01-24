@@ -14,15 +14,12 @@ import {
 } from '@/components/ui/table'
 import { AlertTriangle, Clock, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatCurrency } from '@/lib/utils/format'
 import { type PendingFollowup, countStalePJOs } from '@/lib/sales-dashboard-utils'
 
 interface PendingFollowupsTableProps {
   followups: PendingFollowup[]
   isLoading?: boolean
-}
-
-function formatCurrency(value: number): string {
-  return `Rp ${value.toLocaleString('id-ID')}`
 }
 
 const statusConfig = {

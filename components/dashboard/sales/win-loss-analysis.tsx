@@ -2,21 +2,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { formatCurrencyShort } from '@/lib/utils/format'
 import { type WinLossData } from '@/lib/sales-dashboard-utils'
 
 interface WinLossAnalysisProps {
   data: WinLossData
   isLoading?: boolean
-}
-
-function formatCurrency(value: number): string {
-  if (value >= 1000000000) {
-    return `Rp ${(value / 1000000000).toFixed(1)}B`
-  }
-  if (value >= 1000000) {
-    return `Rp ${(value / 1000000).toFixed(0)}M`
-  }
-  return `Rp ${value.toLocaleString('id-ID')}`
 }
 
 interface ProgressBarProps {
@@ -33,7 +24,7 @@ function ProgressBar({ label, count, value, percentage, color, bgColor }: Progre
     <div className="space-y-1">
       <div className="flex justify-between text-sm">
         <span className={cn('font-medium', color)}>
-          {label}: {count} ({formatCurrency(value)})
+          {label}: {count} ({formatCurrencyShort(value)})
         </span>
         <span className={cn('font-medium', color)}>{percentage}%</span>
       </div>

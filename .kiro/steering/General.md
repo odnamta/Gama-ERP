@@ -70,8 +70,7 @@ Invoice:   draft → sent → paid → overdue → cancelled
 2. Loading states for all async operations
 3. User-friendly error messages (toast notifications)
 4. Mobile-responsive design
-5. Date format: DD/MM/YYYY (use `formatDate()` from `lib/pjo-utils.ts`)
-6. Currency format: IDR with thousands separator
+5. Date/Currency: Use centralized formatters from `lib/utils/format.ts` (see `formatting-standards.md`)
 
 ## 8. Security Rules
 1. All tables MUST have RLS policies

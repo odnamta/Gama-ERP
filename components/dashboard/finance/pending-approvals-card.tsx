@@ -5,11 +5,8 @@ import { ClipboardCheck, ExternalLink } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  formatCurrency,
-  formatCurrencyCompact,
-  PendingBKKItem,
-} from '@/lib/finance-dashboard-enhanced-utils'
+import { formatCurrencyShort } from '@/lib/utils/format'
+import { PendingBKKItem } from '@/lib/finance-dashboard-enhanced-utils'
 
 interface PendingApprovalsCardProps {
   pendingBKKs: PendingBKKItem[]
@@ -37,7 +34,7 @@ export function PendingApprovalsCard({
           )}
         </div>
         <CardDescription>
-          Total: {formatCurrencyCompact(totalPendingAmount)}
+          Total: {formatCurrencyShort(totalPendingAmount)}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -63,7 +60,7 @@ export function PendingApprovalsCard({
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-medium">
-                      {formatCurrencyCompact(bkk.amount)}
+                      {formatCurrencyShort(bkk.amount)}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {bkk.requestedBy}

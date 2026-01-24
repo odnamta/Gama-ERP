@@ -25,6 +25,7 @@ import {
   CreditCard,
   CheckCircle,
 } from 'lucide-react';
+import { formatDate, formatCurrency as formatCurrencyUtil } from '@/lib/utils/format';
 
 interface CostCardProps {
   cost: ShipmentCost;
@@ -119,7 +120,7 @@ export function CostCard({
                 <span>Paid: {formatCurrency(cost.paidAmount, 'IDR')}</span>
                 {cost.paidDate && (
                   <span className="text-muted-foreground">
-                    on {new Date(cost.paidDate).toLocaleDateString('id-ID')}
+                    on {formatDate(cost.paidDate)}
                   </span>
                 )}
               </div>

@@ -158,11 +158,14 @@ const data = result.data as { column: string }[] | null  // Explicit cast
 - [ ] User activity tracking (v0.13.1)
 
 ## Recent Changes
+- 2026-01-24: v0.83 - Date & currency formatting standardization (`lib/utils/format.ts`)
+- 2026-01-24: Added formatting-standards.md steering rule
+- 2026-01-20: PJO form button state fixes
+- 2026-01-15: Finance Manager dashboard real data implementation
 - 2026-01-10: Fixed Vercel deployment (type regeneration)
 - 2026-01-10: Renamed disbursements → bkk_records
 - 2026-01-09: Added agency & customs roles
-- 2026-01-09: Completed disbursement (BKK) module
-- 2026-01-09: Finance Manager dashboard - real data
+- 2026-01-08: v0.9.2 - Performance optimization (Lighthouse 40 → 95-97)
 
 ---
-*Last Updated: January 2026*
+*Last Updated: January 24, 2026*

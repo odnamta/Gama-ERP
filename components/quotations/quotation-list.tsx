@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { formatIDR, formatDate } from '@/lib/pjo-utils'
+import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { calculateWinRate, calculatePipelineValue } from '@/lib/quotation-utils'
 import { MarketTypeBadge } from '@/components/ui/market-type-badge'
 import { MarketType } from '@/types/market-classification'
@@ -87,7 +87,7 @@ export function QuotationList({ quotations, customers, userRole }: QuotationList
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatIDR(stats.pipelineValue)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(stats.pipelineValue)}</div>
             <p className="text-xs text-muted-foreground">
               {stats.draft + stats.submitted} active quotations
             </p>
@@ -239,7 +239,7 @@ export function QuotationList({ quotations, customers, userRole }: QuotationList
                         />
                       )}
                     </TableCell>
-                    <TableCell className="text-right">{formatIDR(q.total_revenue || 0)}</TableCell>
+                    <TableCell className="text-right">{formatCurrency(q.total_revenue || 0)}</TableCell>
                     {canViewProfitMargin && (
                       <TableCell className="text-right">
                         <span className={q.profit_margin && q.profit_margin > 0 ? 'text-green-600' : 'text-red-600'}>

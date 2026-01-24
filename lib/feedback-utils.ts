@@ -438,24 +438,16 @@ export function isOpenStatus(status: FeedbackStatus): boolean {
  * Formats a date for display
  */
 export function formatFeedbackDate(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  if (!dateString) return '-';
+  const { formatDate } = require('@/lib/utils/format');
+  return formatDate(dateString);
 }
 
 /**
  * Formats a date with time for display
  */
 export function formatFeedbackDateTime(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  if (!dateString) return '-';
+  const { formatDateTime } = require('@/lib/utils/format');
+  return formatDateTime(dateString);
 }

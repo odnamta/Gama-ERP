@@ -27,6 +27,7 @@ import {
 } from '@/lib/survey-utils';
 import { SurveyStatusCards } from './survey-status-cards';
 import { Search, Plus, ChevronRight, MapPin, Package, User } from 'lucide-react';
+import { formatDate } from '@/lib/utils/format';
 
 interface SurveyListProps {
   surveys: RouteSurvey[];
@@ -189,7 +190,7 @@ function SurveyCard({ survey, onClick }: SurveyCardProps) {
                 <User className="h-4 w-4" />
                 <span>
                   {survey.surveyorName}
-                  {survey.surveyDate && ` • ${new Date(survey.surveyDate).toLocaleDateString('id-ID')}`}
+                  {survey.surveyDate && ` • ${formatDate(survey.surveyDate)}`}
                 </span>
               </div>
             )}

@@ -11,7 +11,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle } from 'lucide-react';
 import { DocumentAcknowledgment } from '@/types/safety-document';
-import { formatDate } from '@/lib/pjo-utils';
+import { formatDate } from '@/lib/utils/format';
 
 interface AcknowledgmentListProps {
   acknowledgments: DocumentAcknowledgment[];

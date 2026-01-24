@@ -421,12 +421,9 @@ export function formatCurrency(amount: number, currency: string = 'USD'): string
  * Format date for display
  */
 export function formatBookingDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+  if (!dateStr) return '-';
+  const { formatDate } = require('@/lib/utils/format');
+  return formatDate(dateStr);
 }
 
 /**

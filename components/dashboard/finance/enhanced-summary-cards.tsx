@@ -11,10 +11,8 @@ import {
   Percent,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrencyShort } from '@/lib/utils/format'
 import {
-  formatCurrency,
-  formatCurrencyCompact,
-  formatPercentage,
   calculateNetCash,
   calculateProfitMargin,
   calculatePercentageChange,
@@ -55,11 +53,11 @@ export function EnhancedSummaryCards({
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Received</span>
-                <span className="text-green-600">+{formatCurrencyCompact(summary.cashReceivedMTD)}</span>
+                <span className="text-green-600">+{formatCurrencyShort(summary.cashReceivedMTD)}</span>
               </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <span>Paid Out</span>
-                <span className="text-red-600">-{formatCurrencyCompact(summary.cashPaidMTD)}</span>
+                <span className="text-red-600">-{formatCurrencyShort(summary.cashPaidMTD)}</span>
               </div>
             </div>
           </CardContent>
@@ -79,7 +77,7 @@ export function EnhancedSummaryCards({
           )}
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrencyCompact(summary.revenueMTD)}</div>
+          <div className="text-2xl font-bold">{formatCurrencyShort(summary.revenueMTD)}</div>
           <div className="flex items-center gap-1 text-xs">
             {isRevenueUp ? (
               <ArrowUpRight className="h-3 w-3 text-green-500" />
@@ -87,7 +85,7 @@ export function EnhancedSummaryCards({
               <ArrowDownRight className="h-3 w-3 text-red-500" />
             ) : null}
             <span className={isRevenueUp ? 'text-green-500' : isRevenueDown ? 'text-red-500' : 'text-muted-foreground'}>
-              {formatPercentage(revenueChange)}
+              {revenueChange >= 0 ? '+' : ''}{revenueChange.toFixed(1)}%
             </span>
             <span className="text-muted-foreground">vs last month</span>
           </div>
@@ -102,7 +100,7 @@ export function EnhancedSummaryCards({
             <Percent className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrencyCompact(summary.profitMTD)}</div>
+            <div className="text-2xl font-bold">{formatCurrencyShort(summary.profitMTD)}</div>
             <p className="text-xs text-muted-foreground">
               {profitMargin.toFixed(1)}% margin
             </p>
@@ -119,7 +117,7 @@ export function EnhancedSummaryCards({
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${isNetCashPositive ? 'text-green-600' : 'text-red-600'}`}>
-              {isNetCashPositive ? '+' : ''}{formatCurrencyCompact(netCash)}
+              {isNetCashPositive ? '+' : ''}{formatCurrencyShort(netCash)}
             </div>
             <p className="text-xs text-muted-foreground">
               {isNetCashPositive ? 'Positive cash flow' : 'Negative cash flow'}

@@ -24,7 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Download, Eye, Filter, X } from 'lucide-react'
 import { MaintenanceRecord, MaintenanceHistoryFilters, MaintenanceType } from '@/types/maintenance'
 import { Asset } from '@/types/assets'
-import { formatDate, formatIDR } from '@/lib/pjo-utils'
+import { formatDate, formatCurrency } from '@/lib/utils/format'
 
 interface MaintenanceHistoryTableProps {
   records: MaintenanceRecord[]
@@ -214,7 +214,7 @@ export function MaintenanceHistoryTable({
                   </TableCell>
                   <TableCell>{record.maintenanceType?.typeName || '-'}</TableCell>
                   <TableCell className="max-w-[200px] truncate">{record.description}</TableCell>
-                  <TableCell className="text-right font-medium">{formatIDR(record.totalCost)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatCurrency(record.totalCost)}</TableCell>
                   <TableCell>{getStatusBadge(record.status)}</TableCell>
                   <TableCell>
                     <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onViewDetails(record.id); }}>

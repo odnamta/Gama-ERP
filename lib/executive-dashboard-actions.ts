@@ -516,7 +516,7 @@ export async function getKPITrend(
     const value = await calculateKPIValueFromDB(kpiCode, date, endDate);
 
     results.push({
-      month: date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+      month: date.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' }),
       value,
     });
   }

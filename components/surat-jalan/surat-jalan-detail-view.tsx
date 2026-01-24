@@ -17,7 +17,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { SJStatusBadge } from '@/components/ui/sj-status-badge'
-import { formatDate, formatDateTime } from '@/lib/pjo-utils'
+import { formatDate, formatDateTime } from '@/lib/utils/format'
 import { getAvailableSJTransitions, getSJStatusLabel } from '@/lib/sj-utils'
 import { updateSuratJalanStatus } from '@/app/(main)/job-orders/surat-jalan-actions'
 import { useToast } from '@/hooks/use-toast'

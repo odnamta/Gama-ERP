@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { CostSummary } from '@/lib/ops-dashboard-enhanced-utils'
-import { formatIDR } from '@/lib/pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 
 interface CostTrackingCardProps {
   costSummary: CostSummary
@@ -40,20 +40,20 @@ export function CostTrackingCard({ costSummary }: CostTrackingCardProps) {
             <div>
               <div className="text-xs text-muted-foreground">Total Budget</div>
               <div className="text-lg font-semibold">
-                {formatIDR(costSummary.totalBudget)}
+                {formatCurrency(costSummary.totalBudget)}
               </div>
             </div>
             <div>
               <div className="text-xs text-muted-foreground">Total Spent</div>
               <div className="text-lg font-semibold">
-                {formatIDR(costSummary.totalSpent)}
+                {formatCurrency(costSummary.totalSpent)}
               </div>
             </div>
           </div>
           <div>
             <div className="text-xs text-muted-foreground mb-1">Remaining</div>
             <div className="text-lg font-semibold text-green-600">
-              {formatIDR(costSummary.remaining)}
+              {formatCurrency(costSummary.remaining)}
             </div>
           </div>
         </div>
@@ -81,7 +81,7 @@ export function CostTrackingCard({ costSummary }: CostTrackingCardProps) {
             </div>
             <div className="mt-1 text-sm text-yellow-600">
               {costSummary.bkkPending} requests totaling{' '}
-              {formatIDR(costSummary.bkkPendingAmount)}
+              {formatCurrency(costSummary.bkkPendingAmount)}
             </div>
           </div>
         )}

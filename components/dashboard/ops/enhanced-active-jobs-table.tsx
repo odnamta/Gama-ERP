@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { OperationsJobItem } from '@/lib/ops-dashboard-enhanced-utils'
-import { formatIDR } from '@/lib/pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 
 interface EnhancedActiveJobsTableProps {
   jobs: OperationsJobItem[]
@@ -101,7 +101,7 @@ export function EnhancedActiveJobsTable({ jobs }: EnhancedActiveJobsTableProps) 
                     <td className="px-4 py-3 text-sm">
                       <div className="flex items-center gap-2">
                         <span>
-                          {formatIDR(job.budget)} / {formatIDR(job.actualSpent)}
+                          {formatCurrency(job.budget)} / {formatCurrency(job.actualSpent)}
                         </span>
                         {job.isOverBudget ? (
                           <AlertTriangle className="h-4 w-4 text-red-500" />
@@ -145,7 +145,7 @@ export function EnhancedActiveJobsTable({ jobs }: EnhancedActiveJobsTableProps) 
             <ul className="mt-1 text-sm text-red-600">
               {overBudgetJobs.map((job) => (
                 <li key={job.id}>
-                  {job.joNumber} is over budget by {formatIDR(job.overBudgetAmount)} (
+                  {job.joNumber} is over budget by {formatCurrency(job.overBudgetAmount)} (
                   {job.overBudgetPercent.toFixed(1)}%)
                 </li>
               ))}

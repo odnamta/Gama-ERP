@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { AlertTriangle, Loader2 } from 'lucide-react'
-import { formatIDR } from '@/lib/pjo-utils'
+import { formatCurrency } from '@/lib/utils/format'
 
 interface CostItem {
   id: string
@@ -90,7 +90,7 @@ export function QuickCostModal({
             </div>
             <div>
               <span className="text-muted-foreground">Budget Cap:</span>
-              <p className="font-medium font-mono">{formatIDR(costItem.estimated_amount)}</p>
+              <p className="font-medium font-mono">{formatCurrency(costItem.estimated_amount)}</p>
             </div>
           </div>
 
@@ -122,7 +122,7 @@ export function QuickCostModal({
                 <span className={`font-mono font-medium ${
                   variance < 0 ? 'text-green-600' : variance > 0 ? 'text-red-600' : ''
                 }`}>
-                  {variance >= 0 ? '+' : ''}{formatIDR(variance)} ({variancePct}%)
+                  {variance >= 0 ? '+' : ''}{formatCurrency(variance)} ({variancePct}%)
                 </span>
                 {isExceeded && (
                   <Badge variant="destructive" className="text-xs">
