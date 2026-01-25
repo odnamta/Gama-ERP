@@ -37,7 +37,8 @@ import {
 
 const uuidArb = fc.uuid();
 const tableNameArb = fc.stringMatching(/^[a-z][a-z0-9_]{0,29}$/);
-const externalIdArb = fc.string({ minLength: 1, maxLength: 50 });
+// External ID must have at least one non-whitespace character to pass validation
+const externalIdArb = fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0);
 
 // Use a simpler date approach to avoid invalid date issues
 const isoDateArb = fc.integer({ min: 1704067200000, max: 1767225600000 }) // 2024-01-01 to 2025-12-31
