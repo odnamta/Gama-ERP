@@ -1096,7 +1096,7 @@ describe('Sysadmin Dashboard Data - Unit Tests', () => {
 
     it('should handle users who never logged in', () => {
       const today = '2026-01-26'
-      const users = [
+      const users: { id: string; lastLoginAt: string | null }[] = [
         { id: '1', lastLoginAt: null },
         { id: '2', lastLoginAt: null },
         { id: '3', lastLoginAt: null },

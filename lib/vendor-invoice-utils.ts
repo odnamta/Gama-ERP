@@ -406,8 +406,9 @@ export function formatVendorInvoiceCurrency(amount: number | null | undefined): 
  */
 export function formatVendorInvoiceDate(date: string | null | undefined): string {
   if (!date) return '-';
-  const { formatDate } = require('@/lib/utils/format');
-  return formatDate(date);
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '-';
+  return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 /**

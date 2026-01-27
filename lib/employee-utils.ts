@@ -209,8 +209,9 @@ export function isValidPositionLevel(level: number): level is PositionLevel {
  */
 export function formatEmployeeDate(dateString: string | null): string {
   if (!dateString) return '-';
-  const { formatDate } = require('@/lib/utils/format');
-  return formatDate(dateString);
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 /**

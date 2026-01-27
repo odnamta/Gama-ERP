@@ -439,8 +439,9 @@ export function isOpenStatus(status: FeedbackStatus): boolean {
  */
 export function formatFeedbackDate(dateString: string): string {
   if (!dateString) return '-';
-  const { formatDate } = require('@/lib/utils/format');
-  return formatDate(dateString);
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 /**
@@ -448,6 +449,7 @@ export function formatFeedbackDate(dateString: string): string {
  */
 export function formatFeedbackDateTime(dateString: string): string {
   if (!dateString) return '-';
-  const { formatDateTime } = require('@/lib/utils/format');
-  return formatDateTime(dateString);
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 }

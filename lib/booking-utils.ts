@@ -422,8 +422,9 @@ export function formatCurrency(amount: number, currency: string = 'USD'): string
  */
 export function formatBookingDate(dateStr: string): string {
   if (!dateStr) return '-';
-  const { formatDate } = require('@/lib/utils/format');
-  return formatDate(dateStr);
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 /**
