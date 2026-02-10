@@ -143,6 +143,11 @@ export async function createUserProfile(
     role = 'operations_manager'
     permissions = DEFAULT_PERMISSIONS.operations_manager
   }
+  // Operations manager for luthfibadarnawa
+  else if (email === 'luthfibadarnawa@gama-group.co') {
+    role = 'operations_manager'
+    permissions = DEFAULT_PERMISSIONS.operations_manager
+  }
   // v0.84: All other users get NULL role - they must request access
   // This includes @gama-group.co emails that are not in the special list above
 
@@ -311,6 +316,11 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
     role = 'operations_manager'
     permissions = DEFAULT_PERMISSIONS.operations_manager
   }
+  // Operations manager for luthfibadarnawa
+  else if (email === 'luthfibadarnawa@gama-group.co') {
+    role = 'operations_manager'
+    permissions = DEFAULT_PERMISSIONS.operations_manager
+  }
   // v0.84: All other users get NULL role - they must request access via /request-access
   // This includes @gama-group.co emails that are not in the special list above
   // Middleware will redirect them to /request-access page
@@ -320,19 +330,22 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
   const fullName = user.user_metadata?.full_name || user.user_metadata?.name
   const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
 
+  const insertData = {
+    user_id: user.id,
+    email,
+    full_name: fullName || null,
+    avatar_url: avatarUrl || null,
+    role: role ?? undefined,
+    department_scope: [],
+    custom_dashboard: role === 'owner' ? 'executive' : (role && ['marketing_manager', 'finance_manager', 'operations_manager'].includes(role) ? 'manager' : 'default'),
+    last_login_at: new Date().toISOString(),
+    ...permissions,
+  }
+
   const { data, error } = await supabase
     .from('user_profiles')
-    .insert({
-      user_id: user.id,
-      email,
-      full_name: fullName || null,
-      avatar_url: avatarUrl || null,
-      role: role ?? undefined,
-      department_scope: [],
-      custom_dashboard: role === 'owner' ? 'executive' : (role && ['marketing_manager', 'finance_manager', 'operations_manager'].includes(role) ? 'manager' : 'default'),
-      last_login_at: new Date().toISOString(),
-      ...permissions,
-    })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .insert(insertData as any)
     .select()
     .single()
 
