@@ -18,13 +18,18 @@ const geistMono = localFont({
   preload: true,
 });
 
+import type { Viewport } from "next";
+
 export const metadata: Metadata = {
   title: "Gama ERP",
   description: "Logistics Management System for PT Gama Indonesia",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

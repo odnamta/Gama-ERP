@@ -70,17 +70,17 @@ export function PointCounter() {
   return (
     <button
       onClick={() => router.push('/co-builder')}
-      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all hover:bg-muted ${
+      className={`flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-all hover:bg-muted ${
         animating ? 'ring-2 ring-orange-400 ring-offset-1 bg-orange-50' : ''
       }`}
       title="Lihat Leaderboard"
     >
-      <Trophy className="h-4 w-4 text-orange-500" />
+      <Trophy className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-500" />
       <span className={`tabular-nums ${animating ? 'text-orange-600' : ''}`}>
-        {points} pts
+        {points}
       </span>
       {rank > 0 && (
-        <span className="text-muted-foreground text-xs">
+        <span className="hidden sm:inline text-muted-foreground text-xs">
           #{rank}
         </span>
       )}

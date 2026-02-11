@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { LogOut, Loader2, Settings, Clock, Calendar, User } from 'lucide-react'
+import { LogOut, Loader2, Settings, Clock, Calendar, User, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -18,6 +18,7 @@ import { NotificationDropdown } from '@/components/notifications/notification-dr
 import { GlobalSearch } from '@/components/search/global-search'
 import { ContextualHelpPopover } from '@/components/help-center/contextual-help-popover'
 import { PointCounter } from '@/components/co-builder/point-counter'
+import { useMobileSidebar } from './mobile-sidebar-context'
 
 export interface UserInfo {
   name: string
@@ -43,6 +44,7 @@ export function Header({ user }: HeaderProps) {
   const router = useRouter()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [avatarError, setAvatarError] = useState(false)
+  const { toggle } = useMobileSidebar()
 
   const handleLogout = async () => {
     setIsLoggingOut(true)
@@ -59,20 +61,34 @@ export function Header({ user }: HeaderProps) {
   const showFallback = !user?.avatarUrl || avatarError
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-card px-6">
-      <div className="flex items-center gap-4">
+    <header className="flex h-16 items-center justify-between border-b bg-card px-3 sm:px-6">
+      <div className="flex items-center gap-2 sm:gap-4">
+        {/* Hamburger menu - mobile only */}
+        <button
+          onClick={toggle}
+          className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-muted lg:hidden"
+          aria-label="Toggle menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
         <GlobalSearch />
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-1.5 sm:gap-4">
         <PointCounter />
-        <ContextualHelpPopover userRole={user?.role || 'viewer'} />
-        <NotificationDropdown />
+        <div className="hidden sm:flex items-center gap-4">
+          <ContextualHelpPopover userRole={user?.role || 'viewer'} />
+          <NotificationDropdown />
+        </div>
+        {/* Compact notification on mobile */}
+        <div className="flex sm:hidden">
+          <NotificationDropdown />
+        </div>
 
         {user && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 px-2">
-                <span className="text-sm font-medium">{user.name}</span>
+              <Button variant="ghost" className="flex items-center gap-2 px-1 sm:px-2">
+                <span className="hidden sm:inline text-sm font-medium">{user.name}</span>
                 {showFallback ? (
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                     {getInitials(user.name)}

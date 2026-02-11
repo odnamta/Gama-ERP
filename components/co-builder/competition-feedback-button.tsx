@@ -143,7 +143,7 @@ export function CompetitionFeedbackButton() {
       {/* Floating Button */}
       <button
         onClick={() => { setShowSuccess(false); setIsOpen(true) }}
-        className="fixed bottom-24 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg transition-all hover:bg-orange-600 hover:scale-105 active:scale-95"
+        className="fixed bottom-20 right-4 sm:bottom-24 sm:right-6 z-50 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg transition-all hover:bg-orange-600 hover:scale-105 active:scale-95"
         title="Kirim Feedback"
       >
         <MessageSquarePlus className="h-6 w-6" />
@@ -151,7 +151,7 @@ export function CompetitionFeedbackButton() {
 
       {/* Feedback Sheet */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetContent className="w-[100vw] sm:max-w-lg overflow-y-auto p-4 sm:p-6">
           {showSuccess ? (
             <div className="flex flex-col items-center justify-center h-full gap-4 py-20">
               {/* Success Animation */}

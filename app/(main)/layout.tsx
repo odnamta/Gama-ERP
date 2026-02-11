@@ -1,5 +1,6 @@
 import { Sidebar } from '@/components/layout/sidebar'
 import { Header, UserInfo } from '@/components/layout/header'
+import { MobileSidebarProvider } from '@/components/layout/mobile-sidebar-context'
 import { Toaster } from '@/components/ui/toaster'
 import { createClient } from '@/lib/supabase/server'
 import { PermissionProvider } from '@/components/providers/permission-provider'
@@ -69,17 +70,19 @@ export default async function MainLayout({ children }: { children: React.ReactNo
                 Requirements 6.3, 6.4: Welcome modal is dismissible via button, backdrop click, or escape key
               */}
               <WelcomeWrapper needsWelcome={needsWelcome} role={userProfile?.role || 'ops'}>
-                <div className="flex h-screen">
-                  <Sidebar />
-                  <div className="flex flex-1 flex-col overflow-hidden">
-                    <Header user={userInfo} />
-                    <main className="flex-1 overflow-auto bg-muted/30 p-6">{children}</main>
+                <MobileSidebarProvider>
+                  <div className="flex h-screen overflow-hidden">
+                    <Sidebar />
+                    <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
+                      <Header user={userInfo} />
+                      <main className="flex-1 overflow-auto bg-muted/30 p-3 sm:p-4 md:p-6">{children}</main>
+                    </div>
+                    <Toaster />
+                    <OnboardingRouteTracker userId={userProfile?.id || null} />
+                    <FeedbackButton />
+                    <CompetitionFeedbackButton />
                   </div>
-                  <Toaster />
-                  <OnboardingRouteTracker userId={userProfile?.id || null} />
-                  <FeedbackButton />
-                  <CompetitionFeedbackButton />
-                </div>
+                </MobileSidebarProvider>
               </WelcomeWrapper>
             </TermsConditionsWrapper>
           </TourProvider>

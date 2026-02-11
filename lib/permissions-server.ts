@@ -148,6 +148,61 @@ export async function createUserProfile(
     role = 'operations_manager'
     permissions = DEFAULT_PERMISSIONS.operations_manager
   }
+  // HR for raniafitri
+  else if (email === 'raniafitri@gama-group.co') {
+    role = 'hr'
+    permissions = DEFAULT_PERMISSIONS.hr
+  }
+  // HSE for iqbaltito
+  else if (email === 'iqbaltito@gama-group.co') {
+    role = 'hse'
+    permissions = DEFAULT_PERMISSIONS.hse
+  }
+  // Customs for khuzainan
+  else if (email === 'khuzainan@gama-group.co') {
+    role = 'customs'
+    permissions = DEFAULT_PERMISSIONS.customs
+  }
+  // Agency for yozamaulana (Yu Ma)
+  else if (email === 'yozamaulana@gama-group.co') {
+    role = 'agency'
+    permissions = DEFAULT_PERMISSIONS.agency
+  }
+  // Administration for choirulanam
+  else if (email === 'choirulanam@gama-group.co') {
+    role = 'administration'
+    permissions = DEFAULT_PERMISSIONS.administration
+  }
+  // Ops for dedyherianto
+  else if (email === 'dedyherianto@gama-group.co') {
+    role = 'ops'
+    permissions = DEFAULT_PERMISSIONS.ops
+  }
+  // Ops for chairulfajri
+  else if (email === 'chairulfajri@gama-group.co') {
+    role = 'ops'
+    permissions = DEFAULT_PERMISSIONS.ops
+  }
+  // Engineer for arkabasunjaya
+  else if (email === 'arkabasunjaya@gama-group.co') {
+    role = 'engineer'
+    permissions = DEFAULT_PERMISSIONS.engineer
+  }
+  // Marketing for navisakafka
+  else if (email === 'navisakafka@gama-group.co') {
+    role = 'marketing'
+    permissions = DEFAULT_PERMISSIONS.marketing
+  }
+  // Ops for rahadiannugraha
+  else if (email === 'rahadiannugraha@gama-group.co') {
+    role = 'ops'
+    permissions = DEFAULT_PERMISSIONS.ops
+  }
+  // Finance for kurniashanti
+  else if (email === 'kurniashanti@gama-group.co') {
+    role = 'finance'
+    permissions = DEFAULT_PERMISSIONS.finance
+  }
   // v0.84: All other users get NULL role - they must request access
   // This includes @gama-group.co emails that are not in the special list above
 
@@ -320,6 +375,61 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
   else if (email === 'luthfibadarnawa@gama-group.co') {
     role = 'operations_manager'
     permissions = DEFAULT_PERMISSIONS.operations_manager
+  }
+  // HR for raniafitri
+  else if (email === 'raniafitri@gama-group.co') {
+    role = 'hr'
+    permissions = DEFAULT_PERMISSIONS.hr
+  }
+  // HSE for iqbaltito
+  else if (email === 'iqbaltito@gama-group.co') {
+    role = 'hse'
+    permissions = DEFAULT_PERMISSIONS.hse
+  }
+  // Customs for khuzainan
+  else if (email === 'khuzainan@gama-group.co') {
+    role = 'customs'
+    permissions = DEFAULT_PERMISSIONS.customs
+  }
+  // Agency for yozamaulana (Yu Ma)
+  else if (email === 'yozamaulana@gama-group.co') {
+    role = 'agency'
+    permissions = DEFAULT_PERMISSIONS.agency
+  }
+  // Administration for choirulanam
+  else if (email === 'choirulanam@gama-group.co') {
+    role = 'administration'
+    permissions = DEFAULT_PERMISSIONS.administration
+  }
+  // Ops for dedyherianto
+  else if (email === 'dedyherianto@gama-group.co') {
+    role = 'ops'
+    permissions = DEFAULT_PERMISSIONS.ops
+  }
+  // Ops for chairulfajri
+  else if (email === 'chairulfajri@gama-group.co') {
+    role = 'ops'
+    permissions = DEFAULT_PERMISSIONS.ops
+  }
+  // Engineer for arkabasunjaya
+  else if (email === 'arkabasunjaya@gama-group.co') {
+    role = 'engineer'
+    permissions = DEFAULT_PERMISSIONS.engineer
+  }
+  // Marketing for navisakafka
+  else if (email === 'navisakafka@gama-group.co') {
+    role = 'marketing'
+    permissions = DEFAULT_PERMISSIONS.marketing
+  }
+  // Ops for rahadiannugraha
+  else if (email === 'rahadiannugraha@gama-group.co') {
+    role = 'ops'
+    permissions = DEFAULT_PERMISSIONS.ops
+  }
+  // Finance for kurniashanti
+  else if (email === 'kurniashanti@gama-group.co') {
+    role = 'finance'
+    permissions = DEFAULT_PERMISSIONS.finance
   }
   // v0.84: All other users get NULL role - they must request access via /request-access
   // This includes @gama-group.co emails that are not in the special list above
