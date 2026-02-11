@@ -17,6 +17,7 @@ import { signOutWithLogging } from '@/app/actions/auth-actions'
 import { NotificationDropdown } from '@/components/notifications/notification-dropdown'
 import { GlobalSearch } from '@/components/search/global-search'
 import { ContextualHelpPopover } from '@/components/help-center/contextual-help-popover'
+import { PointCounter } from '@/components/co-builder/point-counter'
 
 export interface UserInfo {
   name: string
@@ -63,6 +64,7 @@ export function Header({ user }: HeaderProps) {
         <GlobalSearch />
       </div>
       <div className="flex items-center gap-4">
+        <PointCounter />
         <ContextualHelpPopover userRole={user?.role || 'viewer'} />
         <NotificationDropdown />
 

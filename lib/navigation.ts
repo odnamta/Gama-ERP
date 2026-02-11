@@ -24,6 +24,7 @@ import {
   Shield,
   Wallet,
   Sparkles,
+  Trophy,
 } from 'lucide-react'
 import { UserRole, UserPermissions, UserProfile, DepartmentScope } from '@/types/permissions'
 import { getInheritedRoles, DEPARTMENT_STAFF_ROLES } from '@/lib/permissions'
@@ -567,6 +568,39 @@ export const NAV_ITEMS: NavItem[] = [
         title: 'Integrations',
         href: '/settings/integrations',
         roles: ['owner', 'director', 'sysadmin'],
+      },
+    ],
+  },
+  {
+    title: 'Co-Builder',
+    href: '/co-builder',
+    icon: Trophy,
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse', 'agency', 'customs'],
+    children: [
+      {
+        title: 'Leaderboard',
+        href: '/co-builder',
+      },
+      {
+        title: 'Feedback Saya',
+        href: '/co-builder/my-feedback',
+      },
+      {
+        title: 'Test Scenario',
+        href: '/co-builder/scenarios',
+      },
+      {
+        title: 'Top 5',
+        href: '/co-builder/top5',
+      },
+      {
+        title: 'Bug Tracker',
+        href: '/co-builder/bug-tracker',
+      },
+      {
+        title: 'Admin Panel',
+        href: '/co-builder/admin',
+        roles: ['owner', 'sysadmin'],
       },
     ],
   },

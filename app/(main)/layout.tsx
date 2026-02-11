@@ -11,6 +11,7 @@ import { PreferencesProvider } from '@/contexts/preferences-context'
 import { getUserPreferences } from '@/app/(main)/settings/preferences/actions'
 import { DEFAULT_PREFERENCES } from '@/types/user-preferences'
 import { FeedbackButton } from '@/components/feedback'
+import { CompetitionFeedbackButton } from '@/components/co-builder/competition-feedback-button'
 import { TermsConditionsWrapper } from '@/components/terms-conditions-wrapper'
 import { hasAcceptedCurrentTerms } from '@/lib/terms-conditions'
 import { WelcomeWrapper } from '@/components/welcome-wrapper'
@@ -77,6 +78,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
                   <Toaster />
                   <OnboardingRouteTracker userId={userProfile?.id || null} />
                   <FeedbackButton />
+                  <CompetitionFeedbackButton />
                 </div>
               </WelcomeWrapper>
             </TermsConditionsWrapper>
