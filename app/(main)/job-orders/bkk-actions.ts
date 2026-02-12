@@ -253,7 +253,7 @@ export async function approveBKK(bkkId: string): Promise<{ error?: string }> {
     .single()
   
   // Check permission
-  if (!profile || !['admin', 'finance', 'manager', 'super_admin'].includes(profile.role)) {
+  if (!profile || !['sysadmin', 'director', 'owner', 'finance', 'finance_manager', 'marketing_manager', 'operations_manager'].includes(profile.role)) {
     return { error: 'You don\'t have permission to approve BKK requests' }
   }
   
@@ -326,7 +326,7 @@ export async function rejectBKK(
     .single()
   
   // Check permission
-  if (!profile || !['admin', 'finance', 'manager', 'super_admin'].includes(profile.role)) {
+  if (!profile || !['sysadmin', 'director', 'owner', 'finance', 'finance_manager', 'marketing_manager', 'operations_manager'].includes(profile.role)) {
     return { error: 'You don\'t have permission to reject BKK requests' }
   }
   
@@ -458,7 +458,7 @@ export async function releaseBKK(
     .single()
   
   // Check permission
-  if (!profile || !['admin', 'finance', 'super_admin'].includes(profile.role)) {
+  if (!profile || !['sysadmin', 'director', 'owner', 'finance', 'finance_manager'].includes(profile.role)) {
     return { error: 'You don\'t have permission to release cash' }
   }
   

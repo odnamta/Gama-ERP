@@ -17,7 +17,7 @@ export const metadata = {
 };
 
 // Roles allowed to access Financial Analytics
-const ALLOWED_ROLES = ['owner', 'admin', 'manager', 'finance'] as const;
+const ALLOWED_ROLES = ['owner', 'director', 'sysadmin', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance'] as const;
 
 export default async function FinancialAnalyticsPage() {
   // Fetch user profile for role-based access control

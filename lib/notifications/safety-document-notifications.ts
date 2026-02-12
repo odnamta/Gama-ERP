@@ -33,7 +33,7 @@ export async function notifyDocumentSubmittedForReview(
           type: 'document_review_required',
         },
       },
-      { roles: ['owner', 'admin', 'manager'] }
+      { roles: ['owner', 'director', 'sysadmin', 'operations_manager', 'hse'] }
     );
   } catch (error) {
     console.error('Error sending document review notification:', error);
@@ -112,7 +112,7 @@ export async function notifyExpiringDocuments(
           type: 'documents_expiring',
         },
       },
-      { roles: ['owner', 'admin', 'manager'] }
+      { roles: ['owner', 'director', 'sysadmin', 'operations_manager', 'hse'] }
     );
   } catch (error) {
     console.error('Error sending expiring documents notification:', error);
@@ -146,7 +146,7 @@ export async function notifyPermitRequested(
           type: 'permit_requested',
         },
       },
-      { roles: ['owner', 'admin', 'manager'] }
+      { roles: ['owner', 'director', 'sysadmin', 'operations_manager', 'hse'] }
     );
   } catch (error) {
     console.error('Error sending permit requested notification:', error);

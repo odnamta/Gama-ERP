@@ -63,7 +63,7 @@ export function AssignEngineeringDialog({
     const { data, error } = await supabase
       .from('user_profiles')
       .select('id, email, full_name, role')
-      .in('role', ['engineer', 'engineering', 'manager', 'super_admin', 'admin', 'owner'])
+      .in('role', ['engineer', 'marketing_manager', 'operations_manager', 'director', 'sysadmin', 'owner'])
       .eq('is_active', true)
       .order('full_name')
 

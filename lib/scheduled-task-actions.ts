@@ -723,7 +723,7 @@ export async function handleTaskFailure(
   // For now, we log the notification data that would be sent
   const notificationData = {
     template_code: 'TASK_EXECUTION_FAILED',
-    recipient_role: 'super_admin',
+    recipient_role: 'director',
     data: {
       task_code: task.task_code,
       task_name: task.task_name,

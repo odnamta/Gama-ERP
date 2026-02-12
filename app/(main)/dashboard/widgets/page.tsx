@@ -49,7 +49,7 @@ function getDashboardTitle(role: string, name?: string): string {
   
   switch (role) {
     case 'owner':
-    case 'admin':
+    case 'sysadmin':
       return `${greeting} - Executive Overview`;
     case 'finance':
       return `${greeting} - Finance Dashboard`;

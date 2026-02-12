@@ -42,7 +42,7 @@ export async function notifyIncidentReported(
           type: 'incident_reported',
         },
       },
-      { roles: ['owner', 'admin', 'manager'] }
+      { roles: ['owner', 'director', 'sysadmin', 'operations_manager'] }
     );
 
     // Notify supervisor if assigned

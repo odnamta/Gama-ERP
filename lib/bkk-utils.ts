@@ -218,25 +218,25 @@ export function getAvailableActions(
         actions.push('cancel')
       }
       // Admin/Finance/Manager can approve or reject
-      if (['admin', 'finance', 'manager', 'super_admin'].includes(userRole)) {
+      if (['sysadmin', 'director', 'owner', 'finance', 'finance_manager', 'marketing_manager', 'operations_manager'].includes(userRole)) {
         actions.push('approve', 'reject')
       }
       break
       
     case 'approved':
       // Admin/Finance can release
-      if (['admin', 'finance', 'super_admin'].includes(userRole)) {
+      if (['sysadmin', 'director', 'owner', 'finance', 'finance_manager'].includes(userRole)) {
         actions.push('release')
       }
       // Can still cancel before release
-      if (isRequester || ['admin', 'finance', 'manager', 'super_admin'].includes(userRole)) {
+      if (isRequester || ['sysadmin', 'director', 'owner', 'finance', 'finance_manager', 'marketing_manager', 'operations_manager'].includes(userRole)) {
         actions.push('cancel')
       }
       break
       
     case 'released':
       // Requester or ops can settle
-      if (isRequester || ['ops', 'admin', 'super_admin'].includes(userRole)) {
+      if (isRequester || ['ops', 'sysadmin', 'director', 'owner'].includes(userRole)) {
         actions.push('settle')
       }
       break

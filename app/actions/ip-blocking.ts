@@ -47,7 +47,7 @@ export async function blockIP(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -91,7 +91,7 @@ export async function unblockIP(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -130,7 +130,7 @@ export async function unblockIPByBlockId(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -170,7 +170,7 @@ export async function getBlockedIPs(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner', 'manager'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner', 'marketing_manager', 'finance_manager', 'operations_manager'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -217,7 +217,7 @@ export async function getIPBlockStats(): Promise<{
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner', 'manager'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner', 'marketing_manager', 'finance_manager', 'operations_manager'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     

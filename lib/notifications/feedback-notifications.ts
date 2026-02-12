@@ -20,7 +20,7 @@ export async function notifyNewFeedback(
 ): Promise<void> {
   try {
     // Get admin users
-    const adminUsers = await getUsersByRoles(['admin', 'super_admin']);
+    const adminUsers = await getUsersByRoles(['sysadmin', 'director', 'owner']);
     
     if (adminUsers.length === 0) return;
 

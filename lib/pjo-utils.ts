@@ -374,7 +374,7 @@ export function validateDateOrder(etd: Date | null, eta: Date | null): Validatio
 /**
  * User role type for permission checks
  */
-export type UserRole = 'ops' | 'admin' | 'sales' | 'engineer' | 'manager' | 'super_admin'
+export type UserRole = 'ops' | 'sysadmin' | 'administration' | 'marketing' | 'engineer' | 'marketing_manager' | 'finance_manager' | 'operations_manager' | 'director' | 'owner'
 
 /**
  * Check if a user can edit cost items for a PJO
@@ -393,7 +393,7 @@ export function canEditCostItems(
   pjoStatus: string,
   convertedToJo: boolean | null
 ): boolean {
-  const allowedRoles = ['ops', 'admin']
+  const allowedRoles = ['ops', 'administration', 'sysadmin']
   const isAllowedRole = allowedRoles.includes(userRole)
   const isApproved = pjoStatus === 'approved'
   const notConverted = !convertedToJo

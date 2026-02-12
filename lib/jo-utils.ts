@@ -13,7 +13,7 @@ export type JOAction = 'mark_completed' | 'submit_to_finance' | 'create_invoice'
 /**
  * User role type for JO permission checks
  */
-export type JOUserRole = 'ops' | 'admin' | 'sales' | 'engineer' | 'manager' | 'super_admin'
+export type JOUserRole = 'ops' | 'sysadmin' | 'administration' | 'marketing' | 'engineer' | 'marketing_manager' | 'finance_manager' | 'operations_manager' | 'director' | 'owner'
 
 /**
  * JO Financials interface
@@ -160,6 +160,6 @@ export function formatMargin(margin: number): string {
  * **Validates: Requirements 8.2, 8.4**
  */
 export function canEditJO(userRole: JOUserRole | string): boolean {
-  const editableRoles: string[] = ['admin', 'manager']
+  const editableRoles: string[] = ['sysadmin', 'administration', 'marketing_manager', 'finance_manager', 'operations_manager', 'director', 'owner']
   return editableRoles.includes(userRole)
 }

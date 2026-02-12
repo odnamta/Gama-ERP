@@ -426,22 +426,22 @@ export function formatVariancePercent(percent: number): string {
 /**
  * Roles that can view vendor invoices
  */
-export const VENDOR_INVOICE_VIEW_ROLES = ['owner', 'admin', 'manager', 'finance', 'super_admin'] as const;
+export const VENDOR_INVOICE_VIEW_ROLES = ['owner', 'director', 'sysadmin', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance', 'administration'] as const;
 
 /**
  * Roles that can create/edit vendor invoices
  */
-export const VENDOR_INVOICE_EDIT_ROLES = ['owner', 'admin', 'finance', 'super_admin'] as const;
+export const VENDOR_INVOICE_EDIT_ROLES = ['owner', 'director', 'sysadmin', 'finance', 'administration'] as const;
 
 /**
  * Roles that can approve vendor invoices
  */
-export const VENDOR_INVOICE_APPROVE_ROLES = ['owner', 'admin', 'manager', 'super_admin'] as const;
+export const VENDOR_INVOICE_APPROVE_ROLES = ['owner', 'director', 'sysadmin', 'marketing_manager', 'finance_manager', 'operations_manager'] as const;
 
 /**
  * Roles that can delete vendor invoices
  */
-export const VENDOR_INVOICE_DELETE_ROLES = ['owner', 'admin', 'super_admin'] as const;
+export const VENDOR_INVOICE_DELETE_ROLES = ['owner', 'director', 'sysadmin'] as const;
 
 /**
  * Check if a role can view vendor invoices

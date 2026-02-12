@@ -159,7 +159,7 @@ export function SystemLogsClient({
     }
   }, [stats, loadStats])
 
-  const canExport = ['admin', 'owner'].includes(currentUser.role)
+  const canExport = ['sysadmin', 'director', 'owner'].includes(currentUser.role)
 
   return (
     <div className="space-y-6">

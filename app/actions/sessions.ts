@@ -88,10 +88,10 @@ export async function getUserSessions(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
-    
+
     const result = await getUserSessionsUtil(userId)
     
     if (result.error) {
@@ -140,7 +140,7 @@ export async function terminateSession(
     }
     
     // Only allow terminating own sessions unless admin/owner
-    if (sessionResult.data.user_id !== profile.id && !['admin', 'owner'].includes(profile.role)) {
+    if (sessionResult.data.user_id !== profile.id && !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Cannot terminate another user\'s session' }
     }
     
@@ -181,10 +181,10 @@ export async function terminateAllUserSessions(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
-    
+
     const result = await terminateAllUserSessionsUtil(userId, reason)
     
     if (result.error) {
@@ -364,10 +364,10 @@ export async function getUserSessionStats(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
-    
+
     const result = await getSessionStatistics(userId)
     
     if (result.error) {

@@ -20,7 +20,7 @@ export default async function CompanySettingsPage() {
     .eq('user_id', user.id)
     .single();
   
-  if (!profile || !['admin', 'owner'].includes(profile.role)) {
+  if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
     redirect('/dashboard');
   }
   

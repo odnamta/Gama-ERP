@@ -835,7 +835,9 @@ export async function getOwnerDashboardData() {
     usersByRole: {
       owner: users?.filter(u => u.role === 'owner').length || 0,
       director: users?.filter(u => u.role === 'director').length || 0,
-      manager: users?.filter(u => u.role === 'manager').length || 0,
+      marketing_manager: users?.filter(u => u.role === 'marketing_manager').length || 0,
+      finance_manager: users?.filter(u => u.role === 'finance_manager').length || 0,
+      operations_manager: users?.filter(u => u.role === 'operations_manager').length || 0,
       sysadmin: users?.filter(u => u.role === 'sysadmin').length || 0,
       administration: users?.filter(u => u.role === 'administration').length || 0,
       finance: users?.filter(u => u.role === 'finance').length || 0,
@@ -911,7 +913,7 @@ export async function updateUserDepartmentScope(
     return { success: false, error: 'User not found' }
   }
 
-  if (targetProfile.role !== 'manager') {
+  if (!['marketing_manager', 'finance_manager', 'operations_manager'].includes(targetProfile.role)) {
     return { success: false, error: 'Department scope can only be set for managers' }
   }
 

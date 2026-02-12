@@ -62,7 +62,7 @@ export async function getSecurityEvents(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner', 'manager'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner', 'marketing_manager', 'finance_manager', 'operations_manager'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -129,7 +129,7 @@ export async function getSecurityEventById(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner', 'manager'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner', 'marketing_manager', 'finance_manager', 'operations_manager'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -173,7 +173,7 @@ export async function markEventInvestigated(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner', 'manager'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner', 'marketing_manager', 'finance_manager', 'operations_manager'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -223,7 +223,7 @@ export async function getSecurityEventStats(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner', 'manager'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner', 'marketing_manager', 'finance_manager', 'operations_manager'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     

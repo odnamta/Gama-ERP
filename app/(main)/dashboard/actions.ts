@@ -706,7 +706,7 @@ export async function fetchManagerDashboardData(
   const { data: profilesData } = await supabase
     .from('user_profiles')
     .select('id, full_name, role')
-    .in('role', ['admin', 'sales', 'ops'])
+    .in('role', ['sysadmin', 'administration', 'marketing', 'ops'])
 
   // Transform data
   const jobOrders: JOInput[] = (jobOrdersData || []).map(jo => ({
@@ -810,7 +810,7 @@ export async function fetchManagerDashboardData(
       userId: profile.id,
       name: profile.full_name || 'Unknown',
       role: profile.role || 'viewer',
-      pjosCreated: profile.role === 'admin' || profile.role === 'sales' ? Math.floor(Math.random() * 10) + 1 : undefined,
+      pjosCreated: profile.role === 'administration' || profile.role === 'marketing' ? Math.floor(Math.random() * 10) + 1 : undefined,
       josCompleted: profile.role === 'ops' ? Math.floor(Math.random() * 15) + 1 : undefined,
       josOnTime: profile.role === 'ops' ? Math.floor(Math.random() * 12) + 1 : undefined,
       josTotal: profile.role === 'ops' ? Math.floor(Math.random() * 15) + 1 : undefined,

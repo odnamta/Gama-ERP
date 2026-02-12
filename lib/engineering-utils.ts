@@ -170,7 +170,7 @@ export function getHighestRiskLevel(
  */
 export function canWaiveEngineeringReview(userRole: string | null | undefined): boolean {
   if (!userRole) return false;
-  const managerRoles = ['manager', 'super_admin', 'owner', 'admin'];
+  const managerRoles = ['marketing_manager', 'finance_manager', 'operations_manager', 'director', 'owner', 'sysadmin'];
   return managerRoles.includes(userRole.toLowerCase());
 }
 
@@ -186,7 +186,7 @@ export function canCompleteAssessment(
   if (!userRole || !userId) return false;
   
   // Managers can complete any assessment
-  const managerRoles = ['manager', 'super_admin', 'owner', 'admin'];
+  const managerRoles = ['marketing_manager', 'finance_manager', 'operations_manager', 'director', 'owner', 'sysadmin'];
   if (managerRoles.includes(userRole.toLowerCase())) {
     return true;
   }

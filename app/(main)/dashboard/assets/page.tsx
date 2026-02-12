@@ -23,8 +23,8 @@ export default async function AssetsDashboardPage() {
   }
 
   // Check if user has access to assets dashboard
-  const hasAccess = ['owner', 'director', 'manager', 'ops'].includes(profile.role) ||
-    (profile.role === 'manager' && profile.department_scope?.includes('operations'))
+  const hasAccess = ['owner', 'director', 'operations_manager', 'ops'].includes(profile.role) ||
+    (profile.role === 'operations_manager' && profile.department_scope?.includes('operations'))
 
   if (!hasAccess) {
     redirect('/dashboard')

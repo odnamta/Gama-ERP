@@ -55,7 +55,7 @@ export async function createAPIKey(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -113,7 +113,7 @@ export async function revokeAPIKey(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -124,7 +124,7 @@ export async function revokeAPIKey(
     }
     
     // Only allow revoking own keys unless admin/owner
-    if (keyResult.data.user_id !== profile.id && !['admin', 'owner'].includes(profile.role)) {
+    if (keyResult.data.user_id !== profile.id && !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Cannot revoke another user\'s API key' }
     }
     
@@ -206,7 +206,7 @@ export async function getAPIKeys(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -246,7 +246,7 @@ export async function updateAPIKeyPermissions(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -286,7 +286,7 @@ export async function updateAPIKeyRateLimit(
       .eq('user_id', user.id)
       .single()
     
-    if (!profile || !['admin', 'owner'].includes(profile.role)) {
+    if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions' }
     }
     
@@ -346,7 +346,7 @@ export async function getAPIKeyStats(
     }
     
     // Only allow viewing own keys unless admin/owner
-    if (keyResult.data.user_id !== profile.id && !['admin', 'owner'].includes(profile.role)) {
+    if (keyResult.data.user_id !== profile.id && !['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return { success: false, error: 'Cannot view another user\'s API key' }
     }
     

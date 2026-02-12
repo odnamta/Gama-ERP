@@ -23,7 +23,7 @@ export default async function ErrorDashboardPage() {
     .eq('user_id', user.id)
     .single()
   
-  const isAuthorized = profile && ['admin', 'owner', 'super_admin'].includes(profile.role)
+  const isAuthorized = profile && ['sysadmin', 'director', 'owner'].includes(profile.role)
   if (!isAuthorized) {
     redirect('/dashboard')
   }

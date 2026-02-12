@@ -142,7 +142,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ success
     }
     
     // Only admin and super_admin can update feature flags
-    if (!['admin', 'super_admin'].includes(profile.role)) {
+    if (!['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return NextResponse.json(
         { success: false, error: 'Insufficient permissions. Admin role required.' },
         { status: 403 }

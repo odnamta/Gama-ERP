@@ -342,7 +342,7 @@ export async function getManpowerCostExportData(
     .eq('user_id', user.id)
     .single();
 
-  const allowedRoles = ['finance', 'super_admin', 'admin', 'manager'];
+  const allowedRoles = ['finance', 'director', 'sysadmin', 'owner', 'marketing_manager', 'finance_manager', 'operations_manager'];
   const userRole = (profile as { role: string } | null)?.role;
   if (!userRole || !allowedRoles.includes(userRole)) {
     return { success: false, error: 'You do not have permission to export data' };
