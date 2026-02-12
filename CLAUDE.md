@@ -161,7 +161,7 @@ const data = result.data as { column: string }[] | null  // Explicit cast
 | Arka | arkabasunjaya@ | engineer | 🔄 Onboarding |
 | Navisa | navisakafka@ | marketing | 🔄 Onboarding |
 | Rahadian | rahadian@ | ops | 🔄 Onboarding |
-| Kurnia | kurniashantidp@ | finance | 🔄 Onboarding |
+| Kurnia | kurniashantidp@ | marketing | 🔄 Onboarding |
 
 *All emails @gama-group.co. Roles auto-assigned via `lib/permissions-server.ts`.*
 
