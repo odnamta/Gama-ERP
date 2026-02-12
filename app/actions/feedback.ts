@@ -49,7 +49,7 @@ export async function submitFeedback(
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('full_name, email, role, department_scope')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
     // Validate form data
@@ -266,7 +266,7 @@ export async function getAllFeedback(
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (!profile || !['admin', 'super_admin', 'manager'].includes(profile.role)) {
@@ -414,7 +414,7 @@ export async function updateFeedbackStatus(
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('role, full_name')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (!profile || !['admin', 'super_admin', 'manager'].includes(profile.role)) {
@@ -496,7 +496,7 @@ export async function assignFeedback(
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
     if (!profile || !['admin', 'super_admin', 'manager'].includes(profile.role)) {
@@ -602,7 +602,7 @@ export async function addFeedbackComment(
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('full_name, role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
     // Only admins can post internal comments
@@ -673,7 +673,7 @@ export async function getFeedbackComments(
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
     const isAdmin = profile && ['admin', 'super_admin', 'manager'].includes(profile.role);
@@ -732,7 +732,7 @@ export async function getFeedbackById(
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
     const isAdmin = profile && ['admin', 'super_admin', 'manager'].includes(profile.role);

@@ -29,7 +29,7 @@ async function getUserRole(): Promise<string> {
   const { data: profile } = await supabase
     .from('user_profiles')
     .select('role')
-    .eq('id', user.id)
+    .eq('user_id', user.id)
     .single();
   
   return (profile as any)?.role || 'viewer';
