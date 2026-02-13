@@ -172,11 +172,11 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
   // Calculate totals
   const { subtotal, vatAmount, grandTotal} = calculateInvoiceTotals(data.line_items)
 
-  // Generate invoice number
-  const invoiceNumber = await generateInvoiceNumber()
-
-  // Determine entity_type from user role
-  const profile = await getUserProfile()
+  // Parallelize invoice number generation and profile fetch
+  const [invoiceNumber, profile] = await Promise.all([
+    generateInvoiceNumber(),
+    getUserProfile(),
+  ])
   const entityType = profile?.role === 'agency' ? 'gama_agency' : 'gama_main'
 
   // Create invoice with optional term metadata

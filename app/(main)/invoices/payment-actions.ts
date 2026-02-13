@@ -28,13 +28,21 @@ export async function recordPayment(data: PaymentFormData): Promise<{
     return { error: 'You must be logged in to record payments' }
   }
 
-  // Get user profile for role check
-  const { data: userProfile } = await supabase
-    .from('user_profiles')
-    .select('id, role')
-    .eq('user_id', user.id)
-    .single()
+  // Parallelize user profile and invoice fetch for better performance
+  const [profileResult, invoiceResult] = await Promise.all([
+    supabase
+      .from('user_profiles')
+      .select('id, role')
+      .eq('user_id', user.id)
+      .single(),
+    supabase
+      .from('invoices')
+      .select('id, status, total_amount, amount_paid, jo_id, invoice_number')
+      .eq('id', data.invoice_id)
+      .single(),
+  ])
 
+  const userProfile = profileResult.data
   if (!userProfile) {
     return { error: 'User profile not found' }
   }
@@ -55,12 +63,8 @@ export async function recordPayment(data: PaymentFormData): Promise<{
     return { error: 'Invalid payment method selected' }
   }
 
-  // Fetch invoice to validate
-  const { data: invoice, error: invoiceError } = await supabase
-    .from('invoices')
-    .select('id, status, total_amount, amount_paid, jo_id')
-    .eq('id', data.invoice_id)
-    .single()
+  const invoice = invoiceResult.data
+  const invoiceError = invoiceResult.error
 
   if (invoiceError || !invoice) {
     return { error: 'Invoice not found' }
@@ -141,19 +145,13 @@ export async function recordPayment(data: PaymentFormData): Promise<{
       })
       .eq('id', invoice.jo_id)
 
-    // Log activity
-    const { data: invoiceData } = await supabase
-      .from('invoices')
-      .select('invoice_number')
-      .eq('id', data.invoice_id)
-      .single()
-
-    if (invoiceData) {
+    // Log activity (use invoice_number from initial fetch)
+    if (invoice.invoice_number) {
       await supabase.from('activity_log').insert({
         action_type: 'invoice_paid',
         document_type: 'invoice',
         document_id: data.invoice_id,
-        document_number: invoiceData.invoice_number,
+        document_number: invoice.invoice_number,
         user_id: user.id,
         user_name: user.email || 'Unknown',
       })
