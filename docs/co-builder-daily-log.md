@@ -81,6 +81,49 @@
 
 ---
 
+## Day 3 — Jumat, 14 Februari 2026 (sebelum libur Imlek)
+
+**Pelapor aktif:** Tidak ada feedback baru (admin review day)
+
+### Aktivitas Admin
+- Semua 16 feedback di-review: admin_status + impact_level diperbarui
+- 26 point_events dimasukkan (feedback_reviewed + bug_fixed bonuses)
+- Impact rating: 4 critical (x3), 7 important (x2), 5 helpful (x1)
+
+### Perubahan Leaderboard Setelah Review
+
+| # | Nama | Sebelum | Sesudah | Perubahan |
+|---|------|---------|---------|-----------|
+| 1 | Reza Pramana | 110 | **207** | +97 (5 bugs fixed, 3 critical) |
+| 2 | Kurniashanti | 117 | **172** | +55 (4 bugs fixed, 1 critical) |
+| 3 | Choirul Anam | 98 | **98** | 0 (helpful only) |
+| 4 | Luthfi Badarnawa | 66 | **92** | +26 (2 bugs fixed) |
+| 5 | Chairul Fajri | 60 | **60** | 0 (scenarios only) |
+
+### Fitur Baru
+- **Mode Explorer** — tombol di sidebar untuk melihat semua menu tanpa mengubah role
+- Tombol feedback lama (hitam) disembunyikan selama kompetisi
+- Form feedback diperbaiki: placeholder + tips per kategori (bug, UX, saran)
+
+### Partisipasi Tim
+
+| Status | Jumlah | Nama |
+|--------|--------|------|
+| Aktif | 5 | Reza, Kurniashanti, Choirul, Luthfi, Chairul |
+| Login tapi belum submit | 6 | Hutami, Feri, Navisa, Rania, Iqbal, Khuzainan |
+| Belum login | 3 | Rahadian, Dedy, Arkaba |
+| Excluded (GLS-ERP) | 1 | Yuma |
+
+### Commits
+- `6e014ce` feat: Explorer Mode, hide old feedback button, daily fix log
+- `0966d69` feat: improve feedback form with category-specific guidance
+
+### Email
+- Day 2-3 update email drafted (combined)
+- Style guide created: `docs/co-builder-email-style.md`
+
+---
+
 <!-- Template for new days:
 
 ## Day N — [Hari], [Tanggal] 2026
