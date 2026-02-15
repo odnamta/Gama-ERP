@@ -72,12 +72,12 @@
 - `bb0e2b4` fix: disable entity_type writes - column not deployed to production
 - `468e733` fix: Day 2 batch 2 - marketing role, navigation, JMP button, HSE null safety
 
-### Masih dalam Investigasi
+### Masih dalam Investigasi → Resolved di Day 3
 
-| # | Issue | Pelapor | Notes |
-|---|-------|---------|-------|
-| A | Upload file gagal di Project sidebar | Reza | Code & RLS OK. Kemungkinan config Supabase Storage bucket |
-| B | HSE incident report masih crash (jika null fix tidak cukup) | Reza, Luthfi | Perlu cek: (1) tabel incident_categories ada data, (2) employee record terhubung |
+| # | Issue | Pelapor | Resolusi |
+|---|-------|---------|----------|
+| A | Upload file gagal di Project sidebar | Reza | **Fixed Day 3** — Next.js body limit 1MB → 11MB |
+| B | HSE incident report crash | Reza, Luthfi | **Resolved Day 3** — null safety deployed, 10 kategori aktif terverifikasi |
 
 ---
 
@@ -114,9 +114,22 @@
 | Belum login | 3 | Rahadian, Dedy, Arkaba |
 | Excluded (GLS-ERP) | 1 | Yuma |
 
+### Investigasi Selesai (dari Day 2)
+
+| # | Issue | Hasil |
+|---|-------|-------|
+| A | Upload file gagal di Project sidebar | **Fixed** — Next.js default body limit 1MB, file >1MB gagal. Dinaikkan ke 11MB. Bucket, RLS, dan kode sudah benar. |
+| B | HSE incident report crash | **Resolved** — `formatIncidentTime()` null safety sudah deploy. Tabel `incident_categories` ada 10 kategori aktif. |
+
+### Verifikasi Database
+- Kurniashanti DB profile sudah `role: marketing` (auto-update via code fix)
+- Rahadian Nugraha, Dedy Herianto, Arka Basunjaya: **belum punya akun** (tidak ada di auth.users, user_profiles, maupun employees). Perlu login pertama kali via Google OAuth.
+
 ### Commits
 - `6e014ce` feat: Explorer Mode, hide old feedback button, daily fix log
 - `0966d69` feat: improve feedback form with category-specific guidance
+- `172c92a` chore: bump version to 0.10.0, gitignore debug artifacts
+- `f31b884` fix: increase server action body size limit to 11mb for file uploads
 
 ### Email
 - Day 2-3 update email drafted (combined)
