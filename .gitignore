@@ -35,6 +35,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# debug artifacts
+tsc-errors.txt
+/debug/
+
 # Auto Claude data directory
 .auto-claude/
 
