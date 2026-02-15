@@ -228,19 +228,46 @@ export function CompetitionFeedbackButton() {
                   <Label htmlFor="fb-title">Judul *</Label>
                   <Input
                     id="fb-title"
-                    placeholder="Ringkasan singkat masalah/saran"
+                    placeholder={
+                      category === 'bug'
+                        ? 'Contoh: "Tidak bisa simpan quotation baru"'
+                        : category === 'ux_issue'
+                        ? 'Contoh: "Tombol hapus dan edit terlalu berdekatan"'
+                        : 'Ringkasan singkat masalah/saran'
+                    }
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     maxLength={200}
                   />
                 </div>
 
+                {/* Quality tip for bugs */}
+                {category === 'bug' && !description && (
+                  <div className="rounded-lg bg-blue-50 border border-blue-200 p-3 text-xs text-blue-700 space-y-1">
+                    <p className="font-semibold">Tips laporan bug yang baik:</p>
+                    <ul className="list-disc ml-4 space-y-0.5">
+                      <li>Sebutkan <strong>halaman</strong> mana yang bermasalah</li>
+                      <li>Jelaskan <strong>apa yang terjadi</strong> vs <strong>apa yang seharusnya</strong></li>
+                      <li>Sertakan <strong>screenshot</strong> jika ada error</li>
+                      <li>Bug yang detail + screenshot = hingga <strong>15 poin</strong> (vs 3 poin untuk laporan singkat)</li>
+                    </ul>
+                  </div>
+                )}
+
                 {/* Description */}
                 <div className="space-y-2">
                   <Label htmlFor="fb-desc">Deskripsi *</Label>
                   <Textarea
                     id="fb-desc"
-                    placeholder="Jelaskan secara detail..."
+                    placeholder={
+                      category === 'bug'
+                        ? 'Apa yang terjadi? Di halaman mana? Apa yang seharusnya terjadi?\n\nContoh: "Saat klik tombol Simpan di halaman Quotation, muncul error dan data tidak tersimpan. Seharusnya quotation berhasil dibuat."'
+                        : category === 'ux_issue'
+                        ? 'Bagian mana yang membingungkan? Apa yang Anda harapkan?\n\nContoh: "Tombol hapus terlalu dekat dengan tombol edit, sering salah klik."'
+                        : category === 'suggestion'
+                        ? 'Fitur apa yang Anda inginkan? Mengapa ini penting?\n\nContoh: "Perlu fitur export PDF untuk invoice, karena klien sering minta softcopy."'
+                        : 'Jelaskan secara detail...'
+                    }
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={4}
