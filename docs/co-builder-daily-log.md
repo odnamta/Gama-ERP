@@ -125,13 +125,39 @@
 - Kurniashanti DB profile sudah `role: marketing` (auto-update via code fix)
 - Rahadian Nugraha, Dedy Herianto, Arka Basunjaya: **belum punya akun** (tidak ada di auth.users, user_profiles, maupun employees). Perlu login pertama kali via Google OAuth.
 
+### Bug Baru (dari Kurniashanti, Feb 14-15)
+
+| # | Bug | Pelapor | Severity | Status |
+|---|-----|---------|----------|--------|
+| 16 | "View all PJO" dari marketing dashboard error (link ke /pjos, route salah) | Kurniashanti | High | Fixed |
+| 17 | Tidak bisa menambahkan JMP baru (jmp_number missing + marketing blocked by RLS) | Kurniashanti | High | Fixed |
+| 18 | Tidak bisa menambahkan quotation baru | Kurniashanti | Medium | Monitoring (RLS OK, entity_type deployed) |
+| 19 | Tidak bisa menambahkan project | Kurniashanti | Medium | Likely stale (fixed Day 1) |
+
+### Saran & Pertanyaan Baru
+
+| # | Feedback | Pelapor | Type | Notes |
+|---|----------|---------|------|-------|
+| S1 | Penambahan kolom nama perusahaan (bingung name = orang atau perusahaan) | Kurniashanti | Suggestion | UX improvement backlog |
+| S2 | Upload file road survey belum ada | Kurniashanti | Suggestion | Feature request |
+| Q1 | Cara menambahkan JMP | Kurniashanti | Question | Already fixed Day 2 (stale) |
+
+### Perbaikan Database (Production)
+- `entity_type` column ditambahkan ke `quotations`, `invoices`, `bukti_kas_keluar` (default: 'gama_main')
+- Entity_type writes di-enable kembali di kode (quotations, invoices, disbursements, PJO conversion)
+- Marketing ditambahkan ke JMP INSERT RLS policy
+- 11 feedback items admin_status diperbarui (9 fixed, 2 acknowledged)
+
 ### Commits
 - `6e014ce` feat: Explorer Mode, hide old feedback button, daily fix log
 - `0966d69` feat: improve feedback form with category-specific guidance
 - `172c92a` chore: bump version to 0.10.0, gitignore debug artifacts
 - `f31b884` fix: increase server action body size limit to 11mb for file uploads
+- `015fba4` docs: update Day 3 log with investigation results and file upload fix
+- `9954a1e` fix: JMP creation, PJO link, entity_type deployment, daily procedure
 
-### Email
+### Docs
+- Daily procedure created: `docs/co-builder-daily-procedure.md`
 - Day 2-3 update email drafted (combined)
 - Style guide created: `docs/co-builder-email-style.md`
 
