@@ -45,10 +45,10 @@ export async function submitFeedback(
       return { success: false, error: 'You must be logged in to submit feedback' };
     }
 
-    // Get user profile for name/role
+    // Get user profile for name/role and FK reference
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('full_name, email, role, department_scope')
+      .select('id, full_name, email, role, department_scope')
       .eq('user_id', user.id)
       .single();
 
@@ -72,7 +72,7 @@ export async function submitFeedback(
       .from('feedback_submissions' as any)
       .insert({
         feedback_type: formData.feedbackType,
-        submitted_by: user.id,
+        submitted_by: profile?.id || null,
         submitted_by_name: profile?.full_name || user.email,
         submitted_by_email: user.email,
         submitted_by_role: profile?.role || null,
@@ -413,7 +413,7 @@ export async function updateFeedbackStatus(
     // Get user profile
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('role, full_name')
+      .select('id, role, full_name')
       .eq('user_id', user.id)
       .single();
 
@@ -439,7 +439,7 @@ export async function updateFeedbackStatus(
     // Set resolution fields if resolving
     if (['resolved', 'closed', 'wont_fix'].includes(newStatus)) {
       updateData.resolved_at = new Date().toISOString();
-      updateData.resolved_by = user.id;
+      updateData.resolved_by = profile?.id || null;
       if (notes) {
         updateData.resolution_notes = notes;
       }
@@ -601,7 +601,7 @@ export async function addFeedbackComment(
     // Get user profile
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('full_name, role')
+      .select('id, full_name, role')
       .eq('user_id', user.id)
       .single();
 
@@ -614,7 +614,7 @@ export async function addFeedbackComment(
       .from('feedback_comments')
       .insert({
         feedback_id: feedbackId,
-        comment_by: user.id,
+        comment_by: profile?.id || null,
         comment_by_name: profile?.full_name || user.email,
         comment_text: commentText.trim(),
         is_internal: isInternal,

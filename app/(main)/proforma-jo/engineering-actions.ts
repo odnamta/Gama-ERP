@@ -186,6 +186,12 @@ export async function completeAssessment(
     return { success: false, error: 'You must be logged in' }
   }
 
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
   // Validate required fields
   if (!data.findings?.trim()) {
     return { success: false, error: 'Findings are required' }
@@ -225,7 +231,7 @@ export async function completeAssessment(
       cost_justification: data.cost_justification?.trim() || null,
       status: 'completed',
       completed_at: now,
-      completed_by: user.id,
+      completed_by: profile?.id || null,
       updated_at: now,
     })
     .eq('id', assessmentId)
@@ -263,6 +269,12 @@ export async function completeEngineeringReview(
     return { success: false, error: 'You must be logged in' }
   }
 
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
   // Validate required fields
   if (!data.overall_risk_level) {
     return { success: false, error: 'Overall risk level is required' }
@@ -297,7 +309,7 @@ export async function completeEngineeringReview(
     .update({
       engineering_status: 'completed',
       engineering_completed_at: now,
-      engineering_completed_by: user.id,
+      engineering_completed_by: profile?.id || null,
       engineering_notes: data.engineering_notes.trim(),
       updated_at: now,
     })
@@ -387,7 +399,7 @@ export async function waiveEngineeringReview(
   // Check user role
   const { data: userProfile } = await supabase
     .from('user_profiles')
-    .select('role')
+    .select('id, role')
     .eq('user_id', user.id)
     .single()
 
@@ -419,7 +431,7 @@ export async function waiveEngineeringReview(
       engineering_status: 'waived',
       engineering_waived_reason: reason.trim(),
       engineering_completed_at: now,
-      engineering_completed_by: user.id,
+      engineering_completed_by: userProfile?.id || null,
       updated_at: now,
     })
     .eq('id', pjoId)

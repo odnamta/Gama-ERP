@@ -67,6 +67,13 @@ export async function recoverRecordAction(
     return { success: false, error: 'Not authenticated' };
   }
 
+  // Get user profile for FK reference
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('user_id', user.id)
+    .single();
+
   // Find the deleted record
   const { data: deletedRecord, error: findError } = await supabase
     .from('deleted_records')
@@ -96,7 +103,7 @@ export async function recoverRecordAction(
     .from('deleted_records')
     .update({
       recovered_at: new Date().toISOString(),
-      recovered_by: user.id,
+      recovered_by: profile?.id || null,
     })
     .eq('id', deletedRecord.id);
 

@@ -356,13 +356,20 @@ export async function approveLeaveRequest(
     if (!user) {
       return { success: false, error: 'Not authenticated' };
     }
-    
+
+    // Get user profile for FK reference
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
     // Update request status
     const { error: updateError } = await supabase
       .from('leave_requests')
       .update({
         status: 'approved',
-        approved_by: user.id,
+        approved_by: profile?.id || null,
         approved_at: new Date().toISOString(),
       })
       .eq('id', requestId);
@@ -459,13 +466,20 @@ export async function rejectLeaveRequest(
     if (!user) {
       return { success: false, error: 'Not authenticated' };
     }
-    
+
+    // Get user profile for FK reference
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
     // Update request status
     const { error: updateError } = await supabase
       .from('leave_requests')
       .update({
         status: 'rejected',
-        approved_by: user.id,
+        approved_by: profile?.id || null,
         approved_at: new Date().toISOString(),
         rejection_reason: reason,
       })

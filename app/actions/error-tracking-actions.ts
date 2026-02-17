@@ -76,11 +76,18 @@ export async function updateErrorStatusAction(
     return { success: false, error: 'Not authenticated' };
   }
 
+  // Get user profile for FK reference
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('user_id', user.id)
+    .single();
+
   const updateData: Record<string, unknown> = { status };
 
   if (status === 'resolved') {
     updateData.resolved_at = new Date().toISOString();
-    updateData.resolved_by = user.id;
+    updateData.resolved_by = profile?.id || null;
     if (notes) {
       updateData.resolution_notes = notes;
     }

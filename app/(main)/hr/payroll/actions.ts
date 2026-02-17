@@ -478,6 +478,13 @@ export async function approvePayrollPeriod(
     return { success: false, error: 'Not authenticated' };
   }
 
+  // Get user profile for FK reference
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('user_id', user.id)
+    .single();
+
   // Get period
   const period = await getPayrollPeriod(periodId);
   if (!period) {
@@ -493,7 +500,7 @@ export async function approvePayrollPeriod(
     .from('payroll_periods')
     .update({
       status: 'approved',
-      approved_by: user.id,
+      approved_by: profile?.id || null,
       approved_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     })

@@ -184,6 +184,12 @@ export async function completeQuotationAssessment(
     return { success: false, error: 'You must be logged in' }
   }
 
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
   // Validate required fields
   if (!data.findings?.trim()) {
     return { success: false, error: 'Findings are required' }
@@ -223,7 +229,7 @@ export async function completeQuotationAssessment(
       cost_justification: data.cost_justification?.trim() || null,
       status: 'completed',
       completed_at: now,
-      completed_by: user.id,
+      completed_by: profile?.id || null,
       updated_at: now,
     })
     .eq('id', assessmentId)
@@ -259,6 +265,12 @@ export async function completeQuotationEngineeringReview(
     return { success: false, error: 'You must be logged in' }
   }
 
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+
   // Validate required fields
   if (!data.overall_risk_level) {
     return { success: false, error: 'Overall risk level is required' }
@@ -293,7 +305,7 @@ export async function completeQuotationEngineeringReview(
     .update({
       engineering_status: 'completed',
       engineering_completed_at: now,
-      engineering_completed_by: user.id,
+      engineering_completed_by: profile?.id || null,
       engineering_notes: data.engineering_notes.trim(),
       // Transition to ready status if currently in engineering_review
       status: quotation.status === 'engineering_review' ? 'ready' : quotation.status,
@@ -348,7 +360,7 @@ export async function waiveQuotationEngineeringReview(
   // Check user role
   const { data: userProfile } = await supabase
     .from('user_profiles')
-    .select('role')
+    .select('id, role')
     .eq('user_id', user.id)
     .single()
 
@@ -380,7 +392,7 @@ export async function waiveQuotationEngineeringReview(
       engineering_status: 'waived',
       engineering_waived_reason: reason.trim(),
       engineering_completed_at: now,
-      engineering_completed_by: user.id,
+      engineering_completed_by: userProfile?.id || null,
       // Transition to ready status if currently in engineering_review
       status: quotation.status === 'engineering_review' ? 'ready' : quotation.status,
       updated_at: now,
