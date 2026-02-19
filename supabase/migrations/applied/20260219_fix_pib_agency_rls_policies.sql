@@ -1,7 +1,8 @@
 -- ============================================================================
 -- Migration: Fix PIB & Agency RLS Policies
 -- Date: 2026-02-19
--- Status: PENDING - Apply via Supabase SQL Editor
+-- Status: APPLIED via Supabase Management API (2026-02-19)
+-- Note: bookings table doesn't exist yet - skipped
 -- Purpose: Add missing RLS policies for PIB (Customs Import) and Agency tables
 --          that were omitted from initial RLS setup, causing 403/empty queries
 -- ============================================================================

@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { canViewEmployees } from '@/lib/permissions'
 import { UserProfile } from '@/types/permissions'
@@ -9,9 +10,9 @@ export default async function HRLayout({
   children: React.ReactNode
 }) {
   const supabase = await createClient()
-  
+
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) {
     redirect('/login')
   }
@@ -28,7 +29,11 @@ export default async function HRLayout({
   }
 
   // Check if user can access HR module
-  if (!canViewEmployees(profile as unknown as UserProfile)) {
+  // Allow access in explorer mode (co-builder competition read-only browsing)
+  const cookieStore = await cookies()
+  const isExplorer = cookieStore.get('gama-explorer-mode')?.value === 'true'
+
+  if (!canViewEmployees(profile as unknown as UserProfile) && !isExplorer) {
     redirect('/dashboard')
   }
 

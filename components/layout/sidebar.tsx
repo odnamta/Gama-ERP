@@ -25,7 +25,10 @@ export function Sidebar() {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(EXPLORER_KEY)
-      if (saved === 'true') setExplorerMode(true)
+      if (saved === 'true') {
+        setExplorerMode(true)
+        document.cookie = `${EXPLORER_KEY}=true;path=/;max-age=86400`
+      }
     } catch {}
   }, [])
 
@@ -33,6 +36,10 @@ export function Sidebar() {
     setExplorerMode(prev => {
       const next = !prev
       try { localStorage.setItem(EXPLORER_KEY, String(next)) } catch {}
+      // Sync to cookie so server layouts can read it
+      document.cookie = next
+        ? `${EXPLORER_KEY}=true;path=/;max-age=86400`
+        : `${EXPLORER_KEY}=;path=/;max-age=0`
       return next
     })
   }, [])
