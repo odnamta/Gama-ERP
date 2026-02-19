@@ -284,10 +284,10 @@ File yang diperbaiki:
 
 ## Day 9 — Rabu, 19 Februari 2026
 
-**Pelapor aktif:** Navisa Kafka, Iqbal, dan 8 pelapor lainnya
-**Feedback baru:** 24 item (12 bug, 8 saran, 2 duplikat, 1 by-design, 1 investigasi)
+**Pelapor aktif:** Navisa Kafka (4), Iqbal Tito (3), Luthfi Badarnawa (5), Reza Pramana (1), Kurniashanti (1)
+**Feedback baru:** 14 item hari ini (4 sudah di-score pagi, 10 baru sore)
 
-### Bug yang Ditemukan & Diperbaiki
+### Bug yang Ditemukan & Diperbaiki (Batch Pagi — dari session sebelumnya)
 
 | # | Bug | Pelapor | Severity | Status |
 |---|-----|---------|----------|--------|
@@ -303,6 +303,17 @@ File yang diperbaiki:
 | 43 | Customs forms null array crash | Multiple | Important | Fixed |
 | 44 | Agency vessel schedules page crash | Multiple | Important | Fixed |
 | 45 | HR page can't open for marketing role (explorer mode) | Navisa | Important | Fixed |
+
+### Bug yang Ditemukan & Diperbaiki (Batch Sore — feedback baru hari ini)
+
+| # | Bug | Pelapor | Severity | Status |
+|---|-----|---------|----------|--------|
+| 46 | Agency card black screen crash (field name mismatch `has_roro` → `has_ro_ro`) | Luthfi | Critical | Fixed |
+| 47 | Engineering drawing can't save (silent profile query failure) | Iqbal | Important | Fixed |
+| 48 | JMP can't submit for review (auth UUID used for employees FK) | Kurniashanti | Important | Fixed |
+| 49 | HSE incidents blank page (null access on category join) | Luthfi | Important | Fixed |
+| 50 | HSE Incident report form error | Luthfi | Important | Fixed |
+| 51 | Leave request not working (getCurrentEmployeeId FK mismatch) | Reza | Important | Fixed |
 
 ### FK Mismatch Batch 4 (14 instances)
 
@@ -346,21 +357,39 @@ Pages yang sekarang bisa diakses dalam explorer mode dengan banner read-only:
 - `/quotations`
 - `/cost-entry`
 
-### Admin Review
-- 24 feedback baru di-review dan di-score
-- 10 bug fixed (critical: FK mismatches, quotation PDF, RLS)
-- 4 bug fixed (important: asset filter, customs, shipping, explorer mode)
-- 1 duplicate (incident report)
-- 8 suggestions acknowledged
-- 1 by-design (admin page access restricted by role)
+### Perbaikan Scoring System
+- Ditemukan: `point_events` tabel tidak sinkron dengan `competition_feedback` scoring
+- 41 `feedback_reviewed` events hilang (747 poin), 25 `bug_fixed` events hilang (125 poin)
+- **Root cause:** Batch scoring via SQL hanya update `competition_feedback`, tidak buat `point_events`
+- **Fix:** Hapus semua `feedback_reviewed` & `bug_fixed` events, re-create dari source of truth
+- Total poin yang dikembalikan: **+316 poin** tersebar ke semua peserta
+- Terdampak paling besar: Iqbal (+197), Luthfi (+108), Reza (+68), Navisa (+56)
 
-### Leaderboard Update Pending
-Skor perlu direcalculate setelah batch scoring 24 item baru.
+### Admin Review
+- 24 feedback dari batch pagi di-review (session sebelumnya)
+- 10 feedback baru hari ini di-review dan di-score
+- Saran yang masuk: JMP PDF export, manual project name di drawing, maintenance record edit button, schedule maintenance UX
+- Semua 64 feedback items (0 unscored)
+
+### Leaderboard (per 19 Feb, setelah semua fix)
+
+| # | Nama | Total | Feedback | Skenario | Bonus |
+|---|------|-------|----------|----------|-------|
+| 1 | Reza Pramana | **539** | 338 | 120 | 81 |
+| 2 | Iqbal Tito | **481** | 342 | 100 | 39 |
+| 3 | Kurniashanti Dwi P. | **405** | 236 | 100 | 69 |
+| 4 | Luthfi Badarnawa | **384** | 218 | 120 | 46 |
+| 5 | Navisa Kafka | **184** | 92 | 80 | 12 |
+| 6 | Choirul Anam | **114** | 32 | 80 | 2 |
+| 7 | Chairul Fajri | **88** | 8 | 80 | 0 |
+
+**Perubahan ranking:** Iqbal naik dari #3 ke #2 (melewati Kurniashanti). Luthfi naik signifikan.
 
 ### Commits
 - `e6d44fc` fix: resolve 25 FK mismatches, add quotation PDF, fix asset filter & agency schedules
 - `6703dde` fix: allow HR access in explorer mode for co-builder competition
 - `ea93008` feat: add explorer mode read-only banner and bypass for restricted pages
+- `099b47e` fix: resolve 6 bugs from Day 9 co-builder feedback
 
 ---
 

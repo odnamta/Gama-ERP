@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Agency vessel schedules** — crash from unmapped vessel/port relations
 - **Customs forms** — null array crash on `exportTypes.data` / `officesResult.data`
 - **HR page access** — explorer mode users silently redirected to dashboard
+- **Agency card crash** — field name mismatch `has_roro` → `has_ro_ro` in port mapping
+- **Engineering drawing save** — silent profile query failure, added auth + error handling
+- **JMP submit for review** — auth UUID used for `employees` FK, now resolves via profile → employee chain
+- **HSE incidents blank page** — null safety on `incident_categories` join
+- **Leave request broken** — `getCurrentEmployeeId()` used auth UUID instead of `user_profiles.id` for employee lookup
+- **Competition scoring gap** — `point_events` table out of sync with `competition_feedback`; rebuilt 66 events (+316 pts)
 
 ### Features
 - **Explorer mode read-only banner** — "Mode Explorer — Hanya Lihat" notification on restricted pages
@@ -24,7 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 9 restricted pages now accessible in explorer mode with read-only banner
 
 ### Admin
-- 24 new co-builder feedback items reviewed and scored
+- 34 total co-builder feedback items reviewed and scored (24 batch pagi + 10 baru sore)
+- Scoring system fixed: rebuilt `point_events` from source of truth
 - RLS migration applied: `pib_documents`, `pib_items`, `customs_offices`, `import_types`, `shipping_lines`, `vessel_schedules`
 
 ---
