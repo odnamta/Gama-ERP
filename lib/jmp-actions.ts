@@ -476,7 +476,24 @@ export async function submitJmpForReview(
 ): Promise<ActionResult<JourneyManagementPlan>> {
   try {
     const supabase = await createClient();
-    
+
+    // Resolve auth UUID → user_profiles.id → employees.id
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('user_id', preparedBy)
+      .single();
+
+    let employeeId: string | null = null;
+    if (profile) {
+      const { data: employee } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('user_id', profile.id)
+        .single();
+      employeeId = employee?.id || null;
+    }
+
     // Check current status
     const { data: jmp, error: fetchError } = await supabase
       .from('journey_management_plans')
@@ -485,7 +502,7 @@ export async function submitJmpForReview(
       .single();
 
     if (fetchError) throw fetchError;
-    
+
     if (!isValidStatusTransition(jmp.status as JmpStatus, 'pending_review')) {
       return { success: false, error: `Cannot submit JMP from ${jmp.status} status` };
     }
@@ -494,7 +511,7 @@ export async function submitJmpForReview(
       .from('journey_management_plans')
       .update({
         status: 'pending_review',
-        prepared_by: preparedBy,
+        prepared_by: employeeId,
         prepared_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })
@@ -522,7 +539,24 @@ export async function approveJmp(
 ): Promise<ActionResult<JourneyManagementPlan>> {
   try {
     const supabase = await createClient();
-    
+
+    // Resolve auth UUID → user_profiles.id → employees.id
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('user_id', approvedBy)
+      .single();
+
+    let employeeId: string | null = null;
+    if (profile) {
+      const { data: employee } = await supabase
+        .from('employees')
+        .select('id')
+        .eq('user_id', profile.id)
+        .single();
+      employeeId = employee?.id || null;
+    }
+
     // Check current status and convoy commander
     const { data: jmp, error: fetchError } = await supabase
       .from('journey_management_plans')
@@ -531,7 +565,7 @@ export async function approveJmp(
       .single();
 
     if (fetchError) throw fetchError;
-    
+
     if (!isValidStatusTransition(jmp.status as JmpStatus, 'approved')) {
       return { success: false, error: `Cannot approve JMP from ${jmp.status} status` };
     }
@@ -544,7 +578,7 @@ export async function approveJmp(
       .from('journey_management_plans')
       .update({
         status: 'approved',
-        approved_by: approvedBy,
+        approved_by: employeeId,
         approved_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       })

@@ -149,11 +149,19 @@ export async function createDrawing(input: DrawingFormInput): Promise<ActionResu
 
   // Get current user and profile
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
+  if (!user) {
+    return { success: false, error: 'Anda harus login terlebih dahulu' };
+  }
+
+  const { data: profile, error: profileError } = await supabase
     .from('user_profiles')
     .select('id')
-    .eq('user_id', user?.id || '')
+    .eq('user_id', user.id)
     .single();
+
+  if (profileError || !profile) {
+    return { success: false, error: 'Profil pengguna tidak ditemukan. Coba logout dan login kembali.' };
+  }
 
   const { data, error } = await supabase
     .from('drawings')
@@ -172,7 +180,7 @@ export async function createDrawing(input: DrawingFormInput): Promise<ActionResu
       status: 'draft',
       current_revision: 'A',
       revision_count: 1,
-      created_by: profile?.id || null,
+      created_by: profile.id,
     })
     .select()
     .single();

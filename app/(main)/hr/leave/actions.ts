@@ -778,15 +778,24 @@ export async function getEmployeesForSelect(): Promise<{ id: string; full_name: 
  */
 export async function getCurrentEmployeeId(): Promise<string | null> {
   const supabase = await createClient();
-  
+
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  
-  const { data: employee } = await supabase
-    .from('employees')
+
+  // employees.user_id references user_profiles.id, not auth UUID
+  const { data: profile } = await supabase
+    .from('user_profiles')
     .select('id')
     .eq('user_id', user.id)
     .single();
-  
+
+  if (!profile) return null;
+
+  const { data: employee } = await supabase
+    .from('employees')
+    .select('id')
+    .eq('user_id', profile.id)
+    .single();
+
   return employee?.id || null;
 }

@@ -403,14 +403,14 @@ export async function getIncidents(
     }
 
     // Transform the data
-    const incidents = (data || []).map((row: IncidentRow & { incident_categories: { category_code: string; category_name: string }; employees: { full_name: string } | null; investigator: { full_name: string } | null }) => {
+    const incidents = (data || []).map((row: IncidentRow & { incident_categories: { category_code: string; category_name: string } | null; employees: { full_name: string } | null; investigator: { full_name: string } | null }) => {
       const incident = transformIncidentRow(row as IncidentRow);
-      const category = row.incident_categories as { category_code: string; category_name: string };
+      const category = row.incident_categories as { category_code: string; category_name: string } | null;
       const reporter = row.employees as { full_name: string } | null;
       const investigator = row.investigator as { full_name: string } | null;
 
-      incident.categoryCode = category.category_code;
-      incident.categoryName = category.category_name;
+      incident.categoryCode = category?.category_code;
+      incident.categoryName = category?.category_name;
       incident.reportedByName = reporter?.full_name;
       incident.investigatorName = investigator?.full_name;
 

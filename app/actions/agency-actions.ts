@@ -1128,7 +1128,7 @@ function mapDbToPort(db: any): Port {
     timezone: db.timezone,
     hasContainerTerminal: db.has_container_terminal,
     hasBreakbulkFacility: db.has_breakbulk_facility,
-    hasRoRo: db.has_roro,
+    hasRoRo: db.has_ro_ro,
     maxDraftM: db.max_draft_m,
     maxVesselLoaM: db.max_vessel_loa_m,
     primaryAgentId: db.primary_agent_id,
