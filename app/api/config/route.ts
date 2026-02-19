@@ -85,17 +85,17 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ success
     // Check if user is admin
     const { data: profile, error: profileError } = await supabase
       .from('user_profiles')
-      .select('role')
+      .select('id, role')
       .eq('user_id', user.id)
       .single();
-    
+
     if (profileError || !profile) {
       return NextResponse.json(
         { success: false, error: 'User profile not found' },
         { status: 403 }
       );
     }
-    
+
     // Only admin and super_admin can update configs
     if (!['sysadmin', 'director', 'owner'].includes(profile.role)) {
       return NextResponse.json(
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ success
       environment: body.environment,
       isSensitive: body.isSensitive,
       description: body.description,
-      userId: user.id,
+      userId: profile.id,
     });
     
     if (!result.success) {

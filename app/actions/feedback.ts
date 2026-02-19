@@ -197,10 +197,21 @@ export async function getMySubmissions(): Promise<FeedbackActionResult<FeedbackL
       return { success: false, error: 'You must be logged in' };
     }
 
+    // submitted_by references user_profiles.id, not auth UUID
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!profile) {
+      return { success: false, error: 'User profile not found' };
+    }
+
     const { data, error } = await supabase
       .from('feedback_with_comments' as any)
       .select('*')
-      .eq('submitted_by', user.id)
+      .eq('submitted_by', profile.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -635,7 +646,7 @@ export async function addFeedbackComment(
       .single();
 
     // Notify submitter if comment is from admin (and not internal)
-    if (feedback?.submitted_by && feedback.submitted_by !== user.id && !isInternal) {
+    if (feedback?.submitted_by && feedback.submitted_by !== profile?.id && !isInternal) {
       await notifyFeedbackComment(
         feedbackId,
         feedback.ticket_number,
