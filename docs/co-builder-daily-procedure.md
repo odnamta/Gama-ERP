@@ -61,10 +61,30 @@ WHERE id = '[feedback_id]';
 | Important | x2 | Significant bug or useful improvement |
 | Helpful | x1 | Minor issue, vague report, or general comment |
 
+**Base points by category:**
+| Category | Default base_points | Notes |
+|----------|-------------------|-------|
+| Bug | 8 | Standard bug report |
+| UX Issue | 8 | Usability problems |
+| Suggestion (general) | 8 | General suggestions |
+| **Workflow / Productivity** | **15** | Suggestions that add, remove, or simplify workflow steps to improve productivity |
+| Question | 8 | Clarification questions |
+
+> **Workflow suggestions** deserve `base_points=15` because a good workflow insight has
+> more long-term impact than a single bug fix. Look for: steps that can be eliminated,
+> processes that can be simplified, features that would save time daily.
+
 **If bug was fixed**, also insert a bonus point event:
 ```sql
-INSERT INTO point_events (user_id, event_type, points, metadata)
-SELECT user_id, 'bug_fixed', 5, '{"feedback_title": "[title]"}'::jsonb
+INSERT INTO point_events (user_id, event_type, points, description, reference_id)
+SELECT user_id, 'bug_fixed', 5, 'Bug fixed: [title]', '[feedback_id]'
+FROM competition_feedback WHERE id = '[feedback_id]';
+```
+
+**If a suggestion was adopted/implemented**, insert a higher bonus:
+```sql
+INSERT INTO point_events (user_id, event_type, points, description, reference_id)
+SELECT user_id, 'suggestion_adopted', 10, 'Suggestion adopted: [title]', '[feedback_id]'
 FROM competition_feedback WHERE id = '[feedback_id]';
 ```
 

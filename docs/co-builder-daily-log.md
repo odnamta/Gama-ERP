@@ -430,6 +430,23 @@ Note: 5 number-generation functions (invoices, disbursements, pjo, bkk, executiv
 - `f1a10f8` fix: resolve 4 additional FK mismatches from full app audit
 - `bade528` fix: null safety on admin pages profile access
 
+### Scoring Policy Update (effective Day 10+)
+
+**New incentive: Workflow & Productivity suggestions**
+- Workflow suggestions (add, remove, or simplify steps) now scored at `base_points=15` (was 8, same as general suggestions)
+- New bonus event: `suggestion_adopted` = **10 pts** when a suggestion is actually implemented (vs `bug_fixed` = 5 pts)
+- Rationale: A good workflow insight has more long-term productivity impact than a single bug fix
+- Communicated to team via next email update
+
+**Updated scoring table:**
+| Category | base_points | Bonus when implemented |
+|----------|------------|----------------------|
+| Bug | 8 | `bug_fixed` = 5 pts |
+| UX Issue | 8 | `bug_fixed` = 5 pts |
+| General suggestion | 8 | — |
+| **Workflow / Productivity** | **15** | `suggestion_adopted` = **10 pts** |
+| Question | 8 | — |
+
 ---
 
 <!-- Template for new days:
