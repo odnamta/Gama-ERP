@@ -384,25 +384,26 @@ describe('JO Utility Functions', () => {
    * **Validates: Requirements 8.1, 8.2, 8.3, 8.4, 8.5**
    */
   describe('canEditJO', () => {
-    const allRoles: JOUserRole[] = ['ops', 'admin', 'sales', 'engineer', 'manager', 'super_admin']
+    const editableRoles: JOUserRole[] = ['sysadmin', 'administration', 'marketing_manager', 'finance_manager', 'operations_manager', 'director', 'owner']
+    const allRoles: JOUserRole[] = ['ops', 'marketing', 'engineer', ...editableRoles]
 
-    it('should allow editing only for admin and manager roles', () => {
+    it('should allow editing only for editable roles', () => {
       fc.assert(
         fc.property(fc.constantFrom(...allRoles), (role) => {
           const result = canEditJO(role)
-          const expected = role === 'admin' || role === 'manager'
+          const expected = editableRoles.includes(role)
           expect(result).toBe(expected)
         }),
         { numRuns: 100 }
       )
     })
 
-    it('should return true for admin', () => {
-      expect(canEditJO('admin')).toBe(true)
+    it('should return true for administration', () => {
+      expect(canEditJO('administration')).toBe(true)
     })
 
-    it('should return true for manager', () => {
-      expect(canEditJO('manager')).toBe(true)
+    it('should return true for marketing_manager', () => {
+      expect(canEditJO('marketing_manager')).toBe(true)
     })
 
     it('should return false for ops', () => {

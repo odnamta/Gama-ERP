@@ -323,14 +323,14 @@ describe('Engineering Utils', () => {
 
   describe('canWaiveEngineeringReview', () => {
     it('should allow managers and above to waive', () => {
-      const managerRoles = ['manager', 'super_admin', 'owner', 'admin'];
+      const managerRoles = ['marketing_manager', 'finance_manager', 'operations_manager', 'director', 'owner', 'sysadmin'];
       managerRoles.forEach(role => {
         expect(canWaiveEngineeringReview(role)).toBe(true);
       });
     });
 
     it('should not allow non-managers to waive', () => {
-      const nonManagerRoles = ['sales', 'ops', 'engineer', 'user'];
+      const nonManagerRoles = ['marketing', 'ops', 'engineer', 'finance'];
       nonManagerRoles.forEach(role => {
         expect(canWaiveEngineeringReview(role)).toBe(false);
       });

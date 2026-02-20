@@ -213,6 +213,13 @@ describe('Cost Tracking Actions', () => {
       };
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
+        if (table === 'user_profiles') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            single: vi.fn().mockResolvedValue({ data: { id: 'profile-1' }, error: null }),
+          };
+        }
         if (table === 'assets') {
           return {
             select: vi.fn().mockReturnThis(),
@@ -246,6 +253,12 @@ describe('Cost Tracking Actions', () => {
     });
 
     it('should reject cost with invalid cost type', async () => {
+      mockSupabaseClient.from.mockImplementation(() => ({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({ data: null, error: null }),
+      }));
+
       const result = await recordCost({
         assetId: 'asset-1',
         costType: 'invalid_type' as any,
@@ -258,6 +271,12 @@ describe('Cost Tracking Actions', () => {
     });
 
     it('should reject cost with non-positive amount', async () => {
+      mockSupabaseClient.from.mockImplementation(() => ({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({ data: null, error: null }),
+      }));
+
       const result = await recordCost({
         assetId: 'asset-1',
         costType: 'fuel',
@@ -270,6 +289,12 @@ describe('Cost Tracking Actions', () => {
     });
 
     it('should reject cost with negative amount', async () => {
+      mockSupabaseClient.from.mockImplementation(() => ({
+        select: vi.fn().mockReturnThis(),
+        eq: vi.fn().mockReturnThis(),
+        single: vi.fn().mockResolvedValue({ data: null, error: null }),
+      }));
+
       const result = await recordCost({
         assetId: 'asset-1',
         costType: 'fuel',
@@ -314,6 +339,13 @@ describe('Cost Tracking Actions', () => {
       };
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
+        if (table === 'user_profiles') {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            single: vi.fn().mockResolvedValue({ data: { id: 'profile-1' }, error: null }),
+          };
+        }
         if (table === 'assets') {
           return {
             select: vi.fn().mockReturnThis(),

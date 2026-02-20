@@ -199,6 +199,9 @@ describe('v0.46 Incident Actions', () => {
       };
 
       mockSupabaseClient.from.mockImplementation((table: string) => {
+        if (table === 'user_profiles') {
+          return createChainableMock({ data: { id: 'profile-1', full_name: 'Test User' }, error: null });
+        }
         if (table === 'employees') {
           return createChainableMock({ data: employee, error: null });
         }

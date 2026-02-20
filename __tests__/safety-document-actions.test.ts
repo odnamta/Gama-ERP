@@ -185,13 +185,17 @@ describe('Safety Document Actions', () => {
         error: null 
       });
 
+      // Mock user profile lookup
+      const profileBuilder = createMockQueryBuilder({ id: 'profile-1' });
+
       // Mock employee lookup
       const employeeBuilder = createMockQueryBuilder({ id: 'emp-1' });
-      
+
       // Mock existing acknowledgment
       const ackBuilder = createMockQueryBuilder({ id: 'ack-1' });
-      
+
       mockSupabase.from.mockImplementation((table: string) => {
+        if (table === 'user_profiles') return profileBuilder;
         if (table === 'employees') return employeeBuilder;
         if (table === 'safety_document_acknowledgments') return ackBuilder;
         return createMockQueryBuilder();

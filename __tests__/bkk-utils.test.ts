@@ -524,7 +524,7 @@ describe('BKK Utils', () => {
     })
 
     it('should show approve/reject for pending BKKs to admin/finance', () => {
-      for (const role of ['admin', 'finance', 'manager', 'super_admin']) {
+      for (const role of ['sysadmin', 'finance', 'finance_manager', 'owner']) {
         const actions = getAvailableActions('pending', role, false)
         expect(actions).toContain('approve')
         expect(actions).toContain('reject')
@@ -532,7 +532,7 @@ describe('BKK Utils', () => {
     })
 
     it('should show release for approved BKKs to admin/finance', () => {
-      for (const role of ['admin', 'finance', 'super_admin']) {
+      for (const role of ['sysadmin', 'finance', 'finance_manager']) {
         const actions = getAvailableActions('approved', role, false)
         expect(actions).toContain('release')
       }

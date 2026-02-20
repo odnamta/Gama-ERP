@@ -56,11 +56,11 @@ const vendorInvoiceFormDataArb = fc.record({
 });
 
 // Generate user roles
-const roleArb = fc.constantFrom('owner', 'admin', 'manager', 'finance', 'ops', 'sales', 'engineer');
-const viewableRoleArb = fc.constantFrom('owner', 'admin', 'manager', 'finance');
-const editableRoleArb = fc.constantFrom('owner', 'admin', 'finance');
-const deletableRoleArb = fc.constantFrom('owner', 'admin');
-const nonViewableRoleArb = fc.constantFrom('ops', 'sales', 'engineer');
+const roleArb = fc.constantFrom('owner', 'director', 'sysadmin', 'administration', 'finance', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'marketing', 'engineer');
+const viewableRoleArb = fc.constantFrom('owner', 'director', 'sysadmin', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance', 'administration');
+const editableRoleArb = fc.constantFrom('owner', 'director', 'sysadmin', 'finance', 'administration');
+const deletableRoleArb = fc.constantFrom('owner', 'director', 'sysadmin');
+const nonViewableRoleArb = fc.constantFrom('ops', 'marketing', 'engineer');
 
 // Generate aging bucket scenarios
 const agingBucketScenarioArb = fc.record({
@@ -550,7 +550,7 @@ describe('vendor-invoice-actions', () => {
   // Validates: Requirements 9.3, 9.4, 9.5, 9.6, 9.7
   // =====================================================
   describe('Role-Based Access Control', () => {
-    it('should allow view access for owner, admin, manager, finance roles', () => {
+    it('should allow view access for viewable roles', () => {
       fc.assert(
         fc.property(viewableRoleArb, (role) => {
           expect(canViewVendorInvoices(role)).toBe(true);
@@ -568,7 +568,7 @@ describe('vendor-invoice-actions', () => {
       );
     });
 
-    it('should allow edit access for owner, admin, finance roles', () => {
+    it('should allow edit access for editable roles', () => {
       fc.assert(
         fc.property(editableRoleArb, (role) => {
           expect(canEditVendorInvoices(role)).toBe(true);
@@ -577,8 +577,8 @@ describe('vendor-invoice-actions', () => {
       );
     });
 
-    it('should deny edit access for manager, ops, sales, engineer roles', () => {
-      const nonEditableRoles = ['manager', 'ops', 'sales', 'engineer'];
+    it('should deny edit access for non-editable roles', () => {
+      const nonEditableRoles = ['marketing_manager', 'ops', 'marketing', 'engineer'];
       
       fc.assert(
         fc.property(fc.constantFrom(...nonEditableRoles), (role) => {
@@ -588,7 +588,7 @@ describe('vendor-invoice-actions', () => {
       );
     });
 
-    it('should allow delete access for owner, admin roles only', () => {
+    it('should allow delete access for deletable roles only', () => {
       fc.assert(
         fc.property(deletableRoleArb, (role) => {
           expect(canDeleteVendorInvoices(role)).toBe(true);
@@ -597,8 +597,8 @@ describe('vendor-invoice-actions', () => {
       );
     });
 
-    it('should deny delete access for finance, manager, ops, sales, engineer roles', () => {
-      const nonDeletableRoles = ['finance', 'manager', 'ops', 'sales', 'engineer'];
+    it('should deny delete access for non-deletable roles', () => {
+      const nonDeletableRoles = ['finance', 'administration', 'marketing_manager', 'ops', 'engineer'];
       
       fc.assert(
         fc.property(fc.constantFrom(...nonDeletableRoles), (role) => {
@@ -965,8 +965,8 @@ describe('vendor-invoice-actions', () => {
   // Validates: Requirements 9.5
   // =====================================================
   describe('Property 17: Role-Based Access Control (Approval)', () => {
-    it('should allow approval for owner, admin, manager roles', () => {
-      const approvalRoles = ['owner', 'admin', 'manager'];
+    it('should allow approval for approvable roles', () => {
+      const approvalRoles = ['owner', 'director', 'sysadmin', 'marketing_manager', 'finance_manager', 'operations_manager'];
       
       fc.assert(
         fc.property(fc.constantFrom(...approvalRoles), (role) => {
@@ -976,8 +976,8 @@ describe('vendor-invoice-actions', () => {
       );
     });
 
-    it('should deny approval for finance, ops, sales, engineer roles', () => {
-      const nonApprovalRoles = ['finance', 'ops', 'sales', 'engineer'];
+    it('should deny approval for non-approvable roles', () => {
+      const nonApprovalRoles = ['finance', 'administration', 'ops', 'marketing', 'engineer'];
       
       fc.assert(
         fc.property(fc.constantFrom(...nonApprovalRoles), (role) => {

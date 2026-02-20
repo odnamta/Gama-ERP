@@ -100,11 +100,11 @@ describe('Engineering Actions - Validation Logic', () => {
     });
 
     it('should only allow managers to waive', () => {
-      expect(canWaiveEngineeringReview('manager')).toBe(true);
-      expect(canWaiveEngineeringReview('super_admin')).toBe(true);
-      expect(canWaiveEngineeringReview('admin')).toBe(true);
+      expect(canWaiveEngineeringReview('marketing_manager')).toBe(true);
+      expect(canWaiveEngineeringReview('sysadmin')).toBe(true);
+      expect(canWaiveEngineeringReview('director')).toBe(true);
       expect(canWaiveEngineeringReview('owner')).toBe(true);
-      expect(canWaiveEngineeringReview('sales')).toBe(false);
+      expect(canWaiveEngineeringReview('marketing')).toBe(false);
       expect(canWaiveEngineeringReview('ops')).toBe(false);
       expect(canWaiveEngineeringReview('engineer')).toBe(false);
     });
