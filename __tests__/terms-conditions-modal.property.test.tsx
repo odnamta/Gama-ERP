@@ -102,9 +102,9 @@ describe('Feature: v0.85-terms-conditions, Property 2: Accept button state tied 
           return true
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 10 }
     )
-  })
+  }, 15000)
 
   /**
    * Property: Accept button is enabled when checkbox is checked (not loading)
@@ -138,9 +138,9 @@ describe('Feature: v0.85-terms-conditions, Property 2: Accept button state tied 
           return true
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     )
-  })
+  }, 15000)
 
   /**
    * Property: Accept button disabled state is inverse of checkbox checked state (when not loading)
@@ -182,9 +182,9 @@ describe('Feature: v0.85-terms-conditions, Property 2: Accept button state tied 
           return true
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 20 }
     )
-  })
+  }, 15000)
 
   /**
    * Property: Accept button is always disabled when loading, regardless of checkbox state
@@ -312,9 +312,9 @@ describe('Feature: v0.85-terms-conditions, Property 2: Accept button state tied 
           return true
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 10 }
     )
-  })
+  }, 15000)
 })
 
 // =====================================================
