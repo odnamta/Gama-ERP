@@ -6,6 +6,8 @@ const withBundleAnalyzer = bundleAnalyzer({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  poweredByHeader: false,
+
   // TypeScript and ESLint checking enabled for production builds
   // All type errors must be fixed before deployment
 
