@@ -268,7 +268,7 @@ export function LeaderboardClient({ leaderboard, stats, activity }: Props) {
                   <div className="text-sm font-medium">Syarat Minimum:</div>
 
                   <RequirementRow
-                    label="Login 10 hari"
+                    label="Aktif 10 hari"
                     current={stats.loginDays}
                     target={10}
                     met={stats.loginDays >= 10}

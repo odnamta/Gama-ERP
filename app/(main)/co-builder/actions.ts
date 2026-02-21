@@ -378,6 +378,15 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       && entry.has_top5
   }
 
+  // Sort: qualified users first, then unqualified, each group by points
+  entries.sort((a, b) => {
+    if (a.meets_requirements !== b.meets_requirements) {
+      return a.meets_requirements ? -1 : 1
+    }
+    return b.total_points - a.total_points
+  })
+  entries.forEach((e, i) => { e.rank = i + 1 })
+
   return entries
 }
 
@@ -462,8 +471,13 @@ async function getLeaderboardDirect(): Promise<LeaderboardEntry[]> {
     })
   }
 
-  // Sort and assign ranks
-  entries.sort((a, b) => b.total_points - a.total_points)
+  // Sort: qualified users first (by points), then unqualified (by points)
+  entries.sort((a, b) => {
+    if (a.meets_requirements !== b.meets_requirements) {
+      return a.meets_requirements ? -1 : 1
+    }
+    return b.total_points - a.total_points
+  })
   entries.forEach((e, i) => { e.rank = i + 1 })
 
   return entries
@@ -900,9 +914,6 @@ export async function reviewFeedback(data: {
     const multiplierMap = { helpful: 1, important: 2, critical: 3 }
     const multiplier = multiplierMap[data.impactLevel]
 
-    // Category bonus: reward workflow/process suggestions more than simple bug reports
-    const categoryMultiplierMap: Record<string, number> = { suggestion: 1.5, ux_issue: 1.25 }
-
     // Get current feedback
     const { data: current } = await supabase
       .from(// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -914,8 +925,7 @@ export async function reviewFeedback(data: {
     if (!current) return { success: false, error: 'Feedback not found' }
 
     const fb = current as unknown as CompetitionFeedback
-    const categoryMultiplier = categoryMultiplierMap[fb.category] || 1
-    const newTotal = Math.round(fb.base_points * multiplier * categoryMultiplier)
+    const newTotal = fb.base_points * multiplier
     const pointsDiff = newTotal - fb.total_points
 
     // Update feedback
@@ -940,7 +950,7 @@ export async function reviewFeedback(data: {
         user_id: fb.user_id,
         event_type: 'feedback_reviewed',
         points: pointsDiff,
-        description: `Feedback dinilai ${data.impactLevel} (x${multiplier}${categoryMultiplier > 1 ? ` +${Math.round((categoryMultiplier - 1) * 100)}% ${fb.category}` : ''})`,
+        description: `Feedback dinilai ${data.impactLevel} (x${multiplier})`,
         reference_id: data.feedbackId,
       } as Record<string, unknown>)
     }
