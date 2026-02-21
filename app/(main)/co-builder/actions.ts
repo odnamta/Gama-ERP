@@ -372,13 +372,8 @@ export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
       && entry.has_top5
   }
 
-  // Sort: qualified users first, then unqualified, each group by points
-  entries.sort((a, b) => {
-    if (a.meets_requirements !== b.meets_requirements) {
-      return a.meets_requirements ? -1 : 1
-    }
-    return b.total_points - a.total_points
-  })
+  // Sort by points only — requirements determine prize eligibility, not ranking
+  entries.sort((a, b) => b.total_points - a.total_points)
   entries.forEach((e, i) => { e.rank = i + 1 })
 
   return entries
@@ -465,13 +460,8 @@ async function getLeaderboardDirect(): Promise<LeaderboardEntry[]> {
     })
   }
 
-  // Sort: qualified users first (by points), then unqualified (by points)
-  entries.sort((a, b) => {
-    if (a.meets_requirements !== b.meets_requirements) {
-      return a.meets_requirements ? -1 : 1
-    }
-    return b.total_points - a.total_points
-  })
+  // Sort by points only — requirements determine prize eligibility, not ranking
+  entries.sort((a, b) => b.total_points - a.total_points)
   entries.forEach((e, i) => { e.rank = i + 1 })
 
   return entries
