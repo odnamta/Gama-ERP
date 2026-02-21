@@ -116,7 +116,7 @@ export function LeaderboardClient({ leaderboard, stats, activity }: Props) {
           <Badge className="bg-white/10 text-white border-white/20 text-sm">5th Rp 750.000</Badge>
         </div>
         <p className="mt-2 text-sm text-white/70">
-          Semua peserta yang memenuhi syarat: Rp 250.000 &bull; Perfect Attendance: +Rp 150.000
+          Semua peserta yang memenuhi syarat: Rp 250.000
         </p>
       </div>
 
