@@ -5,6 +5,25 @@ All notable changes to GAMA ERP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.4] - 2026-02-21 - Supabase Edge Functions
+
+### Added
+- **4 Supabase Edge Functions** for shared business logic — satellite apps can now call the same logic via `supabase.functions.invoke()`:
+  - `approve-expense` — PJO/JO/BKK workflow transitions (submit/check/approve/reject) with role-based access control
+  - `bkk-generation` — create BKK with auto-numbered `BKK-YYYY-NNNN`, role-restricted to owner/director/managers/admin/finance
+  - `financial-summary` — booking revenue/cost/profit aggregation, `ops` role blocked (403), profit fields hidden for non-management roles
+  - `shipment-status-transition` — booking status changes validated against transition map (draft→requested→confirmed→shipped→completed)
+- **`supabase/functions/_shared/`** — reusable utilities: CORS, auth (JWT + user_profiles), audit logging, workflow state machine (Maker-Checker-Approver)
+- Excluded `supabase/functions` from `tsconfig.json` so Deno Edge Functions don't interfere with Next.js build
+
+### Technical Notes
+- Edge Functions coexist with existing server actions — no refactoring of existing code
+- All functions deployed to Supabase project `ljbkjtaowrdddvjhsygj`
+- Auth uses `user_profiles.user_id` (not `id`) per existing convention
+- BKK insert maps to actual schema: `requested_by`, `status`, `purpose` (not `created_by`/`workflow_status`/`description`)
+
+---
+
 ## [0.10.3] - 2026-02-21 - Critical Security Fixes from Deep Audit
 
 ### Security
