@@ -5,6 +5,30 @@ All notable changes to GAMA ERP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.3] - 2026-02-21 - Critical Security Fixes from Deep Audit
+
+### Security
+- **Deleted zero-auth debug endpoint** (`/api/debug/test-onboarding`) — leaked schema and wrote to DB without authentication
+- **Fixed page-view log poisoning** — `/api/activity/page-view` now authenticates server-side instead of trusting body-supplied userId
+- **Fixed feature-flags role spoofing** — GET handler derives role from `user_profiles`, no longer trusts query params
+- **Fixed executive dashboard role spoofing** — `getAllKPIsForDashboard` verifies role server-side, ignores client-supplied value
+- **Tightened RLS on financial tables** — `invoices`, `payments`, `vendor_payments` SELECT policies now exclude `ops` role
+- **Ops revenue masking** — JO detail/list views hide revenue, profit, and margin columns for `ops` role
+
+### Fixed
+- **Hardcoded `userRole = 'ops'`** in PJO costs page — now fetched from `user_profiles`
+- **Hardcoded `userId = 'current-user-id'`** in alert dashboard — now fetched from `supabase.auth.getUser()`
+- **12 stale `/jo` and `/pjo` links** replaced with `/job-orders` and `/proforma-jo` across components, utils, and tests
+
+### Removed
+- Dead stub pages `app/(main)/jo/page.tsx` and `app/(main)/pjo/page.tsx`
+
+### Added
+- `docs/OPS_REVENUE_MEMO.md` — documents full scope of ops revenue hiding for post-competition fix
+- `supabase/migrations/applied/20260221_tighten_financial_rls.sql`
+
+---
+
 ## [0.10.2] - 2026-02-20 - Test Infrastructure + Lint Cleanup
 
 ### Fixed
