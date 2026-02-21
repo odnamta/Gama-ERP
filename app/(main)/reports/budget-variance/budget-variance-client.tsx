@@ -74,7 +74,7 @@ export function BudgetVarianceClient({ initialData, userId }: Props) {
   }))
 
   const handleRowClick = (row: BudgetVarianceDisplayItem) => {
-    router.push(`/pjo/${row.pjoId}`)
+    router.push(`/proforma-jo/${row.pjoId}`)
   }
 
   const getRowHighlight = (row: BudgetVarianceDisplayItem): RowHighlight => {

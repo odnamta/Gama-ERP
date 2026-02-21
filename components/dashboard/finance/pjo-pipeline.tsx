@@ -49,7 +49,7 @@ export function PJOPipeline({ pipeline }: PJOPipelineProps) {
     if (status === 'approved') {
       router.push('/job-orders')
     } else {
-      router.push(`/pjo?status=${status}`)
+      router.push(`/proforma-jo?status=${status}`)
     }
   }
 
@@ -57,7 +57,7 @@ export function PJOPipeline({ pipeline }: PJOPipelineProps) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">Quotation Pipeline (PJOs)</CardTitle>
-        <Button variant="ghost" size="sm" onClick={() => router.push('/pjo')}>
+        <Button variant="ghost" size="sm" onClick={() => router.push('/proforma-jo')}>
           View All <ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </CardHeader>

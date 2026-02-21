@@ -350,7 +350,7 @@ export function getPendingPJOWorkItems(pjos: PJOInput[], currentDate: Date): Pen
       actionNeeded: 'create_jo' as ActionType,
       actionLabel: ACTION_LABELS.create_jo,
       daysPending: calculateDaysPending(p.updated_at ?? p.created_at ?? new Date().toISOString(), currentDate),
-      linkUrl: `/pjo/${p.id}`
+      linkUrl: `/proforma-jo/${p.id}`
     }))
 }
 
@@ -368,7 +368,7 @@ export function getPendingJOWorkItems(jos: JOInput[], currentDate: Date): Pendin
       actionNeeded: 'create_invoice' as ActionType,
       actionLabel: ACTION_LABELS.create_invoice,
       daysPending: calculateDaysPending(j.updated_at ?? j.created_at ?? new Date().toISOString(), currentDate),
-      linkUrl: `/jo/${j.id}`
+      linkUrl: `/job-orders/${j.id}`
     }))
 }
 
@@ -493,7 +493,7 @@ export function pjoToRecentDocument(pjo: PJOInput): RecentDocument {
     status: pjo.status,
     createdAt: pjo.created_at ?? '',
     updatedAt: pjo.updated_at ?? pjo.created_at ?? '',
-    linkUrl: `/pjo/${pjo.id}`
+    linkUrl: `/proforma-jo/${pjo.id}`
   }
 }
 
@@ -509,7 +509,7 @@ export function joToRecentDocument(jo: JOInput): RecentDocument {
     status: jo.status,
     createdAt: jo.created_at ?? '',
     updatedAt: jo.updated_at ?? jo.created_at ?? '',
-    linkUrl: `/jo/${jo.id}`
+    linkUrl: `/job-orders/${jo.id}`
   }
 }
 

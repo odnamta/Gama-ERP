@@ -277,7 +277,7 @@ describe('Feature: bug-report-improvement-request', () => {
       { path: '/customers', expected: 'Customers' },
       { path: '/projects', expected: 'Projects' },
       { path: '/quotations', expected: 'Quotations' },
-      { path: '/pjo', expected: 'PJO' },
+      { path: '/proforma-jo', expected: 'PJO' },
       { path: '/job-orders', expected: 'Job Orders' },
       { path: '/invoices', expected: 'Invoices' },
     ];

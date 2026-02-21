@@ -29,9 +29,11 @@ import type { JobOverheadAllocationWithCategory } from '@/types/overhead'
 interface JODetailViewProps {
   jobOrder: JobOrderWithRelations
   userId?: string
+  userRole?: string
 }
 
-export function JODetailView({ jobOrder, userId }: JODetailViewProps) {
+export function JODetailView({ jobOrder, userId, userRole }: JODetailViewProps) {
+  const isOps = userRole === 'ops'
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
@@ -251,49 +253,53 @@ export function JODetailView({ jobOrder, userId }: JODetailViewProps) {
         </Card>
       )}
 
-      {/* Financials */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Final Financials</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <Label className="text-muted-foreground">Final Revenue</Label>
-            <p className="text-lg font-semibold">{formatIDR(jobOrder.final_revenue ?? jobOrder.amount ?? 0)}</p>
-          </div>
-          <div>
-            <Label className="text-muted-foreground">Final Cost</Label>
-            <p className="text-lg font-semibold">{jobOrder.final_cost ? formatIDR(jobOrder.final_cost) : '-'}</p>
-          </div>
-          <div>
-            <Label className="text-muted-foreground">Final Profit</Label>
-            <p className={`text-lg font-semibold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {jobOrder.final_cost ? formatIDR(profit) : '-'}
-            </p>
-          </div>
-          <div>
-            <Label className="text-muted-foreground">Final Margin</Label>
-            <p className={`text-lg font-semibold ${margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {jobOrder.final_cost ? `${margin.toFixed(1)}%` : '-'}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Financials — hidden from ops role */}
+      {!isOps && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Final Financials</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <Label className="text-muted-foreground">Final Revenue</Label>
+              <p className="text-lg font-semibold">{formatIDR(jobOrder.final_revenue ?? jobOrder.amount ?? 0)}</p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Final Cost</Label>
+              <p className="text-lg font-semibold">{jobOrder.final_cost ? formatIDR(jobOrder.final_cost) : '-'}</p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Final Profit</Label>
+              <p className={`text-lg font-semibold ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {jobOrder.final_cost ? formatIDR(profit) : '-'}
+              </p>
+            </div>
+            <div>
+              <Label className="text-muted-foreground">Final Margin</Label>
+              <p className={`text-lg font-semibold ${margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {jobOrder.final_cost ? `${margin.toFixed(1)}%` : '-'}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-      {/* Profitability Analysis with Overhead */}
-      <ProfitabilitySection
-        joId={jobOrder.id}
-        revenue={jobOrder.final_revenue ?? jobOrder.amount ?? 0}
-        directCosts={jobOrder.final_cost ?? 0}
-        totalOverhead={profitabilityData?.totalOverhead ?? 0}
-        netProfit={profitabilityData?.netProfit ?? profit}
-        netMargin={profitabilityData?.netMargin ?? margin}
-        overheadBreakdown={overheadBreakdown}
-        onRecalculated={() => router.refresh()}
-      />
+      {/* Profitability Analysis with Overhead — hidden from ops role */}
+      {!isOps && (
+        <ProfitabilitySection
+          joId={jobOrder.id}
+          revenue={jobOrder.final_revenue ?? jobOrder.amount ?? 0}
+          directCosts={jobOrder.final_cost ?? 0}
+          totalOverhead={profitabilityData?.totalOverhead ?? 0}
+          netProfit={profitabilityData?.netProfit ?? profit}
+          netMargin={profitabilityData?.netMargin ?? margin}
+          overheadBreakdown={overheadBreakdown}
+          onRecalculated={() => router.refresh()}
+        />
+      )}
 
-      {/* Invoice Terms - Show when JO is submitted to finance or later */}
-      {['submitted_to_finance', 'invoiced', 'closed'].includes(jobOrder.status) && (
+      {/* Invoice Terms - Show when JO is submitted to finance or later, hidden from ops */}
+      {!isOps && ['submitted_to_finance', 'invoiced', 'closed'].includes(jobOrder.status) && (
         <InvoiceTermsSection
           joId={jobOrder.id}
           joStatus={jobOrder.status}
@@ -306,49 +312,51 @@ export function JODetailView({ jobOrder, userId }: JODetailViewProps) {
         />
       )}
 
-      {/* Revenue Breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Revenue Breakdown</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {itemsLoading ? (
-            <div className="flex items-center justify-center py-4 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Loading...
-            </div>
-          ) : revenueItems.length === 0 ? (
-            <p className="text-muted-foreground text-center py-4">No revenue items found</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="text-right">Qty</TableHead>
-                  <TableHead>Unit</TableHead>
-                  <TableHead className="text-right">Unit Price</TableHead>
-                  <TableHead className="text-right">Subtotal</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {revenueItems.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.description}</TableCell>
-                    <TableCell className="text-right">{item.quantity}</TableCell>
-                    <TableCell>{item.unit}</TableCell>
-                    <TableCell className="text-right">{formatIDR(item.unit_price ?? 0)}</TableCell>
-                    <TableCell className="text-right font-medium">{formatIDR(item.subtotal ?? 0)}</TableCell>
+      {/* Revenue Breakdown — hidden from ops role */}
+      {!isOps && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue Breakdown</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {itemsLoading ? (
+              <div className="flex items-center justify-center py-4 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Loading...
+              </div>
+            ) : revenueItems.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">No revenue items found</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Description</TableHead>
+                    <TableHead className="text-right">Qty</TableHead>
+                    <TableHead>Unit</TableHead>
+                    <TableHead className="text-right">Unit Price</TableHead>
+                    <TableHead className="text-right">Subtotal</TableHead>
                   </TableRow>
-                ))}
-                <TableRow className="bg-muted/50 font-semibold">
-                  <TableCell colSpan={4}>Total Revenue</TableCell>
-                  <TableCell className="text-right">{formatIDR(jobOrder.final_revenue ?? 0)}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                </TableHeader>
+                <TableBody>
+                  {revenueItems.map((item) => (
+                    <TableRow key={item.id}>
+                      <TableCell>{item.description}</TableCell>
+                      <TableCell className="text-right">{item.quantity}</TableCell>
+                      <TableCell>{item.unit}</TableCell>
+                      <TableCell className="text-right">{formatIDR(item.unit_price ?? 0)}</TableCell>
+                      <TableCell className="text-right font-medium">{formatIDR(item.subtotal ?? 0)}</TableCell>
+                    </TableRow>
+                  ))}
+                  <TableRow className="bg-muted/50 font-semibold">
+                    <TableCell colSpan={4}>Total Revenue</TableCell>
+                    <TableCell className="text-right">{formatIDR(jobOrder.final_revenue ?? 0)}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Cost Breakdown */}
       <Card>
@@ -473,7 +481,7 @@ export function JODetailView({ jobOrder, userId }: JODetailViewProps) {
       <BKKSection
         jobOrderId={jobOrder.id}
         bkks={bkks}
-        userRole="ops"
+        userRole={userRole || 'ops'}
         canRequest={['active', 'in_progress'].includes(jobOrder.status)}
       />
 

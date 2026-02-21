@@ -3,20 +3,28 @@ import { createClient } from '@/lib/supabase/server';
 
 /**
  * API Route for logging page views (v0.13.1)
- * 
+ *
  * Called from middleware to log page views asynchronously.
  * This is a fire-and-forget endpoint - errors are logged but don't affect the response.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, pagePath, sessionId, ipAddress, userAgent } = body;
+    const { pagePath, sessionId, ipAddress, userAgent } = body;
 
-    if (!userId || !pagePath) {
+    if (!pagePath) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     const supabase = await createClient();
+
+    // Authenticate: use server-verified user identity
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const userId = user.id;
 
     // Get user email from profile
     let userEmail: string | null = null;

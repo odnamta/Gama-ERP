@@ -32,7 +32,7 @@ const MODULE_MAP: Record<string, string> = {
   '/customers': 'Customers',
   '/projects': 'Projects',
   '/quotations': 'Quotations',
-  '/pjo': 'PJO',
+  '/proforma-jo': 'PJO',
   '/job-orders': 'Job Orders',
   '/invoices': 'Invoices',
   '/vendors': 'Vendors',

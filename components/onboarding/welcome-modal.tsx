@@ -72,7 +72,7 @@ const ROLE_QUICK_STARTS: Record<UserRole, {
     description: 'Manage finances, invoices, and approvals:',
     icon: TrendingUp,
     actions: [
-      { label: 'Review Pending Approvals', href: '/pjo', icon: FileCheck },
+      { label: 'Review Pending Approvals', href: '/proforma-jo', icon: FileCheck },
       { label: 'Manage Invoices', href: '/invoices', icon: FileText },
       { label: 'View Finance Dashboard', href: '/dashboard/finance-manager', icon: TrendingUp },
     ],
@@ -84,7 +84,7 @@ const ROLE_QUICK_STARTS: Record<UserRole, {
     actions: [
       { label: 'View Customers', href: '/customers', icon: Users },
       { label: 'Create Quotation', href: '/quotations/new', icon: FileText },
-      { label: 'Review PJOs', href: '/pjo', icon: FileCheck },
+      { label: 'Review PJOs', href: '/proforma-jo', icon: FileCheck },
     ],
   },
   operations_manager: {
@@ -142,7 +142,7 @@ const ROLE_QUICK_STARTS: Record<UserRole, {
     description: 'Manage PJOs, job orders, and documentation:',
     icon: FileText,
     actions: [
-      { label: 'Create PJO', href: '/pjo/new', icon: FileCheck },
+      { label: 'Create PJO', href: '/proforma-jo/new', icon: FileCheck },
       { label: 'View Job Orders', href: '/job-orders', icon: Briefcase },
       { label: 'Manage Documents', href: '/documents', icon: FileText },
     ],
@@ -164,7 +164,7 @@ const ROLE_QUICK_STARTS: Record<UserRole, {
     actions: [
       { label: 'View Customers', href: '/customers', icon: Users },
       { label: 'Create Quotation', href: '/quotations/new', icon: FileText },
-      { label: 'View PJOs', href: '/pjo', icon: FileCheck },
+      { label: 'View PJOs', href: '/proforma-jo', icon: FileCheck },
     ],
   },
   ops: {

@@ -54,27 +54,46 @@ interface UpdateFeatureFlagRequest {
  */
 export async function GET(request: NextRequest): Promise<NextResponse<FeatureFlagsResponse>> {
   try {
+    // Authenticate user
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Derive role from user_profiles (never trust query params)
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('role')
+      .eq('user_id', user.id)
+      .single();
+
+    const userId = user.id;
+    const userRole = profile?.role || undefined;
+
     const { searchParams } = new URL(request.url);
     const flagKey = searchParams.get('flagKey');
     const check = searchParams.get('check') === 'true';
-    const userId = searchParams.get('userId') || undefined;
-    const userRole = searchParams.get('userRole') || undefined;
-    
+
     // If checking a specific flag's enabled status
     if (flagKey && check) {
       const context: FeatureFlagContext = { userId, userRole };
       const enabled = await isFeatureEnabled(flagKey, context);
-      
+
       return NextResponse.json({
         success: true,
         enabled,
       });
     }
-    
+
     // If getting a specific flag
     if (flagKey) {
       const flag = await getFeatureFlag(flagKey);
-      
+
       if (!flag) {
         return NextResponse.json(
           {
@@ -84,16 +103,16 @@ export async function GET(request: NextRequest): Promise<NextResponse<FeatureFla
           { status: 404 }
         );
       }
-      
+
       return NextResponse.json({
         success: true,
         flag,
       });
     }
-    
+
     // Get all flags
     const flags = await getAllFeatureFlags();
-    
+
     return NextResponse.json({
       success: true,
       flags,

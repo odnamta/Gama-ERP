@@ -5,6 +5,7 @@
 // =====================================================
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/permissions-server';
 import {
   KPIValue,
   KPIDefinition,
@@ -473,20 +474,25 @@ export async function getKPIValue(
 
 /**
  * Gets all KPIs for the dashboard, optionally filtered by category.
+ * Role is verified server-side — the userRole param is ignored.
  */
 export async function getAllKPIsForDashboard(
-  userRole: string,
+  _userRole: string,
   category?: KPICategory,
   period: PeriodType = 'mtd'
 ): Promise<KPIValue[]> {
+  // Server-verified role — ignore client-supplied _userRole
+  const profile = await getUserProfile();
+  const verifiedRole = profile?.role || 'ops';
+
   // Get all active KPI definitions
   const kpiDefsDB = await getAllKPIDefinitions(category);
 
   if (kpiDefsDB.length === 0) return [];
 
-  // Map and filter by role
+  // Map and filter by server-verified role
   const kpiDefs = kpiDefsDB.map(mapKPIDefinitionFromDB);
-  const filteredKPIs = filterKPIsByRole(kpiDefs, userRole);
+  const filteredKPIs = filterKPIsByRole(kpiDefs, verifiedRole);
 
   // Get values for each KPI
   const results = await Promise.all(

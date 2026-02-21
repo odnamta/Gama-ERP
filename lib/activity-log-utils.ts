@@ -37,8 +37,8 @@ const ENTITY_LABELS: Record<string, string> = {
  * Route paths for entity types
  */
 const ENTITY_ROUTES: Record<string, string> = {
-  pjo: '/pjo',
-  jo: '/jo',
+  pjo: '/proforma-jo',
+  jo: '/job-orders',
   invoice: '/invoices',
   customer: '/customers',
   project: '/projects',

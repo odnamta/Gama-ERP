@@ -4,7 +4,7 @@
 // v0.65: ALERT DASHBOARD CLIENT COMPONENT
 // =====================================================
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertInstance } from '@/types/alerts';
 import { ScheduledReport } from '@/types/scheduled-reports';
@@ -12,6 +12,7 @@ import { ActiveAlertsList } from '@/components/alerts/active-alerts-list';
 import { UpcomingReportsList } from '@/components/alerts/upcoming-reports-list';
 import { acknowledgeAlert, resolveAlert, dismissAlert } from '@/lib/alert-actions';
 import { useToast } from '@/hooks/use-toast';
+import { createClient } from '@/lib/supabase/client';
 
 interface AlertDashboardClientProps {
   initialAlerts: AlertInstance[];
@@ -24,12 +25,20 @@ export function AlertDashboardClient({
 }: AlertDashboardClientProps) {
   const [alerts, setAlerts] = useState(initialAlerts);
   const [isPending, startTransition] = useTransition();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const router = useRouter();
   const { toast } = useToast();
 
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setCurrentUserId(user.id);
+    });
+  }, []);
+
   const handleAcknowledge = async (alertId: string) => {
-    // Get current user ID - in real app, get from auth context
-    const userId = 'current-user-id'; // TODO: Get from auth
+    if (!currentUserId) return;
+    const userId = currentUserId;
     
     const { data, error } = await acknowledgeAlert(alertId, userId);
     

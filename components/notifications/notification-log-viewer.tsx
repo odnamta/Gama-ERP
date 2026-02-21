@@ -188,7 +188,7 @@ export function NotificationLogViewer({
       incident: `/hse/incidents/${log.entity_id}`,
       document: `/documents/${log.entity_id}`,
       maintenance: `/equipment/maintenance/${log.entity_id}`,
-      pjo: `/pjo/${log.entity_id}`,
+      pjo: `/proforma-jo/${log.entity_id}`,
     }
 
     return linkMap[log.entity_type] || null

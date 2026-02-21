@@ -1,9 +1,13 @@
 import { getJobOrders } from './actions'
 import { JOVirtualTable } from '@/components/job-orders/jo-virtual-table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { getUserProfile } from '@/lib/permissions-server'
 
 export default async function JobOrdersPage() {
-  const jobOrders = await getJobOrders()
+  const [jobOrders, profile] = await Promise.all([
+    getJobOrders(),
+    getUserProfile(),
+  ])
 
   return (
     <div className="space-y-6">
@@ -16,7 +20,7 @@ export default async function JobOrdersPage() {
           <CardTitle>All Job Orders</CardTitle>
         </CardHeader>
         <CardContent>
-          <JOVirtualTable jobOrders={jobOrders} />
+          <JOVirtualTable jobOrders={jobOrders} userRole={profile?.role} />
         </CardContent>
       </Card>
     </div>

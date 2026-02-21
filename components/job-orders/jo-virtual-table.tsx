@@ -11,12 +11,14 @@ import { VirtualDataTable, VirtualColumn } from '@/components/tables/virtual-dat
 
 interface JOVirtualTableProps {
   jobOrders: JobOrderWithRelations[]
+  userRole?: string
 }
 
-export function JOVirtualTable({ jobOrders }: JOVirtualTableProps) {
+export function JOVirtualTable({ jobOrders, userRole }: JOVirtualTableProps) {
   const router = useRouter()
+  const isOps = userRole === 'ops'
 
-  const columns: VirtualColumn<JobOrderWithRelations>[] = [
+  const allColumns: VirtualColumn<JobOrderWithRelations>[] = [
     {
       key: 'jo_number',
       header: 'JO Number',
@@ -120,6 +122,10 @@ export function JOVirtualTable({ jobOrders }: JOVirtualTableProps) {
       ),
     },
   ]
+
+  // Filter out revenue/profit/margin columns for ops role
+  const hiddenForOps = ['final_revenue', 'profit', 'margin']
+  const columns = isOps ? allColumns.filter(c => !hiddenForOps.includes(c.key)) : allColumns
 
   return (
     <VirtualDataTable

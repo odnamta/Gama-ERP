@@ -12,11 +12,17 @@ export default async function CostsPage({ params }: CostsPageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  // Get current user
+  // Get current user and role
   const { data: { user } } = await supabase.auth.getUser()
-  
-  // For now, assume ops/admin role - in production, fetch from user profile
-  const userRole = 'ops' // TODO: Get from user profile table
+  if (!user) { notFound() }
+
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('role')
+    .eq('user_id', user.id)
+    .single()
+
+  const userRole = profile?.role || 'ops'
 
   // Fetch PJO with relations
   const { data: pjo, error: pjoError } = await supabase

@@ -139,11 +139,11 @@ describe('Activity Log Utils', () => {
 
   describe('getEntityUrl', () => {
     it('returns correct URL for PJO', () => {
-      expect(getEntityUrl('pjo', '123-456')).toBe('/pjo/123-456')
+      expect(getEntityUrl('pjo', '123-456')).toBe('/proforma-jo/123-456')
     })
 
     it('returns correct URL for JO', () => {
-      expect(getEntityUrl('jo', '123-456')).toBe('/jo/123-456')
+      expect(getEntityUrl('jo', '123-456')).toBe('/job-orders/123-456')
     })
 
     it('returns correct URL for invoice', () => {

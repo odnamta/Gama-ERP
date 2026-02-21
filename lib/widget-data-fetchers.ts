@@ -529,7 +529,7 @@ export async function getPendingOpsActions(): Promise<ListData> {
         title: `Confirm ${item.category}`,
         subtitle: `${pjo?.pjo_number || 'PJO'} - Rp ${(item.estimated_amount || 0).toLocaleString()}`,
         status: 'pending',
-        href: `/pjo/${item.id}`,
+        href: `/proforma-jo/${item.id}`,
       };
     }),
     totalCount: costItems?.length || 0,

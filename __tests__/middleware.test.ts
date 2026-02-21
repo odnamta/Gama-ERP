@@ -53,8 +53,8 @@ describe('Route Protection Property Tests', () => {
           '/dashboard',
           '/customers',
           '/projects',
-          '/pjo',
-          '/jo',
+          '/proforma-jo',
+          '/job-orders',
           '/invoices',
           '/settings',
           '/api/data'

@@ -9,7 +9,7 @@ export function QuickActionsPanel() {
   const actions = [
     {
       label: 'New PJO',
-      href: '/pjo/new',
+      href: '/proforma-jo/new',
       icon: Plus,
       variant: 'default' as const,
     },
@@ -21,13 +21,13 @@ export function QuickActionsPanel() {
     },
     {
       label: 'All PJOs',
-      href: '/pjo',
+      href: '/proforma-jo',
       icon: FileText,
       variant: 'ghost' as const,
     },
     {
       label: 'All JOs',
-      href: '/jo',
+      href: '/job-orders',
       icon: Truck,
       variant: 'ghost' as const,
     },

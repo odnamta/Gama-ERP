@@ -209,7 +209,7 @@ export async function executeQuickAction(
           // Redirect to PJO approval page
           return {
             success: true,
-            redirectUrl: `/pjo/${notification.entity_id}?action=${action}`,
+            redirectUrl: `/proforma-jo/${notification.entity_id}?action=${action}`,
           }
         }
         if (notification.entity_type === 'leave_request' && notification.entity_id) {
