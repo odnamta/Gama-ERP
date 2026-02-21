@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Auth on co-builder pages** — bug tracker requires authentication, admin pages require owner/director/sysadmin role
 - **Server-side deadline enforcement** — feedback, scenario, and top5 submissions rejected after Mar 12 23:59:59 WIB
 - **Remove console.log invoice ID leak** — client component was logging invoice IDs to browser console
+- **Auth on system-log actions** — all 8 server actions now require owner/director/sysadmin role
+- **Auth on charge-type write actions** — create/update/delete/restore/reorder require owner/director/sysadmin/finance_manager role
 
 ### Fixed
 - **`active_days` calculation** — leaderboard fallback always returned 1; now correctly counts unique WIB dates
