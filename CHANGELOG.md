@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Remove console.log invoice ID leak** — client component was logging invoice IDs to browser console
 - **Auth on system-log actions** — all 8 server actions now require owner/director/sysadmin role
 - **Auth on charge-type write actions** — create/update/delete/restore/reorder require owner/director/sysadmin/finance_manager role
+- **Full server action auth audit** — 64 functions across 9 files were unguarded and now have auth checks:
+  - `audit-actions` (6), `retention-actions` (9), `login-history-actions` (8), `sync-actions` (4) → owner/director/sysadmin
+  - `profitability-actions` (3), `booking-actions` (21), `proforma-jo/actions` (9) → any logged-in user
+  - `feedback` (4) → admin or logged-in user depending on function
+  - `settings/users/actions` (1) → can_manage_users permission
 
 ### Fixed
 - **`active_days` calculation** — leaderboard fallback always returned 1; now correctly counts unique WIB dates
