@@ -59,6 +59,13 @@ types/                   # TypeScript types
 ├── supabase.ts          # Generated DB types (670KB, 299 tables)
 ├── database.ts          # Copy of supabase.ts
 └── permissions.ts       # Role/permission type definitions
+
+supabase/functions/      # Deno Edge Functions (excluded from tsconfig)
+├── _shared/             # cors, auth, audit, workflow, supabase clients
+├── approve-expense/     # POST — PJO/JO/BKK workflow transitions
+├── bkk-generation/      # POST — create BKK with auto-number
+├── financial-summary/   # GET  — booking revenue/cost/profit
+└── shipment-status-transition/  # POST — booking status changes
 ```
 
 ## Roles (15 total)
@@ -165,6 +172,23 @@ const { data } = await supabase.from('competition_feedback' as any).select('*')
 2. Check TypeScript errors in terminal
 3. Test the specific feature you changed
 4. If Vercel build fails but local passes, check type inference issues
+
+## Edge Functions
+Deployed to Supabase project `ljbkjtaowrdddvjhsygj`. Satellites call via `supabase.functions.invoke()`.
+
+| Function | Method | Purpose |
+|----------|--------|---------|
+| `approve-expense` | POST | Workflow transitions (submit/check/approve/reject) for PJO, JO, BKK |
+| `bkk-generation` | POST | Create BKK with auto-number `BKK-YYYY-NNNN`. Requires `jo_id` |
+| `financial-summary` | GET | Booking revenue/cost/profit. `ops` role → 403 |
+| `shipment-status-transition` | POST | Booking status changes with transition validation |
+
+**Deploy**: `supabase functions deploy <name> --project-ref ljbkjtaowrdddvjhsygj`
+
+**Schema notes for `bukti_kas_keluar`**:
+- Uses `status` (not `workflow_status`), `requested_by` (not `created_by`)
+- `jo_id` is NOT NULL — BKK must link to a job order
+- No `recipient_name`, `checked_by`, `submitted_by` columns
 
 ## External References
 - Supabase: `ljbkjtaowrdddvjhsygj`
