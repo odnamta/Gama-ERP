@@ -32,9 +32,8 @@ interface FinanceDashboardProps {
 }
 
 export function FinanceDashboard({ data }: FinanceDashboardProps) {
-  const handleRemindInvoice = (invoiceId: string) => {
+  const handleRemindInvoice = (_invoiceId: string) => {
     // TODO: Implement reminder action (future n8n integration)
-    console.log('Remind invoice:', invoiceId)
   }
 
   return (
