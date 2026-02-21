@@ -3,7 +3,7 @@
  * Types for the soft-delete recovery system
  */
 
-import type { Json } from '@/types/supabase';
+import type { Json } from './database';
 
 /**
  * Deleted record from database
