@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Leaderboard ranks by points only** — removed hard gate sorting that pushed unqualified users below qualified regardless of points. Requirements determine prize eligibility at competition end, not daily ranking
 - **Removed visual punishment** — no more opacity dimming or "(belum lengkap)" labels on leaderboard
-- **Removed unapproved Perfect Attendance +Rp 150.000** — was in UI but never decided by owner
+- **Perfect Attendance +Rp 150.000 kept** — confirmed by owner, already visible to participants
 
 ### Cleanup
 - Removed dead `meets_requirements` computation from leaderboard
