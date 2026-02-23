@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { getUserProfile } from '@/lib/permissions-server'
+import { getOrFetch, generateCacheKey } from '@/lib/dashboard-cache'
 import {
   DashboardKPIs,
   BudgetAlert,
@@ -9,6 +10,40 @@ import {
   OpsQueueItem,
   ManagerMetrics
 } from '@/types'
+import {
+  groupPJOsByPipelineStage,
+  filterPendingFollowups,
+  rankCustomersByValue,
+  calculateWinLossData,
+  calculateSalesKPIs,
+  getPeriodDates,
+  getPreviousPeriodDates as getSalesPreviousPeriodDates,
+  filterPJOsByPeriod,
+  type PeriodType,
+  type PipelineStage,
+  type PendingFollowup,
+  type TopCustomer,
+  type WinLossData,
+  type SalesKPIs,
+  type PJOInput,
+  type CustomerPJOInput,
+  type PJOWithCustomer,
+} from '@/lib/sales-dashboard-utils'
+import {
+  groupInvoicesByAging,
+  groupPJOsByStatus,
+  filterOverdueInvoices,
+  filterRecentPayments,
+  calculateFinanceKPIs,
+  calculatePaymentDashboardStats,
+  type ARAgingData,
+  type PJOPipelineData,
+  type OverdueInvoice,
+  type RecentPayment,
+  type FinanceKPIs,
+  type PaymentDashboardStats,
+} from '@/lib/finance-dashboard-utils'
+import type { BKKWithRelations } from '@/types'
 
 /**
  * Fetch dashboard stats using optimized database function
@@ -331,22 +366,6 @@ export async function logActivity(
 /**
  * Fetch finance dashboard data
  */
-import {
-  groupInvoicesByAging,
-  groupPJOsByStatus,
-  filterOverdueInvoices,
-  filterRecentPayments,
-  calculateFinanceKPIs,
-  calculatePaymentDashboardStats,
-  type ARAgingData,
-  type PJOPipelineData,
-  type OverdueInvoice,
-  type RecentPayment,
-  type FinanceKPIs,
-  type PaymentDashboardStats,
-} from '@/lib/finance-dashboard-utils'
-
-import type { BKKWithRelations } from '@/types'
 
 export interface FinanceDashboardData {
   kpis: FinanceKPIs
@@ -359,40 +378,75 @@ export interface FinanceDashboardData {
 }
 
 export async function fetchFinanceDashboardData(): Promise<FinanceDashboardData> {
+  const cacheKey = await generateCacheKey('finance-dashboard', 'finance')
+
+  return getOrFetch(cacheKey, async () => {
   const supabase = await createClient()
   const currentDate = new Date()
 
-  // Fetch invoices with customer info (including amount_paid for partial payments)
-  const { data: invoicesData } = await supabase
-    .from('invoices')
-    .select(`
-      id,
-      invoice_number,
-      due_date,
-      total_amount,
-      amount_paid,
-      status,
-      paid_at,
-      notes,
-      customers(name)
-    `)
-    .order('due_date', { ascending: true })
+  // Fetch all finance data in parallel for optimal performance
+  const [
+    { data: invoicesData },
+    { data: pjosData },
+    { data: jobOrdersData },
+    { data: paymentsData },
+    { data: pendingBKKsData },
+  ] = await Promise.all([
+    // Fetch invoices with customer info (including amount_paid for partial payments)
+    supabase
+      .from('invoices')
+      .select(`
+        id,
+        invoice_number,
+        due_date,
+        total_amount,
+        amount_paid,
+        status,
+        paid_at,
+        notes,
+        customers(name)
+      `)
+      .order('due_date', { ascending: true }),
 
-  // Fetch PJOs for pipeline
-  const { data: pjosData } = await supabase
-    .from('proforma_job_orders')
-    .select('status, total_revenue_calculated, is_active')
-    .eq('is_active', true)
+    // Fetch PJOs for pipeline
+    supabase
+      .from('proforma_job_orders')
+      .select('status, total_revenue_calculated, is_active')
+      .eq('is_active', true),
 
-  // Fetch job orders for revenue calculation
-  const { data: jobOrdersData } = await supabase
-    .from('job_orders')
-    .select('final_revenue, completed_at, status')
+    // Fetch job orders for revenue calculation
+    supabase
+      .from('job_orders')
+      .select('final_revenue, completed_at, status'),
 
-  // Fetch payments for monthly total calculation
-  const { data: paymentsData } = await supabase
-    .from('payments')
-    .select('amount, payment_date')
+    // Fetch payments for monthly total calculation
+    supabase
+      .from('payments')
+      .select('amount, payment_date'),
+
+    // Fetch pending BKKs for approval
+    supabase
+      .from('bukti_kas_keluar')
+      .select(`
+        *,
+        job_order:job_orders (
+          id,
+          jo_number,
+          description
+        ),
+        requester:user_profiles!bukti_kas_keluar_requested_by_fkey (
+          id,
+          full_name
+        ),
+        cost_item:pjo_cost_items (
+          id,
+          category,
+          description
+        )
+      `)
+      .eq('status', 'pending')
+      .order('requested_at', { ascending: true }),
+  ])
 
   // Transform invoice data
   const invoices = (invoicesData || []).map(inv => ({
@@ -427,29 +481,6 @@ export async function fetchFinanceDashboardData(): Promise<FinanceDashboardData>
     payment_date: p.payment_date,
   }))
 
-  // Fetch pending BKKs for approval
-  const { data: pendingBKKsData } = await supabase
-    .from('bukti_kas_keluar')
-    .select(`
-      *,
-      job_order:job_orders (
-        id,
-        jo_number,
-        description
-      ),
-      requester:user_profiles!bukti_kas_keluar_requested_by_fkey (
-        id,
-        full_name
-      ),
-      cost_item:pjo_cost_items (
-        id,
-        category,
-        description
-      )
-    `)
-    .eq('status', 'pending')
-    .order('requested_at', { ascending: true })
-
   // Calculate all metrics
   const kpis = calculateFinanceKPIs(invoices, jobOrders, currentDate)
   const arAging = groupInvoicesByAging(invoices, currentDate)
@@ -467,31 +498,13 @@ export async function fetchFinanceDashboardData(): Promise<FinanceDashboardData>
     paymentStats,
     pendingBKKs: (pendingBKKsData || []) as BKKWithRelations[],
   }
+  }) // end getOrFetch
 }
 
 
 /**
  * Fetch sales dashboard data
  */
-import {
-  groupPJOsByPipelineStage,
-  filterPendingFollowups,
-  rankCustomersByValue,
-  calculateWinLossData,
-  calculateSalesKPIs,
-  getPeriodDates,
-  getPreviousPeriodDates as getSalesPreviousPeriodDates,
-  filterPJOsByPeriod,
-  type PeriodType,
-  type PipelineStage,
-  type PendingFollowup,
-  type TopCustomer,
-  type WinLossData,
-  type SalesKPIs,
-  type PJOInput,
-  type CustomerPJOInput,
-  type PJOWithCustomer,
-} from '@/lib/sales-dashboard-utils'
 
 export interface SalesDashboardData {
   kpis: SalesKPIs
@@ -513,33 +526,36 @@ export async function fetchSalesDashboardData(
   const period = getPeriodDates(periodType, currentDate, customStart, customEnd)
   const previousPeriod = getSalesPreviousPeriodDates(period)
 
-  // Fetch PJOs with customer info
-  const { data: pjosData } = await supabase
-    .from('proforma_job_orders')
-    .select(`
-      id,
-      pjo_number,
-      status,
-      estimated_amount,
-      total_revenue_calculated,
-      is_active,
-      created_at,
-      rejection_reason,
-      converted_to_jo,
-      projects(
-        name,
-        customers(id, name)
-      )
-    `)
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
+  // Fetch PJOs and new customers count in parallel
+  const [{ data: pjosData }, { count: newCustomersCount }] = await Promise.all([
+    // Fetch PJOs with customer info
+    supabase
+      .from('proforma_job_orders')
+      .select(`
+        id,
+        pjo_number,
+        status,
+        estimated_amount,
+        total_revenue_calculated,
+        is_active,
+        created_at,
+        rejection_reason,
+        converted_to_jo,
+        projects(
+          name,
+          customers(id, name)
+        )
+      `)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false }),
 
-  // Fetch new customers count for the period
-  const { count: newCustomersCount } = await supabase
-    .from('customers')
-    .select('*', { count: 'exact', head: true })
-    .gte('created_at', period.startDate.toISOString())
-    .lte('created_at', period.endDate.toISOString())
+    // Fetch new customers count for the period
+    supabase
+      .from('customers')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', period.startDate.toISOString())
+      .lte('created_at', period.endDate.toISOString()),
+  ])
 
   // Transform PJO data
   const pjos: PJOInput[] = (pjosData || []).map(pjo => ({
@@ -652,6 +668,9 @@ export interface ManagerDashboardData {
 export async function fetchManagerDashboardData(
   periodType: ManagerPeriodType = 'this_month'
 ): Promise<ManagerDashboardData> {
+  const cacheKey = await generateCacheKey('manager-dashboard', periodType)
+
+  return getOrFetch(cacheKey, async () => {
   const supabase = await createClient()
   const currentDate = new Date()
 
@@ -660,54 +679,63 @@ export async function fetchManagerDashboardData(
   const previousPeriod = getPreviousPeriodDates(period)
   const ytdPeriod = getYTDPeriodDates(currentDate)
 
-  // Fetch job orders for P&L
-  const { data: jobOrdersData } = await supabase
-    .from('job_orders')
-    .select('id, final_revenue, final_cost, status, created_at, completed_at')
-    .order('created_at', { ascending: false })
+  // Fetch all manager data in parallel for optimal performance
+  const [
+    { data: jobOrdersData },
+    { data: pjosData },
+    { data: costItemsData },
+    { data: activeJobsData },
+    { data: profilesData },
+  ] = await Promise.all([
+    // Fetch job orders for P&L
+    supabase
+      .from('job_orders')
+      .select('id, final_revenue, final_cost, status, created_at, completed_at')
+      .order('created_at', { ascending: false }),
 
-  // Fetch PJOs for approval queue
-  const { data: pjosData } = await supabase
-    .from('proforma_job_orders')
-    .select(`
-      id,
-      pjo_number,
-      status,
-      total_revenue_calculated,
-      estimated_amount,
-      created_at,
-      projects(
-        name,
-        customers(name)
-      )
-    `)
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
+    // Fetch PJOs for approval queue
+    supabase
+      .from('proforma_job_orders')
+      .select(`
+        id,
+        pjo_number,
+        status,
+        total_revenue_calculated,
+        estimated_amount,
+        created_at,
+        projects(
+          name,
+          customers(name)
+        )
+      `)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false }),
 
-  // Fetch cost items for budget alerts and P&L breakdown
-  const { data: costItemsData } = await supabase
-    .from('pjo_cost_items')
-    .select(`
-      id,
-      pjo_id,
-      category,
-      estimated_amount,
-      actual_amount,
-      status,
-      proforma_job_orders(pjo_number)
-    `)
+    // Fetch cost items for budget alerts and P&L breakdown
+    supabase
+      .from('pjo_cost_items')
+      .select(`
+        id,
+        pjo_id,
+        category,
+        estimated_amount,
+        actual_amount,
+        status,
+        proforma_job_orders(pjo_number)
+      `),
 
-  // Fetch active jobs for jobs in progress count
-  const { data: activeJobsData } = await supabase
-    .from('job_orders')
-    .select('id, status')
-    .eq('status', 'active')
+    // Fetch active jobs for jobs in progress count
+    supabase
+      .from('job_orders')
+      .select('id, status')
+      .eq('status', 'active'),
 
-  // Fetch user profiles for team metrics
-  const { data: profilesData } = await supabase
-    .from('user_profiles')
-    .select('id, full_name, role')
-    .in('role', ['sysadmin', 'administration', 'marketing', 'ops'])
+    // Fetch user profiles for team metrics
+    supabase
+      .from('user_profiles')
+      .select('id, full_name, role')
+      .in('role', ['sysadmin', 'administration', 'marketing', 'ops']),
+  ])
 
   // Transform data
   const jobOrders: JOInput[] = (jobOrdersData || []).map(jo => ({
@@ -827,6 +855,7 @@ export async function fetchManagerDashboardData(
     budgetAlerts,
     teamMetrics,
   }
+  }) // end getOrFetch
 }
 
 /**
@@ -964,72 +993,82 @@ export interface AdminDashboardData {
 export async function fetchAdminDashboardData(
   periodType: AdminPeriodType = 'this_month'
 ): Promise<AdminDashboardData> {
+  const cacheKey = await generateCacheKey('admin-dashboard', periodType)
+
+  return getOrFetch(cacheKey, async () => {
   const supabase = await createClient()
   const currentDate = new Date()
 
   // Get period dates
   const period = getAdminPeriodDates(periodType, currentDate)
 
-  // Fetch PJOs with customer info
-  const { data: pjosData } = await supabase
-    .from('proforma_job_orders')
-    .select(`
-      id,
-      pjo_number,
-      status,
-      converted_to_jo,
-      all_costs_confirmed,
-      created_at,
-      updated_at,
-      projects(
-        name,
-        customers(name)
-      )
-    `)
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
-
-  // Fetch JOs with customer info
-  const { data: josData } = await supabase
-    .from('job_orders')
-    .select(`
-      id,
-      jo_number,
-      status,
-      created_at,
-      updated_at,
-      proforma_job_orders(
+  // Fetch all admin data in parallel for optimal performance
+  const [
+    { data: pjosData },
+    { data: josData },
+    { data: invoicesData },
+  ] = await Promise.all([
+    // Fetch PJOs with customer info
+    supabase
+      .from('proforma_job_orders')
+      .select(`
+        id,
         pjo_number,
+        status,
+        converted_to_jo,
+        all_costs_confirmed,
+        created_at,
+        updated_at,
         projects(
           name,
           customers(name)
         )
-      )
-    `)
-    .order('created_at', { ascending: false })
+      `)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false }),
 
-  // Fetch Invoices with customer info
-  const { data: invoicesData } = await supabase
-    .from('invoices')
-    .select(`
-      id,
-      invoice_number,
-      status,
-      total_amount,
-      due_date,
-      paid_at,
-      created_at,
-      updated_at,
-      job_orders(
+    // Fetch JOs with customer info
+    supabase
+      .from('job_orders')
+      .select(`
+        id,
         jo_number,
+        status,
+        created_at,
+        updated_at,
         proforma_job_orders(
+          pjo_number,
           projects(
+            name,
             customers(name)
           )
         )
-      )
-    `)
-    .order('created_at', { ascending: false })
+      `)
+      .order('created_at', { ascending: false }),
+
+    // Fetch Invoices with customer info
+    supabase
+      .from('invoices')
+      .select(`
+        id,
+        invoice_number,
+        status,
+        total_amount,
+        due_date,
+        paid_at,
+        created_at,
+        updated_at,
+        job_orders(
+          jo_number,
+          proforma_job_orders(
+            projects(
+              customers(name)
+            )
+          )
+        )
+      `)
+      .order('created_at', { ascending: false }),
+  ])
 
   // Transform PJO data
   const pjos: AdminPJOInput[] = (pjosData || []).map(pjo => {
@@ -1098,4 +1137,5 @@ export async function fetchAdminDashboardData(
     agingBuckets,
     recentDocuments,
   }
+  }) // end getOrFetch
 }

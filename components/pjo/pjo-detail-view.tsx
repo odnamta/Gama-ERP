@@ -34,6 +34,7 @@ import { AttachmentsSection } from '@/components/attachments'
 import { MarketTypeBadge } from '@/components/ui/market-type-badge'
 import { MarketType, PricingApproach, TerrainType, ComplexityFactor } from '@/types/market-classification'
 import { Progress } from '@/components/ui/progress'
+import { Skeleton } from '@/components/ui/skeleton'
 import { AlertTriangle } from 'lucide-react'
 import { FileQuestion } from 'lucide-react'
 // Engineering components
@@ -644,7 +645,18 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
       )}
 
       {/* Revenue Items */}
-      {!itemsLoading && (
+      {itemsLoading ? (
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-40" />
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </CardContent>
+        </Card>
+      ) : (
         <RevenueItemsSection
           pjoId={pjo.id}
           items={revenueItems}
@@ -653,8 +665,25 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
         />
       )}
 
-      {/* Cost Items - Estimation view for draft/pending, or read-only for others */}
-      {!itemsLoading && !showCostConfirmation && (
+      {/* Cost Items / Cost Confirmation */}
+      {itemsLoading ? (
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-36" />
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-8 w-48 mt-2" />
+          </CardContent>
+        </Card>
+      ) : showCostConfirmation ? (
+        <CostConfirmationSection
+          items={costItems}
+          onRefresh={loadItems}
+        />
+      ) : (
         <CostItemsSection
           pjoId={pjo.id}
           items={costItems}
@@ -664,18 +693,20 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
         />
       )}
 
-      {/* Cost Confirmation - Operations view when approved */}
-      {!itemsLoading && showCostConfirmation && (
-        <CostConfirmationSection
-          items={costItems}
-          onRefresh={loadItems}
-        />
-      )}
-
       {/* Budget Summary - Show when approved and has cost items */}
-      {!itemsLoading && pjo.status === 'approved' && costItems.length > 0 && (
+      {itemsLoading && pjo.status === 'approved' ? (
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-36" />
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-3/4" />
+          </CardContent>
+        </Card>
+      ) : !itemsLoading && pjo.status === 'approved' && costItems.length > 0 ? (
         <BudgetSummary budget={budget} totalRevenue={totalRevenue} />
-      )}
+      ) : null}
 
       {/* Conversion Status - Show when approved */}
       {pjo.status === 'approved' && (
@@ -688,7 +719,19 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
       )}
 
       {/* Legacy Financials - Show only if no itemized data */}
-      {!hasItemizedData && !itemsLoading && (
+      {itemsLoading ? (
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-40" />
+          </CardHeader>
+          <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </CardContent>
+        </Card>
+      ) : !hasItemizedData ? (
         <Card>
           <CardHeader>
             <CardTitle>Financials (Legacy)</CardTitle>
@@ -716,7 +759,7 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
             </div>
           </CardContent>
         </Card>
-      )}
+      ) : null}
 
       {/* Notes */}
       {pjo.notes && (

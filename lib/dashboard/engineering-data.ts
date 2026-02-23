@@ -94,107 +94,62 @@ export async function getEngineeringDashboardMetrics(
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
     
-    // Run all queries in parallel for performance
+    // Consolidated queries: fetch status+date data for counting in JS,
+    // plus recent rows and user assignments — down from 15 to 8 queries
     const [
-      // Survey metrics
-      totalSurveysResult,
-      pendingSurveysResult,
-      surveysCompletedThisMonthResult,
+      // Surveys: all statuses + completed_at for counting, plus recent 5
+      surveyStatusesResult,
       recentSurveysResult,
-      
-      // JMP metrics
-      activeJmpsResult,
-      upcomingJmpsResult,
-      pendingReviewJmpsResult,
+
+      // JMPs: all statuses + planned_departure for counting, plus recent 5
+      jmpStatusesResult,
       recentJmpsResult,
-      
-      // Assessment metrics
-      totalAssessmentsResult,
-      pendingAssessmentsResult,
-      assessmentsCompletedThisMonthResult,
+
+      // Assessments: all statuses + completed_at for counting, plus recent 5
+      assessmentStatusesResult,
       recentAssessmentsResult,
-      
+
       // My assignments (if userId provided)
       mySurveysResult,
       myAssessmentsResult,
       myJmpsResult,
     ] = await Promise.all([
-      // Total surveys
+      // All survey statuses + completed_at — one query replaces 3 count queries
       supabase
         .from('route_surveys')
-        .select('id', { count: 'exact', head: true }),
-      
-      // Pending surveys
-      supabase
-        .from('route_surveys')
-        .select('id', { count: 'exact', head: true })
-        .in('status', PENDING_SURVEY_STATUSES),
-      
-      // Surveys completed this month
-      supabase
-        .from('route_surveys')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'completed')
-        .gte('completed_at', startOfMonth.toISOString()),
-      
+        .select('status, completed_at'),
+
       // Recent surveys (last 5)
       supabase
         .from('route_surveys')
         .select('id, survey_number, origin_location, destination_location, status, created_at')
         .order('created_at', { ascending: false })
         .limit(5),
-      
-      // Active JMPs
+
+      // All JMP statuses + planned_departure — one query replaces 3 count queries
       supabase
         .from('journey_management_plans')
-        .select('id', { count: 'exact', head: true })
-        .in('status', ACTIVE_JMP_STATUSES),
-      
-      // Upcoming JMPs (planned departure in next 7 days)
-      supabase
-        .from('journey_management_plans')
-        .select('id', { count: 'exact', head: true })
-        .gte('planned_departure', now.toISOString())
-        .lte('planned_departure', sevenDaysFromNow.toISOString()),
-      
-      // Pending review JMPs
-      supabase
-        .from('journey_management_plans')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'pending_review'),
-      
+        .select('status, planned_departure'),
+
       // Recent JMPs (last 5)
       supabase
         .from('journey_management_plans')
         .select('id, jmp_number, journey_title, status, planned_departure, created_at')
         .order('created_at', { ascending: false })
         .limit(5),
-      
-      // Total assessments
+
+      // All assessment statuses + completed_at — one query replaces 3 count queries
       supabase
         .from('engineering_assessments')
-        .select('id', { count: 'exact', head: true }),
-      
-      // Pending assessments
-      supabase
-        .from('engineering_assessments')
-        .select('id', { count: 'exact', head: true })
-        .in('status', PENDING_ASSESSMENT_STATUSES),
-      
-      // Assessments completed this month
-      supabase
-        .from('engineering_assessments')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'completed')
-        .gte('completed_at', startOfMonth.toISOString()),
-      
+        .select('status, completed_at'),
+
       // Recent assessments (last 5) with PJO info
       supabase
         .from('engineering_assessments')
         .select('id, assessment_type, status, risk_level, created_at, pjo_id, proforma_job_orders(pjo_number)')
         .order('created_at', { ascending: false })
         .limit(5),
-      
+
       // My surveys (if userId provided)
       userId
         ? supabase
@@ -205,7 +160,7 @@ export async function getEngineeringDashboardMetrics(
             .order('survey_date', { ascending: true })
             .limit(10)
         : Promise.resolve({ data: [], count: 0 }),
-      
+
       // My assessments (if userId provided)
       userId
         ? supabase
@@ -216,7 +171,7 @@ export async function getEngineeringDashboardMetrics(
             .order('created_at', { ascending: false })
             .limit(10)
         : Promise.resolve({ data: [], count: 0 }),
-      
+
       // My JMPs (if userId provided)
       userId
         ? supabase
@@ -228,6 +183,40 @@ export async function getEngineeringDashboardMetrics(
             .limit(10)
         : Promise.resolve({ data: [], count: 0 }),
     ])
+
+    // Compute survey counts from the single statuses query
+    const surveyRows = surveyStatusesResult.data || []
+    const totalSurveysCount = surveyRows.length
+    const pendingSurveysCount = surveyRows.filter(
+      r => r.status !== null && PENDING_SURVEY_STATUSES.includes(r.status)
+    ).length
+    const surveysCompletedThisMonthCount = surveyRows.filter(
+      r => r.status === 'completed' && r.completed_at && new Date(r.completed_at) >= startOfMonth
+    ).length
+
+    // Compute JMP counts from the single statuses query
+    const jmpRows = jmpStatusesResult.data || []
+    const activeJmpsCount = jmpRows.filter(
+      r => r.status !== null && ACTIVE_JMP_STATUSES.includes(r.status)
+    ).length
+    const upcomingJmpsCount = jmpRows.filter(
+      r => r.planned_departure &&
+        new Date(r.planned_departure) >= now &&
+        new Date(r.planned_departure) <= sevenDaysFromNow
+    ).length
+    const pendingReviewJmpsCount = jmpRows.filter(
+      r => r.status === 'pending_review'
+    ).length
+
+    // Compute assessment counts from the single statuses query
+    const assessmentRows = assessmentStatusesResult.data || []
+    const totalAssessmentsCount = assessmentRows.length
+    const pendingAssessmentsCount = assessmentRows.filter(
+      r => r.status !== null && PENDING_ASSESSMENT_STATUSES.includes(r.status)
+    ).length
+    const assessmentsCompletedThisMonthCount = assessmentRows.filter(
+      r => r.status === 'completed' && r.completed_at && new Date(r.completed_at) >= startOfMonth
+    ).length
     
     // Transform recent surveys
     const recentSurveys: RecentSurvey[] = (recentSurveysResult.data || []).map(survey => ({
@@ -315,29 +304,27 @@ export async function getEngineeringDashboardMetrics(
     })
     
     // Calculate completion rate
-    const totalAssessments = totalAssessmentsResult.count || 0
-    const completedAssessments = assessmentsCompletedThisMonthResult.count || 0
-    const completionRate = totalAssessments > 0 
-      ? Math.round((completedAssessments / totalAssessments) * 100) 
+    const completionRate = totalAssessmentsCount > 0
+      ? Math.round((assessmentsCompletedThisMonthCount / totalAssessmentsCount) * 100)
       : 0
-    
+
     return {
       // Survey Overview
-      totalSurveys: totalSurveysResult.count || 0,
-      pendingSurveys: pendingSurveysResult.count || 0,
-      surveysCompletedThisMonth: surveysCompletedThisMonthResult.count || 0,
+      totalSurveys: totalSurveysCount,
+      pendingSurveys: pendingSurveysCount,
+      surveysCompletedThisMonth: surveysCompletedThisMonthCount,
       recentSurveys,
-      
+
       // JMP Status
-      activeJmps: activeJmpsResult.count || 0,
-      upcomingJmps: upcomingJmpsResult.count || 0,
-      pendingReviewJmps: pendingReviewJmpsResult.count || 0,
+      activeJmps: activeJmpsCount,
+      upcomingJmps: upcomingJmpsCount,
+      pendingReviewJmps: pendingReviewJmpsCount,
       recentJmps,
-      
+
       // Engineering Assessments
-      totalAssessments,
-      pendingAssessments: pendingAssessmentsResult.count || 0,
-      assessmentsCompletedThisMonth: completedAssessments,
+      totalAssessments: totalAssessmentsCount,
+      pendingAssessments: pendingAssessmentsCount,
+      assessmentsCompletedThisMonth: assessmentsCompletedThisMonthCount,
       completionRate,
       recentAssessments,
       

@@ -110,7 +110,8 @@ export function DrawingForm({ drawing, mode }: DrawingFormProps) {
       .from('job_orders')
       .select('id, jo_number')
       .eq('project_id', projectId)
-      .order('jo_number');
+      .order('jo_number')
+      .limit(100);
     setJobOrders(data || []);
   };
 

@@ -95,6 +95,7 @@ export async function getJobMetrics(): Promise<JobMetrics> {
     supabase
       .from('job_orders')
       .select('status')
+      .limit(1000)
   ])
 
   // Calculate status breakdown
@@ -127,6 +128,7 @@ export async function getAssetMetrics(): Promise<AssetMetrics> {
   const { data: assets } = await supabase
     .from('assets')
     .select('id, status, assigned_to_job_id, registration_expiry_date, kir_expiry_date, insurance_expiry_date')
+    .limit(500)
 
   const total = assets?.length || 0
   const assigned = assets?.filter(a => a.assigned_to_job_id !== null).length || 0

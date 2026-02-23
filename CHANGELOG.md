@@ -5,6 +5,20 @@ All notable changes to GAMA ERP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.9] - 2026-02-23 - Performance Optimization
+
+### Fixed
+- **Dashboard TTFB (2.7–4.65s → faster)** — Parallelized sequential Supabase queries using `Promise.all()` across admin, finance, manager, and sales dashboards
+- **Engineering dashboard** — Consolidated 15 queries to 9 by removing redundant count queries (compute counts from data via JS filtering)
+- **Drawing form INP (4920ms)** — Added `.limit(100)` to `loadJobOrders()` query that was fetching unbounded results
+- **PJO detail CLS (1.07)** — Added skeleton placeholders for Revenue Items, Cost Items, Budget Summary, and Legacy Financials sections to maintain stable layout during loading
+- **Operations manager dashboard** — Added `.limit(500)` to assets query and `.limit(1000)` to job_orders query
+
+### Added
+- **Database indexes** — 4 new indexes: `job_orders(status)`, `invoices(status)`, `quotations(status)`, `customers(is_active)` partial index. Applied to live database.
+
+---
+
 ## [0.10.8] - 2026-02-22 - GIS Logo + Inline Customer/Project Creation
 
 ### Added
