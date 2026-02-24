@@ -543,6 +543,76 @@ Note: 5 number-generation functions (invoices, disbursements, pjo, bkk, executiv
 
 ---
 
+## Day 13 — Senin, 24 Februari 2026
+
+**Pelapor aktif:** Iqbal Tito (8 feedback), Luthfi Badarnawa (5 feedback), Kurniashanti (1), Choirul Anam (1)
+**Feedback baru:** 16 item (15 dari 23 Feb + 1 follow-up 24 Feb)
+**Total feedback keseluruhan:** 110 item
+
+### Bug yang Ditemukan & Diperbaiki
+
+| # | Bug | Pelapor | Severity | Status |
+|---|-----|---------|----------|--------|
+| 71 | HSE laporkan insiden error (assets query is_active→status) | Iqbal | Important | Fixed |
+| 72 | Training record tidak tersimpan (RLS terlalu ketat) | Iqbal | Important | Fixed |
+| 73 | Audit record 404 (halaman detail belum ada) | Iqbal | Critical | Fixed |
+| 74 | HSE permit add error (RLS terlalu ketat) | Iqbal | Important | Fixed |
+| 75 | Drawing "New Drawing" tidak merespon (explorer mode redirect silent) | Iqbal | Important | Fixed |
+| 76 | Equipment utilization kosong (materialized view belum refresh) | Luthfi | Important | Fixed |
+| 77 | Equipment costing kosong (materialized view belum refresh) | Luthfi | Important | Fixed |
+| 78 | HSE incident error (sama dengan #71) | Choirul | Important | Fixed |
+| 79 | HSE incident masih error (follow-up, fix belum deploy) | Iqbal | Helpful | In Progress |
+
+### Masih dalam Investigasi
+
+| # | Issue | Pelapor | Notes |
+|---|-------|---------|-------|
+| 80 | Equipment page shows total but no asset list | Iqbal, Luthfi | Data ada (2 assets), RLS OK, VirtualTable rendering issue? |
+| 81 | Vendor list tidak muncul | Luthfi | 1 vendor di DB, SELECT RLS terbuka, query sedang ditelusuri |
+| 82 | Vendor search tidak berfungsi | Luthfi | Terkait #81 |
+| 83 | Tidak bisa login di laptop | Kurniashanti | Supabase Auth redirect URL perlu dicek |
+
+### Saran & Pertanyaan
+
+| # | Feedback | Pelapor | Type | Status |
+|---|----------|---------|------|--------|
+| S10 | Audit record — tambah fitur hapus | Iqbal | Suggestion | Acknowledged |
+| S11 | Route survey — tambah export dokumen | Iqbal | Suggestion | Acknowledged |
+
+### Perbaikan Sistemik
+- `assets` table menggunakan kolom `status` (bukan `is_active`). Query di `hse/incidents/report/page.tsx` salah → diperbaiki
+- RLS `employee_training_records` INSERT diperluas: + engineer, ops, administration
+- RLS `safety_permits` INSERT & UPDATE diperluas: + engineer, administration
+- Materialized view `asset_utilization_monthly` dan `asset_tco_summary` di-refresh (0 rows → 2 rows)
+- Audit detail page `/hse/audits/[id]` dibuat (sebelumnya 404): menampilkan info, checklist, temuan
+- Audit edit redirect `/hse/audits/[id]/edit` dibuat (redirect ke detail page)
+- Drawing new page: explorer mode sekarang tampilkan pesan, bukan silent redirect
+
+### Scoring Fairness
+- Choirul base_points dinaikkan dari 3→8 (punya screenshot = bukan quick effort)
+- Iqbal follow-up report diberi reduced points (8×1 = 8) karena duplikat laporan sebelumnya
+- Collaboration bonus +5 untuk Luthfi (asset report = sama dengan Iqbal) dan Choirul (HSE incident = sama dengan Iqbal)
+
+### Leaderboard (per 24 Feb, final)
+
+| # | Nama | Total | Feedback | Skenario | Bugs Fixed | Perubahan |
+|---|------|-------|----------|----------|------------|-----------|
+| 1 | **Iqbal Tito** | **994** | 27 | 6 | 13 | +423 (8 feedback, 5 critical/important bugs!) |
+| 2 | Kurniashanti | **952** | 30 | 5 | 18 | +37 (1 login bug, critical) |
+| 3 | Luthfi Badarnawa | **646** | 16 | 7 | 10 | +262 (5 feedback, equipment deep dive) |
+| 4 | Reza Pramana | **539** | 15 | 6 | 14 | — (no new feedback) |
+| 5 | Choirul Anam | **414** | 10 | 10 | 5 | +71 (1 HSE bug + collaboration) |
+| 6 | Navisa Kafka | **274** | 7 | 5 | 3 | — |
+| 7 | Hutami Widya Arini | **172** | 4 | 0 | 0 | +65 |
+| 8 | Chairul Fajri | **88** | 0 | 4 | 0 | — |
+
+**Ranking berubah!** Iqbal melewati Kurniashanti untuk #1 (994 vs 952). Perbedaan tipis — 42 poin. Luthfi naik signifikan ke 646.
+
+### Commits
+- (pending push — all fixes in working tree)
+
+---
+
 <!-- Template for new days:
 
 ## Day N — [Hari], [Tanggal] 2026

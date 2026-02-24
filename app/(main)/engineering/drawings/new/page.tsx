@@ -1,12 +1,33 @@
-import { redirect } from 'next/navigation'
+import Link from 'next/link'
+import { ArrowLeft, ShieldAlert } from 'lucide-react'
 import { isExplorerMode } from '@/lib/auth-utils'
 import { DrawingForm } from '@/components/drawings/drawing-form'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 
 export default async function NewDrawingPage() {
   // Explorer mode users should not create drawings
   const explorer = await isExplorerMode()
   if (explorer) {
-    redirect('/engineering/drawings')
+    return (
+      <div className="container mx-auto py-6">
+        <Alert>
+          <ShieldAlert className="h-4 w-4" />
+          <AlertTitle>Mode Explorer</AlertTitle>
+          <AlertDescription>
+            Tidak bisa membuat drawing baru. Anda sedang dalam mode explorer (read-only).
+          </AlertDescription>
+        </Alert>
+        <div className="mt-4">
+          <Button variant="ghost" asChild>
+            <Link href="/engineering/drawings">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Kembali ke Daftar Drawing
+            </Link>
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (

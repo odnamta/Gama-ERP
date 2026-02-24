@@ -12,7 +12,7 @@ export default async function ReportIncidentPage() {
     getIncidentCategories(),
     supabase.from('employees').select('id, full_name').eq('status', 'active').order('full_name'),
     supabase.from('job_orders').select('id, jo_number').in('status', ['active', 'completed']).order('created_at', { ascending: false }).limit(50),
-    supabase.from('assets').select('id, asset_code, asset_name').eq('is_active', true).order('asset_code'),
+    supabase.from('assets').select('id, asset_code, asset_name').eq('status', 'active').order('asset_code'),
   ]);
 
   return (

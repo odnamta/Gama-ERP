@@ -1,99 +1,284 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import { getAudit } from '@/lib/audit-actions';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { AuditDetailView } from '@/components/hse/audits/audit-detail-view';
-import { AuditForm } from '@/components/hse/audits/audit-form';
-import { ArrowLeft, Edit } from 'lucide-react';
-import { getAudit, getAuditType, getFindingsByAudit } from '@/lib/audit-actions';
-import { Audit, AuditType, AuditFinding } from '@/types/audit';
+import type { Audit, AuditStatus, AuditRating, ChecklistResponse } from '@/types/audit';
 
-export default function AuditDetailPage() {
-  const params = useParams();
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [audit, setAudit] = useState<Audit | null>(null);
-  const [auditType, setAuditType] = useState<AuditType | null>(null);
-  const [findings, setFindings] = useState<AuditFinding[]>([]);
-  const [editMode, setEditMode] = useState(false);
+export const dynamic = 'force-dynamic';
 
-  const auditId = params.id as string;
+interface AuditDetailPageProps {
+  params: Promise<{ id: string }>;
+}
 
-  useEffect(() => {
-    loadAudit();
-  }, [auditId]);
+function getStatusVariant(status: AuditStatus) {
+  switch (status) {
+    case 'completed':
+      return 'success' as const;
+    case 'in_progress':
+      return 'warning' as const;
+    case 'cancelled':
+      return 'destructive' as const;
+    default:
+      return 'secondary' as const;
+  }
+}
 
-  async function loadAudit() {
-    setLoading(true);
-    const { data: auditData, error } = await getAudit(auditId);
-    
-    if (error || !auditData) {
-      router.push('/hse/audits');
-      return;
-    }
+function getStatusLabel(status: AuditStatus) {
+  switch (status) {
+    case 'scheduled':
+      return 'Scheduled';
+    case 'in_progress':
+      return 'In Progress';
+    case 'completed':
+      return 'Completed';
+    case 'cancelled':
+      return 'Cancelled';
+    default:
+      return status;
+  }
+}
 
-    setAudit(auditData);
+function getRatingVariant(rating: AuditRating) {
+  switch (rating) {
+    case 'pass':
+      return 'success' as const;
+    case 'conditional_pass':
+      return 'warning' as const;
+    case 'fail':
+      return 'destructive' as const;
+    default:
+      return 'secondary' as const;
+  }
+}
 
-    // Load audit type
-    const { data: typeData } = await getAuditType(auditData.audit_type_id);
-    if (typeData) {
-      setAuditType(typeData);
-    }
+function getRatingLabel(rating: AuditRating) {
+  switch (rating) {
+    case 'pass':
+      return 'Pass';
+    case 'conditional_pass':
+      return 'Conditional Pass';
+    case 'fail':
+      return 'Fail';
+    default:
+      return rating;
+  }
+}
 
-    // Load findings
-    const { data: findingsData } = await getFindingsByAudit(auditId);
-    setFindings(findingsData);
+export default async function AuditDetailPage({ params }: AuditDetailPageProps) {
+  const { id } = await params;
+  const { data: audit, error } = await getAudit(id);
 
-    setLoading(false);
+  if (error || !audit) {
+    notFound();
   }
 
-  if (loading) {
-    return (
-      <div className="container mx-auto py-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!audit) {
-    return null;
-  }
-
-  const canEdit = audit.status !== 'completed' && audit.status !== 'cancelled';
+  const typedAudit = audit as Audit;
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => router.push('/hse/audits')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">
-            {editMode ? 'Edit Audit' : 'Audit Details'}
-          </h1>
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/hse/audits">
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+        </Button>
+        <div className="flex-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">
+              {typedAudit.audit_number || 'Audit Detail'}
+            </h1>
+            <Badge variant={getStatusVariant(typedAudit.status)}>
+              {getStatusLabel(typedAudit.status)}
+            </Badge>
+            {typedAudit.overall_rating && (
+              <Badge variant={getRatingVariant(typedAudit.overall_rating)}>
+                {getRatingLabel(typedAudit.overall_rating)}
+              </Badge>
+            )}
+          </div>
+          {typedAudit.audit_types && (
+            <p className="text-muted-foreground mt-1">
+              {typedAudit.audit_types.type_name}
+            </p>
+          )}
         </div>
-        {canEdit && !editMode && (
-          <Button onClick={() => setEditMode(true)}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Button>
-        )}
       </div>
 
-      {editMode ? (
-        <AuditForm audit={audit} auditType={auditType || undefined} />
-      ) : (
-        <AuditDetailView
-          audit={audit}
-          auditType={auditType || undefined}
-          findings={findings}
-        />
+      {/* General Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Informasi Umum</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {typedAudit.audit_number && (
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">Audit Number</dt>
+                <dd className="text-sm mt-1">{typedAudit.audit_number}</dd>
+              </div>
+            )}
+            {typedAudit.audit_types && (
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">Audit Type</dt>
+                <dd className="text-sm mt-1">{typedAudit.audit_types.type_name}</dd>
+              </div>
+            )}
+            <div>
+              <dt className="text-sm font-medium text-muted-foreground">Status</dt>
+              <dd className="text-sm mt-1">
+                <Badge variant={getStatusVariant(typedAudit.status)}>
+                  {getStatusLabel(typedAudit.status)}
+                </Badge>
+              </dd>
+            </div>
+            {typedAudit.location && (
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">Lokasi</dt>
+                <dd className="text-sm mt-1">{typedAudit.location}</dd>
+              </div>
+            )}
+            {typedAudit.scheduled_date && (
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">Tanggal Terjadwal</dt>
+                <dd className="text-sm mt-1">{typedAudit.scheduled_date}</dd>
+              </div>
+            )}
+            {typedAudit.conducted_date && (
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">Tanggal Pelaksanaan</dt>
+                <dd className="text-sm mt-1">{typedAudit.conducted_date}</dd>
+              </div>
+            )}
+            {typedAudit.auditor_name && (
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">Auditor</dt>
+                <dd className="text-sm mt-1">{typedAudit.auditor_name}</dd>
+              </div>
+            )}
+            {typedAudit.overall_score !== null && typedAudit.overall_score !== undefined && (
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">Skor</dt>
+                <dd className="text-sm mt-1 font-semibold">{typedAudit.overall_score}%</dd>
+              </div>
+            )}
+            {typedAudit.overall_rating && (
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">Rating</dt>
+                <dd className="text-sm mt-1">
+                  <Badge variant={getRatingVariant(typedAudit.overall_rating)}>
+                    {getRatingLabel(typedAudit.overall_rating)}
+                  </Badge>
+                </dd>
+              </div>
+            )}
+          </dl>
+        </CardContent>
+      </Card>
+
+      {/* Summary / Notes */}
+      {typedAudit.summary && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Ringkasan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm whitespace-pre-wrap">{typedAudit.summary}</p>
+          </CardContent>
+        </Card>
       )}
+
+      {/* Checklist Responses */}
+      {typedAudit.checklist_responses && typedAudit.checklist_responses.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Checklist Responses</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {typedAudit.checklist_responses.map((resp: ChecklistResponse, idx: number) => (
+                <div key={idx} className="flex items-start gap-3 border-b pb-3 last:border-0 last:pb-0">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">
+                      {resp.question || `${resp.section} - Item ${resp.item_index + 1}`}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-0.5">
+                      Jawaban: {resp.response === true ? 'Ya' : resp.response === false ? 'Tidak' : String(resp.response ?? '-')}
+                    </p>
+                    {resp.notes && (
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        Catatan: {resp.notes}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Findings */}
+      {typedAudit.audit_findings && typedAudit.audit_findings.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Temuan ({typedAudit.audit_findings.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {typedAudit.audit_findings.map((finding) => (
+                <div key={finding.id} className="border rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge variant={finding.severity === 'critical' ? 'destructive' : finding.severity === 'major' ? 'warning' : 'secondary'}>
+                      {finding.severity}
+                    </Badge>
+                    <Badge variant="outline">{finding.status}</Badge>
+                    <span className="text-sm text-muted-foreground">
+                      #{finding.finding_number}
+                    </span>
+                  </div>
+                  <p className="text-sm">{finding.finding_description}</p>
+                  {finding.corrective_action && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Tindakan korektif: {finding.corrective_action}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Finding Summary Counts */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Ringkasan Temuan</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-red-600">{typedAudit.critical_findings}</p>
+              <p className="text-sm text-muted-foreground">Critical</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-orange-600">{typedAudit.major_findings}</p>
+              <p className="text-sm text-muted-foreground">Major</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-yellow-600">{typedAudit.minor_findings}</p>
+              <p className="text-sm text-muted-foreground">Minor</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-blue-600">{typedAudit.observations}</p>
+              <p className="text-sm text-muted-foreground">Observations</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
