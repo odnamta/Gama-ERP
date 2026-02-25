@@ -38,7 +38,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, ArrowLeft, ArrowRight, Calendar, AlertTriangle } from 'lucide-react';
 import { ShippingRate, ShippingLine, CONTAINER_TYPES } from '@/types/agency';
-import { getShippingRates, getShippingLines, deleteShippingRate } from '@/app/actions/agency-actions';
+import { getShippingLines } from '@/app/actions/shipping-line-actions';
+import { getShippingRates, deleteShippingRate } from '@/app/actions/shipping-rate-actions';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 

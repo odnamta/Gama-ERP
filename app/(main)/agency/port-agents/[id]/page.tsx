@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { getPortAgentById } from '@/app/actions/agency-actions';
+import { getPortAgentById } from '@/app/actions/port-agent-actions';
 import { PortAgentDetail } from './port-agent-detail';
 
 interface PortAgentDetailPageProps {

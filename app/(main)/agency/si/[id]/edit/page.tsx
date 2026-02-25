@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { EditSIClient } from './edit-si-client';
-import { getShippingInstruction } from '@/app/actions/bl-documentation-actions';
+import { getShippingInstruction } from '@/app/actions/shipping-instruction-actions';
 import { getBookings } from '@/app/actions/booking-actions';
 import { Loader2 } from 'lucide-react';
 

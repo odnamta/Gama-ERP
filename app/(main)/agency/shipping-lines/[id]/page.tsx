@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { getShippingLineById } from '@/app/actions/agency-actions';
+import { getShippingLineById } from '@/app/actions/shipping-line-actions';
 import { ShippingLineDetail } from './shipping-line-detail';
 
 interface ShippingLineDetailPageProps {

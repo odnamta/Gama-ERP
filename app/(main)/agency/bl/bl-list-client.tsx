@@ -21,7 +21,7 @@ import {
   BL_STATUS_LABELS,
   BLStatus,
 } from '@/types/agency';
-import { getBillsOfLading } from '@/app/actions/bl-documentation-actions';
+import { getBillsOfLading } from '@/app/actions/bl-actions';
 import { Plus, Search, X, Loader2 } from 'lucide-react';
 
 interface BLListClientProps {

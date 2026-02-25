@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { BLListClient } from './bl-list-client';
-import { getBillsOfLading, getBLStats } from '@/app/actions/bl-documentation-actions';
-import { getShippingLines } from '@/app/actions/agency-actions';
+import { getBillsOfLading, getBLStats } from '@/app/actions/bl-actions';
+import { getShippingLines } from '@/app/actions/shipping-line-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

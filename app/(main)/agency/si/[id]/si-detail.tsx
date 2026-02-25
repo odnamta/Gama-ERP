@@ -37,7 +37,7 @@ import {
   confirmShippingInstruction,
   amendShippingInstruction,
   deleteShippingInstruction,
-} from '@/app/actions/bl-documentation-actions';
+} from '@/app/actions/shipping-instruction-actions';
 import {
   ArrowLeft,
   Edit,

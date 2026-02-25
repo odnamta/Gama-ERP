@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { SIDetail } from './si-detail';
-import { getShippingInstruction, getBillsOfLading } from '@/app/actions/bl-documentation-actions';
+import { getShippingInstruction } from '@/app/actions/shipping-instruction-actions';
+import { getBillsOfLading } from '@/app/actions/bl-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { PortAgentForm } from '@/components/agency/port-agent-form';
 import { PortAgentFormData, Port } from '@/types/agency';
-import { createPortAgent, getPorts } from '@/app/actions/agency-actions';
+import { createPortAgent } from '@/app/actions/port-agent-actions';
+import { getPorts } from '@/app/actions/port-actions';
 import { useToast } from '@/hooks/use-toast';
 
 export default function NewPortAgentPage() {

@@ -18,7 +18,7 @@ import {
   markCargoCleared,
   markCargoDelivered,
   deleteArrivalNotice,
-} from '@/app/actions/bl-documentation-actions';
+} from '@/app/actions/arrival-notice-actions';
 import {
   ArrowLeft,
   Edit,

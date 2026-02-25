@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { PayablesClient } from './payables-client';
 import { getVendorInvoices } from '@/app/actions/vendor-invoice-actions';
-import { getServiceProviders } from '@/app/actions/agency-actions';
+import { getServiceProviders } from '@/app/actions/service-provider-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

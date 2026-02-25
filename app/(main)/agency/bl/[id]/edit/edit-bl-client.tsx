@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { BLForm } from '@/components/agency/bl-form';
-import { updateBillOfLading } from '@/app/actions/bl-documentation-actions';
+import { updateBillOfLading } from '@/app/actions/bl-actions';
 import { BillOfLading, BLFormData, FreightBooking, ShippingLine } from '@/types/agency';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';

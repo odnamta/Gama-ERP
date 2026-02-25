@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Search, Star } from 'lucide-react';
 import { ShippingLine, ShippingLineStats } from '@/types/agency';
-import { getShippingLines, toggleShippingLinePreferred, deleteShippingLine } from '@/app/actions/agency-actions';
+import { getShippingLines, toggleShippingLinePreferred, deleteShippingLine } from '@/app/actions/shipping-line-actions';
 import { calculateShippingLineStats } from '@/lib/agency-utils';
 import { ShippingLineSummaryCards } from '@/components/agency/shipping-line-summary-cards';
 import { ShippingLineCard } from '@/components/agency/shipping-line-card';

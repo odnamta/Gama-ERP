@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { ServiceProviderForm } from '@/components/agency/service-provider-form';
 import { ServiceProviderFormData } from '@/types/agency';
-import { createServiceProvider } from '@/app/actions/agency-actions';
+import { createServiceProvider } from '@/app/actions/service-provider-actions';
 import { useToast } from '@/hooks/use-toast';
 
 export default function NewServiceProviderPage() {

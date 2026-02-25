@@ -29,7 +29,7 @@ import {
   Globe,
 } from 'lucide-react';
 import { ServiceProvider, PROVIDER_TYPE_LABELS } from '@/types/agency';
-import { deleteServiceProvider } from '@/app/actions/agency-actions';
+import { deleteServiceProvider } from '@/app/actions/service-provider-actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface ServiceProviderDetailProps {

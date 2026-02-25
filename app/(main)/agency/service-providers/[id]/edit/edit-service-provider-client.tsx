@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { ServiceProvider, ServiceProviderFormData } from '@/types/agency';
 import { ServiceProviderForm } from '@/components/agency/service-provider-form';
-import { updateServiceProvider } from '@/app/actions/agency-actions';
+import { updateServiceProvider } from '@/app/actions/service-provider-actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface EditServiceProviderClientProps {

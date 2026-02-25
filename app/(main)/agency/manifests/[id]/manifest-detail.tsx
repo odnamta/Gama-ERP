@@ -38,7 +38,7 @@ import {
   submitManifest,
   approveManifest,
   deleteCargoManifest,
-} from '@/app/actions/bl-documentation-actions';
+} from '@/app/actions/cargo-manifest-actions';
 import {
   ArrowLeft,
   Edit,

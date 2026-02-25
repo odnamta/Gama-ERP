@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrivalNoticeForm } from '@/components/agency/arrival-notice-form';
-import { updateArrivalNotice } from '@/app/actions/bl-documentation-actions';
+import { updateArrivalNotice } from '@/app/actions/arrival-notice-actions';
 import { ArrivalNotice, ArrivalNoticeFormData, BillOfLading } from '@/types/agency';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';

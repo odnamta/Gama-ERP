@@ -19,7 +19,7 @@ import {
   SI_STATUSES,
   SI_STATUS_LABELS,
 } from '@/types/agency';
-import { getShippingInstructions, SIStats } from '@/app/actions/bl-documentation-actions';
+import { getShippingInstructions, SIStats } from '@/app/actions/shipping-instruction-actions';
 import { Plus, Search, X, Loader2, FileText, Send, CheckCircle, Edit3 } from 'lucide-react';
 
 interface SIListClientProps {

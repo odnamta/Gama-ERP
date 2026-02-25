@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { NewBookingClient } from './new-booking-client';
-import { getShippingLines, getPorts } from '@/app/actions/agency-actions';
+import { getShippingLines } from '@/app/actions/shipping-line-actions';
+import { getPorts } from '@/app/actions/port-actions';
 import { createClient } from '@/lib/supabase/server';
 import { Loader2 } from 'lucide-react';
 

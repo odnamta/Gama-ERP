@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { ManifestDetail } from './manifest-detail';
-import { getCargoManifest, getBillsOfLading } from '@/app/actions/bl-documentation-actions';
+import { getCargoManifest } from '@/app/actions/cargo-manifest-actions';
+import { getBillsOfLading } from '@/app/actions/bl-actions';
 import { BillOfLading } from '@/types/agency';
 import { Loader2 } from 'lucide-react';
 

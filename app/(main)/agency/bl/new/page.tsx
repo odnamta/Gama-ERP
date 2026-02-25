@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { NewBLClient } from './new-bl-client';
-import { getShippingLines } from '@/app/actions/agency-actions';
+import { getShippingLines } from '@/app/actions/shipping-line-actions';
 import { getBookings, getBooking } from '@/app/actions/booking-actions';
 import { Loader2 } from 'lucide-react';
 

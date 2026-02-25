@@ -34,7 +34,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { PortAgent, PORT_AGENT_SERVICE_LABELS } from '@/types/agency';
-import { deletePortAgent, submitAgentRating } from '@/app/actions/agency-actions';
+import { deletePortAgent, submitAgentRating } from '@/app/actions/port-agent-actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface PortAgentDetailProps {

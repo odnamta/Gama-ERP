@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { ManifestsListClient } from './manifests-list-client';
-import { getCargoManifests } from '@/app/actions/bl-documentation-actions';
+import { getCargoManifests } from '@/app/actions/cargo-manifest-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { VesselForm } from '@/components/vessel-tracking/vessel-form';
 import { VesselFormData, ShippingLine } from '@/types/agency';
 import { createVessel } from '@/app/actions/vessel-tracking-actions';
-import { getShippingLines } from '@/app/actions/agency-actions';
+import { getShippingLines } from '@/app/actions/shipping-line-actions';
 import { useToast } from '@/hooks/use-toast';
 
 /**

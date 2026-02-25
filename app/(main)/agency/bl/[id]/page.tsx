@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { BLDetail } from './bl-detail';
-import { getBillOfLading } from '@/app/actions/bl-documentation-actions';
+import { getBillOfLading } from '@/app/actions/bl-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

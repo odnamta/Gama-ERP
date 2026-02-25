@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getServiceProviderById } from '@/app/actions/agency-actions';
+import { getServiceProviderById } from '@/app/actions/service-provider-actions';
 import { EditServiceProviderClient } from './edit-service-provider-client';
 
 interface EditServiceProviderPageProps {

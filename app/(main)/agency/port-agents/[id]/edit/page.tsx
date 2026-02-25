@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
-import { getPortAgentById, getPorts } from '@/app/actions/agency-actions';
+import { getPortAgentById } from '@/app/actions/port-agent-actions';
+import { getPorts } from '@/app/actions/port-actions';
 import { EditPortAgentClient } from './edit-port-agent-client';
 
 interface EditPortAgentPageProps {

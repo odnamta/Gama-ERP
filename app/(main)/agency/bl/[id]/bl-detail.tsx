@@ -23,7 +23,7 @@ import {
   releaseBillOfLading,
   surrenderBillOfLading,
   deleteBillOfLading,
-} from '@/app/actions/bl-documentation-actions';
+} from '@/app/actions/bl-actions';
 import {
   ArrowLeft,
   Edit,

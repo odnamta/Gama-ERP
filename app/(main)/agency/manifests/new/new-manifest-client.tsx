@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ManifestForm } from '@/components/agency/manifest-form';
-import { createCargoManifest } from '@/app/actions/bl-documentation-actions';
+import { createCargoManifest } from '@/app/actions/cargo-manifest-actions';
 import { ManifestFormData, BillOfLading } from '@/types/agency';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';

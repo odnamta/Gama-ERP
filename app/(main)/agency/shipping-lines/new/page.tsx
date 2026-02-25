@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { ShippingLineForm } from '@/components/agency/shipping-line-form';
 import { ShippingLineFormData } from '@/types/agency';
-import { createShippingLine } from '@/app/actions/agency-actions';
+import { createShippingLine } from '@/app/actions/shipping-line-actions';
 import { useToast } from '@/hooks/use-toast';
 
 export default function NewShippingLinePage() {

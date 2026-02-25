@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getVessel } from '@/app/actions/vessel-tracking-actions';
-import { getShippingLines } from '@/app/actions/agency-actions';
+import { getShippingLines } from '@/app/actions/shipping-line-actions';
 import { EditVesselClient } from './edit-vessel-client';
 
 interface EditVesselPageProps {

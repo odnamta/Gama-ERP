@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { ShippingLineForm } from '@/components/agency/shipping-line-form';
 import { ShippingLine, ShippingLineFormData } from '@/types/agency';
-import { updateShippingLine } from '@/app/actions/agency-actions';
+import { updateShippingLine } from '@/app/actions/shipping-line-actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface EditShippingLineClientProps {

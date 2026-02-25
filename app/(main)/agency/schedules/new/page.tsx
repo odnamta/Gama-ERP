@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { ScheduleForm } from '@/components/vessel-tracking/schedule-form';
 import { ScheduleFormData, Vessel, Port } from '@/types/agency';
 import { createSchedule, getVessels } from '@/app/actions/vessel-tracking-actions';
-import { getPorts } from '@/app/actions/agency-actions';
+import { getPorts } from '@/app/actions/port-actions';
 import { useToast } from '@/hooks/use-toast';
 
 /**

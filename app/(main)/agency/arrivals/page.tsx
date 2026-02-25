@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { ArrivalsListClient } from './arrivals-list-client';
-import { getPendingArrivals, getArrivalNotices } from '@/app/actions/bl-documentation-actions';
+import { getPendingArrivals, getArrivalNotices } from '@/app/actions/arrival-notice-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

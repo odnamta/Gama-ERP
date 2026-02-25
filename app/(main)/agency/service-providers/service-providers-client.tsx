@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Search, Star } from 'lucide-react';
 import { ServiceProvider, ProviderType, PROVIDER_TYPES, PROVIDER_TYPE_LABELS } from '@/types/agency';
-import { getServiceProviders, deleteServiceProvider } from '@/app/actions/agency-actions';
+import { getServiceProviders, deleteServiceProvider } from '@/app/actions/service-provider-actions';
 import { ServiceProviderSummaryCards } from '@/components/agency/service-provider-summary-cards';
 import { ServiceProviderCard } from '@/components/agency/service-provider-card';
 import { Toggle } from '@/components/ui/toggle';

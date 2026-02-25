@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
-import { getServiceProviderById } from '@/app/actions/agency-actions';
+import { getServiceProviderById } from '@/app/actions/service-provider-actions';
 import { ServiceProviderDetail } from './service-provider-detail';
 
 interface ServiceProviderDetailPageProps {

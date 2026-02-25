@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { BookingsClient } from './bookings-client';
 import { getBookings, getBookingStats } from '@/app/actions/booking-actions';
-import { getShippingLines } from '@/app/actions/agency-actions';
+import { getShippingLines } from '@/app/actions/shipping-line-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

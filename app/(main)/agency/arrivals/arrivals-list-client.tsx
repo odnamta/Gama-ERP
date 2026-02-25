@@ -20,7 +20,7 @@ import {
   ARRIVAL_NOTICE_STATUSES,
   ARRIVAL_NOTICE_STATUS_LABELS,
 } from '@/types/agency';
-import { getArrivalNotices, markConsigneeNotified } from '@/app/actions/bl-documentation-actions';
+import { getArrivalNotices, markConsigneeNotified } from '@/app/actions/arrival-notice-actions';
 import { 
   Plus, 
   Search, 

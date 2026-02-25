@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { PortAgentForm } from '@/components/agency/port-agent-form';
 import { PortAgent, PortAgentFormData, Port } from '@/types/agency';
-import { updatePortAgent } from '@/app/actions/agency-actions';
+import { updatePortAgent } from '@/app/actions/port-agent-actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface EditPortAgentClientProps {

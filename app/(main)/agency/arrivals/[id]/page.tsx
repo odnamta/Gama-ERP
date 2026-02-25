@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { ArrivalNoticeDetail } from './arrival-notice-detail';
-import { getArrivalNotice } from '@/app/actions/bl-documentation-actions';
+import { getArrivalNotice } from '@/app/actions/arrival-notice-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

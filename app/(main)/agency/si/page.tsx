@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { SIListClient } from './si-list-client';
-import { getShippingInstructions, getSIStats } from '@/app/actions/bl-documentation-actions';
+import { getShippingInstructions, getSIStats } from '@/app/actions/shipping-instruction-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

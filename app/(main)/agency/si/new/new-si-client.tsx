@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SIForm } from '@/components/agency/si-form';
-import { createShippingInstruction } from '@/app/actions/bl-documentation-actions';
+import { createShippingInstruction } from '@/app/actions/shipping-instruction-actions';
 import { SIFormData, FreightBooking } from '@/types/agency';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';

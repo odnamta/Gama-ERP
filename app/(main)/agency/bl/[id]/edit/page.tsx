@@ -1,8 +1,8 @@
 import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { EditBLClient } from './edit-bl-client';
-import { getBillOfLading } from '@/app/actions/bl-documentation-actions';
-import { getShippingLines } from '@/app/actions/agency-actions';
+import { getBillOfLading } from '@/app/actions/bl-actions';
+import { getShippingLines } from '@/app/actions/shipping-line-actions';
 import { getBookings } from '@/app/actions/booking-actions';
 import { Loader2 } from 'lucide-react';
 

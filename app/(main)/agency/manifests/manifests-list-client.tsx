@@ -32,7 +32,7 @@ import {
   MANIFEST_TYPES,
   MANIFEST_TYPE_LABELS,
 } from '@/types/agency';
-import { getCargoManifests, submitManifest } from '@/app/actions/bl-documentation-actions';
+import { getCargoManifests, submitManifest } from '@/app/actions/cargo-manifest-actions';
 import { 
   Plus, 
   Search, 

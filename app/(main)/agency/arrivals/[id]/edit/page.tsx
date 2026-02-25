@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { EditArrivalNoticeClient } from './edit-arrival-notice-client';
-import { getArrivalNotice, getBillsOfLading } from '@/app/actions/bl-documentation-actions';
+import { getArrivalNotice } from '@/app/actions/arrival-notice-actions';
+import { getBillsOfLading } from '@/app/actions/bl-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

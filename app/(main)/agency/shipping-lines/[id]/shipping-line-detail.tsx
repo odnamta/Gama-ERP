@@ -30,7 +30,7 @@ import {
   User,
 } from 'lucide-react';
 import { ShippingLine, SERVICE_TYPE_LABELS } from '@/types/agency';
-import { deleteShippingLine, toggleShippingLinePreferred } from '@/app/actions/agency-actions';
+import { deleteShippingLine, toggleShippingLinePreferred } from '@/app/actions/shipping-line-actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface ShippingLineDetailProps {

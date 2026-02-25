@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getShippingLineById } from '@/app/actions/agency-actions';
+import { getShippingLineById } from '@/app/actions/shipping-line-actions';
 import { EditShippingLineClient } from './edit-shipping-line-client';
 
 interface EditShippingLinePageProps {

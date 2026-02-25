@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getSchedule, getVessels } from '@/app/actions/vessel-tracking-actions';
-import { getPorts } from '@/app/actions/agency-actions';
+import { getPorts } from '@/app/actions/port-actions';
 import { EditScheduleClient } from './edit-schedule-client';
 
 interface EditSchedulePageProps {

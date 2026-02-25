@@ -1,7 +1,8 @@
 import { Suspense } from 'react';
 import { notFound, redirect } from 'next/navigation';
 import { EditManifestClient } from './edit-manifest-client';
-import { getCargoManifest, getBillsOfLading } from '@/app/actions/bl-documentation-actions';
+import { getCargoManifest } from '@/app/actions/cargo-manifest-actions';
+import { getBillsOfLading } from '@/app/actions/bl-actions';
 import { Loader2 } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';

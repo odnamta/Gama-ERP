@@ -5,12 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { ShippingLine, Port, ShippingRate, ShippingRateFormData } from '@/types/agency';
-import { 
-  getShippingLines, 
-  getPorts, 
-  getShippingRateById, 
-  updateShippingRate 
-} from '@/app/actions/agency-actions';
+import { getShippingLines } from '@/app/actions/shipping-line-actions';
+import { getPorts } from '@/app/actions/port-actions';
+import { getShippingRateById, updateShippingRate } from '@/app/actions/shipping-rate-actions';
 import { ShippingRateForm } from '@/components/agency/shipping-rate-form';
 import { useToast } from '@/hooks/use-toast';
 
