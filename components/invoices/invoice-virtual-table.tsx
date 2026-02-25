@@ -78,6 +78,20 @@ export function InvoiceVirtualTable({ invoices }: InvoiceVirtualTableProps) {
       onRowClick={(invoice) => router.push(`/invoices/${invoice.id}`)}
       emptyMessage="No invoices found. Create your first invoice from a Job Order."
       maxHeight={600}
+      mobileCardRender={(invoice) => (
+        <div className="rounded-lg border bg-card p-4 space-y-2 active:bg-muted/50">
+          <div className="flex items-start justify-between gap-2">
+            <span className="font-medium text-sm">{invoice.invoice_number}</span>
+            <InvoiceStatusBadge status={invoice.status} />
+          </div>
+          <div className="text-sm">{invoice.customers?.name || '-'}</div>
+          <div className="text-xs text-muted-foreground">JO: {invoice.job_orders?.jo_number || '-'}</div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="font-semibold">{formatIDR(invoice.total_amount)}</span>
+            <span className="text-xs text-muted-foreground">Due: {formatDate(invoice.due_date)}</span>
+          </div>
+        </div>
+      )}
     />
   )
 }

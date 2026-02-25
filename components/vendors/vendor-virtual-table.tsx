@@ -204,6 +204,32 @@ export function VendorVirtualTable({
       onRowClick={(vendor) => handleView(vendor.id)}
       emptyMessage="No vendors found. Try adjusting your filters or add a new vendor."
       maxHeight={600}
+      mobileCardRender={(vendor) => (
+        <div className="rounded-lg border bg-card p-4 space-y-2 active:bg-muted/50">
+          <div className="flex items-start justify-between gap-2">
+            <div className="font-medium text-sm">{vendor.vendor_name}</div>
+            {getStatusBadge(vendor)}
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="font-mono text-muted-foreground">{vendor.vendor_code}</span>
+            <Badge variant="outline">{getVendorTypeLabel(vendor.vendor_type)}</Badge>
+          </div>
+          {vendor.contact_person && (
+            <div className="text-sm text-muted-foreground">
+              {vendor.contact_person}{vendor.contact_phone ? ` · ${vendor.contact_phone}` : ''}
+            </div>
+          )}
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{vendor.total_jobs > 0 ? `${vendor.total_jobs} jobs` : 'No jobs'}</span>
+            {vendor.average_rating && (
+              <div className="flex items-center gap-1">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                <span>{formatRating(vendor.average_rating)}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     />
   )
 }

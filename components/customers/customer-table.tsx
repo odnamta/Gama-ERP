@@ -13,7 +13,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Pencil, Eye, Search, Trash2 } from 'lucide-react'
+import { Pencil, Eye, Search, Trash2, MoreHorizontal } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useIsDesktop } from '@/hooks/use-media-query'
 
 interface CustomerTableProps {
   customers: Customer[]
@@ -29,6 +36,7 @@ export function filterCustomersByName(customers: Customer[], searchTerm: string)
 
 export function CustomerTable({ customers, onEdit, onDelete }: CustomerTableProps) {
   const [searchTerm, setSearchTerm] = useState('')
+  const isDesktop = useIsDesktop()
 
   const filteredCustomers = filterCustomersByName(customers, searchTerm)
 
@@ -44,25 +52,69 @@ export function CustomerTable({ customers, onEdit, onDelete }: CustomerTableProp
         />
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredCustomers.length === 0 ? (
+      {filteredCustomers.length === 0 ? (
+        <div className="rounded-md border p-6 text-center text-muted-foreground">
+          {searchTerm ? 'No customers match your search.' : 'No customers found. Add your first customer to get started.'}
+        </div>
+      ) : !isDesktop ? (
+        /* Mobile card view */
+        <div className="space-y-3">
+          {filteredCustomers.map((customer) => (
+            <div key={customer.id} className="rounded-lg border bg-card p-4 space-y-1.5 active:bg-muted/50">
+              <div className="flex items-start justify-between gap-2">
+                <Link href={`/customers/${customer.id}`} className="font-medium text-sm hover:underline">
+                  {customer.name}
+                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/customers/${customer.id}`}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit(customer)}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => onDelete(customer)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              {customer.email && (
+                <div className="text-xs text-muted-foreground">{customer.email}</div>
+              )}
+              {customer.phone && (
+                <div className="text-xs text-muted-foreground">{customer.phone}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Desktop table view */
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">
-                  {searchTerm ? 'No customers match your search.' : 'No customers found. Add your first customer to get started.'}
-                </TableCell>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
-            ) : (
-              filteredCustomers.map((customer) => (
+            </TableHeader>
+            <TableBody>
+              {filteredCustomers.map((customer) => (
                 <TableRow key={customer.id}>
                   <TableCell className="font-medium">
                     <Link
@@ -106,11 +158,11 @@ export function CustomerTable({ customers, onEdit, onDelete }: CustomerTableProp
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   )
 }

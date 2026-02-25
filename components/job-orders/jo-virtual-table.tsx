@@ -135,6 +135,43 @@ export function JOVirtualTable({ jobOrders, userRole }: JOVirtualTableProps) {
       onRowClick={(jo) => router.push(`/job-orders/${jo.id}`)}
       emptyMessage="No job orders found."
       maxHeight={600}
+      mobileCardRender={(jo) => {
+        const revenue = jo.final_revenue ?? jo.amount ?? 0
+        const profit = revenue - (jo.final_cost ?? 0)
+        const date = jo.converted_from_pjo_at
+          ? formatDate(jo.converted_from_pjo_at)
+          : jo.created_at
+          ? formatDate(jo.created_at)
+          : '-'
+
+        return (
+          <div className="rounded-lg border bg-card p-4 space-y-2 active:bg-muted/50">
+            <div className="flex items-start justify-between gap-2">
+              <span className="font-medium text-sm">{jo.jo_number}</span>
+              <JOStatusBadge status={jo.status} />
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {jo.customers?.name ?? '-'}
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{date}</span>
+              {!isOps && (
+                <span className="font-medium text-foreground">
+                  {formatIDR(revenue)}
+                </span>
+              )}
+            </div>
+            {!isOps && jo.final_cost != null && (
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Profit</span>
+                <span className={profit >= 0 ? 'text-green-600' : 'text-red-600'}>
+                  {formatIDR(profit)}
+                </span>
+              </div>
+            )}
+          </div>
+        )
+      }}
     />
   )
 }

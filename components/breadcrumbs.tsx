@@ -291,6 +291,14 @@ export function AppBreadcrumbs() {
     return null
   }
 
+  // Filter out the dashboard crumb if it's first (we render it separately)
+  const displayCrumbs = breadcrumbs.filter(
+    (crumb, index) => !(index === 0 && crumb.href === '/dashboard')
+  )
+
+  // On mobile (>2 crumbs): show "Dashboard / ... / parent / current"
+  const needsCollapse = displayCrumbs.length > 2
+
   return (
     <Breadcrumb className="mb-4">
       <BreadcrumbList>
@@ -301,16 +309,27 @@ export function AppBreadcrumbs() {
           </BreadcrumbLink>
         </BreadcrumbItem>
 
-        {breadcrumbs.map((crumb, index) => {
-          // Skip the first "Dashboard" crumb if it exists (we already render it above)
-          if (index === 0 && crumb.href === '/dashboard') {
-            return null
-          }
+        {/* Ellipsis shown on mobile when middle crumbs are collapsed */}
+        {needsCollapse && (
+          <span className="contents sm:hidden">
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <span className="text-muted-foreground">...</span>
+            </BreadcrumbItem>
+          </span>
+        )}
+
+        {displayCrumbs.map((crumb, index) => {
+          // On mobile, hide middle crumbs (keep last 2)
+          const isCollapsed = needsCollapse && index < displayCrumbs.length - 2
 
           return (
-            <span key={crumb.href} className="contents">
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
+            <span
+              key={crumb.href}
+              className={isCollapsed ? 'contents hidden sm:contents' : 'contents'}
+            >
+              <BreadcrumbSeparator className={isCollapsed ? 'hidden sm:block' : ''} />
+              <BreadcrumbItem className={isCollapsed ? 'hidden sm:flex' : ''}>
                 {crumb.isCurrent ? (
                   <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                 ) : (
