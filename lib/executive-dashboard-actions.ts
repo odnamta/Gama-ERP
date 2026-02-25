@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
+import type { Json } from '@/types/database';
 import {
   KPIValue,
   KPIDefinition,
@@ -260,7 +261,7 @@ async function calculateKPIValueFromDB(
     case 'EQUIPMENT_UTIL': {
       // Equipment utilization from resource_utilization table
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('resource_utilization')
         .select('utilization_percentage')
         .eq('resource_type', 'equipment')
@@ -273,7 +274,7 @@ async function calculateKPIValueFromDB(
       }
       
       // Average utilization across all equipment
-      const totalUtil = data.reduce((sum: number, r: { utilization_percentage: number }) => 
+      const totalUtil = data.reduce((sum: number, r) =>
         sum + Number(r.utilization_percentage || 0), 0);
       return data.length > 0 ? totalUtil / data.length : 0;
     }
@@ -306,7 +307,7 @@ async function calculateKPIValueFromDB(
     case 'DAYS_NO_LTI': {
       // Days without Lost Time Injury - use incidents table via raw query
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any)
+      const { data } = await supabase
         .from('incidents')
         .select('incident_date')
         .in('severity', ['high', 'critical'])
@@ -322,7 +323,7 @@ async function calculateKPIValueFromDB(
 
     case 'NEAR_MISS_MTD': {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { count } = await (supabase as any)
+      const { count } = await supabase
         .from('incidents')
         .select('*', { count: 'exact', head: true })
         .eq('incident_type', 'near_miss')
@@ -334,7 +335,7 @@ async function calculateKPIValueFromDB(
     case 'TRIR': {
       // Total Recordable Incident Rate = (Number of incidents * 200,000) / Total hours worked
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { count: incidentCount } = await (supabase as any)
+      const { count: incidentCount } = await supabase
         .from('incidents')
         .select('*', { count: 'exact', head: true })
         .in('severity', ['medium', 'high', 'critical'])
@@ -365,7 +366,7 @@ async function getKPIDefinitionByCode(kpiCode: string): Promise<KPIDefinitionDB 
   const supabase = await createClient();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('kpi_definitions')
     .select('*')
     .eq('kpi_code', kpiCode)
@@ -383,7 +384,7 @@ async function getAllKPIDefinitions(category?: KPICategory): Promise<KPIDefiniti
   const supabase = await createClient();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase as any)
+  let query = supabase
     .from('kpi_definitions')
     .select('*')
     .eq('is_active', true)
@@ -402,7 +403,7 @@ async function getKPITargetValue(kpiId: string, year: number, month: number): Pr
   const supabase = await createClient();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase as any)
+  const { data } = await supabase
     .from('kpi_targets')
     .select('target_value')
     .eq('kpi_id', kpiId)
@@ -559,7 +560,7 @@ export async function setKPITarget(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('kpi_targets')
     .upsert({
       kpi_id: kpiId,
@@ -591,7 +592,7 @@ export async function getKPITargets(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase as any)
+  let query = supabase
     .from('kpi_targets')
     .select('*')
     .eq('kpi_id', kpiId)
@@ -621,13 +622,12 @@ export async function saveDashboardLayout(
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = await createClient();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('dashboard_layouts')
     .upsert({
       user_id: userId,
       dashboard_type: dashboardType,
-      widgets,
+      widgets: widgets as unknown as Json,
       layout_name: layoutName,
       updated_at: new Date().toISOString(),
     }, {
@@ -653,7 +653,7 @@ export async function getDashboardLayout(
 
   // Try to get user's custom layout
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: userLayout } = await (supabase as any)
+  const { data: userLayout } = await supabase
     .from('dashboard_layouts')
     .select('*')
     .eq('user_id', userId)
@@ -661,12 +661,12 @@ export async function getDashboardLayout(
     .single();
 
   if (userLayout) {
-    return mapDashboardLayoutFromDB(userLayout as DashboardLayoutDB);
+    return mapDashboardLayoutFromDB(userLayout as unknown as DashboardLayoutDB);
   }
 
   // Try to get role default layout from database
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: roleLayout } = await (supabase as any)
+  const { data: roleLayout } = await supabase
     .from('dashboard_layouts')
     .select('*')
     .eq('role', userRole)
@@ -675,7 +675,7 @@ export async function getDashboardLayout(
     .single();
 
   if (roleLayout) {
-    return mapDashboardLayoutFromDB(roleLayout as DashboardLayoutDB);
+    return mapDashboardLayoutFromDB(roleLayout as unknown as DashboardLayoutDB);
   }
 
   // Fall back to code-defined default
@@ -692,7 +692,7 @@ export async function resetDashboardLayout(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('dashboard_layouts')
     .delete()
     .eq('user_id', userId)

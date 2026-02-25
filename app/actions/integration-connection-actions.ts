@@ -72,7 +72,7 @@ export async function createIntegrationConnection(
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('integration_connections')
       .insert(insertData)
       .select()
@@ -138,7 +138,7 @@ export async function updateIntegrationConnection(
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('integration_connections')
       .update(updateData)
       .eq('id', id)
@@ -185,7 +185,7 @@ export async function deleteIntegrationConnection(
 
     // Check if connection has any sync mappings
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: mappings } = await (supabase as any)
+    const { data: mappings } = await supabase
       .from('sync_mappings')
       .select('id')
       .eq('connection_id', id)
@@ -199,7 +199,7 @@ export async function deleteIntegrationConnection(
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('integration_connections')
       .delete()
       .eq('id', id);
@@ -241,7 +241,7 @@ export async function testIntegrationConnection(
 
     // Get connection details
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: connection, error: fetchError } = await (supabase as any)
+    const { data: connection, error: fetchError } = await supabase
       .from('integration_connections')
       .select('*')
       .eq('id', id)
@@ -263,7 +263,7 @@ export async function testIntegrationConnection(
       if (expiresAt <= Date.now()) {
         // Update connection with error
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (supabase as any)
+        await supabase
           .from('integration_connections')
           .update({ last_error: 'OAuth token expired' })
           .eq('id', id);
@@ -299,7 +299,7 @@ export async function testIntegrationConnection(
 
     // Update connection status
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
+    await supabase
       .from('integration_connections')
       .update({ 
         last_error: testResult.success ? null : testResult.error,
@@ -403,7 +403,7 @@ export async function getIntegrationConnection(
     const supabase = await createClient();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('integration_connections')
       .select('*')
       .eq('id', id)
@@ -437,7 +437,7 @@ export async function listIntegrationConnections(filters?: {
     const supabase = await createClient();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any)
+    let query = supabase
       .from('integration_connections')
       .select('*');
 
@@ -483,7 +483,7 @@ export async function toggleIntegrationConnectionActive(
 
     // Get current status
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: current, error: fetchError } = await (supabase as any)
+    const { data: current, error: fetchError } = await supabase
       .from('integration_connections')
       .select('is_active')
       .eq('id', id)
@@ -495,7 +495,7 @@ export async function toggleIntegrationConnectionActive(
 
     // Toggle status
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('integration_connections')
       .update({ is_active: !current.is_active })
       .eq('id', id)

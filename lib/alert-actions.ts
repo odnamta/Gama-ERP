@@ -7,6 +7,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
 import { revalidatePath } from 'next/cache';
+import type { Json } from '@/types/database';
 import {
   AlertRule,
   AlertInstance,
@@ -39,7 +40,7 @@ export async function getAlertRules(activeOnly = false): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase as any)
+  let query = supabase
     .from('alert_rules')
     .select(`*, kpi_definitions (kpi_name)`)
     .order('severity', { ascending: false })
@@ -73,7 +74,7 @@ export async function getAlertRule(id: string): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('alert_rules')
     .select(`*, kpi_definitions (kpi_name)`)
     .eq('id', id)
@@ -106,7 +107,7 @@ export async function createAlertRule(formData: AlertRuleFormData): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('alert_rules')
     .insert({
       rule_code: formData.ruleCode,
@@ -181,7 +182,7 @@ export async function updateAlertRule(
   if (formData.isActive !== undefined) updateData.is_active = formData.isActive;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('alert_rules')
     .update(updateData)
     .eq('id', id)
@@ -213,7 +214,7 @@ export async function deleteAlertRule(id: string): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('alert_rules')
     .delete()
     .eq('id', id);
@@ -240,7 +241,7 @@ export async function toggleAlertRuleStatus(id: string): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: current, error: fetchError } = await (supabase as any)
+  const { data: current, error: fetchError } = await supabase
     .from('alert_rules')
     .select('is_active')
     .eq('id', id)
@@ -251,7 +252,7 @@ export async function toggleAlertRuleStatus(id: string): Promise<{
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('alert_rules')
     .update({ is_active: !current.is_active })
     .eq('id', id)
@@ -289,7 +290,7 @@ export async function getAlertInstances(filters?: AlertFilters): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase as any)
+  let query = supabase
     .from('alert_instances')
     .select(`
       *,
@@ -326,7 +327,7 @@ export async function getAlertInstances(filters?: AlertFilters): Promise<{
   }
 
   return {
-    data: (data as AlertInstanceDB[])?.map(mapAlertInstanceFromDB) || [],
+    data: (data as unknown as AlertInstanceDB[])?.map(mapAlertInstanceFromDB) || [],
     error: null,
     count: count || 0,
   };
@@ -344,7 +345,7 @@ export async function getAlertInstance(id: string): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('alert_instances')
     .select(`
       *,
@@ -359,7 +360,7 @@ export async function getAlertInstance(id: string): Promise<{
   }
 
   return {
-    data: mapAlertInstanceFromDB(data as AlertInstanceDB),
+    data: mapAlertInstanceFromDB(data as unknown as AlertInstanceDB),
     error: null,
   };
 }
@@ -381,8 +382,7 @@ export async function createAlertInstance(
 
   const supabase = await createClient();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('alert_instances')
     .insert({
       rule_id: ruleId,
@@ -390,9 +390,9 @@ export async function createAlertInstance(
       current_value: currentValue,
       threshold_value: thresholdValue,
       alert_message: alertMessage,
-      context_data: contextData,
+      context_data: (contextData ?? null) as Json,
       status: 'active',
-      notifications_sent: [],
+      notifications_sent: [] as Json,
     })
     .select(`*, alert_rules (*, kpi_definitions (kpi_name))`)
     .single();
@@ -404,7 +404,7 @@ export async function createAlertInstance(
   revalidatePath('/dashboard/alerts');
 
   return {
-    data: mapAlertInstanceFromDB(data as AlertInstanceDB),
+    data: mapAlertInstanceFromDB(data as unknown as AlertInstanceDB),
     error: null,
   };
 }
@@ -428,7 +428,7 @@ export async function acknowledgeAlert(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: current, error: fetchError } = await (supabase as any)
+  const { data: current, error: fetchError } = await supabase
     .from('alert_instances')
     .select('status')
     .eq('id', alertId)
@@ -443,7 +443,7 @@ export async function acknowledgeAlert(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('alert_instances')
     .update({
       status: 'acknowledged',
@@ -465,7 +465,7 @@ export async function acknowledgeAlert(
   revalidatePath('/dashboard/alerts');
 
   return {
-    data: mapAlertInstanceFromDB(data as AlertInstanceDB),
+    data: mapAlertInstanceFromDB(data as unknown as AlertInstanceDB),
     error: null,
   };
 }
@@ -485,7 +485,7 @@ export async function resolveAlert(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: current, error: fetchError } = await (supabase as any)
+  const { data: current, error: fetchError } = await supabase
     .from('alert_instances')
     .select('status')
     .eq('id', alertId)
@@ -500,7 +500,7 @@ export async function resolveAlert(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('alert_instances')
     .update({
       status: 'resolved',
@@ -522,7 +522,7 @@ export async function resolveAlert(
   revalidatePath('/dashboard/alerts');
 
   return {
-    data: mapAlertInstanceFromDB(data as AlertInstanceDB),
+    data: mapAlertInstanceFromDB(data as unknown as AlertInstanceDB),
     error: null,
   };
 }
@@ -539,7 +539,7 @@ export async function dismissAlert(alertId: string): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: current, error: fetchError } = await (supabase as any)
+  const { data: current, error: fetchError } = await supabase
     .from('alert_instances')
     .select('status')
     .eq('id', alertId)
@@ -554,7 +554,7 @@ export async function dismissAlert(alertId: string): Promise<{
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('alert_instances')
     .update({ status: 'dismissed' })
     .eq('id', alertId)
@@ -572,7 +572,7 @@ export async function dismissAlert(alertId: string): Promise<{
   revalidatePath('/dashboard/alerts');
 
   return {
-    data: mapAlertInstanceFromDB(data as AlertInstanceDB),
+    data: mapAlertInstanceFromDB(data as unknown as AlertInstanceDB),
     error: null,
   };
 }
@@ -599,7 +599,7 @@ export async function updateAlertNotifications(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('alert_instances')
     .update({ notifications_sent: notificationsSent })
     .eq('id', alertId);
@@ -634,7 +634,7 @@ export async function getAlertSummary(): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: activeAlerts, error: alertsError } = await (supabase as any)
+  const { data: activeAlerts, error: alertsError } = await supabase
     .from('alert_instances')
     .select(`id, status, alert_rules (severity)`)
     .eq('status', 'active');
@@ -644,7 +644,7 @@ export async function getAlertSummary(): Promise<{
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { count: activeRulesCount, error: rulesError } = await (supabase as any)
+  const { count: activeRulesCount, error: rulesError } = await supabase
     .from('alert_rules')
     .select('id', { count: 'exact', head: true })
     .eq('is_active', true);
@@ -658,7 +658,7 @@ export async function getAlertSummary(): Promise<{
   startOfMonth.setHours(0, 0, 0, 0);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { count: resolvedMtdCount, error: resolvedError } = await (supabase as any)
+  const { count: resolvedMtdCount, error: resolvedError } = await supabase
     .from('alert_instances')
     .select('id', { count: 'exact', head: true })
     .eq('status', 'resolved')

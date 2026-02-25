@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Insert page view log
     // Note: user_activity_log table exists in DB but not in generated types
-    const { error } = await (supabase as any).from('user_activity_log').insert({
+    const { error } = await supabase.from('user_activity_log').insert({
       user_id: userId,
       user_email: userEmail,
       action_type: 'page_view',

@@ -26,12 +26,11 @@ export async function createSyncMapping(input: CreateSyncMappingInput): Promise<
     if (!prepared.valid) return { success: false, error: prepared.errors.join(', ') };
 
     const supabase = await createClient();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).from('sync_mappings').insert(prepared.data).select().single();
+    const { data, error } = await supabase.from('sync_mappings').insert(prepared.data as any).select().single();
 
     if (error) return { success: false, error: error.message };
     revalidatePath('/settings/integrations');
-    return { success: true, data: data as SyncMapping };
+    return { success: true, data: data as unknown as SyncMapping };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
   }
@@ -49,11 +48,11 @@ export async function updateSyncMapping(id: string, input: UpdateSyncMappingInpu
 
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).from('sync_mappings').update(updateData).eq('id', id).select().single();
+    const { data, error } = await supabase.from('sync_mappings').update(updateData).eq('id', id).select().single();
 
     if (error) return { success: false, error: error.message };
     revalidatePath('/settings/integrations');
-    return { success: true, data: data as SyncMapping };
+    return { success: true, data: data as unknown as SyncMapping };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
   }
@@ -68,7 +67,7 @@ export async function deleteSyncMapping(id: string): Promise<{ success: boolean;
 
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any).from('sync_mappings').delete().eq('id', id);
+    const { error } = await supabase.from('sync_mappings').delete().eq('id', id);
 
     if (error) return { success: false, error: error.message };
     revalidatePath('/settings/integrations');
@@ -87,10 +86,10 @@ export async function getSyncMapping(id: string): Promise<{ success: boolean; da
 
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).from('sync_mappings').select('*').eq('id', id).single();
+    const { data, error } = await supabase.from('sync_mappings').select('*').eq('id', id).single();
 
     if (error) return { success: false, error: error.code === 'PGRST116' ? 'Mapping not found' : error.message };
-    return { success: true, data: data as SyncMapping };
+    return { success: true, data: data as unknown as SyncMapping };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
   }
@@ -105,14 +104,14 @@ export async function listSyncMappings(connectionId: string): Promise<{ success:
 
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('sync_mappings')
       .select('*')
       .eq('connection_id', connectionId)
       .order('created_at', { ascending: false });
 
     if (error) return { success: false, error: error.message };
-    return { success: true, data: data as SyncMapping[] };
+    return { success: true, data: data as unknown as SyncMapping[] };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
   }
@@ -127,15 +126,15 @@ export async function toggleSyncMappingActive(id: string): Promise<{ success: bo
 
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: current, error: fetchError } = await (supabase as any).from('sync_mappings').select('is_active').eq('id', id).single();
+    const { data: current, error: fetchError } = await supabase.from('sync_mappings').select('is_active').eq('id', id).single();
     if (fetchError || !current) return { success: false, error: 'Mapping not found' };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).from('sync_mappings').update({ is_active: !current.is_active }).eq('id', id).select().single();
+    const { data, error } = await supabase.from('sync_mappings').update({ is_active: !current.is_active }).eq('id', id).select().single();
     if (error) return { success: false, error: error.message };
 
     revalidatePath('/settings/integrations');
-    return { success: true, data: data as SyncMapping };
+    return { success: true, data: data as unknown as SyncMapping };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
   }

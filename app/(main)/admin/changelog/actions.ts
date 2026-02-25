@@ -35,7 +35,7 @@ export async function createChangelogEntry(data: ChangelogEntryInput): Promise<A
       .single();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: result, error } = await (supabase as any)
+    const { data: result, error } = await supabase
       .from('changelog_entries')
       .insert({
         version: data.version || null,
@@ -70,7 +70,7 @@ export async function updateChangelogEntry(id: string, data: ChangelogEntryInput
     const supabase = await createClient();
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('changelog_entries')
       .update({
         version: data.version || null,
@@ -103,7 +103,7 @@ export async function deleteChangelogEntry(id: string): Promise<ActionResult> {
     const supabase = await createClient();
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('changelog_entries')
       .delete()
       .eq('id', id);
@@ -128,7 +128,7 @@ export async function getChangelogEntries() {
   const supabase = await createClient();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data } = await (supabase as any)
+  const { data } = await supabase
     .from('changelog_entries')
     .select('*')
     .order('published_at', { ascending: false });

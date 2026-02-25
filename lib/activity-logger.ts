@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import type { ActionType, ResourceType } from '@/types/activity';
+import type { Json } from '@/types/database';
 
 /**
  * Activity Logger Utility (v0.13.1)
@@ -38,14 +39,13 @@ export async function logActivity(
     }
 
     // Insert activity log (fire-and-forget pattern)
-    // Note: user_activity_log table exists in DB but not in generated types
-    const { error } = await (supabase as any).from('user_activity_log').insert({
+    const { error } = await supabase.from('user_activity_log').insert({
       user_id: userId,
       user_email: userEmail,
       action_type: actionType,
       resource_type: resourceType ?? null,
       resource_id: resourceId ?? null,
-      metadata: metadata ?? {},
+      metadata: (metadata ?? {}) as Json,
     });
 
     if (error) {
@@ -84,7 +84,7 @@ export async function logPageView(
 
     // Insert page view log
     // Note: user_activity_log table exists in DB but not in generated types
-    const { error } = await (supabase as any).from('user_activity_log').insert({
+    const { error } = await supabase.from('user_activity_log').insert({
       user_id: userId,
       user_email: userEmail,
       action_type: 'page_view',

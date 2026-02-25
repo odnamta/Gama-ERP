@@ -94,7 +94,7 @@ export async function getManpowerCostSummary(
   const supabase = await createClient();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('manpower_cost_summary')
     .select(`
       *,
@@ -164,7 +164,7 @@ export async function getCostTrendData(
 
   for (const period of periods) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('manpower_cost_summary')
       .select('total_company_cost')
       .eq('period_year', period.year)
@@ -216,7 +216,7 @@ export async function getManpowerCostForOverhead(
   const supabase = await createClient();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('manpower_cost_summary')
     .select('*')
     .eq('period_year', year)
@@ -400,7 +400,7 @@ export async function getAvailablePeriods(): Promise<Array<{ year: number; month
   const supabase = await createClient();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('payroll_periods')
     .select('period_year, period_month, period_name')
     .order('period_year', { ascending: false })

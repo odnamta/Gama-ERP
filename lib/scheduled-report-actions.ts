@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import type { Json } from '@/types/database';
 import {
   ScheduledReport,
   ReportHistory,
@@ -14,6 +15,7 @@ import {
   ReportHistoryFilters,
   ScheduledReportDB,
   ReportHistoryDB,
+  type ScheduleType,
 } from '@/types/scheduled-reports';
 import {
   mapScheduledReportFromDB,
@@ -33,7 +35,7 @@ export async function getScheduledReports(filters?: ReportFilters): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase as any)
+  let query = supabase
     .from('scheduled_reports')
     .select('*')
     .order('report_name');
@@ -61,7 +63,7 @@ export async function getScheduledReports(filters?: ReportFilters): Promise<{
   }
 
   return {
-    data: (data as ScheduledReportDB[])?.map(mapScheduledReportFromDB) || [],
+    data: (data as unknown as ScheduledReportDB[])?.map(mapScheduledReportFromDB) || [],
     error: null,
   };
 }
@@ -73,7 +75,7 @@ export async function getScheduledReport(id: string): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('scheduled_reports')
     .select('*')
     .eq('id', id)
@@ -84,7 +86,7 @@ export async function getScheduledReport(id: string): Promise<{
   }
 
   return {
-    data: mapScheduledReportFromDB(data as ScheduledReportDB),
+    data: mapScheduledReportFromDB(data as unknown as ScheduledReportDB),
     error: null,
   };
 }
@@ -109,21 +111,20 @@ export async function createScheduledReport(
     formData.scheduleDay
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('scheduled_reports')
     .insert({
       report_code: formData.reportCode,
       report_name: formData.reportName,
       description: formData.description,
       report_type: formData.reportType,
-      report_config: formData.reportConfig,
+      report_config: formData.reportConfig as unknown as Json,
       schedule_type: formData.scheduleType,
       schedule_day: formData.scheduleDay,
       schedule_time: formData.scheduleTime,
       timezone: formData.timezone,
-      recipients: formData.recipients,
-      delivery_channels: formData.deliveryChannels,
+      recipients: formData.recipients as unknown as Json,
+      delivery_channels: formData.deliveryChannels as unknown as Json,
       email_subject_template: formData.emailSubjectTemplate,
       include_attachments: formData.includeAttachments,
       attachment_format: formData.attachmentFormat,
@@ -141,7 +142,7 @@ export async function createScheduledReport(
   revalidatePath('/dashboard/reports/scheduled');
 
   return {
-    data: mapScheduledReportFromDB(data as ScheduledReportDB),
+    data: mapScheduledReportFromDB(data as unknown as ScheduledReportDB),
     error: null,
   };
 }
@@ -177,16 +178,16 @@ export async function updateScheduledReport(
   // Recalculate next run time if schedule changed
   if (formData.scheduleType || formData.scheduleTime || formData.scheduleDay) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: current } = await (supabase as any)
+    const { data: current } = await supabase
       .from('scheduled_reports')
       .select('schedule_type, schedule_time, schedule_day')
       .eq('id', id)
       .single();
 
     if (current) {
-      const scheduleType = formData.scheduleType || current.schedule_type;
-      const scheduleTime = formData.scheduleTime || current.schedule_time;
-      const scheduleDay = formData.scheduleDay ?? current.schedule_day;
+      const scheduleType = (formData.scheduleType || current.schedule_type) as ScheduleType;
+      const scheduleTime = formData.scheduleTime || current.schedule_time || '08:00';
+      const scheduleDay = formData.scheduleDay ?? current.schedule_day ?? undefined;
 
       const nextRunAt = calculateNextRunTime(scheduleType, scheduleTime, scheduleDay);
       updateData.next_run_at = nextRunAt.toISOString();
@@ -194,7 +195,7 @@ export async function updateScheduledReport(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('scheduled_reports')
     .update(updateData)
     .eq('id', id)
@@ -208,7 +209,7 @@ export async function updateScheduledReport(
   revalidatePath('/dashboard/reports/scheduled');
 
   return {
-    data: mapScheduledReportFromDB(data as ScheduledReportDB),
+    data: mapScheduledReportFromDB(data as unknown as ScheduledReportDB),
     error: null,
   };
 }
@@ -220,7 +221,7 @@ export async function deleteScheduledReport(id: string): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('scheduled_reports')
     .delete()
     .eq('id', id);
@@ -241,7 +242,7 @@ export async function toggleScheduledReportStatus(id: string): Promise<{
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: current, error: fetchError } = await (supabase as any)
+  const { data: current, error: fetchError } = await supabase
     .from('scheduled_reports')
     .select('is_active')
     .eq('id', id)
@@ -252,7 +253,7 @@ export async function toggleScheduledReportStatus(id: string): Promise<{
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('scheduled_reports')
     .update({ is_active: !current.is_active })
     .eq('id', id)
@@ -266,7 +267,7 @@ export async function toggleScheduledReportStatus(id: string): Promise<{
   revalidatePath('/dashboard/reports/scheduled');
 
   return {
-    data: mapScheduledReportFromDB(data as ScheduledReportDB),
+    data: mapScheduledReportFromDB(data as unknown as ScheduledReportDB),
     error: null,
   };
 }
@@ -283,7 +284,7 @@ export async function getReportHistory(filters?: ReportHistoryFilters): Promise<
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase as any)
+  let query = supabase
     .from('report_history')
     .select(`
       *,
@@ -322,7 +323,7 @@ export async function getReportHistory(filters?: ReportHistoryFilters): Promise<
   }
 
   return {
-    data: (data as ReportHistoryDB[])?.map(mapReportHistoryFromDB) || [],
+    data: (data as unknown as ReportHistoryDB[])?.map(mapReportHistoryFromDB) || [],
     error: null,
     count: count || 0,
   };
@@ -340,7 +341,7 @@ export async function createReportHistory(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('report_history')
     .insert({
       scheduled_report_id: scheduledReportId,
@@ -358,7 +359,7 @@ export async function createReportHistory(
   }
 
   return {
-    data: mapReportHistoryFromDB(data as ReportHistoryDB),
+    data: mapReportHistoryFromDB(data as unknown as ReportHistoryDB),
     error: null,
   };
 }
@@ -391,7 +392,7 @@ export async function updateReportHistory(
   if (updates.errorMessage !== undefined) updateData.error_message = updates.errorMessage;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('report_history')
     .update(updateData)
     .eq('id', id);
@@ -416,7 +417,7 @@ export async function updateReportRunTime(id: string): Promise<{
 
   // Get current schedule settings
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: report, error: fetchError } = await (supabase as any)
+  const { data: report, error: fetchError } = await supabase
     .from('scheduled_reports')
     .select('schedule_type, schedule_time, schedule_day')
     .eq('id', id)
@@ -428,14 +429,14 @@ export async function updateReportRunTime(id: string): Promise<{
 
   const now = new Date();
   const nextRunAt = calculateNextRunTime(
-    report.schedule_type,
-    report.schedule_time,
-    report.schedule_day,
+    report.schedule_type as ScheduleType,
+    report.schedule_time || '08:00',
+    report.schedule_day ?? undefined,
     now
   );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('scheduled_reports')
     .update({
       last_run_at: now.toISOString(),

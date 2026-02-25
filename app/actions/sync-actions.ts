@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
 import { ADMIN_ROLES } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
+import type { Json } from '@/types/database';
 
 import {
   type SyncResult,
@@ -82,7 +83,7 @@ export async function triggerManualSync(
 
     // Get connection details
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: connection, error: connError } = await (supabase as any)
+    const { data: connection, error: connError } = await supabase
       .from('integration_connections')
       .select('*')
       .eq('id', connectionId)
@@ -116,7 +117,7 @@ export async function triggerManualSync(
     if (mappingId) {
       // Sync specific mapping
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: mapping, error: mapError } = await (supabase as any)
+      const { data: mapping, error: mapError } = await supabase
         .from('sync_mappings')
         .select('*')
         .eq('id', mappingId)
@@ -126,11 +127,11 @@ export async function triggerManualSync(
       if (mapError || !mapping) {
         return { success: false, error: 'Mapping not found' };
       }
-      mappings = [mapping as SyncMapping];
+      mappings = [mapping as unknown as SyncMapping];
     } else {
       // Sync all active mappings for connection
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: allMappings, error: mapError } = await (supabase as any)
+      const { data: allMappings, error: mapError } = await supabase
         .from('sync_mappings')
         .select('*')
         .eq('connection_id', connectionId)
@@ -139,7 +140,7 @@ export async function triggerManualSync(
       if (mapError) {
         return { success: false, error: mapError.message };
       }
-      mappings = (allMappings || []) as SyncMapping[];
+      mappings = (allMappings || []) as unknown as SyncMapping[];
     }
 
     if (mappings.length === 0) {
@@ -157,10 +158,9 @@ export async function triggerManualSync(
       return { success: false, error: logInput.errors.join(', ') };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: syncLog, error: logError } = await (supabase as any)
+    const { data: syncLog, error: logError } = await supabase
       .from('sync_log')
-      .insert(logInput.data)
+      .insert(logInput.data as any)
       .select()
       .single();
 
@@ -204,18 +204,16 @@ export async function triggerManualSync(
       records_failed: context.recordsFailed,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
+    await supabase
       .from('sync_log')
       .update({
         ...completionData,
-        error_details: errors.length > 0 ? errors : null,
+        error_details: (errors.length > 0 ? errors : null) as Json,
       })
       .eq('id', log.id);
 
     // Update connection last_sync_at
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
+    await supabase
       .from('integration_connections')
       .update({
         last_sync_at: new Date().toISOString(),
@@ -264,7 +262,7 @@ export async function retryFailedSync(
 
     // Get the failed sync log
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: originalLog, error: logError } = await (supabase as any)
+    const { data: originalLog, error: logError } = await supabase
       .from('sync_log')
       .select('*')
       .eq('id', syncLogId)
@@ -289,7 +287,7 @@ export async function retryFailedSync(
 
     // Get connection
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: connection, error: connError } = await (supabase as any)
+    const { data: connection, error: connError } = await supabase
       .from('integration_connections')
       .select('*')
       .eq('id', log.connection_id)
@@ -336,10 +334,9 @@ export async function retryFailedSync(
       return { success: false, error: retryLogInput.errors.join(', ') };
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: retrySyncLog, error: retryLogError } = await (supabase as any)
+    const { data: retrySyncLog, error: retryLogError } = await supabase
       .from('sync_log')
-      .insert(retryLogInput.data)
+      .insert(retryLogInput.data as any)
       .select()
       .single();
 
@@ -353,7 +350,7 @@ export async function retryFailedSync(
     let mapping: SyncMapping | null = null;
     if (log.mapping_id) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: mappingData } = await (supabase as any)
+      const { data: mappingData } = await supabase
         .from('sync_mappings')
         .select('*')
         .eq('id', log.mapping_id)
@@ -401,18 +398,16 @@ export async function retryFailedSync(
       records_failed: context.recordsFailed,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
+    await supabase
       .from('sync_log')
       .update({
         ...completionData,
-        error_details: errors.length > 0 ? errors : null,
+        error_details: (errors.length > 0 ? errors : null) as Json,
       })
       .eq('id', retryLog.id);
 
     // Update connection
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
+    await supabase
       .from('integration_connections')
       .update({
         last_sync_at: new Date().toISOString(),
@@ -681,7 +676,7 @@ export async function getSyncStatus(
 
     // Get recent sync logs
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: logs, error } = await (supabase as any)
+    const { data: logs, error } = await supabase
       .from('sync_log')
       .select('*')
       .eq('connection_id', connectionId)
@@ -736,7 +731,7 @@ export async function cancelSync(
 
     // Get sync log
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: log, error: fetchError } = await (supabase as any)
+    const { data: log, error: fetchError } = await supabase
       .from('sync_log')
       .select('*')
       .eq('id', syncLogId)
@@ -754,16 +749,15 @@ export async function cancelSync(
     const failureData = prepareSyncFailure([
       createSyncError('', 'CANCELLED', 'Sync was cancelled by user'),
     ], {
-      records_processed: log.records_processed,
-      records_created: log.records_created,
-      records_updated: log.records_updated,
-      records_failed: log.records_failed,
+      records_processed: log.records_processed ?? undefined,
+      records_created: log.records_created ?? undefined,
+      records_updated: log.records_updated ?? undefined,
+      records_failed: log.records_failed ?? undefined,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
+    await supabase
       .from('sync_log')
-      .update(failureData)
+      .update(failureData as any)
       .eq('id', syncLogId);
 
     revalidatePath('/settings/integrations');

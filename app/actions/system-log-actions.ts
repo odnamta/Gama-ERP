@@ -78,7 +78,7 @@ export async function getSystemLogs(
     
     // Build query - using type assertion as system_logs table may not be in generated types yet
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any)
+    let query = supabase
       .from('system_logs')
       .select('*', { count: 'exact' });
     
@@ -179,7 +179,7 @@ export async function getLogStatistics(
 
     // Build query with filters - using type assertion as system_logs table may not be in generated types yet
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any).from('system_logs').select('*');
+    let query = supabase.from('system_logs').select('*');
     
     // Apply date filters if provided
     if (filters?.start_date) {
@@ -243,7 +243,7 @@ export async function getLogsByRequestId(
     const supabase = await createClient();
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('system_logs')
       .select('*')
       .eq('request_id', requestId)
@@ -271,7 +271,7 @@ export async function getRecentErrors(
     const supabase = await createClient();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('system_logs')
       .select('*')
       .eq('level', 'error')
@@ -336,7 +336,7 @@ export async function exportSystemLogs(
 
     // Build query with filters - using type assertion as system_logs table may not be in generated types yet
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any)
+    let query = supabase
       .from('system_logs')
       .select('*')
       .order('timestamp', { ascending: false })
@@ -427,7 +427,7 @@ export async function getSystemLogFilterOptions(): Promise<ActionResult<{
     
     // Get distinct sources - using type assertion as system_logs table may not be in generated types yet
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: sourceData } = await (supabase as any)
+    const { data: sourceData } = await supabase
       .from('system_logs')
       .select('source')
       .not('source', 'is', null);
@@ -436,12 +436,12 @@ export async function getSystemLogFilterOptions(): Promise<ActionResult<{
     
     // Get distinct modules
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: moduleData } = await (supabase as any)
+    const { data: moduleData } = await supabase
       .from('system_logs')
       .select('module')
       .not('module', 'is', null);
     
-    const modules = [...new Set((moduleData || []).map((d: { module: string }) => d.module))].filter(Boolean).sort() as string[];
+    const modules = [...new Set((moduleData || []).map((d) => d.module).filter(Boolean))].sort() as string[];
     
     // Levels are predefined
     const levels: SystemLogLevel[] = ['error', 'warn', 'info', 'debug'];
@@ -476,7 +476,7 @@ export async function getSystemLogById(
     const supabase = await createClient();
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('system_logs')
       .select('*')
       .eq('id', id)

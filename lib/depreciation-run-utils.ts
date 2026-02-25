@@ -324,7 +324,7 @@ export async function getDepreciableAssets(): Promise<DepreciableAsset[]> {
   
   // Use any type since 'assets' table may not be in generated types
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('assets')
     .select(`
       id,
@@ -379,7 +379,7 @@ export async function createDepreciationRecord(
   
   // Check if record already exists for this period
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: existing } = await (supabase as any)
+  const { data: existing } = await supabase
     .from('asset_depreciation')
     .select('id')
     .eq('asset_id', asset.id)
@@ -396,7 +396,7 @@ export async function createDepreciationRecord(
   const periodEndStr = `${periodEnd.getFullYear()}-${(periodEnd.getMonth() + 1).toString().padStart(2, '0')}-${periodEnd.getDate().toString().padStart(2, '0')}`;
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('asset_depreciation')
     .insert({
       asset_id: asset.id,
@@ -450,7 +450,7 @@ export async function updateAssetBookValue(
   
   // First get current accumulated depreciation
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: asset, error: fetchError } = await (supabase as any)
+  const { data: asset, error: fetchError } = await supabase
     .from('assets')
     .select('purchase_price, accumulated_depreciation')
     .eq('id', assetId)
@@ -467,7 +467,7 @@ export async function updateAssetBookValue(
   const newAccumulatedDepreciation = purchasePrice - newBookValue;
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('assets')
     .update({
       book_value: newBookValue,

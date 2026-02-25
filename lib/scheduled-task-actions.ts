@@ -109,7 +109,7 @@ export async function getScheduledTasks(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase as any)
+  let query = supabase
     .from('scheduled_tasks')
     .select('*')
     .order('task_code', { ascending: true });
@@ -140,7 +140,7 @@ export async function getScheduledTaskByCode(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('scheduled_tasks')
     .select('*')
     .eq('task_code', taskCode)
@@ -220,7 +220,7 @@ export async function triggerTaskManually(
   const executionData = createExecutionRecord(task.id, 'manual');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: execution, error: execError } = await (supabase as any)
+  const { data: execution, error: execError } = await supabase
     .from('task_executions')
     .insert({
       task_id: executionData.task_id,
@@ -237,7 +237,7 @@ export async function triggerTaskManually(
 
   // Update task's last_run_at but NOT next_run_at (preserve schedule)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase as any)
+  await supabase
     .from('scheduled_tasks')
     .update({
       last_run_at: executionData.started_at,
@@ -267,7 +267,7 @@ export async function enableTask(
 
   // Get the task first to get cron expression
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: task, error: fetchError } = await (supabase as any)
+  const { data: task, error: fetchError } = await supabase
     .from('scheduled_tasks')
     .select('*')
     .eq('id', taskId)
@@ -284,7 +284,7 @@ export async function enableTask(
 
   // Update task to active and set next_run_at
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: updateError } = await (supabase as any)
+  const { error: updateError } = await supabase
     .from('scheduled_tasks')
     .update({
       is_active: true,
@@ -314,7 +314,7 @@ export async function disableTask(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('scheduled_tasks')
     .update({
       is_active: false,
@@ -365,7 +365,7 @@ export async function createTaskExecution(
   const executionData = createExecutionRecord(taskId, triggeredBy);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('task_executions')
     .insert({
       task_id: executionData.task_id,
@@ -407,7 +407,7 @@ export async function updateTaskExecution(
 
   // Get current execution to validate status transition
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: current, error: fetchError } = await (supabase as any)
+  const { data: current, error: fetchError } = await supabase
     .from('task_executions')
     .select('*')
     .eq('id', executionId)
@@ -456,7 +456,7 @@ export async function updateTaskExecution(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('task_executions')
     .update(updateData)
     .eq('id', executionId);
@@ -468,11 +468,11 @@ export async function updateTaskExecution(
   // Update the parent task's last_run info
   if (updates.status && updates.status !== 'running') {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any)
+    await supabase
       .from('scheduled_tasks')
       .update({
         last_run_status: updates.status,
-        last_run_duration_ms: updateData.execution_time_ms,
+        last_run_duration_ms: updateData.execution_time_ms as number | null,
       })
       .eq('id', currentExec.task_id);
   }
@@ -534,7 +534,7 @@ export async function getTaskExecutions(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let query = (supabase as any)
+  let query = supabase
     .from('task_executions')
     .select('*')
     .eq('task_id', taskId)
@@ -580,7 +580,7 @@ export async function getTaskNextRunAt(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('scheduled_tasks')
     .select('next_run_at')
     .eq('id', taskId)
@@ -606,7 +606,7 @@ export async function updateScheduledNextRun(
 
   // Get task to calculate next run
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: task, error: fetchError } = await (supabase as any)
+  const { data: task, error: fetchError } = await supabase
     .from('scheduled_tasks')
     .select('cron_expression, timezone')
     .eq('id', taskId)
@@ -620,7 +620,7 @@ export async function updateScheduledNextRun(
   const nextRun = getNextRunTime(taskRow.cron_expression, taskRow.timezone);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('scheduled_tasks')
     .update({
       next_run_at: nextRun?.toISOString() || null,
@@ -754,7 +754,7 @@ export async function retryFailedTask(
   const executionData = createExecutionRecord(task.id, 'retry');
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: execution, error: execError } = await (supabase as any)
+  const { data: execution, error: execError } = await supabase
     .from('task_executions')
     .insert({
       task_id: executionData.task_id,
@@ -771,7 +771,7 @@ export async function retryFailedTask(
 
   // Update task's last_run_at but NOT next_run_at (preserve schedule like manual)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (supabase as any)
+  await supabase
     .from('scheduled_tasks')
     .update({
       last_run_at: executionData.started_at,
@@ -794,7 +794,7 @@ export async function getLastFailedExecution(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('task_executions')
     .select('*')
     .eq('task_id', taskId)
@@ -839,7 +839,7 @@ export async function canRetryTask(
   const supabase = await createClient();
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: lastSuccess } = await (supabase as any)
+  const { data: lastSuccess } = await supabase
     .from('task_executions')
     .select('started_at')
     .eq('task_id', taskId)
@@ -850,7 +850,7 @@ export async function canRetryTask(
   
   if (lastSuccess) {
     const failedTime = new Date(lastFailed.started_at).getTime();
-    const successTime = new Date(lastSuccess.started_at).getTime();
+    const successTime = new Date(lastSuccess.started_at!).getTime();
     
     if (successTime > failedTime) {
       return { canRetry: false, reason: 'Task has succeeded since last failure' };

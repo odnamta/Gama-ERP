@@ -48,9 +48,9 @@ export async function softDeleteWithRecovery(
   const now = new Date();
 
   // Fetch the record to be deleted
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: record, error: fetchError } = await (supabase as any)
-    .from(table)
+  // Dynamic table name requires cast
+  const { data: record, error: fetchError } = await supabase
+    .from(table as any)
     .select('*')
     .eq('id', id)
     .single();
@@ -74,9 +74,9 @@ export async function softDeleteWithRecovery(
   }
 
   // Set is_active=false on the original record
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: updateError } = await (supabase as any)
-    .from(table)
+  // Dynamic table name requires cast
+  const { error: updateError } = await supabase
+    .from(table as any)
     .update({ is_active: false })
     .eq('id', id);
 
@@ -114,9 +114,9 @@ export async function recoverDeletedRecord(
 
   // Restore the record with is_active=true
   const recordData = deletedRecord.record_data as Record<string, unknown>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: restoreError } = await (supabase as any)
-    .from(table)
+  // Dynamic table name requires cast
+  const { error: restoreError } = await supabase
+    .from(table as any)
     .update({ ...recordData, is_active: true })
     .eq('id', sourceId);
 

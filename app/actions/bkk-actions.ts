@@ -86,10 +86,9 @@ export async function createBKK(formData: BKKFormData): Promise<{
       created_at: new Date().toISOString(),
     }
     
-    // Use any type to bypass strict typing until migration is applied
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from(BKK_TABLE)
-      .insert(insertData)
+      .insert(insertData as any)
       .select('id, bkk_number')
       .single()
     
@@ -286,7 +285,7 @@ export async function getBKKList(filters?: {
     const supabase = await createClient()
     
     // Use any type to bypass strict typing until migration is applied
-    let query = (supabase as any)
+    let query = supabase
       .from(BKK_TABLE)
       .select('id, bkk_number, purpose, amount_requested, status, created_at, recipient_name')
       .order('created_at', { ascending: false })
@@ -396,7 +395,7 @@ export async function getPendingBKKs(): Promise<{
     }
     
     // Use any type to bypass strict typing until migration is applied
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from(BKK_TABLE)
       .select('id, bkk_number, purpose, amount_requested, status, created_at')
       .in('status', statuses)

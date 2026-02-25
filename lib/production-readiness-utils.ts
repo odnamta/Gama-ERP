@@ -795,8 +795,8 @@ export async function checkRequiredTables(): Promise<{ passed: boolean; error?: 
   
   for (const table of REQUIRED_TABLES) {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase as any).from(table).select('*').limit(0);
+      // Dynamic table name requires cast
+      const { error } = await supabase.from(table as any).select('*').limit(0);
       if (error) {
         missing.push(table);
       }

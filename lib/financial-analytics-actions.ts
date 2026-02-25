@@ -70,7 +70,7 @@ export async function createBudgetItem(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: result, error } = await (supabase as any)
+  const { data: result, error } = await supabase
     .from('budget_items')
     .insert({
       budget_year: data.budget_year,
@@ -124,7 +124,7 @@ export async function updateBudgetItem(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('budget_items')
     .update(data)
     .eq('id', id);
@@ -157,7 +157,7 @@ export async function fetchBudgetItems(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('budget_items')
     .select('*')
     .eq('budget_year', year)
@@ -186,7 +186,7 @@ export async function deleteBudgetItem(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from('budget_items')
     .delete()
     .eq('id', id);
@@ -218,7 +218,7 @@ export async function fetchMonthlyActuals(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('monthly_actuals')
     .select('*')
     .eq('actual_year', year)
@@ -265,7 +265,7 @@ export async function createCashFlowTransaction(
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: result, error } = await (supabase as any)
+  const { data: result, error } = await supabase
     .from('cash_flow_transactions')
     .insert({
       transaction_date: data.transaction_date,
@@ -303,7 +303,7 @@ export async function fetchCashFlowTransactions(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('cash_flow_transactions')
     .select('*')
     .gte('transaction_date', startDate)
@@ -353,7 +353,7 @@ export async function createCashFlowForecast(
   const weighted_amount = calculateWeightedAmount(data.expected_amount, probability);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: result, error } = await (supabase as any)
+  const { data: result, error } = await supabase
     .from('cash_flow_forecast')
     .insert({
       forecast_date: data.forecast_date,
@@ -392,7 +392,7 @@ export async function fetchCashFlowForecast(
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('cash_flow_forecast')
     .select('*')
     .gte('forecast_date', startDate)
@@ -426,7 +426,7 @@ export async function fetchCustomerProfitability(): Promise<CustomerProfitabilit
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('customer_profitability')
     .select('*')
     .order('total_profit', { ascending: false })
@@ -452,7 +452,7 @@ export async function fetchJobTypeProfitability(): Promise<JobTypeProfitability[
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('job_type_profitability')
     .select('*')
     .order('total_profit', { ascending: false })
@@ -478,7 +478,7 @@ export async function fetchMonthlyPLSummary(): Promise<MonthlyPLSummary[]> {
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from('monthly_pl_summary')
     .select('*')
     .order('month', { ascending: false })

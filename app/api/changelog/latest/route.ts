@@ -13,7 +13,7 @@ export async function GET() {
     
     // Get the latest entry's published_at timestamp
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await (supabase as any)
+    const result = await supabase
       .from('changelog_entries')
       .select('published_at')
       .order('published_at', { ascending: false })

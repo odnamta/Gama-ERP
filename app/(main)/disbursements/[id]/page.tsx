@@ -15,7 +15,7 @@ interface PageProps {
 async function fetchBKKRecord(id: string): Promise<{ data: BKKRecord | null; error: unknown }> {
   const supabase = await createClient()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = await (supabase as any)
+  const result = await supabase
     .from('bkk_records')
     .select(`
       *,

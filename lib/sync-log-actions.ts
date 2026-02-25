@@ -17,7 +17,7 @@ export async function listSyncLogs(filters?: SyncLogFilters): Promise<{ success:
   try {
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any).from('sync_log').select('*');
+    let query = supabase.from('sync_log').select('*');
 
     if (filters?.connection_id) {
       query = query.eq('connection_id', filters.connection_id);
@@ -51,7 +51,7 @@ export async function getSyncLog(id: string): Promise<{ success: boolean; data?:
 
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).from('sync_log').select('*').eq('id', id).single();
+    const { data, error } = await supabase.from('sync_log').select('*').eq('id', id).single();
 
     if (error) return { success: false, error: error.code === 'PGRST116' ? 'Sync log not found' : error.message };
     return { success: true, data: data as SyncLog };
@@ -69,7 +69,7 @@ export async function getSyncLogsForConnection(connectionId: string, limit: numb
 
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('sync_log')
       .select('*')
       .eq('connection_id', connectionId)
@@ -100,7 +100,7 @@ export async function getSyncStats(connectionId?: string): Promise<{
   try {
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any).from('sync_log').select('status, records_processed');
+    let query = supabase.from('sync_log').select('status, records_processed');
     
     if (connectionId) {
       query = query.eq('connection_id', connectionId);

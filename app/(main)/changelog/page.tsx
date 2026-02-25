@@ -23,7 +23,7 @@ export default async function ChangelogPage() {
 
   // Requirement 3.1: Fetch entries ordered by published_at DESC
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = await (supabase as any)
+  const result = await supabase
     .from('changelog_entries')
     .select('*')
     .order('published_at', { ascending: false });

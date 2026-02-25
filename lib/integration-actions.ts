@@ -25,7 +25,7 @@ export async function createConnection(input: CreateConnectionInput): Promise<{ 
 
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).from('integration_connections').insert({
+    const { data, error } = await supabase.from('integration_connections').insert({
       connection_code: input.connection_code, connection_name: input.connection_name,
       integration_type: input.integration_type, provider: input.provider,
       credentials: input.credentials || null, config: input.config || {},
@@ -67,7 +67,7 @@ export async function updateConnection(id: string, input: UpdateConnectionInput)
     if (input.token_expires_at !== undefined) updateData.token_expires_at = input.token_expires_at;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).from('integration_connections').update(updateData).eq('id', id).select().single();
+    const { data, error } = await supabase.from('integration_connections').update(updateData).eq('id', id).select().single();
     if (error) return { success: false, error: error.message };
     revalidatePath('/settings/integrations');
     return { success: true, data: data as IntegrationConnection };
@@ -82,7 +82,7 @@ export async function deleteConnection(id: string): Promise<{ success: boolean; 
     if (!id) return { success: false, error: 'Connection ID is required' };
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any).from('integration_connections').delete().eq('id', id);
+    const { error } = await supabase.from('integration_connections').delete().eq('id', id);
     if (error) return { success: false, error: error.message };
     revalidatePath('/settings/integrations');
     return { success: true };
@@ -97,7 +97,7 @@ export async function getConnection(id: string): Promise<{ success: boolean; dat
     if (!id) return { success: false, error: 'Connection ID is required' };
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).from('integration_connections').select('*').eq('id', id).single();
+    const { data, error } = await supabase.from('integration_connections').select('*').eq('id', id).single();
     if (error) return { success: false, error: error.code === 'PGRST116' ? 'Connection not found' : error.message };
     return { success: true, data: data as IntegrationConnection };
   } catch (err) {
@@ -111,7 +111,7 @@ export async function getConnectionByCode(code: string): Promise<{ success: bool
     if (!code) return { success: false, error: 'Connection code is required' };
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).from('integration_connections').select('*').eq('connection_code', code).single();
+    const { data, error } = await supabase.from('integration_connections').select('*').eq('connection_code', code).single();
     if (error) return { success: false, error: error.code === 'PGRST116' ? 'Connection not found' : error.message };
     return { success: true, data: data as IntegrationConnection };
   } catch (err) {
@@ -125,7 +125,7 @@ export async function listConnections(filters?: ConnectionFilters): Promise<{ su
   try {
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any).from('integration_connections').select('*');
+    let query = supabase.from('integration_connections').select('*');
     if (filters?.integration_type) query = query.eq('integration_type', filters.integration_type);
     if (filters?.provider) query = query.eq('provider', filters.provider);
     if (filters?.is_active !== undefined) query = query.eq('is_active', filters.is_active);
@@ -145,20 +145,20 @@ export async function testConnection(id: string): Promise<{ success: boolean; da
     const supabase = await createClient();
     const startTime = Date.now();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: connection, error } = await (supabase as any).from('integration_connections').select('*').eq('id', id).single();
+    const { data: connection, error } = await supabase.from('integration_connections').select('*').eq('id', id).single();
     if (error || !connection) return { success: false, error: 'Connection not found' };
 
     const conn = connection as IntegrationConnection;
     if (conn.access_token && conn.token_expires_at && new Date(conn.token_expires_at).getTime() <= Date.now()) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from('integration_connections').update({ last_error: 'OAuth token expired' }).eq('id', id);
+      await supabase.from('integration_connections').update({ last_error: 'OAuth token expired' }).eq('id', id);
       return { success: true, data: { success: false, message: 'OAuth token expired', response_time_ms: Date.now() - startTime, error: 'TOKEN_EXPIRED' } };
     }
     if (!conn.access_token && !conn.credentials) {
       return { success: true, data: { success: false, message: 'No credentials configured', response_time_ms: Date.now() - startTime, error: 'NO_CREDENTIALS' } };
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from('integration_connections').update({ last_error: null }).eq('id', id);
+    await supabase.from('integration_connections').update({ last_error: null }).eq('id', id);
     return { success: true, data: { success: true, message: 'Connection test successful', response_time_ms: Date.now() - startTime } };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
@@ -171,7 +171,7 @@ export async function updateConnectionSyncStatus(id: string, success: boolean, e
     if (!id) return { success: false, error: 'Connection ID is required' };
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any).from('integration_connections').update({ last_sync_at: new Date().toISOString(), last_error: success ? null : (errorMsg || 'Sync failed') }).eq('id', id);
+    const { error } = await supabase.from('integration_connections').update({ last_sync_at: new Date().toISOString(), last_error: success ? null : (errorMsg || 'Sync failed') }).eq('id', id);
     if (error) return { success: false, error: error.message };
     return { success: true };
   } catch (err) {
@@ -188,7 +188,7 @@ export async function updateConnectionTokens(id: string, accessToken: string, re
     if (refreshToken !== undefined) updateData.refresh_token = refreshToken;
     if (expiresAt !== undefined) updateData.token_expires_at = expiresAt;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any).from('integration_connections').update(updateData).eq('id', id);
+    const { error } = await supabase.from('integration_connections').update(updateData).eq('id', id);
     if (error) return { success: false, error: error.message };
     return { success: true };
   } catch (err) {
@@ -202,10 +202,10 @@ export async function toggleConnectionActive(id: string): Promise<{ success: boo
     if (!id) return { success: false, error: 'Connection ID is required' };
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: current, error: fetchError } = await (supabase as any).from('integration_connections').select('is_active').eq('id', id).single();
+    const { data: current, error: fetchError } = await supabase.from('integration_connections').select('is_active').eq('id', id).single();
     if (fetchError || !current) return { success: false, error: 'Connection not found' };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase as any).from('integration_connections').update({ is_active: !current.is_active }).eq('id', id).select().single();
+    const { data, error } = await supabase.from('integration_connections').update({ is_active: !current.is_active }).eq('id', id).select().single();
     if (error) return { success: false, error: error.message };
     revalidatePath('/settings/integrations');
     return { success: true, data: data as IntegrationConnection };

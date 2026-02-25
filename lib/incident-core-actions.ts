@@ -151,7 +151,7 @@ export async function reportIncident(
       employeeId = employee.id;
     } else {
       // Fallback: auto-create minimal employee record from user_profiles
-      const { data: newEmployee, error: empError } = await (supabase as any)
+      const { data: newEmployee, error: empError } = await supabase
         .from('employees')
         .insert({
           user_id: profile.id,

@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     // Build query for activities
     // Note: user_activity_log table exists in DB but not in generated types
-    let query = (supabase as any)
+    let query = supabase
       .from('user_activity_log')
       .select('*')
       .order('created_at', { ascending: false })
@@ -58,13 +58,13 @@ export async function GET(request: NextRequest) {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const { data: todayActivities } = await (supabase as any)
+    const { data: todayActivities } = await supabase
       .from('user_activity_log')
       .select('user_id')
       .gte('created_at', today.toISOString())
       .lt('created_at', tomorrow.toISOString());
 
-    const uniqueUsersToday = new Set(todayActivities?.map((a: { user_id: string }) => a.user_id) || []);
+    const uniqueUsersToday = new Set(todayActivities?.map((a) => a.user_id).filter(Boolean) || []);
     const dailyActiveUsers = uniqueUsersToday.size;
 
     // Get chart data (activities per day for last 7 days)
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
       const nextDate = new Date(date);
       nextDate.setDate(nextDate.getDate() + 1);
 
-      let chartQuery = (supabase as any)
+      let chartQuery = supabase
         .from('user_activity_log')
         .select('id', { count: 'exact', head: true })
         .gte('created_at', date.toISOString())
@@ -98,13 +98,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Get unique users for filter dropdown
-    const { data: allActivities } = await (supabase as any)
+    const { data: allActivities } = await supabase
       .from('user_activity_log')
       .select('user_id, user_email');
     
     const uniqueUsersMap = new Map<string, { user_id: string; user_email: string | null }>();
     for (const activity of allActivities || []) {
-      if (activity.user_email && !uniqueUsersMap.has(activity.user_id)) {
+      if (activity.user_email && activity.user_id && !uniqueUsersMap.has(activity.user_id)) {
         uniqueUsersMap.set(activity.user_id, {
           user_id: activity.user_id,
           user_email: activity.user_email,
