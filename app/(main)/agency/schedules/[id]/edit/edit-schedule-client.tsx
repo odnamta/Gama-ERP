@@ -44,7 +44,6 @@ export function EditScheduleClient({ schedule, vessels, ports }: EditScheduleCli
         });
       }
     } catch (error) {
-      console.error('Error updating schedule:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

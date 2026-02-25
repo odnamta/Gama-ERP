@@ -37,7 +37,6 @@ export function NewBLClient({
       toast.success('Bill of Lading created successfully');
       router.push(`/agency/bl/${result.data.id}`);
     } catch (error) {
-      console.error('Error creating B/L:', error);
       toast.error('Failed to create Bill of Lading');
     } finally {
       setIsLoading(false);
@@ -57,7 +56,6 @@ export function NewBLClient({
       toast.success('Draft saved successfully');
       router.push(`/agency/bl/${result.data.id}`);
     } catch (error) {
-      console.error('Error saving draft:', error);
       toast.error('Failed to save draft');
     } finally {
       setIsLoading(false);

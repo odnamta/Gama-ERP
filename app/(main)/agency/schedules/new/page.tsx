@@ -37,7 +37,6 @@ export default function NewSchedulePage() {
           setPorts(portsResult.data);
         }
       } catch (error) {
-        console.error('Failed to load data:', error);
         toast({
           title: 'Error',
           description: 'Failed to load vessels and ports',
@@ -68,7 +67,6 @@ export default function NewSchedulePage() {
         });
       }
     } catch (error) {
-      console.error('Error creating schedule:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

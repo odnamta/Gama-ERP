@@ -44,7 +44,6 @@ async function QuotationsContent() {
     .order('created_at', { ascending: false })
   
   if (error) {
-    console.error('Error fetching quotations:', error)
     return <div className="text-red-500">Error loading quotations</div>
   }
   

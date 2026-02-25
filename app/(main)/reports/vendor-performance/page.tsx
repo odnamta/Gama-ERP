@@ -38,7 +38,6 @@ async function fetchReportData(): Promise<VendorPerformanceReport | null> {
     .not('category', 'is', null)
 
   if (error) {
-    console.error('Error fetching vendor performance:', error)
     return null
   }
 

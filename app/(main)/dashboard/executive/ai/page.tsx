@@ -67,7 +67,6 @@ export default function AIInsightsPage() {
         setLastQueryId(historyData[0].id);
       }
     } catch (error) {
-      console.error('Error processing query:', error);
       setResponse({
         responseType: 'error',
         responseText: 'An unexpected error occurred. Please try again.',

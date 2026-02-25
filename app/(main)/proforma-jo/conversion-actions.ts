@@ -187,10 +187,8 @@ export async function convertToJobOrder(pjoId: string): Promise<{ error?: string
     const { updateVendorInvoiceJOReference } = await import('@/app/(main)/finance/vendor-invoices/actions')
     const result = await updateVendorInvoiceJOReference(pjoId, newJO.id)
     if (result.error) {
-      console.error('Failed to update vendor invoice JO references:', result.error)
     }
   } catch (e) {
-    console.error('Failed to update vendor invoice JO references:', e)
   }
 
   // Allocate overhead to the new Job Order
@@ -198,10 +196,8 @@ export async function convertToJobOrder(pjoId: string): Promise<{ error?: string
     const { allocateJobOverhead } = await import('@/app/(main)/job-orders/overhead-actions')
     const overheadResult = await allocateJobOverhead(newJO.id)
     if (overheadResult.error) {
-      console.error('Failed to allocate overhead:', overheadResult.error)
     }
   } catch (e) {
-    console.error('Failed to allocate overhead:', e)
   }
 
   // Send notification for new JO created
@@ -220,7 +216,6 @@ export async function convertToJobOrder(pjoId: string): Promise<{ error?: string
       status: 'active',
     })
   } catch (e) {
-    console.error('Failed to send JO creation notification:', e)
   }
 
   revalidatePath('/proforma-jo')

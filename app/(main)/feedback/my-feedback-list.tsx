@@ -36,7 +36,6 @@ export function MyFeedbackList() {
         setItems(result.data);
       }
     } catch (error) {
-      console.error('Failed to load feedback:', error);
     } finally {
       setLoading(false);
     }

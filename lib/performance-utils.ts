@@ -78,11 +78,6 @@ export function logSlowQuery(
     slowQueryLog.shift();
   }
 
-  // Log to console for visibility
-  console.warn(
-    `[SLOW QUERY] ${executionTime}ms - ${table || 'unknown'}.${operation || 'query'}: ${query.substring(0, 100)}...`
-  );
-
   return true;
 }
 

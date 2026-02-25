@@ -39,7 +39,6 @@ export async function generateBKKNumberAction(): Promise<string> {
     .gte('created_at', `${year}-01-01`)
   
   if (error) {
-    console.error('Error counting BKK records:', error)
     throw new Error('Failed to generate BKK number')
   }
   
@@ -122,7 +121,6 @@ export async function createBKK(
     .single()
   
   if (error) {
-    console.error('Error creating BKK:', error)
     return { error: error.message }
   }
   
@@ -170,7 +168,6 @@ export async function getBKKsByJobOrder(joId: string): Promise<BKKWithRelations[
     .order('created_at', { ascending: false })
   
   if (error) {
-    console.error('Error fetching BKKs:', error)
     return []
   }
   
@@ -221,7 +218,6 @@ export async function getBKKById(bkkId: string): Promise<BKKWithRelations | null
     .single()
   
   if (error) {
-    console.error('Error fetching BKK:', error)
     return null
   }
   
@@ -593,7 +589,6 @@ export async function settleBKK(
       .eq('id', bkk.pjo_cost_item_id)
     
     if (costItemError) {
-      console.error('Error updating cost item:', costItemError)
     }
   }
   
@@ -603,7 +598,6 @@ export async function settleBKK(
     const { updateVendorMetrics } = await import('@/app/(main)/vendors/actions')
     const metricsResult = await updateVendorMetrics(bkk.vendor_id)
     if (metricsResult.error) {
-      console.error('Error updating vendor metrics:', metricsResult.error)
     }
   }
   
@@ -643,7 +637,6 @@ export async function getPendingBKKs(): Promise<BKKWithRelations[]> {
     .order('requested_at', { ascending: true })
   
   if (error) {
-    console.error('Error fetching pending BKKs:', error)
     return []
   }
   
@@ -693,7 +686,6 @@ export async function getCostItemsForBKK(joId: string): Promise<{
     .order('category')
   
   if (error) {
-    console.error('Error fetching cost items:', error)
     return []
   }
   
@@ -712,7 +704,6 @@ export async function getBKKsForCostItem(costItemId: string): Promise<BKK[]> {
     .eq('pjo_cost_item_id', costItemId)
   
   if (error) {
-    console.error('Error fetching BKKs for cost item:', error)
     return []
   }
   

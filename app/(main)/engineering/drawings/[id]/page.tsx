@@ -33,7 +33,6 @@ export default function DrawingDetailPage({ params }: DrawingDetailPageProps) {
       }
       setDrawing(data);
     } catch (error) {
-      console.error('Error loading drawing:', error);
       router.push('/engineering/drawings');
     } finally {
       setLoading(false);

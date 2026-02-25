@@ -191,7 +191,6 @@ export function RetentionClient({
         })
       }
     } catch (error) {
-      console.error('Save error:', error)
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
@@ -237,7 +236,6 @@ export function RetentionClient({
         })
       }
     } catch (error) {
-      console.error('Archive error:', error)
       toast({
         title: 'Error',
         description: 'An unexpected error occurred during archival',

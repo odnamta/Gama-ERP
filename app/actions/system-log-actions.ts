@@ -13,6 +13,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
+import { ADMIN_ROLES } from '@/lib/permissions';
 import {
   SystemLogEntry,
   SystemLogFilters,
@@ -27,11 +28,9 @@ import {
   calculateLogStats,
 } from '@/lib/system-log-utils';
 
-const SYSTEM_LOG_ROLES = ['owner', 'director', 'sysadmin'];
-
 async function requireSystemLogAccess(): Promise<{ authorized: true } | { authorized: false; error: string }> {
   const profile = await getUserProfile();
-  if (!profile || !SYSTEM_LOG_ROLES.includes(profile.role)) {
+  if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
     return { authorized: false, error: 'Unauthorized: system logs require owner/director/sysadmin role' };
   }
   return { authorized: true };
@@ -153,7 +152,6 @@ export async function getSystemLogs(
     
     return { success: true, data: result };
   } catch (error) {
-    console.error('Error fetching system logs:', error);
     return { success: false, error: 'Failed to fetch system logs' };
   }
 }
@@ -219,7 +217,6 @@ export async function getLogStatistics(
     
     return { success: true, data: stats };
   } catch (error) {
-    console.error('Error fetching log statistics:', error);
     return { success: false, error: 'Failed to fetch log statistics' };
   }
 }
@@ -256,7 +253,6 @@ export async function getLogsByRequestId(
     
     return { success: true, data: (data || []) as SystemLogEntry[] };
   } catch (error) {
-    console.error('Error fetching logs by request ID:', error);
     return { success: false, error: 'Failed to fetch logs by request ID' };
   }
 }
@@ -286,7 +282,6 @@ export async function getRecentErrors(
     
     return { success: true, data: (data || []) as SystemLogEntry[] };
   } catch (error) {
-    console.error('Error fetching recent errors:', error);
     return { success: false, error: 'Failed to fetch recent errors' };
   }
 }
@@ -318,7 +313,6 @@ export async function getLogsAtOrAboveLevel(
     
     return getSystemLogs({ level: includedLevels }, pagination);
   } catch (error) {
-    console.error('Error fetching logs at or above level:', error);
     return { success: false, error: 'Failed to fetch logs' };
   }
 }
@@ -409,7 +403,6 @@ export async function exportSystemLogs(
     
     return { success: true, data: csv };
   } catch (error) {
-    console.error('Error exporting system logs:', error);
     return { success: false, error: 'Failed to export system logs' };
   }
 }
@@ -462,7 +455,6 @@ export async function getSystemLogFilterOptions(): Promise<ActionResult<{
       },
     };
   } catch (error) {
-    console.error('Error fetching filter options:', error);
     return { success: false, error: 'Failed to fetch filter options' };
   }
 }
@@ -498,7 +490,6 @@ export async function getSystemLogById(
     
     return { success: true, data: data as SystemLogEntry };
   } catch (error) {
-    console.error('Error fetching system log:', error);
     return { success: false, error: 'Failed to fetch system log' };
   }
 }

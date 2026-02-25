@@ -56,7 +56,6 @@ export default function EditAssetPage() {
         setCategories(categoriesResult)
         setLocations(locationsResult)
       } catch (error) {
-        console.error('Failed to load asset:', error)
         toast({
           title: 'Error',
           description: 'Failed to load asset details',

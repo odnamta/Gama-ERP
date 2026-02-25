@@ -54,7 +54,6 @@ export default async function CostsPage({ params }: CostsPageProps) {
     .order('created_at', { ascending: true })
 
   if (costError) {
-    console.error('Error fetching cost items:', costError)
   }
 
   // Determine if user can edit

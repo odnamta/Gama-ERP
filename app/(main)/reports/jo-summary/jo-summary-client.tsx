@@ -36,7 +36,7 @@ export function JOSummaryClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'jo_summary', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'jo_summary', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

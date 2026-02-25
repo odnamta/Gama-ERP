@@ -44,7 +44,6 @@ export function MaintenanceDetailClient({ recordId }: MaintenanceDetailClientPro
         setError('Maintenance record not found')
       }
     } catch (err) {
-      console.error('Failed to load maintenance record:', err)
       setError('Failed to load maintenance record')
     } finally {
       setIsLoading(false)

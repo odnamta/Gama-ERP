@@ -62,7 +62,6 @@ export async function getDocumentCategories(): Promise<{
       .order('display_order', { ascending: true });
 
     if (error) {
-      console.error('Error fetching document categories:', error);
       return { success: false, error: 'Gagal mengambil kategori dokumen' };
     }
 
@@ -71,7 +70,6 @@ export async function getDocumentCategories(): Promise<{
       data: (data as DocumentCategoryRow[]).map(transformCategoryRow),
     };
   } catch (error) {
-    console.error('Error in getDocumentCategories:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -94,7 +92,6 @@ export async function getDocumentCategory(id: string): Promise<{
       .single();
 
     if (error) {
-      console.error('Error fetching document category:', error);
       return { success: false, error: 'Kategori dokumen tidak ditemukan' };
     }
 
@@ -103,7 +100,6 @@ export async function getDocumentCategory(id: string): Promise<{
       data: transformCategoryRow(data as DocumentCategoryRow),
     };
   } catch (error) {
-    console.error('Error in getDocumentCategory:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -185,7 +181,6 @@ export async function createSafetyDocument(
       .single();
 
     if (insertError) {
-      console.error('Error creating safety document:', insertError);
       return { success: false, error: 'Gagal membuat dokumen keselamatan' };
     }
 
@@ -196,7 +191,6 @@ export async function createSafetyDocument(
       data: transformDocumentRow(document as SafetyDocumentRow),
     };
   } catch (error) {
-    console.error('Error in createSafetyDocument:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -222,7 +216,6 @@ export async function getSafetyDocument(
       .single();
 
     if (error) {
-      console.error('Error fetching safety document:', error);
       return { success: false, error: 'Dokumen tidak ditemukan' };
     }
 
@@ -245,7 +238,6 @@ export async function getSafetyDocument(
 
     return { success: true, data: document };
   } catch (error) {
-    console.error('Error in getSafetyDocument:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -296,7 +288,6 @@ export async function getSafetyDocuments(
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching safety documents:', error);
       return { success: false, error: 'Gagal mengambil daftar dokumen' };
     }
 
@@ -320,7 +311,6 @@ export async function getSafetyDocuments(
 
     return { success: true, data: documents };
   } catch (error) {
-    console.error('Error in getSafetyDocuments:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -359,7 +349,6 @@ export async function updateSafetyDocument(
       .eq('id', id);
 
     if (error) {
-      console.error('Error updating safety document:', error);
       return { success: false, error: 'Gagal memperbarui dokumen' };
     }
 
@@ -368,7 +357,6 @@ export async function updateSafetyDocument(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in updateSafetyDocument:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -451,7 +439,6 @@ export async function createNewVersion(
       .single();
 
     if (insertError) {
-      console.error('Error creating new version:', insertError);
       return { success: false, error: 'Gagal membuat versi baru' };
     }
 
@@ -470,7 +457,6 @@ export async function createNewVersion(
       data: transformDocumentRow(newDoc as SafetyDocumentRow),
     };
   } catch (error) {
-    console.error('Error in createNewVersion:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -497,7 +483,6 @@ export async function submitForReview(
       .eq('status', 'draft');
 
     if (error) {
-      console.error('Error submitting for review:', error);
       return { success: false, error: 'Gagal mengirim untuk review' };
     }
 
@@ -506,7 +491,6 @@ export async function submitForReview(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in submitForReview:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -551,7 +535,6 @@ export async function approveDocument(
       .eq('status', 'pending_review');
 
     if (error) {
-      console.error('Error approving document:', error);
       return { success: false, error: 'Gagal menyetujui dokumen' };
     }
 
@@ -560,7 +543,6 @@ export async function approveDocument(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in approveDocument:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -607,7 +589,6 @@ export async function rejectDocument(
       .eq('status', 'pending_review');
 
     if (error) {
-      console.error('Error rejecting document:', error);
       return { success: false, error: 'Gagal menolak dokumen' };
     }
 
@@ -616,7 +597,6 @@ export async function rejectDocument(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in rejectDocument:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -686,7 +666,6 @@ export async function acknowledgeDocument(
       });
 
     if (error) {
-      console.error('Error acknowledging document:', error);
       return { success: false, error: 'Gagal mengakui dokumen' };
     }
 
@@ -694,7 +673,6 @@ export async function acknowledgeDocument(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in acknowledgeDocument:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -717,7 +695,6 @@ export async function getDocumentAcknowledgments(
       .order('acknowledged_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching acknowledgments:', error);
       return { success: false, error: 'Gagal mengambil daftar pengakuan' };
     }
 
@@ -729,7 +706,6 @@ export async function getDocumentAcknowledgments(
 
     return { success: true, data: acknowledgments };
   } catch (error) {
-    console.error('Error in getDocumentAcknowledgments:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -767,7 +743,6 @@ export async function getAcknowledgmentStats(
       },
     };
   } catch (error) {
-    console.error('Error in getAcknowledgmentStats:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -808,7 +783,6 @@ export async function addJSAHazard(
       .single();
 
     if (error) {
-      console.error('Error adding JSA hazard:', error);
       return { success: false, error: 'Gagal menambahkan bahaya JSA' };
     }
 
@@ -819,7 +793,6 @@ export async function addJSAHazard(
       data: transformHazardRow(data as JSAHazardRow),
     };
   } catch (error) {
-    console.error('Error in addJSAHazard:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -854,7 +827,6 @@ export async function updateJSAHazard(
       .eq('id', hazardId);
 
     if (error) {
-      console.error('Error updating JSA hazard:', error);
       return { success: false, error: 'Gagal memperbarui bahaya JSA' };
     }
 
@@ -862,7 +834,6 @@ export async function updateJSAHazard(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in updateJSAHazard:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -881,7 +852,6 @@ export async function deleteJSAHazard(
       .eq('id', hazardId);
 
     if (error) {
-      console.error('Error deleting JSA hazard:', error);
       return { success: false, error: 'Gagal menghapus bahaya JSA' };
     }
 
@@ -889,7 +859,6 @@ export async function deleteJSAHazard(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in deleteJSAHazard:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -909,7 +878,6 @@ export async function getJSAHazards(
       .order('step_number', { ascending: true });
 
     if (error) {
-      console.error('Error fetching JSA hazards:', error);
       return { success: false, error: 'Gagal mengambil daftar bahaya JSA' };
     }
 
@@ -918,7 +886,6 @@ export async function getJSAHazards(
       data: (data as JSAHazardRow[]).map(transformHazardRow),
     };
   } catch (error) {
-    console.error('Error in getJSAHazards:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -950,7 +917,6 @@ export async function getDocumentStatistics(): Promise<{
       `);
 
     if (error) {
-      console.error('Error fetching document statistics:', error);
       return { success: false, error: 'Gagal mengambil statistik dokumen' };
     }
 
@@ -1002,7 +968,6 @@ export async function getDocumentStatistics(): Promise<{
       },
     };
   } catch (error) {
-    console.error('Error in getDocumentStatistics:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -1031,7 +996,6 @@ export async function getExpiringDocuments(
       .order('expiry_date', { ascending: true });
 
     if (error) {
-      console.error('Error fetching expiring documents:', error);
       return { success: false, error: 'Gagal mengambil dokumen yang akan kadaluarsa' };
     }
 
@@ -1054,7 +1018,6 @@ export async function getExpiringDocuments(
 
     return { success: true, data: documents };
   } catch (error) {
-    console.error('Error in getExpiringDocuments:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }

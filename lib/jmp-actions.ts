@@ -105,7 +105,6 @@ export async function createJmp(data: JmpFormData): Promise<ActionResult<Journey
     revalidatePath('/engineering/jmp');
     return { success: true, data: mapRowToJmp(result as unknown as JmpRow) };
   } catch (error) {
-    console.error('Error creating JMP:', error);
     return { success: false, error: 'Failed to create JMP' };
   }
 }
@@ -169,7 +168,6 @@ export async function updateJmp(
     revalidatePath(`/engineering/jmp/${id}`);
     return { success: true, data: mapRowToJmp(result as unknown as JmpRow) };
   } catch (error) {
-    console.error('Error updating JMP:', error);
     return { success: false, error: 'Failed to update JMP' };
   }
 }
@@ -203,7 +201,6 @@ export async function deleteJmp(id: string): Promise<ActionResult<void>> {
     revalidatePath('/engineering/jmp');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting JMP:', error);
     return { success: false, error: 'Failed to delete JMP' };
   }
 }
@@ -254,7 +251,6 @@ export async function createJmpFromSurvey(surveyId: string): Promise<ActionResul
     revalidatePath('/engineering/jmp');
     return { success: true, data: mapRowToJmp(result as unknown as JmpRow) };
   } catch (error) {
-    console.error('Error creating JMP from survey:', error);
     return { success: false, error: 'Failed to create JMP from survey' };
   }
 }
@@ -324,7 +320,6 @@ export async function getJmpById(id: string): Promise<JmpWithRelations | null> {
       })) || [],
     };
   } catch (error) {
-    console.error('Error fetching JMP:', error);
     return null;
   }
 }
@@ -379,7 +374,6 @@ export async function getJmpList(filters: JmpFilters): Promise<JmpWithRelations[
       convoyCommander: row.convoyCommander || undefined,
     }));
   } catch (error) {
-    console.error('Error fetching JMP list:', error);
     return [];
   }
 }
@@ -427,7 +421,6 @@ export async function getActiveJourneys(): Promise<JmpWithRelations[]> {
 
     return jmps;
   } catch (error) {
-    console.error('Error fetching active journeys:', error);
     return [];
   }
 }
@@ -461,7 +454,6 @@ export async function getJmpStatusCounts(): Promise<JmpStatusCounts> {
 
     return counts;
   } catch (error) {
-    console.error('Error fetching JMP status counts:', error);
     return { draft: 0, pending_review: 0, approved: 0, active: 0, completed: 0 };
   }
 }
@@ -525,7 +517,6 @@ export async function submitJmpForReview(
     revalidatePath(`/engineering/jmp/${id}`);
     return { success: true, data: mapRowToJmp(result as unknown as JmpRow) };
   } catch (error) {
-    console.error('Error submitting JMP for review:', error);
     return { success: false, error: 'Failed to submit JMP for review' };
   }
 }
@@ -592,7 +583,6 @@ export async function approveJmp(
     revalidatePath(`/engineering/jmp/${id}`);
     return { success: true, data: mapRowToJmp(result as unknown as JmpRow) };
   } catch (error) {
-    console.error('Error approving JMP:', error);
     return { success: false, error: 'Failed to approve JMP' };
   }
 }
@@ -637,7 +627,6 @@ export async function rejectJmp(
     revalidatePath(`/engineering/jmp/${id}`);
     return { success: true, data: mapRowToJmp(result as unknown as JmpRow) };
   } catch (error) {
-    console.error('Error rejecting JMP:', error);
     return { success: false, error: 'Failed to reject JMP' };
   }
 }
@@ -680,7 +669,6 @@ export async function startJourney(id: string): Promise<ActionResult<JourneyMana
     revalidatePath(`/engineering/jmp/${id}`);
     return { success: true, data: mapRowToJmp(result as unknown as JmpRow) };
   } catch (error) {
-    console.error('Error starting journey:', error);
     return { success: false, error: 'Failed to start journey' };
   }
 }
@@ -735,7 +723,6 @@ export async function completeJourney(
     revalidatePath(`/engineering/jmp/${id}`);
     return { success: true, data: mapRowToJmp(result as unknown as JmpRow) };
   } catch (error) {
-    console.error('Error completing journey:', error);
     return { success: false, error: 'Failed to complete journey' };
   }
 }
@@ -781,7 +768,6 @@ export async function cancelJourney(
     revalidatePath(`/engineering/jmp/${id}`);
     return { success: true, data: mapRowToJmp(result as unknown as JmpRow) };
   } catch (error) {
-    console.error('Error cancelling journey:', error);
     return { success: false, error: 'Failed to cancel journey' };
   }
 }
@@ -838,7 +824,6 @@ export async function addCheckpoint(
     revalidatePath(`/engineering/jmp/${jmpId}`);
     return { success: true, data: mapRowToCheckpoint(result as unknown as JmpCheckpointRow) };
   } catch (error) {
-    console.error('Error adding checkpoint:', error);
     return { success: false, error: 'Failed to add checkpoint' };
   }
 }
@@ -878,7 +863,6 @@ export async function updateCheckpoint(
     revalidatePath(`/engineering/jmp`);
     return { success: true, data: mapRowToCheckpoint(result as unknown as JmpCheckpointRow) };
   } catch (error) {
-    console.error('Error updating checkpoint:', error);
     return { success: false, error: 'Failed to update checkpoint' };
   }
 }
@@ -900,7 +884,6 @@ export async function deleteCheckpoint(id: string): Promise<ActionResult<void>> 
     revalidatePath('/engineering/jmp');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting checkpoint:', error);
     return { success: false, error: 'Failed to delete checkpoint' };
   }
 }
@@ -931,7 +914,6 @@ export async function markCheckpointArrival(
     revalidatePath('/engineering/jmp/active');
     return { success: true, data: mapRowToCheckpoint(result as unknown as JmpCheckpointRow) };
   } catch (error) {
-    console.error('Error marking checkpoint arrival:', error);
     return { success: false, error: 'Failed to mark checkpoint arrival' };
   }
 }
@@ -962,7 +944,6 @@ export async function markCheckpointDeparture(
     revalidatePath('/engineering/jmp/active');
     return { success: true, data: mapRowToCheckpoint(result as unknown as JmpCheckpointRow) };
   } catch (error) {
-    console.error('Error marking checkpoint departure:', error);
     return { success: false, error: 'Failed to mark checkpoint departure' };
   }
 }
@@ -1023,7 +1004,6 @@ export async function addRisk(
       },
     };
   } catch (error) {
-    console.error('Error adding risk:', error);
     return { success: false, error: 'Failed to add risk' };
   }
 }
@@ -1090,7 +1070,6 @@ export async function updateRisk(
       },
     };
   } catch (error) {
-    console.error('Error updating risk:', error);
     return { success: false, error: 'Failed to update risk' };
   }
 }
@@ -1112,7 +1091,6 @@ export async function deleteRisk(id: string): Promise<ActionResult<void>> {
     revalidatePath('/engineering/jmp');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting risk:', error);
     return { success: false, error: 'Failed to delete risk' };
   }
 }
@@ -1133,7 +1111,6 @@ export async function getCompletedSurveys(): Promise<{ id: string; survey_number
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching completed surveys:', error);
     return [];
   }
 }
@@ -1158,7 +1135,6 @@ export async function getEmployeesForSelection(): Promise<{ id: string; full_nam
       phone: emp.phone || undefined,
     }));
   } catch (error) {
-    console.error('Error fetching employees:', error);
     return [];
   }
 }
@@ -1178,7 +1154,6 @@ export async function getCustomersForSelection(): Promise<{ id: string; name: st
     if (error) throw error;
     return data || [];
   } catch (error) {
-    console.error('Error fetching customers:', error);
     return [];
   }
 }

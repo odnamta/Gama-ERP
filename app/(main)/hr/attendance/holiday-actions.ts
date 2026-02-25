@@ -29,7 +29,6 @@ export async function getHolidays(
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching holidays:', error);
     return { data: null, error: error.message };
   }
 
@@ -118,7 +117,6 @@ export async function createHoliday(
     .single();
 
   if (error) {
-    console.error('Error creating holiday:', error);
     return { success: false, error: error.message };
   }
 
@@ -171,7 +169,6 @@ export async function updateHoliday(
     .single();
 
   if (error) {
-    console.error('Error updating holiday:', error);
     return { success: false, error: error.message };
   }
 
@@ -196,7 +193,6 @@ export async function deleteHoliday(
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting holiday:', error);
     return { success: false, error: error.message };
   }
 
@@ -224,7 +220,6 @@ export async function getUpcomingHolidays(
     .limit(limit);
 
   if (error) {
-    console.error('Error fetching upcoming holidays:', error);
     return { data: null, error: error.message };
   }
 

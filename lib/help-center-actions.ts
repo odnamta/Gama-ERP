@@ -44,7 +44,6 @@ export async function searchHelpContent(
   });
 
   if (error) {
-    console.error('Help search error:', error);
     return [];
   }
 
@@ -71,7 +70,6 @@ export async function getArticlesForRole(
     .order('display_order', { ascending: true });
 
   if (error) {
-    console.error('Error fetching articles:', error);
     return [];
   }
 
@@ -95,7 +93,6 @@ export async function getArticleBySlug(
 
   if (error) {
     if (error.code !== 'PGRST116') {
-      console.error('Error fetching article:', error);
     }
     return null;
   }
@@ -124,7 +121,6 @@ export async function getContextualArticles(
     .order('display_order', { ascending: true });
 
   if (error) {
-    console.error('Error fetching contextual articles:', error);
     return [];
   }
 
@@ -149,7 +145,6 @@ export async function getArticlesByCategory(
     .order('display_order', { ascending: true });
 
   if (error) {
-    console.error('Error fetching articles by category:', error);
     return [];
   }
 
@@ -175,7 +170,6 @@ export async function getRelatedArticles(
     .in('id', articleIds);
 
   if (error) {
-    console.error('Error fetching related articles:', error);
     return [];
   }
 
@@ -201,7 +195,6 @@ export async function getFAQsForRole(
     .order('display_order', { ascending: true });
 
   if (error) {
-    console.error('Error fetching FAQs:', error);
     return [];
   }
 
@@ -228,7 +221,6 @@ export async function incrementViewCount(
     .single();
 
   if (fetchError) {
-    console.error('Error fetching article for view count:', fetchError);
     return;
   }
 
@@ -239,7 +231,6 @@ export async function incrementViewCount(
     .eq('id', articleId);
 
   if (updateError) {
-    console.error('Error incrementing view count:', updateError);
   }
 }
 
@@ -262,7 +253,6 @@ export async function recordFeedback(
     .single();
 
   if (fetchError) {
-    console.error('Error fetching article for feedback:', fetchError);
     return { success: false, error: 'Article not found' };
   }
 
@@ -274,7 +264,6 @@ export async function recordFeedback(
     .eq('id', articleId);
 
   if (updateError) {
-    console.error('Error recording feedback:', updateError);
     return { success: false, error: 'Failed to record feedback' };
   }
 

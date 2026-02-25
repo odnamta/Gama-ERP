@@ -5,6 +5,7 @@
 // =====================================================
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/permissions-server';
 import { revalidatePath } from 'next/cache';
 import {
   CustomsFeeType,
@@ -33,11 +34,19 @@ import {
   calculateStorageFee,
 } from '@/lib/fee-utils';
 
+const FEE_WRITE_ROLES = ['owner', 'director', 'sysadmin', 'finance_manager', 'finance', 'administration'] as const;
+const FEE_READ_ROLES = ['owner', 'director', 'sysadmin', 'finance_manager', 'finance', 'administration', 'customs', 'operations_manager'] as const;
+
 // =====================================================
 // Fee Type Actions
 // =====================================================
 
 export async function getFeeTypes(): Promise<CustomsFeeType[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
   
   const { data, error } = await supabase
@@ -47,7 +56,6 @@ export async function getFeeTypes(): Promise<CustomsFeeType[]> {
     .order('display_order', { ascending: true });
 
   if (error) {
-    console.error('Error fetching fee types:', error);
     return [];
   }
 
@@ -55,6 +63,11 @@ export async function getFeeTypes(): Promise<CustomsFeeType[]> {
 }
 
 export async function getFeeTypesByCategory(category: FeeCategory): Promise<CustomsFeeType[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
   
   const { data, error } = await supabase
@@ -65,7 +78,6 @@ export async function getFeeTypesByCategory(category: FeeCategory): Promise<Cust
     .order('display_order', { ascending: true });
 
   if (error) {
-    console.error('Error fetching fee types by category:', error);
     return [];
   }
 
@@ -79,6 +91,11 @@ export async function getFeeTypesByCategory(category: FeeCategory): Promise<Cust
 export async function createFee(
   data: CustomsFeeFormData
 ): Promise<{ success: boolean; data?: CustomsFee; error?: string }> {
+  const userProfile = await getUserProfile();
+  if (!userProfile || !(FEE_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const validation = validateFeeForm(data);
   if (!validation.valid) {
     return { success: false, error: validation.errors[0]?.message || 'Validation failed' };
@@ -116,7 +133,6 @@ export async function createFee(
     .single();
 
   if (error) {
-    console.error('Error creating fee:', error);
     return { success: false, error: error.message };
   }
 
@@ -128,6 +144,11 @@ export async function updateFee(
   id: string,
   data: Partial<CustomsFeeFormData>
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {};
@@ -147,7 +168,6 @@ export async function updateFee(
     .eq('id', id);
 
   if (error) {
-    console.error('Error updating fee:', error);
     return { success: false, error: error.message };
   }
 
@@ -156,6 +176,11 @@ export async function updateFee(
 }
 
 export async function deleteFee(id: string): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -164,7 +189,6 @@ export async function deleteFee(id: string): Promise<{ success: boolean; error?:
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting fee:', error);
     return { success: false, error: error.message };
   }
 
@@ -173,6 +197,11 @@ export async function deleteFee(id: string): Promise<{ success: boolean; error?:
 }
 
 export async function getFee(id: string): Promise<CustomsFeeWithRelations | null> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return null;
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -189,7 +218,6 @@ export async function getFee(id: string): Promise<CustomsFeeWithRelations | null
     .single();
 
   if (error) {
-    console.error('Error fetching fee:', error);
     return null;
   }
 
@@ -197,6 +225,11 @@ export async function getFee(id: string): Promise<CustomsFeeWithRelations | null
 }
 
 export async function getFees(filters?: FeeFilters): Promise<CustomsFeeWithRelations[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   let query = supabase
@@ -230,7 +263,6 @@ export async function getFees(filters?: FeeFilters): Promise<CustomsFeeWithRelat
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching fees:', error);
     return [];
   }
 
@@ -241,6 +273,11 @@ export async function getFeesByDocument(
   documentType: 'pib' | 'peb',
   documentId: string
 ): Promise<CustomsFeeWithRelations[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const column = documentType === 'pib' ? 'pib_id' : 'peb_id';
@@ -259,7 +296,6 @@ export async function getFeesByDocument(
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching fees by document:', error);
     return [];
   }
 
@@ -267,6 +303,11 @@ export async function getFeesByDocument(
 }
 
 export async function getFeesByJob(jobOrderId: string): Promise<CustomsFeeWithRelations[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -283,7 +324,6 @@ export async function getFeesByJob(jobOrderId: string): Promise<CustomsFeeWithRe
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching fees by job:', error);
     return [];
   }
 
@@ -298,6 +338,11 @@ export async function markFeePaid(
   id: string,
   data: PaymentFormData
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   if (!data.payment_date) {
     return { success: false, error: 'Payment date is required' };
   }
@@ -321,7 +366,6 @@ export async function markFeePaid(
     .eq('id', id);
 
   if (error) {
-    console.error('Error marking fee as paid:', error);
     return { success: false, error: error.message };
   }
 
@@ -333,6 +377,11 @@ export async function markFeeWaived(
   id: string,
   notes?: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {
@@ -349,7 +398,6 @@ export async function markFeeWaived(
     .eq('id', id);
 
   if (error) {
-    console.error('Error marking fee as waived:', error);
     return { success: false, error: error.message };
   }
 
@@ -361,6 +409,11 @@ export async function cancelFee(
   id: string,
   notes?: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {
@@ -377,7 +430,6 @@ export async function cancelFee(
     .eq('id', id);
 
   if (error) {
-    console.error('Error cancelling fee:', error);
     return { success: false, error: error.message };
   }
 
@@ -392,6 +444,11 @@ export async function cancelFee(
 export async function createContainer(
   data: ContainerFormData
 ): Promise<{ success: boolean; data?: ContainerTracking; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const validation = validateContainerForm(data);
   if (!validation.valid) {
     return { success: false, error: validation.errors[0]?.message || 'Validation failed' };
@@ -427,7 +484,6 @@ export async function createContainer(
     .single();
 
   if (error) {
-    console.error('Error creating container:', error);
     return { success: false, error: error.message };
   }
 
@@ -439,6 +495,11 @@ export async function updateContainer(
   id: string,
   data: Partial<ContainerFormData>
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // First get current container to check if we need to recalculate free_time_end
@@ -476,7 +537,6 @@ export async function updateContainer(
     .eq('id', id);
 
   if (error) {
-    console.error('Error updating container:', error);
     return { success: false, error: error.message };
   }
 
@@ -485,6 +545,11 @@ export async function updateContainer(
 }
 
 export async function deleteContainer(id: string): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -493,7 +558,6 @@ export async function deleteContainer(id: string): Promise<{ success: boolean; e
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting container:', error);
     return { success: false, error: error.message };
   }
 
@@ -502,6 +566,11 @@ export async function deleteContainer(id: string): Promise<{ success: boolean; e
 }
 
 export async function getContainer(id: string): Promise<ContainerTrackingWithRelations | null> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return null;
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -516,7 +585,6 @@ export async function getContainer(id: string): Promise<ContainerTrackingWithRel
     .single();
 
   if (error) {
-    console.error('Error fetching container:', error);
     return null;
   }
 
@@ -524,6 +592,11 @@ export async function getContainer(id: string): Promise<ContainerTrackingWithRel
 }
 
 export async function getContainers(filters?: ContainerFilters): Promise<ContainerTrackingWithRelations[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   let query = supabase
@@ -543,7 +616,6 @@ export async function getContainers(filters?: ContainerFilters): Promise<Contain
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching containers:', error);
     return [];
   }
 
@@ -554,6 +626,11 @@ export async function getContainersByDocument(
   documentType: 'pib' | 'peb',
   documentId: string
 ): Promise<ContainerTrackingWithRelations[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const column = documentType === 'pib' ? 'pib_id' : 'peb_id';
@@ -570,7 +647,6 @@ export async function getContainersByDocument(
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching containers by document:', error);
     return [];
   }
 
@@ -586,6 +662,11 @@ export async function updateContainerStatus(
   status: ContainerStatus,
   gateOutDate?: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = { status };
@@ -600,7 +681,6 @@ export async function updateContainerStatus(
     .eq('id', id);
 
   if (error) {
-    console.error('Error updating container status:', error);
     return { success: false, error: error.message };
   }
 
@@ -611,6 +691,11 @@ export async function updateContainerStatus(
 export async function calculateContainerStorage(
   id: string
 ): Promise<{ success: boolean; storageDays?: number; totalFee?: number; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // Get container data
@@ -641,7 +726,6 @@ export async function calculateContainerStorage(
     .eq('id', id);
 
   if (updateError) {
-    console.error('Error updating container storage:', updateError);
     return { success: false, error: updateError.message };
   }
 
@@ -654,6 +738,11 @@ export async function calculateContainerStorage(
 // =====================================================
 
 export async function getJobCustomsCosts(jobOrderId: string): Promise<JobCustomsCostSummary | null> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return null;
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -663,7 +752,6 @@ export async function getJobCustomsCosts(jobOrderId: string): Promise<JobCustoms
     .single();
 
   if (error) {
-    console.error('Error fetching job customs costs:', error);
     return null;
   }
 
@@ -671,6 +759,11 @@ export async function getJobCustomsCosts(jobOrderId: string): Promise<JobCustoms
 }
 
 export async function getAllJobCustomsCosts(): Promise<JobCustomsCostSummary[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -680,7 +773,6 @@ export async function getAllJobCustomsCosts(): Promise<JobCustomsCostSummary[]> 
     .order('total_customs_cost', { ascending: false });
 
   if (error) {
-    console.error('Error fetching all job customs costs:', error);
     return [];
   }
 
@@ -688,6 +780,11 @@ export async function getAllJobCustomsCosts(): Promise<JobCustomsCostSummary[]> 
 }
 
 export async function getPendingPayments(): Promise<PendingCustomsPayment[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -696,7 +793,6 @@ export async function getPendingPayments(): Promise<PendingCustomsPayment[]> {
     .order('created_at', { ascending: true });
 
   if (error) {
-    console.error('Error fetching pending payments:', error);
     return [];
   }
 
@@ -704,6 +800,17 @@ export async function getPendingPayments(): Promise<PendingCustomsPayment[]> {
 }
 
 export async function getFeeStatistics(): Promise<FeeStatistics> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return {
+      total_fees: 0,
+      total_pending: 0,
+      total_paid: 0,
+      pending_amount: 0,
+      paid_amount: 0,
+    };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -711,7 +818,6 @@ export async function getFeeStatistics(): Promise<FeeStatistics> {
     .select('payment_status, amount');
 
   if (error) {
-    console.error('Error fetching fee statistics:', error);
     return {
       total_fees: 0,
       total_pending: 0,
@@ -735,6 +841,16 @@ export async function getFeeStatistics(): Promise<FeeStatistics> {
 }
 
 export async function getContainerStatistics(): Promise<ContainerStatistics> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return {
+      total_containers: 0,
+      at_port: 0,
+      past_free_time: 0,
+      total_demurrage: 0,
+    };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -742,7 +858,6 @@ export async function getContainerStatistics(): Promise<ContainerStatistics> {
     .select('status, free_time_end, total_storage_fee');
 
   if (error) {
-    console.error('Error fetching container statistics:', error);
     return {
       total_containers: 0,
       at_port: 0,
@@ -770,6 +885,11 @@ export async function getContainerStatistics(): Promise<ContainerStatistics> {
 // =====================================================
 
 export async function getPIBDocuments(): Promise<{ id: string; internal_ref: string }[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -779,7 +899,6 @@ export async function getPIBDocuments(): Promise<{ id: string; internal_ref: str
     .limit(100);
 
   if (error) {
-    console.error('Error fetching PIB documents:', error);
     return [];
   }
 
@@ -787,6 +906,11 @@ export async function getPIBDocuments(): Promise<{ id: string; internal_ref: str
 }
 
 export async function getPEBDocuments(): Promise<{ id: string; internal_ref: string }[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -796,7 +920,6 @@ export async function getPEBDocuments(): Promise<{ id: string; internal_ref: str
     .limit(100);
 
   if (error) {
-    console.error('Error fetching PEB documents:', error);
     return [];
   }
 
@@ -804,6 +927,11 @@ export async function getPEBDocuments(): Promise<{ id: string; internal_ref: str
 }
 
 export async function getJobOrders(): Promise<{ id: string; jo_number: string }[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -813,7 +941,6 @@ export async function getJobOrders(): Promise<{ id: string; jo_number: string }[
     .limit(100);
 
   if (error) {
-    console.error('Error fetching job orders:', error);
     return [];
   }
 
@@ -821,6 +948,11 @@ export async function getJobOrders(): Promise<{ id: string; jo_number: string }[
 }
 
 export async function getVendors(): Promise<{ id: string; vendor_name: string }[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FEE_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -830,7 +962,6 @@ export async function getVendors(): Promise<{ id: string; vendor_name: string }[
     .order('vendor_name', { ascending: true });
 
   if (error) {
-    console.error('Error fetching vendors:', error);
     return [];
   }
 

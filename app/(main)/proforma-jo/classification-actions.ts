@@ -26,7 +26,6 @@ export async function getComplexityCriteria(): Promise<{
     .order('display_order', { ascending: true })
 
   if (error) {
-    console.error('Error fetching complexity criteria:', error)
     return { data: null, error: error.message }
   }
 
@@ -57,7 +56,6 @@ export async function updatePJOClassification(
     .eq('id', pjoId)
 
   if (error) {
-    console.error('Error updating PJO classification:', error)
     return { error: error.message }
   }
 
@@ -89,7 +87,6 @@ export async function getPJOClassification(pjoId: string): Promise<{
     .single()
 
   if (error) {
-    console.error('Error fetching PJO classification:', error)
     return { data: null, error: error.message }
   }
 

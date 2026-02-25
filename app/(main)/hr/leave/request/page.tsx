@@ -25,7 +25,6 @@ export default function LeaveRequestPage() {
       try {
         const empId = await getCurrentEmployeeId();
         if (!empId) {
-          console.error('No employee found for current user');
           setIsLoading(false);
           return;
         }
@@ -49,7 +48,6 @@ export default function LeaveRequestPage() {
         // TODO: Load holidays from database
         setHolidays([]);
       } catch (error) {
-        console.error('Error loading data:', error);
       } finally {
         setIsLoading(false);
       }

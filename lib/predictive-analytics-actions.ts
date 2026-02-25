@@ -113,7 +113,6 @@ export async function generateRevenueForecast(
 
     return { success: true, data: savedForecast as unknown as RevenueForecast };
   } catch (error) {
-    console.error('Error generating revenue forecast:', error);
     return { success: false, error: 'Failed to generate revenue forecast' };
   }
 }
@@ -217,7 +216,6 @@ export async function getRevenueForecastSummary(): Promise<{
 
     return { success: true, data: summary };
   } catch (error) {
-    console.error('Error getting revenue forecast summary:', error);
     return { success: false, error: 'Failed to get revenue forecast summary' };
   }
 }
@@ -277,7 +275,6 @@ export async function getForecastChartData(
 
     return { success: true, data: chartData };
   } catch (error) {
-    console.error('Error getting forecast chart data:', error);
     return { success: false, error: 'Failed to get forecast chart data' };
   }
 }
@@ -409,7 +406,6 @@ export async function assessCustomerChurnRisk(): Promise<{
         .single();
 
       if (saveError) {
-        console.error('Error saving assessment for customer:', customer.id, saveError);
         continue;
       }
 
@@ -425,7 +421,6 @@ export async function assessCustomerChurnRisk(): Promise<{
 
     return { success: true, assessments };
   } catch (error) {
-    console.error('Error assessing customer churn risk:', error);
     return { success: false, error: 'Failed to assess customer churn risk' };
   }
 }
@@ -457,7 +452,6 @@ export async function getCustomersAtRisk(params?: {
 
     return { success: true, data: (assessments || []) as unknown as CustomerChurnRisk[] };
   } catch (error) {
-    console.error('Error getting customers at risk:', error);
     return { success: false, error: 'Failed to get customers at risk' };
   }
 }
@@ -517,7 +511,6 @@ export async function getChurnRiskSummary(): Promise<{
 
     return { success: true, data: summary };
   } catch (error) {
-    console.error('Error getting churn risk summary:', error);
     return { success: false, error: 'Failed to get churn risk summary' };
   }
 }
@@ -545,7 +538,6 @@ export async function recordChurnAction(
 
     return { success: true };
   } catch (error) {
-    console.error('Error recording churn action:', error);
     return { success: false, error: 'Failed to record churn action' };
   }
 }
@@ -632,7 +624,6 @@ export async function generatePaymentPrediction(
 
     return { success: true, data: savedPrediction as unknown as PaymentPrediction };
   } catch (error) {
-    console.error('Error generating payment prediction:', error);
     return { success: false, error: 'Failed to generate payment prediction' };
   }
 }
@@ -679,7 +670,6 @@ export async function getPaymentPredictions(params?: {
 
     return { success: true, data: transformedPredictions as unknown as PaymentPrediction[] };
   } catch (error) {
-    console.error('Error getting payment predictions:', error);
     return { success: false, error: 'Failed to get payment predictions' };
   }
 }
@@ -721,7 +711,6 @@ export async function updatePredictionActual(
 
     return { success: true };
   } catch (error) {
-    console.error('Error updating prediction actual:', error);
     return { success: false, error: 'Failed to update prediction actual' };
   }
 }
@@ -745,7 +734,6 @@ export async function updateForecastActual(
 
     return { success: true };
   } catch (error) {
-    console.error('Error updating forecast actual:', error);
     return { success: false, error: 'Failed to update forecast actual' };
   }
 }
@@ -787,7 +775,6 @@ export async function updatePaymentActual(
 
     return { success: true };
   } catch (error) {
-    console.error('Error updating payment actual:', error);
     return { success: false, error: 'Failed to update payment actual' };
   }
 }

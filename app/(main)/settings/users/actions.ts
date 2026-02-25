@@ -34,14 +34,12 @@ export async function getPendingRoleRequests(): Promise<RoleRequestWithUser[]> {
       .order('created_at', { ascending: false })
     
     if (error) {
-      console.error('Error fetching pending role requests:', error)
       return []
     }
     
     // Cast to RoleRequestWithUser[] - the query returns the exact fields we need
     return (data || []) as unknown as RoleRequestWithUser[]
   } catch (error) {
-    console.error('Error in getPendingRoleRequests:', error)
     return []
   }
 }
@@ -82,7 +80,6 @@ export async function approveRoleRequest(
       .single()
     
     if (fetchError || !roleRequest) {
-      console.error('Error fetching role request:', fetchError)
       return { success: false, error: 'Role request not found' }
     }
     
@@ -123,7 +120,6 @@ export async function approveRoleRequest(
       .eq('id', requestId)
     
     if (updateRequestError) {
-      console.error('Error updating role request:', updateRequestError)
       return { success: false, error: 'Failed to update role request status' }
     }
     
@@ -162,7 +158,6 @@ export async function approveRoleRequest(
       .eq('user_id', request.user_id)
     
     if (updateProfileError) {
-      console.error('Error updating user profile:', updateProfileError)
       // Try to revert the role request status
       await supabase
         .from('role_requests' as 'activity_log')
@@ -176,7 +171,6 @@ export async function approveRoleRequest(
       const { syncUserMetadataFromProfile } = await import('@/lib/supabase/sync-user-metadata')
       await syncUserMetadataFromProfile(request.user_id)
     } catch (e) {
-      console.error('Failed to sync user metadata after role approval:', e)
       // Don't fail the operation if metadata sync fails
     }
     
@@ -195,7 +189,6 @@ export async function approveRoleRequest(
       const { invalidateOwnerDashboardCache } = await import('@/lib/dashboard-cache-actions')
       await invalidateOwnerDashboardCache()
     } catch (e) {
-      console.error('Failed to invalidate dashboard cache:', e)
     }
     
     // Create notification for the user (Requirement 6.2)
@@ -216,7 +209,6 @@ export async function approveRoleRequest(
         },
       })
     } catch (notificationError) {
-      console.error('Failed to create user notification for approval:', notificationError)
     }
     
     // Revalidate the page to refresh the pending requests list
@@ -224,7 +216,6 @@ export async function approveRoleRequest(
     
     return { success: true }
   } catch (error) {
-    console.error('Error in approveRoleRequest:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
 }
@@ -269,7 +260,6 @@ export async function rejectRoleRequest(
       .single()
     
     if (fetchError || !roleRequest) {
-      console.error('Error fetching role request:', fetchError)
       return { success: false, error: 'Role request not found' }
     }
     
@@ -303,7 +293,6 @@ export async function rejectRoleRequest(
       .eq('id', requestId)
     
     if (updateRequestError) {
-      console.error('Error updating role request:', updateRequestError)
       return { success: false, error: 'Failed to update role request status' }
     }
     
@@ -337,7 +326,6 @@ export async function rejectRoleRequest(
         },
       })
     } catch (notificationError) {
-      console.error('Failed to create user notification for rejection:', notificationError)
     }
     
     // Revalidate the page to refresh the pending requests list
@@ -345,7 +333,6 @@ export async function rejectRoleRequest(
     
     return { success: true }
   } catch (error) {
-    console.error('Error in rejectRoleRequest:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
 }

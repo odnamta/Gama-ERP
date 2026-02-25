@@ -93,7 +93,6 @@ export async function createTemplate(
       .single()
 
     if (error) {
-      console.error('Error creating template:', error)
       return { success: false, error: error.message }
     }
 
@@ -103,7 +102,6 @@ export async function createTemplate(
       data: mapDbTemplateToTemplate(template) 
     }
   } catch (error) {
-    console.error('Error in createTemplate:', error)
     return { success: false, error: 'Failed to create template' }
   }
 }
@@ -186,7 +184,6 @@ export async function updateTemplate(
       .single()
 
     if (error) {
-      console.error('Error updating template:', error)
       return { success: false, error: error.message }
     }
 
@@ -197,7 +194,6 @@ export async function updateTemplate(
       data: mapDbTemplateToTemplate(template) 
     }
   } catch (error) {
-    console.error('Error in updateTemplate:', error)
     return { success: false, error: 'Failed to update template' }
   }
 }
@@ -225,7 +221,6 @@ export async function getTemplate(
       if (error.code === 'PGRST116') {
         return { success: false, error: 'Template not found' }
       }
-      console.error('Error fetching template:', error)
       return { success: false, error: error.message }
     }
 
@@ -234,7 +229,6 @@ export async function getTemplate(
       data: mapDbTemplateToTemplate(template) 
     }
   } catch (error) {
-    console.error('Error in getTemplate:', error)
     return { success: false, error: 'Failed to fetch template' }
   }
 }
@@ -262,7 +256,6 @@ export async function getTemplateByCode(
       if (error.code === 'PGRST116') {
         return { success: false, error: 'Template not found' }
       }
-      console.error('Error fetching template by code:', error)
       return { success: false, error: error.message }
     }
 
@@ -271,7 +264,6 @@ export async function getTemplateByCode(
       data: mapDbTemplateToTemplate(template) 
     }
   } catch (error) {
-    console.error('Error in getTemplateByCode:', error)
     return { success: false, error: 'Failed to fetch template' }
   }
 }
@@ -307,7 +299,6 @@ export async function listTemplates(
     const { data: templates, error } = await query
 
     if (error) {
-      console.error('Error listing templates:', error)
       return { success: false, error: error.message }
     }
 
@@ -316,7 +307,6 @@ export async function listTemplates(
       data: (templates || []).map(mapDbTemplateToTemplate) 
     }
   } catch (error) {
-    console.error('Error in listTemplates:', error)
     return { success: false, error: 'Failed to list templates' }
   }
 }
@@ -383,14 +373,12 @@ export async function deleteTemplate(
       .eq('id', id)
 
     if (error) {
-      console.error('Error deleting template:', error)
       return { success: false, error: error.message }
     }
 
     revalidatePath('/settings/document-templates')
     return { success: true }
   } catch (error) {
-    console.error('Error in deleteTemplate:', error)
     return { success: false, error: 'Failed to delete template' }
   }
 }
@@ -414,14 +402,12 @@ export async function deactivateTemplate(
       .eq('id', id)
 
     if (error) {
-      console.error('Error deactivating template:', error)
       return { success: false, error: error.message }
     }
 
     revalidatePath('/settings/document-templates')
     return { success: true }
   } catch (error) {
-    console.error('Error in deactivateTemplate:', error)
     return { success: false, error: 'Failed to deactivate template' }
   }
 }
@@ -445,14 +431,12 @@ export async function activateTemplate(
       .eq('id', id)
 
     if (error) {
-      console.error('Error activating template:', error)
       return { success: false, error: error.message }
     }
 
     revalidatePath('/settings/document-templates')
     return { success: true }
   } catch (error) {
-    console.error('Error in activateTemplate:', error)
     return { success: false, error: 'Failed to activate template' }
   }
 }

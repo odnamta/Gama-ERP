@@ -47,13 +47,11 @@ export async function logQuery(input: QueryHistoryInput): Promise<{ success: boo
       });
 
     if (error) {
-      console.error('Error logging query:', error);
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error('Error in logQuery:', error);
     return { success: false, error: 'Failed to log query' };
   }
 }
@@ -74,13 +72,11 @@ export async function getQueryHistory(userId: string): Promise<AIQueryHistory[]>
       .limit(10);
 
     if (error) {
-      console.error('Error fetching query history:', error);
       return [];
     }
 
     return (data || []) as unknown as AIQueryHistory[];
   } catch (error) {
-    console.error('Error in getQueryHistory:', error);
     return [];
   }
 }
@@ -106,13 +102,11 @@ export async function updateQueryFeedback(
       .eq('id', queryId);
 
     if (error) {
-      console.error('Error updating feedback:', error);
       return { success: false, error: error.message };
     }
 
     return { success: true };
   } catch (error) {
-    console.error('Error in updateQueryFeedback:', error);
     return { success: false, error: 'Failed to update feedback' };
   }
 }
@@ -135,13 +129,11 @@ export async function getQueryTemplates(): Promise<AIQueryTemplate[]> {
       .order('template_category');
 
     if (error) {
-      console.error('Error fetching templates:', error);
       return [];
     }
 
     return (data || []) as unknown as AIQueryTemplate[];
   } catch (error) {
-    console.error('Error in getQueryTemplates:', error);
     return [];
   }
 }
@@ -242,7 +234,6 @@ export async function processAIQuery(
     };
 
   } catch (error) {
-    console.error('Error processing AI query:', error);
     return {
       responseType: 'error',
       responseText: 'Sorry, I encountered an error processing your question.',
@@ -269,13 +260,11 @@ async function executeQuery(sql: string): Promise<{ data: unknown[] | null; erro
     if (error) {
       // Fallback: try direct query for simple selects
       // This is a simplified approach - production would need more robust handling
-      console.error('RPC error, query may not be supported:', error);
       return { data: null, error: error.message };
     }
 
     return { data: (data || []) as unknown[] | null, error: null };
   } catch (error) {
-    console.error('Error executing query:', error);
     return { data: null, error: 'Query execution failed' };
   }
 }
@@ -345,7 +334,6 @@ export async function checkAIInsightsAccess(): Promise<{
       role: profile.role,
     };
   } catch (error) {
-    console.error('Error checking AI Insights access:', error);
     return { hasAccess: false };
   }
 }

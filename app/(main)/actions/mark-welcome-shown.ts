@@ -60,7 +60,6 @@ export async function markWelcomeShown(): Promise<MarkWelcomeShownResult> {
   
   // Requirement 5.4: Return error with descriptive message on failure
   if (updateError) {
-    console.error('[markWelcomeShown] Error updating user_profiles:', updateError)
     return {
       success: false,
       error: 'Failed to record welcome shown status',

@@ -106,7 +106,6 @@ export async function initializeEngineeringReview(
       complexity_score: complexityScore,
     })
   } catch (e) {
-    console.error('Failed to send assignment notification:', e)
   }
 
   revalidatePath(`/proforma-jo/${pjoId}`)
@@ -367,7 +366,6 @@ export async function completeEngineeringReview(
         created_by: pjo.created_by,
       })
     } catch (e) {
-      console.error('Failed to send completion notification:', e)
     }
   }
 
@@ -460,7 +458,6 @@ export async function waiveEngineeringReview(
       waived_reason: reason.trim(),
     })
   } catch (e) {
-    console.error('Failed to send waiver notification:', e)
   }
 
   revalidatePath(`/proforma-jo/${pjoId}`)

@@ -212,7 +212,6 @@ export async function createPJO(data: PJOFormData): Promise<{ error?: string; id
       .insert(revenueItemsToInsert)
 
     if (revenueError) {
-      console.error('Error inserting revenue items:', revenueError)
     }
   }
 
@@ -232,7 +231,6 @@ export async function createPJO(data: PJOFormData): Promise<{ error?: string; id
       .insert(costItemsToInsert)
 
     if (costError) {
-      console.error('Error inserting cost items:', costError)
     }
 
     // Update PJO with total_cost_estimated
@@ -556,7 +554,6 @@ export async function submitForApproval(id: string): Promise<{ error?: string }>
       created_by: existingPJO.created_by || undefined,
     })
   } catch (e) {
-    console.error('Failed to send approval notification:', e)
   }
 
   revalidatePath('/proforma-jo')
@@ -644,7 +641,6 @@ export async function approvePJO(id: string): Promise<{ error?: string; blocked?
       'approved'
     )
   } catch (e) {
-    console.error('Failed to send approval decision notification:', e)
   }
 
   revalidatePath('/proforma-jo')
@@ -715,7 +711,6 @@ export async function rejectPJO(id: string, reason: string): Promise<{ error?: s
       reason
     )
   } catch (e) {
-    console.error('Failed to send rejection notification:', e)
   }
 
   revalidatePath('/proforma-jo')
@@ -833,7 +828,6 @@ export async function confirmCostItem(
         )
       }
     } catch (e) {
-      console.error('Failed to send budget alert notification:', e)
     }
   }
 

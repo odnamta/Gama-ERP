@@ -26,7 +26,7 @@ export function PaymentHistoryClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'customer_payment_history', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'customer_payment_history', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

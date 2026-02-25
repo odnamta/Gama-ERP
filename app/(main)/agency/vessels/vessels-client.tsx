@@ -55,7 +55,6 @@ export function VesselsClient() {
         setShippingLines(shippingLinesResult.data);
       }
     } catch (error) {
-      console.error('Failed to load vessels:', error);
       toast({
         title: 'Error',
         description: 'Failed to load vessels',

@@ -94,7 +94,6 @@ export async function createSession(
     .single();
 
   if (error) {
-    console.error('Failed to create session:', error);
     return { token: null, session: null, error: error.message };
   }
 

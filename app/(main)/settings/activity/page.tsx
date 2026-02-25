@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUserProfile } from '@/lib/permissions-server';
+import { ADMIN_ROLES } from '@/lib/permissions';
 import { ActivityViewerClient } from './activity-viewer-client';
 
 export const metadata = {
@@ -11,7 +12,7 @@ export default async function ActivityViewerPage() {
   const profile = await getUserProfile();
 
   // Only owner, director, sysadmin can access
-  if (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role)) {
+  if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
     redirect('/dashboard');
   }
 

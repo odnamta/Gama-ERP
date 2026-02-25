@@ -21,7 +21,6 @@ export async function getWorkSchedules(): Promise<{
     .order('schedule_name');
 
   if (error) {
-    console.error('Error fetching work schedules:', error);
     return { data: null, error: error.message };
   }
 
@@ -143,7 +142,6 @@ export async function upsertWorkSchedule(
   }
 
   if (result.error) {
-    console.error('Error upserting schedule:', result.error);
     return { success: false, error: result.error.message };
   }
 
@@ -173,7 +171,6 @@ export async function setDefaultSchedule(
     .eq('id', scheduleId);
 
   if (error) {
-    console.error('Error setting default schedule:', error);
     return { success: false, error: error.message };
   }
 
@@ -223,7 +220,6 @@ export async function deleteWorkSchedule(
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting schedule:', error);
     return { success: false, error: error.message };
   }
 
@@ -247,7 +243,6 @@ export async function assignScheduleToEmployee(
     .eq('id', employeeId);
 
   if (error) {
-    console.error('Error assigning schedule:', error);
     return { success: false, error: error.message };
   }
 

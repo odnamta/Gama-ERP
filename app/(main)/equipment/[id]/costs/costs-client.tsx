@@ -70,7 +70,6 @@ export function CostsClient({ assetId }: CostsClientProps) {
         setCostBreakdown(breakdownResult.data);
       }
     } catch (error) {
-      console.error('Error loading cost data:', error);
       toast.error('Failed to load cost data');
     } finally {
       setLoading(false);

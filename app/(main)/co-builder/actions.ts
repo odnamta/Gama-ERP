@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { getUserProfile } from '@/lib/permissions-server'
+import { ADMIN_ROLES } from '@/lib/permissions'
 import { revalidatePath } from 'next/cache'
 import { calculateEffortLevel } from '@/lib/co-builder-utils'
 
@@ -209,7 +210,6 @@ export async function submitCompetitionFeedback(data: {
       .single()
 
     if (insertError) {
-      console.error('Error submitting feedback:', insertError)
       return { success: false, error: 'Gagal mengirim feedback' }
     }
 
@@ -303,7 +303,6 @@ export async function submitCompetitionFeedback(data: {
     revalidatePath('/co-builder')
     return { success: true, points: totalEarned, bonuses }
   } catch (error) {
-    console.error('Error in submitCompetitionFeedback:', error)
     return { success: false, error: 'Terjadi kesalahan' }
   }
 }
@@ -682,7 +681,6 @@ export async function getAllCompetitionFeedback(filters?: {
   const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching feedback:', error)
     return []
   }
 
@@ -923,7 +921,6 @@ export async function completeScenario(data: {
     revalidatePath('/co-builder/scenarios')
     return { success: true, points: pointsEarned }
   } catch (error) {
-    console.error('Error completing scenario:', error)
     return { success: false, error: 'Terjadi kesalahan' }
   }
 }
@@ -940,7 +937,7 @@ export async function reviewFeedback(data: {
 }): Promise<{ success: boolean; error?: string }> {
   try {
     const profile = await getUserProfile()
-    if (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' }
     }
 
@@ -1062,7 +1059,6 @@ export async function reviewFeedback(data: {
     revalidatePath('/co-builder/bug-tracker')
     return { success: true }
   } catch (error) {
-    console.error('Error reviewing feedback:', error)
     return { success: false, error: 'Terjadi kesalahan' }
   }
 }
@@ -1123,7 +1119,6 @@ export async function submitTop5(data: {
     revalidatePath('/co-builder')
     return { success: true, points: 30 }
   } catch (error) {
-    console.error('Error submitting top5:', error)
     return { success: false, error: 'Terjadi kesalahan' }
   }
 }
@@ -1155,7 +1150,6 @@ export async function uploadCompetitionScreenshot(
       .upload(path, file)
 
     if (uploadError) {
-      console.error('Upload error:', uploadError)
       return { url: null, error: 'Gagal upload file' }
     }
 
@@ -1165,7 +1159,6 @@ export async function uploadCompetitionScreenshot(
 
     return { url: urlData.publicUrl }
   } catch (error) {
-    console.error('Upload error:', error)
     return { url: null, error: 'Terjadi kesalahan' }
   }
 }

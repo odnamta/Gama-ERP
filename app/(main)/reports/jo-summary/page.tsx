@@ -41,7 +41,6 @@ async function fetchReportData(): Promise<JOSummaryReport | null> {
     .lte('created_at', endDate)
 
   if (error) {
-    console.error('Error fetching JO summary:', error)
     return null
   }
 

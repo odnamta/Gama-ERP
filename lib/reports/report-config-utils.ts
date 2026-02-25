@@ -17,7 +17,6 @@ export async function getReportConfigurations(role: string): Promise<ReportConfi
     .order('display_order', { ascending: true })
   
   if (error) {
-    console.error('Error fetching report configurations:', error)
     return []
   }
   
@@ -41,7 +40,6 @@ export async function getReportByCode(code: string): Promise<ReportConfiguration
     .single()
   
   if (error) {
-    console.error('Error fetching report by code:', error)
     return null
   }
   

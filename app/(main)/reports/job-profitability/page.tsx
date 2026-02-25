@@ -46,7 +46,6 @@ async function fetchReportData(): Promise<JobProfitabilityData[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching job orders:', error)
     return []
   }
 

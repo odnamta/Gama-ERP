@@ -31,7 +31,6 @@ export default function NewVesselPage() {
           setShippingLines(result.data);
         }
       } catch (error) {
-        console.error('Failed to load shipping lines:', error);
       } finally {
         setLoadingShippingLines(false);
       }
@@ -57,7 +56,6 @@ export default function NewVesselPage() {
         });
       }
     } catch (error) {
-      console.error('Error creating vessel:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

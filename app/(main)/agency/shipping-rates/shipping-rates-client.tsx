@@ -75,7 +75,6 @@ export function ShippingRatesClient() {
         setShippingLines(linesResult.data);
       }
     } catch (error) {
-      console.error('Failed to load initial data:', error);
       toast({
         title: 'Error',
         description: 'Failed to load data',
@@ -133,7 +132,6 @@ export function ShippingRatesClient() {
         });
       }
     } catch (error) {
-      console.error('Search failed:', error);
       toast({
         title: 'Error',
         description: 'Failed to search rates',

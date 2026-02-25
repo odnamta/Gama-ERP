@@ -51,7 +51,6 @@ export async function getAssessmentTypes(): Promise<TechnicalAssessmentType[]> {
     .order('display_order', { ascending: true });
 
   if (error) {
-    console.error('Error fetching assessment types:', error);
     return [];
   }
 
@@ -68,7 +67,6 @@ export async function getAssessmentType(id: string): Promise<TechnicalAssessment
     .single();
 
   if (error) {
-    console.error('Error fetching assessment type:', error);
     return null;
   }
 
@@ -122,7 +120,6 @@ export async function createAssessment(
     .single();
 
   if (error) {
-    console.error('Error creating assessment:', error);
     return { success: false, error: error.message };
   }
 
@@ -188,7 +185,6 @@ export async function updateAssessment(
     .single();
 
   if (error) {
-    console.error('Error updating assessment:', error);
     return { success: false, error: error.message };
   }
 
@@ -206,7 +202,6 @@ export async function deleteAssessment(id: string): Promise<ActionResult<void>> 
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting assessment:', error);
     return { success: false, error: error.message };
   }
 
@@ -237,7 +232,6 @@ export async function getAssessment(id: string): Promise<TechnicalAssessment | n
     .single();
 
   if (error) {
-    console.error('Error fetching assessment:', error);
     return null;
   }
 
@@ -289,7 +283,6 @@ export async function getAssessments(
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching assessments:', error);
     return [];
   }
 
@@ -338,7 +331,6 @@ export async function submitForReview(
     .single();
 
   if (error) {
-    console.error('Error submitting for review:', error);
     return { success: false, error: error.message };
   }
 
@@ -368,7 +360,6 @@ export async function reviewAssessment(
     .single();
 
   if (error) {
-    console.error('Error recording review:', error);
     return { success: false, error: error.message };
   }
 
@@ -423,7 +414,6 @@ export async function approveAssessment(
     .single();
 
   if (error) {
-    console.error('Error approving assessment:', error);
     return { success: false, error: error.message };
   }
 
@@ -468,7 +458,6 @@ export async function rejectAssessment(
     .single();
 
   if (error) {
-    console.error('Error rejecting assessment:', error);
     return { success: false, error: error.message };
   }
 
@@ -542,7 +531,6 @@ export async function createRevision(
     .single();
 
   if (error) {
-    console.error('Error creating revision:', error);
     return { success: false, error: error.message };
   }
 
@@ -629,7 +617,6 @@ export async function createLiftingPlan(
     .single();
 
   if (error) {
-    console.error('Error creating lifting plan:', error);
     return { success: false, error: error.message };
   }
 
@@ -705,7 +692,6 @@ export async function updateLiftingPlan(
     .single();
 
   if (error) {
-    console.error('Error updating lifting plan:', error);
     return { success: false, error: error.message };
   }
 
@@ -729,7 +715,6 @@ export async function deleteLiftingPlan(id: string): Promise<ActionResult<void>>
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting lifting plan:', error);
     return { success: false, error: error.message };
   }
 
@@ -749,7 +734,6 @@ export async function getLiftingPlans(assessmentId: string): Promise<LiftingPlan
     .order('lift_number', { ascending: true });
 
   if (error) {
-    console.error('Error fetching lifting plans:', error);
     return [];
   }
 
@@ -831,7 +815,6 @@ export async function createAxleCalculation(
     .single();
 
   if (error) {
-    console.error('Error creating axle calculation:', error);
     return { success: false, error: error.message };
   }
 
@@ -918,7 +901,6 @@ export async function updateAxleCalculation(
     .single();
 
   if (error) {
-    console.error('Error updating axle calculation:', error);
     return { success: false, error: error.message };
   }
 
@@ -942,7 +924,6 @@ export async function deleteAxleCalculation(id: string): Promise<ActionResult<vo
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting axle calculation:', error);
     return { success: false, error: error.message };
   }
 
@@ -962,7 +943,6 @@ export async function getAxleCalculations(assessmentId: string): Promise<AxleLoa
     .order('created_at', { ascending: true });
 
   if (error) {
-    console.error('Error fetching axle calculations:', error);
     return [];
   }
 
@@ -981,7 +961,6 @@ export async function getAssessmentStatusCounts(): Promise<Record<string, number
     .select('status');
 
   if (error) {
-    console.error('Error fetching status counts:', error);
     return {};
   }
 

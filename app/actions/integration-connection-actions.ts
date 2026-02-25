@@ -88,7 +88,6 @@ export async function createIntegrationConnection(
     revalidatePath('/settings/integrations');
     return { success: true, data: data as IntegrationConnection };
   } catch (err) {
-    console.error('Error creating integration connection:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to create integration connection' 
@@ -157,7 +156,6 @@ export async function updateIntegrationConnection(
     revalidatePath(`/settings/integrations/${id}`);
     return { success: true, data: data as IntegrationConnection };
   } catch (err) {
-    console.error('Error updating integration connection:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to update integration connection' 
@@ -213,7 +211,6 @@ export async function deleteIntegrationConnection(
     revalidatePath('/settings/integrations');
     return { success: true };
   } catch (err) {
-    console.error('Error deleting integration connection:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to delete integration connection' 
@@ -322,7 +319,6 @@ export async function testIntegrationConnection(
       },
     };
   } catch (err) {
-    console.error('Error testing integration connection:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to test integration connection' 
@@ -422,7 +418,6 @@ export async function getIntegrationConnection(
 
     return { success: true, data: data as IntegrationConnection };
   } catch (err) {
-    console.error('Error fetching integration connection:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to fetch integration connection' 
@@ -466,7 +461,6 @@ export async function listIntegrationConnections(filters?: {
 
     return { success: true, data: data as IntegrationConnection[] };
   } catch (err) {
-    console.error('Error listing integration connections:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to list integration connections' 
@@ -515,7 +509,6 @@ export async function toggleIntegrationConnectionActive(
     revalidatePath('/settings/integrations');
     return { success: true, data: data as IntegrationConnection };
   } catch (err) {
-    console.error('Error toggling integration connection:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to toggle integration connection' 

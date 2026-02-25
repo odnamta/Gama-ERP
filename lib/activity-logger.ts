@@ -49,11 +49,9 @@ export async function logActivity(
     });
 
     if (error) {
-      console.error('[ActivityLogger] Failed to log activity:', error.message);
     }
   } catch (error) {
     // Log error but don't throw to avoid disrupting user actions
-    console.error('[ActivityLogger] Error:', error);
   }
 }
 
@@ -98,9 +96,7 @@ export async function logPageView(
     });
 
     if (error) {
-      console.error('[ActivityLogger] Failed to log page view:', error.message);
     }
   } catch (error) {
-    console.error('[ActivityLogger] Error logging page view:', error);
   }
 }

@@ -64,7 +64,6 @@ export async function fetchDashboardStats(): Promise<{
   const { data, error } = await (supabase.rpc as any)('get_dashboard_stats')
   
   if (error) {
-    console.error('Error fetching dashboard stats:', error)
     // Return defaults on error
     return {
       active_jobs: 0,
@@ -167,7 +166,6 @@ export async function fetchBudgetAlerts(): Promise<BudgetAlert[]> {
     .limit(5)
 
   if (error) {
-    console.error('Error fetching budget alerts:', error)
     return []
   }
 
@@ -214,7 +212,6 @@ export async function fetchRecentActivity(): Promise<ActivityEntry[]> {
 
   // Only log actual errors (not empty objects from Supabase)
   if (error && 'message' in error && error.message) {
-    console.error('Error fetching recent activity:', error)
     return []
   }
 
@@ -254,7 +251,6 @@ export async function fetchOperationsQueue(): Promise<OpsQueueItem[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching operations queue:', error)
     return []
   }
 
@@ -307,7 +303,6 @@ export async function fetchManagerMetrics(): Promise<ManagerMetrics> {
     .lte('created_at', endOfMonth)
 
   if (error) {
-    console.error('Error fetching manager metrics:', error)
     return {
       totalRevenue: 0,
       totalCosts: 0,
@@ -358,7 +353,6 @@ export async function logActivity(
     })
 
   if (error) {
-    console.error('Error logging activity:', error)
   }
 }
 
@@ -883,7 +877,6 @@ export async function approvePJO(id: string): Promise<{ error?: string }> {
     .eq('id', id)
 
   if (error) {
-    console.error('Error approving PJO:', error)
     return { error: 'Failed to approve PJO' }
   }
 
@@ -920,7 +913,6 @@ export async function rejectPJO(id: string, reason: string): Promise<{ error?: s
     .eq('id', id)
 
   if (error) {
-    console.error('Error rejecting PJO:', error)
     return { error: 'Failed to reject PJO' }
   }
 
@@ -952,7 +944,6 @@ export async function approveAllPJOs(): Promise<{ error?: string }> {
     .eq('status', 'pending_approval')
 
   if (error) {
-    console.error('Error approving all PJOs:', error)
     return { error: 'Failed to approve all PJOs' }
   }
 

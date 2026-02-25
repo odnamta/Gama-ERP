@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
+import { ADMIN_ROLES } from '@/lib/permissions';
 import type { UserActivityLog, DailyActivityCount } from '@/types/activity';
 
 /**
@@ -12,7 +13,7 @@ export async function GET(request: NextRequest) {
   try {
     // Check authorization
     const profile = await getUserProfile();
-    if (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -48,7 +49,6 @@ export async function GET(request: NextRequest) {
     const { data: activities, error: activitiesError } = await query;
 
     if (activitiesError) {
-      console.error('Error fetching activities:', activitiesError);
       return NextResponse.json({ error: 'Failed to fetch activities' }, { status: 500 });
     }
 
@@ -122,7 +122,6 @@ export async function GET(request: NextRequest) {
       users,
     });
   } catch (error) {
-    console.error('Error in activity query:', error);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

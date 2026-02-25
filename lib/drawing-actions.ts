@@ -46,7 +46,6 @@ export async function getCategories(): Promise<DrawingCategory[]> {
     .order('display_order');
 
   if (error) {
-    console.error('Error fetching categories:', error);
     return [];
   }
 
@@ -89,7 +88,6 @@ export async function getDrawings(filters?: DrawingFilters): Promise<DrawingWith
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching drawings:', error);
     return [];
   }
 
@@ -115,7 +113,6 @@ export async function getDrawingById(id: string): Promise<DrawingWithDetails | n
     .single();
 
   if (error) {
-    console.error('Error fetching drawing:', error);
     return null;
   }
 
@@ -186,7 +183,6 @@ export async function createDrawing(input: DrawingFormInput): Promise<ActionResu
     .single();
 
   if (error) {
-    console.error('Error creating drawing:', error);
     return { success: false, error: 'Failed to create drawing' };
   }
 
@@ -225,7 +221,6 @@ export async function updateDrawing(
     .single();
 
   if (error) {
-    console.error('Error updating drawing:', error);
     return { success: false, error: 'Failed to update drawing' };
   }
 
@@ -243,7 +238,6 @@ export async function deleteDrawing(id: string): Promise<ActionResult<void>> {
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting drawing:', error);
     return { success: false, error: 'Failed to delete drawing' };
   }
 
@@ -268,7 +262,6 @@ export async function getDrawingRevisions(drawingId: string): Promise<DrawingRev
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Error fetching revisions:', error);
     return [];
   }
 
@@ -320,7 +313,6 @@ export async function createRevision(
     .single();
 
   if (revError) {
-    console.error('Error creating revision:', revError);
     return { success: false, error: 'Failed to create revision' };
   }
 
@@ -435,7 +427,6 @@ async function updateDrawingStatus(
     .single();
 
   if (error) {
-    console.error('Error updating drawing status:', error);
     return { success: false, error: 'Failed to update drawing status' };
   }
 
@@ -465,7 +456,6 @@ export async function getTransmittals(projectId?: string): Promise<DrawingTransm
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching transmittals:', error);
     return [];
   }
 
@@ -486,7 +476,6 @@ export async function getTransmittalById(id: string): Promise<DrawingTransmittal
     .single();
 
   if (error) {
-    console.error('Error fetching transmittal:', error);
     return null;
   }
 
@@ -526,7 +515,6 @@ export async function createTransmittal(
     .single();
 
   if (error) {
-    console.error('Error creating transmittal:', error);
     return { success: false, error: 'Failed to create transmittal' };
   }
 
@@ -557,7 +545,6 @@ export async function sendTransmittal(id: string): Promise<ActionResult<DrawingT
     .single();
 
   if (error) {
-    console.error('Error sending transmittal:', error);
     return { success: false, error: 'Failed to send transmittal' };
   }
 
@@ -580,7 +567,6 @@ export async function acknowledgeTransmittal(id: string): Promise<ActionResult<D
     .single();
 
   if (error) {
-    console.error('Error acknowledging transmittal:', error);
     return { success: false, error: 'Failed to acknowledge transmittal' };
   }
 

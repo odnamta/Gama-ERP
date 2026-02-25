@@ -26,7 +26,6 @@ export async function updateProfile(data: UpdateProfileData) {
       .eq('user_id', user.id)
 
     if (error) {
-      console.error('Error updating profile:', error)
       return { success: false, error: 'Failed to update profile' }
     }
 
@@ -35,7 +34,6 @@ export async function updateProfile(data: UpdateProfileData) {
     
     return { success: true }
   } catch (error) {
-    console.error('Error in updateProfile:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
 }

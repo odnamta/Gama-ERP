@@ -135,7 +135,6 @@ export async function clockIn(): Promise<{
     .single();
   
   if (error) {
-    console.error('Error clocking in:', error);
     return { success: false, error: 'Failed to record clock-in. Please try again.' };
   }
   
@@ -196,7 +195,6 @@ export async function clockOut(): Promise<{
     .single();
   
   if (error) {
-    console.error('Error clocking out:', error);
     return { success: false, error: 'Failed to record clock-out. Please try again.' };
   }
   

@@ -172,7 +172,6 @@ export async function createFollowUpTask(
     
     if (!userId) {
       // No finance user found, log and return success
-      console.log('Follow-up task created (no finance user found):', taskInput);
       return { success: true };
     }
     
@@ -201,7 +200,6 @@ export async function createFollowUpTask(
       .single();
     
     if (error) {
-      console.error('Failed to create notification:', error);
       return { success: false, error: error.message };
     }
     
@@ -288,7 +286,6 @@ export async function sendOverdueSummaryEmail(
     // This would integrate with the notification system
     // For now, we'll just log the summary
     const summary = generateOverdueSummary(result);
-    console.log('Overdue Invoice Summary:', summary);
     
     // TODO: Integrate with email notification system
     // await sendNotification({

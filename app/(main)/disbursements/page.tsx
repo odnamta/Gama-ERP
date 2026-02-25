@@ -37,7 +37,6 @@ export default async function DisbursementsPage() {
   const { data: bkks, error } = await fetchBKKRecords()
 
   if (error) {
-    console.error('Error fetching BKKs:', error)
   }
 
   return (

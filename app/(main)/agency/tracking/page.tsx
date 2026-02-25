@@ -73,7 +73,6 @@ export default function TrackingPage() {
       const data = await getUserSubscriptions();
       setSubscriptions(data);
     } catch (error) {
-      console.error('Error loading subscriptions:', error);
     } finally {
       setIsLoadingSubscriptions(false);
     }
@@ -125,7 +124,6 @@ export default function TrackingPage() {
         throw new Error(result.error || 'Failed to create subscription');
       }
     } catch (error) {
-      console.error('Error creating subscription:', error);
       throw error;
     } finally {
       setIsSubscribing(false);

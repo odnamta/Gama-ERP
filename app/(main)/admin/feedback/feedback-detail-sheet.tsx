@@ -62,7 +62,6 @@ export function FeedbackDetailSheet({ feedback, onClose, onUpdate }: FeedbackDet
         setComments(result.data);
       }
     } catch (error) {
-      console.error('Failed to load comments:', error);
     } finally {
       setLoadingComments(false);
     }

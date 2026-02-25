@@ -130,7 +130,6 @@ export async function createBillOfLading(data: BLFormData): Promise<ActionResult
     revalidatePath('/agency/bl');
     return { success: true, data: mapBLRowToModel(result as BillOfLadingRow) };
   } catch (error) {
-    console.error('Error creating Bill of Lading:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create Bill of Lading' };
   }
 }
@@ -228,7 +227,6 @@ export async function updateBillOfLading(id: string, data: Partial<BLFormData>):
     revalidatePath(`/agency/bl/${id}`);
     return { success: true, data: mapBLRowToModel(result as BillOfLadingRow) };
   } catch (error) {
-    console.error('Error updating Bill of Lading:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update Bill of Lading' };
   }
 }
@@ -255,7 +253,6 @@ export async function getBillOfLading(id: string): Promise<BillOfLading | null> 
     if (error) throw error;
     return data ? mapBLRowToModel(data as BillOfLadingRow) : null;
   } catch (error) {
-    console.error('Error getting Bill of Lading:', error);
     return null;
   }
 }
@@ -308,7 +305,6 @@ export async function getBillsOfLading(filters?: BLFilters): Promise<BillOfLadin
     if (error) throw error;
     return (data || []).map((row: BillOfLadingRow) => mapBLRowToModel(row));
   } catch (error) {
-    console.error('Error getting Bills of Lading:', error);
     return [];
   }
 }
@@ -401,7 +397,6 @@ export async function updateBLStatus(id: string, newStatus: BLStatus): Promise<A
     revalidatePath(`/agency/bl/${id}`);
     return { success: true, data: mapBLRowToModel(result as BillOfLadingRow) };
   } catch (error) {
-    console.error('Error updating B/L status:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update B/L status' };
   }
 }
@@ -490,7 +485,6 @@ export async function deleteBillOfLading(id: string): Promise<ActionResult<void>
     revalidatePath('/agency/bl');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting Bill of Lading:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to delete Bill of Lading' };
   }
 }
@@ -579,7 +573,6 @@ export async function createShippingInstruction(data: SIFormData): Promise<Actio
     revalidatePath('/agency/si');
     return { success: true, data: mapSIRowToModel(result as ShippingInstructionRow) };
   } catch (error) {
-    console.error('Error creating Shipping Instruction:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create Shipping Instruction' };
   }
 }
@@ -662,7 +655,6 @@ export async function updateShippingInstruction(id: string, data: Partial<SIForm
     revalidatePath(`/agency/si/${id}`);
     return { success: true, data: mapSIRowToModel(result as ShippingInstructionRow) };
   } catch (error) {
-    console.error('Error updating Shipping Instruction:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update Shipping Instruction' };
   }
 }
@@ -689,7 +681,6 @@ export async function getShippingInstruction(id: string): Promise<ShippingInstru
     if (error) throw error;
     return data ? mapSIRowToModel(data as ShippingInstructionRow) : null;
   } catch (error) {
-    console.error('Error getting Shipping Instruction:', error);
     return null;
   }
 }
@@ -738,7 +729,6 @@ export async function getShippingInstructions(filters?: SIFilters): Promise<Ship
     if (error) throw error;
     return (data || []).map((row: ShippingInstructionRow) => mapSIRowToModel(row));
   } catch (error) {
-    console.error('Error getting Shipping Instructions:', error);
     return [];
   }
 }
@@ -782,7 +772,6 @@ export async function deleteShippingInstruction(id: string): Promise<ActionResul
     revalidatePath('/agency/si');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting Shipping Instruction:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to delete Shipping Instruction' };
   }
 }
@@ -865,7 +854,6 @@ export async function submitShippingInstruction(id: string): Promise<ActionResul
     revalidatePath(`/agency/si/${id}`);
     return { success: true, data: mapSIRowToModel(result as ShippingInstructionRow) };
   } catch (error) {
-    console.error('Error submitting Shipping Instruction:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to submit Shipping Instruction' };
   }
 }
@@ -935,7 +923,6 @@ export async function confirmShippingInstruction(id: string, blId: string): Prom
     revalidatePath(`/agency/si/${id}`);
     return { success: true, data: mapSIRowToModel(result as ShippingInstructionRow) };
   } catch (error) {
-    console.error('Error confirming Shipping Instruction:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to confirm Shipping Instruction' };
   }
 }
@@ -990,7 +977,6 @@ export async function amendShippingInstruction(id: string): Promise<ActionResult
     revalidatePath(`/agency/si/${id}`);
     return { success: true, data: mapSIRowToModel(result as ShippingInstructionRow) };
   } catch (error) {
-    console.error('Error amending Shipping Instruction:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to amend Shipping Instruction' };
   }
 }
@@ -1053,7 +1039,6 @@ export async function updateSIStatus(id: string, newStatus: SIStatus): Promise<A
     revalidatePath(`/agency/si/${id}`);
     return { success: true, data: mapSIRowToModel(result as ShippingInstructionRow) };
   } catch (error) {
-    console.error('Error updating SI status:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update SI status' };
   }
 }
@@ -1123,7 +1108,6 @@ export async function createArrivalNotice(data: ArrivalNoticeFormData): Promise<
     revalidatePath('/agency/arrivals');
     return { success: true, data: mapArrivalNoticeRowToModel(result as ArrivalNoticeRow) };
   } catch (error) {
-    console.error('Error creating Arrival Notice:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create Arrival Notice' };
   }
 }
@@ -1198,7 +1182,6 @@ export async function updateArrivalNotice(id: string, data: Partial<ArrivalNotic
     revalidatePath(`/agency/arrivals/${id}`);
     return { success: true, data: mapArrivalNoticeRowToModel(result as ArrivalNoticeRow) };
   } catch (error) {
-    console.error('Error updating Arrival Notice:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update Arrival Notice' };
   }
 }
@@ -1225,7 +1208,6 @@ export async function getArrivalNotice(id: string): Promise<ArrivalNotice | null
     if (error) throw error;
     return data ? mapArrivalNoticeRowToModel(data as ArrivalNoticeRow) : null;
   } catch (error) {
-    console.error('Error getting Arrival Notice:', error);
     return null;
   }
 }
@@ -1280,7 +1262,6 @@ export async function getArrivalNotices(filters?: {
     if (error) throw error;
     return (data || []).map((row: ArrivalNoticeRow) => mapArrivalNoticeRowToModel(row));
   } catch (error) {
-    console.error('Error getting Arrival Notices:', error);
     return [];
   }
 }
@@ -1325,7 +1306,6 @@ export async function deleteArrivalNotice(id: string): Promise<ActionResult<void
     revalidatePath('/agency/arrivals');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting Arrival Notice:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to delete Arrival Notice' };
   }
 }
@@ -1411,7 +1391,6 @@ export async function markConsigneeNotified(id: string, notifiedBy: string): Pro
     revalidatePath(`/agency/arrivals/${id}`);
     return { success: true, data: mapArrivalNoticeRowToModel(result as ArrivalNoticeRow) };
   } catch (error) {
-    console.error('Error marking consignee notified:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to mark consignee as notified' };
   }
 }
@@ -1467,7 +1446,6 @@ export async function markCargoCleared(id: string): Promise<ActionResult<Arrival
     revalidatePath(`/agency/arrivals/${id}`);
     return { success: true, data: mapArrivalNoticeRowToModel(result as ArrivalNoticeRow) };
   } catch (error) {
-    console.error('Error marking cargo cleared:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to mark cargo as cleared' };
   }
 }
@@ -1523,7 +1501,6 @@ export async function markCargoDelivered(id: string): Promise<ActionResult<Arriv
     revalidatePath(`/agency/arrivals/${id}`);
     return { success: true, data: mapArrivalNoticeRowToModel(result as ArrivalNoticeRow) };
   } catch (error) {
-    console.error('Error marking cargo delivered:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to mark cargo as delivered' };
   }
 }
@@ -1586,7 +1563,6 @@ export async function getPendingArrivals(): Promise<ArrivalNotice[]> {
     if (error) throw error;
     return (data || []).map((row: ArrivalNoticeRow) => mapArrivalNoticeRowToModel(row));
   } catch (error) {
-    console.error('Error getting pending arrivals:', error);
     return [];
   }
 }
@@ -1667,7 +1643,6 @@ export async function createCargoManifest(data: ManifestFormData): Promise<Actio
     revalidatePath('/agency/manifests');
     return { success: true, data: mapManifestRowToModel(result as CargoManifestRow) };
   } catch (error) {
-    console.error('Error creating Cargo Manifest:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create Cargo Manifest' };
   }
 }
@@ -1751,7 +1726,6 @@ export async function updateCargoManifest(id: string, data: Partial<ManifestForm
     revalidatePath(`/agency/manifests/${id}`);
     return { success: true, data: mapManifestRowToModel(result as CargoManifestRow) };
   } catch (error) {
-    console.error('Error updating Cargo Manifest:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update Cargo Manifest' };
   }
 }
@@ -1774,7 +1748,6 @@ export async function getCargoManifest(id: string): Promise<CargoManifest | null
     if (error) throw error;
     return data ? mapManifestRowToModel(data as CargoManifestRow) : null;
   } catch (error) {
-    console.error('Error getting Cargo Manifest:', error);
     return null;
   }
 }
@@ -1819,7 +1792,6 @@ export async function getCargoManifests(filters?: ManifestFilters): Promise<Carg
     if (error) throw error;
     return (data || []).map((row: CargoManifestRow) => mapManifestRowToModel(row));
   } catch (error) {
-    console.error('Error getting Cargo Manifests:', error);
     return [];
   }
 }
@@ -1864,7 +1836,6 @@ export async function deleteCargoManifest(id: string): Promise<ActionResult<void
     revalidatePath('/agency/manifests');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting Cargo Manifest:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to delete Cargo Manifest' };
   }
 }
@@ -1967,7 +1938,6 @@ export async function linkBLsToManifest(manifestId: string, blIds: string[]): Pr
     revalidatePath(`/agency/manifests/${manifestId}`);
     return { success: true, data: mapManifestRowToModel(result as CargoManifestRow) };
   } catch (error) {
-    console.error('Error linking B/Ls to Manifest:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to link B/Ls to Manifest' };
   }
 }
@@ -2030,7 +2000,6 @@ export async function submitManifest(id: string, submittedTo: string): Promise<A
     revalidatePath(`/agency/manifests/${id}`);
     return { success: true, data: mapManifestRowToModel(result as CargoManifestRow) };
   } catch (error) {
-    console.error('Error submitting Cargo Manifest:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to submit Cargo Manifest' };
   }
 }
@@ -2087,7 +2056,6 @@ export async function approveManifest(id: string, documentUrl?: string): Promise
     revalidatePath(`/agency/manifests/${id}`);
     return { success: true, data: mapManifestRowToModel(result as CargoManifestRow) };
   } catch (error) {
-    console.error('Error approving Cargo Manifest:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to approve Cargo Manifest' };
   }
 }
@@ -2162,7 +2130,6 @@ export async function getCargoManifestWithBLs(id: string): Promise<CargoManifest
 
     return mappedManifest;
   } catch (error) {
-    console.error('Error getting Cargo Manifest with B/Ls:', error);
     return null;
   }
 }
@@ -2237,7 +2204,6 @@ export async function getBLStats(): Promise<BLStats> {
 
     return stats;
   } catch (error) {
-    console.error('Error getting B/L stats:', error);
     return {
       total: 0,
       draft: 0,
@@ -2306,7 +2272,6 @@ export async function getSIStats(): Promise<SIStats> {
 
     return stats;
   } catch (error) {
-    console.error('Error getting SI stats:', error);
     return {
       total: 0,
       draft: 0,

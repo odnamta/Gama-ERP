@@ -107,7 +107,6 @@ export function ApproveDialog({
         })
       }
     } catch (error) {
-      console.error('Error approving request:', error)
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
@@ -247,7 +246,6 @@ export function RejectDialog({
         })
       }
     } catch (error) {
-      console.error('Error rejecting request:', error)
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

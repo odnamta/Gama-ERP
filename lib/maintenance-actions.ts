@@ -46,7 +46,6 @@ export async function getMaintenanceTypes(): Promise<MaintenanceType[]> {
     .order('display_order', { ascending: true });
 
   if (error) {
-    console.error('Error fetching maintenance types:', error);
     return [];
   }
 
@@ -63,7 +62,6 @@ export async function getMaintenanceTypeById(id: string): Promise<MaintenanceTyp
     .single();
 
   if (error) {
-    console.error('Error fetching maintenance type:', error);
     return null;
   }
 
@@ -93,7 +91,6 @@ export async function getMaintenanceSchedules(assetId?: string): Promise<Mainten
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching maintenance schedules:', error);
     return [];
   }
 
@@ -131,7 +128,6 @@ export async function createMaintenanceSchedule(
     .single();
 
   if (error) {
-    console.error('Error creating maintenance schedule:', error);
     return { success: false, error: error.message };
   }
 
@@ -160,7 +156,6 @@ export async function updateMaintenanceSchedule(
     .eq('id', id);
 
   if (error) {
-    console.error('Error updating maintenance schedule:', error);
     return { success: false, error: error.message };
   }
 
@@ -177,7 +172,6 @@ export async function deleteMaintenanceSchedule(id: string): Promise<{ success: 
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting maintenance schedule:', error);
     return { success: false, error: error.message };
   }
 
@@ -198,7 +192,6 @@ export async function getUpcomingMaintenance(): Promise<UpcomingMaintenance[]> {
     .in('status', ['overdue', 'due_soon']);
 
   if (error) {
-    console.error('Error fetching upcoming maintenance:', error);
     return [];
   }
 
@@ -213,7 +206,6 @@ export async function getAllUpcomingMaintenance(): Promise<UpcomingMaintenance[]
     .select('*');
 
   if (error) {
-    console.error('Error fetching all upcoming maintenance:', error);
     return [];
   }
 
@@ -289,7 +281,6 @@ export async function createMaintenanceRecord(
     .single();
 
   if (recordError) {
-    console.error('Error creating maintenance record:', recordError);
     return { success: false, error: recordError.message };
   }
 
@@ -311,7 +302,6 @@ export async function createMaintenanceRecord(
       .insert(partsToInsert);
 
     if (partsError) {
-      console.error('Error inserting maintenance parts:', partsError);
       // Don't fail the whole operation, parts can be added later
     }
   }
@@ -369,7 +359,6 @@ async function updateNextMaintenanceDue(
     .single();
 
   if (error || !schedule) {
-    console.error('Error fetching schedule for update:', error);
     return;
   }
 
@@ -422,7 +411,6 @@ export async function getMaintenanceRecordById(id: string): Promise<MaintenanceR
     .single();
 
   if (error) {
-    console.error('Error fetching maintenance record:', error);
     return null;
   }
 
@@ -468,7 +456,6 @@ export async function getMaintenanceHistory(
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching maintenance history:', error);
     return [];
   }
 
@@ -500,7 +487,6 @@ export async function getMaintenanceParts(recordId: string): Promise<Maintenance
     .order('created_at', { ascending: true });
 
   if (error) {
-    console.error('Error fetching maintenance parts:', error);
     return [];
   }
 
@@ -533,7 +519,6 @@ export async function getMaintenanceCostSummary(
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching maintenance cost summary:', error);
     return [];
   }
 
@@ -554,7 +539,6 @@ export async function getCostMTD(): Promise<number> {
     .gte('maintenance_date', startDate);
 
   if (error) {
-    console.error('Error fetching cost MTD:', error);
     return 0;
   }
 
@@ -608,7 +592,6 @@ export async function getActiveSchedulesCount(assetId: string): Promise<number> 
     .eq('is_active', true);
 
   if (error) {
-    console.error('Error counting active schedules:', error);
     return 0;
   }
 
@@ -625,7 +608,6 @@ export async function getMaintenanceRecordsCount(assetId: string): Promise<numbe
     .eq('status', 'completed');
 
   if (error) {
-    console.error('Error counting maintenance records:', error);
     return 0;
   }
 
@@ -642,7 +624,6 @@ export async function getTotalMaintenanceCost(assetId: string): Promise<number> 
     .eq('status', 'completed');
 
   if (error) {
-    console.error('Error calculating total maintenance cost:', error);
     return 0;
   }
 

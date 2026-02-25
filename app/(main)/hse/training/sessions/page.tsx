@@ -44,7 +44,6 @@ export default function SessionsPage() {
       const data = await getSessions(filters);
       setSessions(data);
     } catch (error) {
-      console.error('Error loading sessions:', error);
     } finally {
       setLoading(false);
     }

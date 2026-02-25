@@ -20,11 +20,18 @@ import { DEFAULT_SETTINGS } from '@/types/company-settings'
 import { invalidateDashboardCache } from '@/lib/cached-queries'
 import { logActivity } from '@/lib/activity-logger'
 
+const INVOICE_ALLOWED_ROLES = ['owner', 'director', 'sysadmin', 'finance_manager', 'finance', 'administration', 'marketing_manager'] as const
+
 /**
  * Generate the next sequential invoice number for the current year
  * Format: INV-YYYY-NNNN
  */
 export async function generateInvoiceNumber(): Promise<string> {
+  const profile = await getUserProfile()
+  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+    throw new Error('Unauthorized')
+  }
+
   const supabase = await createClient()
   const currentYear = new Date().getFullYear()
   const yearPrefix = `INV-${currentYear}-`
@@ -38,7 +45,6 @@ export async function generateInvoiceNumber(): Promise<string> {
     .limit(1)
 
   if (error) {
-    console.error('Error fetching invoice numbers:', error)
     // Start from 1 if there's an error
     return formatInvoiceNumber(currentYear, 1)
   }
@@ -63,6 +69,11 @@ export async function getInvoiceDataFromJO(joId: string): Promise<{
   data?: InvoiceFormData & { invoiceNumber: string; customerName: string; joNumber: string }
   error?: string
 }> {
+  const profile = await getUserProfile()
+  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+    return { error: 'Unauthorized' }
+  }
+
   const supabase = await createClient()
 
   // Fetch JO with customer and PJO data
@@ -152,6 +163,11 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
   data?: { id: string; invoice_number: string }
   error?: string
 }> {
+  const profile = await getUserProfile()
+  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+    return { error: 'Unauthorized' }
+  }
+
   const supabase = await createClient()
 
   // Validate JO status
@@ -172,12 +188,9 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
   // Calculate totals
   const { subtotal, vatAmount, grandTotal} = calculateInvoiceTotals(data.line_items)
 
-  // Parallelize invoice number generation and profile fetch
-  const [invoiceNumber, profile] = await Promise.all([
-    generateInvoiceNumber(),
-    getUserProfile(),
-  ])
-  const entityType = profile?.role === 'agency' ? 'gama_agency' : 'gama_main'
+  // Generate invoice number (profile already fetched in role check above)
+  const invoiceNumber = await generateInvoiceNumber()
+  const entityType = profile.role === 'agency' ? 'gama_agency' : 'gama_main'
 
   // Create invoice with optional term metadata
   const { data: invoice, error: invoiceError } = await supabase
@@ -203,7 +216,6 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
     .single()
 
   if (invoiceError || !invoice) {
-    console.error('Error creating invoice:', invoiceError)
     return { error: invoiceError?.message || 'Failed to create invoice' }
   }
 
@@ -222,7 +234,6 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
     .insert(lineItemsToInsert)
 
   if (lineItemsError) {
-    console.error('Error creating line items:', lineItemsError)
     // Rollback invoice creation
     await supabase.from('invoices').delete().eq('id', invoice.id)
     return { error: 'Failed to create invoice line items' }
@@ -238,7 +249,6 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
     .eq('id', data.jo_id)
 
   if (joUpdateError) {
-    console.error('Error updating JO status:', joUpdateError)
     // Don't rollback - invoice is created, just log the error
   }
 
@@ -268,6 +278,11 @@ export interface InvoiceFilters {
  * Get all invoices with optional filters
  */
 export async function getInvoices(filters?: InvoiceFilters): Promise<InvoiceWithRelations[]> {
+  const profile = await getUserProfile()
+  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+    return []
+  }
+
   const supabase = await createClient()
 
   let query = supabase
@@ -293,7 +308,6 @@ export async function getInvoices(filters?: InvoiceFilters): Promise<InvoiceWith
   const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching invoices:', error)
     return []
   }
 
@@ -304,6 +318,11 @@ export async function getInvoices(filters?: InvoiceFilters): Promise<InvoiceWith
  * Get a single invoice with all related data
  */
 export async function getInvoice(id: string): Promise<InvoiceWithRelations | null> {
+  const profile = await getUserProfile()
+  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+    return null
+  }
+
   const supabase = await createClient()
 
   const { data: invoice, error: invoiceError } = await supabase
@@ -317,7 +336,6 @@ export async function getInvoice(id: string): Promise<InvoiceWithRelations | nul
     .single()
 
   if (invoiceError || !invoice) {
-    console.error('Error fetching invoice:', invoiceError)
     return null
   }
 
@@ -329,7 +347,6 @@ export async function getInvoice(id: string): Promise<InvoiceWithRelations | nul
     .order('line_number', { ascending: true })
 
   if (lineItemsError) {
-    console.error('Error fetching line items:', lineItemsError)
   }
 
   return {
@@ -346,6 +363,11 @@ export async function updateInvoiceStatus(
   id: string,
   targetStatus: InvoiceStatus
 ): Promise<{ error?: string }> {
+  const profile = await getUserProfile()
+  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+    return { error: 'Unauthorized' }
+  }
+
   const supabase = await createClient()
 
   // Fetch current invoice
@@ -433,7 +455,6 @@ export async function updateInvoiceStatus(
         )
       }
     } catch (e) {
-      console.error('Failed to send invoice notification:', e)
     }
   }
 
@@ -511,6 +532,11 @@ export async function generateSplitInvoice(
   joId: string,
   termIndex: number
 ): Promise<{ data?: { id: string; invoice_number: string }; error?: string }> {
+  const profile = await getUserProfile()
+  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+    return { error: 'Unauthorized' }
+  }
+
   const supabase = await createClient()
 
   // Fetch JO with invoice terms
@@ -562,9 +588,8 @@ export async function generateSplitInvoice(
 
   const dueDate = getDefaultDueDate(paymentTerms)
 
-  // Determine entity_type from user role
-  const profile = await getUserProfile()
-  const entityType = profile?.role === 'agency' ? 'gama_agency' : 'gama_main'
+  // Determine entity_type from user role (profile already fetched in role check above)
+  const entityType = profile.role === 'agency' ? 'gama_agency' : 'gama_main'
 
   // Create invoice with term metadata
   const { data: invoice, error: invoiceError } = await supabase
@@ -588,7 +613,6 @@ export async function generateSplitInvoice(
     .single()
 
   if (invoiceError || !invoice) {
-    console.error('Error creating split invoice:', invoiceError)
     return { error: invoiceError?.message || 'Failed to create invoice' }
   }
 
@@ -605,7 +629,6 @@ export async function generateSplitInvoice(
     })
 
   if (lineItemError) {
-    console.error('Error creating line item:', lineItemError)
     // Rollback invoice
     await supabase.from('invoices').delete().eq('id', invoice.id)
     return { error: 'Failed to create invoice line item' }
@@ -632,7 +655,6 @@ export async function generateSplitInvoice(
     .eq('id', joId)
 
   if (joUpdateError) {
-    console.error('Error updating JO:', joUpdateError)
     // Don't rollback - invoice is created
   }
 

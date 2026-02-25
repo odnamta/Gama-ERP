@@ -47,7 +47,6 @@ export function ActivityViewerClient({ users: initialUsers }: ActivityViewerClie
       const data = await response.json();
 
       if (data.error) {
-        console.error('Error fetching activities:', data.error);
         return;
       }
 
@@ -60,7 +59,6 @@ export function ActivityViewerClient({ users: initialUsers }: ActivityViewerClie
         setUsers(data.users);
       }
     } catch (error) {
-      console.error('Error fetching activity data:', error);
     } finally {
       setLoading(false);
     }

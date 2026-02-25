@@ -89,7 +89,6 @@ export function ProfitabilityClient({
         setProfitability(result.data);
       }
     } catch (error) {
-      console.error('Failed to search profitability:', error);
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +116,6 @@ export function ProfitabilityClient({
         setProfitability(result.data);
       }
     } catch (error) {
-      console.error('Failed to clear filters:', error);
     } finally {
       setIsLoading(false);
     }

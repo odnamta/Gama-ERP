@@ -32,7 +32,6 @@ export default function NewShippingLinePage() {
         });
       }
     } catch (error) {
-      console.error('Error creating shipping line:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

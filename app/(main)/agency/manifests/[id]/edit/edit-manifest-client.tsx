@@ -67,7 +67,6 @@ export function EditManifestClient({
       toast.success('Cargo Manifest updated successfully');
       router.push(`/agency/manifests/${manifest.id}`);
     } catch (error) {
-      console.error('Error updating Cargo Manifest:', error);
       toast.error('Failed to update Cargo Manifest');
     } finally {
       setIsLoading(false);

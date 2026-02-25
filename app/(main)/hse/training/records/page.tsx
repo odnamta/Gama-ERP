@@ -45,7 +45,6 @@ export default function RecordsPage() {
       const data = await getTrainingRecords(filters);
       setRecords(data);
     } catch (error) {
-      console.error('Error loading records:', error);
     } finally {
       setLoading(false);
     }

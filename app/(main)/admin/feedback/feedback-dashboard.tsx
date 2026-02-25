@@ -79,7 +79,6 @@ export function FeedbackDashboard() {
         setTotal(feedbackResult.data.total);
       }
     } catch (error) {
-      console.error('Failed to load feedback data:', error);
     } finally {
       setLoading(false);
     }

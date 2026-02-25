@@ -162,7 +162,6 @@ export async function sendDocumentEmail(
 
     if (!emailSendResult.success) {
       // Log the error for debugging
-      console.error('Email send failed:', emailSendResult.error)
       return {
         success: false,
         error: emailSendResult.error || 'Failed to send email',
@@ -180,7 +179,6 @@ export async function sendDocumentEmail(
     if (!updateResult.success) {
       // Email was sent but status update failed - still return success
       // but log the error
-      console.error('Failed to update document email status:', updateResult.error)
     }
 
     return {
@@ -188,7 +186,6 @@ export async function sendDocumentEmail(
       sent_at: sentAt,
     }
   } catch (error) {
-    console.error('Error in sendDocumentEmail:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error sending email',
@@ -231,11 +228,6 @@ async function sendEmailViaService(params: {
       }
       
       // Simulate successful send in non-production
-      console.log('Email service not configured - simulating send:', {
-        to: params.to,
-        subject: params.subject,
-        attachment: params.attachment_name,
-      })
       return { success: true }
     }
 
@@ -307,13 +299,11 @@ export async function updateDocumentEmailStatus(
       .eq('id', documentId)
 
     if (error) {
-      console.error('Error updating document email status:', error)
       return { success: false, error: error.message }
     }
 
     return { success: true }
   } catch (error) {
-    console.error('Error in updateDocumentEmailStatus:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to update email status',
@@ -360,7 +350,6 @@ export async function sendDocumentToMultipleRecipients(
 
   // Log warning for invalid addresses
   if (invalid.length > 0) {
-    console.warn('Some email addresses were invalid and skipped:', invalid)
   }
 
   // Send to all valid recipients

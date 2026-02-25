@@ -35,7 +35,6 @@ export default async function OperationsManagerDashboardPage() {
   try {
     data = await getOperationsManagerDashboardData()
   } catch (error) {
-    console.error('Failed to fetch operations manager dashboard data:', error)
     // Return fallback UI on error
     return (
       <div className="space-y-6">

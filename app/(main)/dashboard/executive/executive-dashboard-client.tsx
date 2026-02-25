@@ -101,7 +101,6 @@ export function ExecutiveDashboardClient({
       setProfitTrend(profit);
       setLayout(userLayout);
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -128,7 +127,6 @@ export function ExecutiveDashboardClient({
       // Reload to get updated layout
       await loadDashboardData();
     } catch (error) {
-      console.error('Error saving layout:', error);
       throw error;
     }
   };
@@ -140,7 +138,6 @@ export function ExecutiveDashboardClient({
       // Reload to get default layout
       await loadDashboardData();
     } catch (error) {
-      console.error('Error resetting layout:', error);
       throw error;
     }
   };

@@ -355,7 +355,6 @@ export async function refreshFinanceDashboard(): Promise<{ success: boolean; err
 
     return { success: true }
   } catch (err) {
-    console.error('Error refreshing finance dashboard:', err)
     return { success: true } // Don't fail the main request
   }
 }

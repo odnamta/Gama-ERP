@@ -87,7 +87,6 @@ export async function generateKey(
     .single();
 
   if (error) {
-    console.error('Failed to create API key:', error);
     return { data: null, error: error.message };
   }
 

@@ -85,7 +85,6 @@ export async function createAPIKey(
       keyData: result.data?.keyData,
     }
   } catch (error) {
-    console.error('Error creating API key:', error)
     return { success: false, error: 'Failed to create API key' }
   }
 }
@@ -136,7 +135,6 @@ export async function revokeAPIKey(
     
     return { success: true }
   } catch (error) {
-    console.error('Error revoking API key:', error)
     return { success: false, error: 'Failed to revoke API key' }
   }
 }
@@ -175,7 +173,6 @@ export async function getMyAPIKeys(
     
     return { success: true, data: result.data }
   } catch (error) {
-    console.error('Error fetching API keys:', error)
     return { success: false, error: 'Failed to fetch API keys' }
   }
 }
@@ -218,7 +215,6 @@ export async function getAPIKeys(
     
     return { success: true, data: result.data }
   } catch (error) {
-    console.error('Error fetching API keys:', error)
     return { success: false, error: 'Failed to fetch API keys' }
   }
 }
@@ -258,7 +254,6 @@ export async function updateAPIKeyPermissions(
     
     return { success: true, data: result.data || undefined }
   } catch (error) {
-    console.error('Error updating API key permissions:', error)
     return { success: false, error: 'Failed to update permissions' }
   }
 }
@@ -298,7 +293,6 @@ export async function updateAPIKeyRateLimit(
     
     return { success: true, data: result.data || undefined }
   } catch (error) {
-    console.error('Error updating API key rate limit:', error)
     return { success: false, error: 'Failed to update rate limit' }
   }
 }
@@ -358,7 +352,6 @@ export async function getAPIKeyStats(
     
     return { success: true, data: result.data || undefined }
   } catch (error) {
-    console.error('Error fetching API key statistics:', error)
     return { success: false, error: 'Failed to fetch statistics' }
   }
 }

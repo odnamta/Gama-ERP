@@ -72,7 +72,6 @@ export async function getActivityLogs(
   const { data, error, count } = await query
 
   if (error) {
-    console.error('Error fetching activity logs:', error)
     return { logs: [], total: 0 }
   }
 
@@ -102,7 +101,6 @@ export async function getActivityLogUsers(): Promise<ActivityLogUser[]> {
     .order('full_name')
 
   if (error) {
-    console.error('Error fetching users:', error)
     return []
   }
 
@@ -167,7 +165,6 @@ export async function getActivityLogsForExport(
   const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching activity logs for export:', error)
     return []
   }
 

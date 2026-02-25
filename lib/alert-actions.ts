@@ -5,6 +5,7 @@
 // =====================================================
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/permissions-server';
 import { revalidatePath } from 'next/cache';
 import {
   AlertRule,
@@ -20,6 +21,8 @@ import {
   validateAlertRule,
 } from '@/lib/alert-utils';
 
+const ALERT_ALLOWED_ROLES = ['owner', 'director', 'sysadmin'] as const;
+
 // =====================================================
 // ALERT RULES CRUD
 // =====================================================
@@ -28,6 +31,11 @@ export async function getAlertRules(activeOnly = false): Promise<{
   data: AlertRule[] | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,7 +52,6 @@ export async function getAlertRules(activeOnly = false): Promise<{
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching alert rules:', error);
     return { data: null, error: error.message };
   }
 
@@ -58,6 +65,11 @@ export async function getAlertRule(id: string): Promise<{
   data: AlertRule | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,7 +80,6 @@ export async function getAlertRule(id: string): Promise<{
     .single();
 
   if (error) {
-    console.error('Error fetching alert rule:', error);
     return { data: null, error: error.message };
   }
 
@@ -82,6 +93,11 @@ export async function createAlertRule(formData: AlertRuleFormData): Promise<{
   data: AlertRule | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const validation = validateAlertRule(formData);
   if (!validation.valid) {
     return { data: null, error: validation.errors.join(', ') };
@@ -117,7 +133,6 @@ export async function createAlertRule(formData: AlertRuleFormData): Promise<{
     .single();
 
   if (error) {
-    console.error('Error creating alert rule:', error);
     return { data: null, error: error.message };
   }
 
@@ -137,6 +152,11 @@ export async function updateAlertRule(
   data: AlertRule | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {};
@@ -169,7 +189,6 @@ export async function updateAlertRule(
     .single();
 
   if (error) {
-    console.error('Error updating alert rule:', error);
     return { data: null, error: error.message };
   }
 
@@ -186,6 +205,11 @@ export async function deleteAlertRule(id: string): Promise<{
   success: boolean;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -195,7 +219,6 @@ export async function deleteAlertRule(id: string): Promise<{
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting alert rule:', error);
     return { success: false, error: error.message };
   }
 
@@ -209,6 +232,11 @@ export async function toggleAlertRuleStatus(id: string): Promise<{
   data: AlertRule | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -231,7 +259,6 @@ export async function toggleAlertRuleStatus(id: string): Promise<{
     .single();
 
   if (error) {
-    console.error('Error toggling alert rule status:', error);
     return { data: null, error: error.message };
   }
 
@@ -254,6 +281,11 @@ export async function getAlertInstances(filters?: AlertFilters): Promise<{
   error: string | null;
   count: number;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized', count: 0 };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -290,7 +322,6 @@ export async function getAlertInstances(filters?: AlertFilters): Promise<{
   const { data, error, count } = await query;
 
   if (error) {
-    console.error('Error fetching alert instances:', error);
     return { data: null, error: error.message, count: 0 };
   }
 
@@ -305,6 +336,11 @@ export async function getAlertInstance(id: string): Promise<{
   data: AlertInstance | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -319,7 +355,6 @@ export async function getAlertInstance(id: string): Promise<{
     .single();
 
   if (error) {
-    console.error('Error fetching alert instance:', error);
     return { data: null, error: error.message };
   }
 
@@ -339,6 +374,11 @@ export async function createAlertInstance(
   data: AlertInstance | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -358,7 +398,6 @@ export async function createAlertInstance(
     .single();
 
   if (error) {
-    console.error('Error creating alert instance:', error);
     return { data: null, error: error.message };
   }
 
@@ -381,6 +420,11 @@ export async function acknowledgeAlert(
   data: AlertInstance | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -415,7 +459,6 @@ export async function acknowledgeAlert(
     .single();
 
   if (error) {
-    console.error('Error acknowledging alert:', error);
     return { data: null, error: error.message };
   }
 
@@ -434,6 +477,11 @@ export async function resolveAlert(
   data: AlertInstance | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -468,7 +516,6 @@ export async function resolveAlert(
     .single();
 
   if (error) {
-    console.error('Error resolving alert:', error);
     return { data: null, error: error.message };
   }
 
@@ -484,6 +531,11 @@ export async function dismissAlert(alertId: string): Promise<{
   data: AlertInstance | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -514,7 +566,6 @@ export async function dismissAlert(alertId: string): Promise<{
     .single();
 
   if (error) {
-    console.error('Error dismissing alert:', error);
     return { data: null, error: error.message };
   }
 
@@ -540,6 +591,11 @@ export async function updateAlertNotifications(
   success: boolean;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -549,7 +605,6 @@ export async function updateAlertNotifications(
     .eq('id', alertId);
 
   if (error) {
-    console.error('Error updating alert notifications:', error);
     return { success: false, error: error.message };
   }
 
@@ -571,6 +626,11 @@ export async function getAlertSummary(): Promise<{
   } | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(ALERT_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

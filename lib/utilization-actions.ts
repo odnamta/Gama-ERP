@@ -92,7 +92,6 @@ export async function assignAsset(
       .single();
 
     if (insertError) {
-      console.error('Error creating assignment:', insertError);
       return { success: false, error: 'Failed to create assignment' };
     }
 
@@ -113,7 +112,6 @@ export async function assignAsset(
       data: transformAssignmentRow(assignment as AssetAssignmentRow),
     };
   } catch (error) {
-    console.error('Error in assignAsset:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -160,7 +158,6 @@ export async function completeAssignment(
       .eq('id', input.assignmentId);
 
     if (updateError) {
-      console.error('Error completing assignment:', updateError);
       return { success: false, error: 'Failed to complete assignment' };
     }
 
@@ -186,7 +183,6 @@ export async function completeAssignment(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in completeAssignment:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -207,7 +203,6 @@ export async function getAssetAssignments(
       .order('assigned_from', { ascending: false });
 
     if (error) {
-      console.error('Error fetching assignments:', error);
       return { success: false, error: 'Failed to fetch assignments' };
     }
 
@@ -216,7 +211,6 @@ export async function getAssetAssignments(
       data: (data as AssetAssignmentRow[]).map(transformAssignmentRow),
     };
   } catch (error) {
-    console.error('Error in getAssetAssignments:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -238,7 +232,6 @@ export async function getCurrentAssignments(): Promise<{
       .order('assigned_from', { ascending: false });
 
     if (error) {
-      console.error('Error fetching current assignments:', error);
       return { success: false, error: 'Failed to fetch current assignments' };
     }
 
@@ -247,7 +240,6 @@ export async function getCurrentAssignments(): Promise<{
       data: (data as CurrentAssignmentRow[]).map(transformCurrentAssignmentRow),
     };
   } catch (error) {
-    console.error('Error in getCurrentAssignments:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -325,7 +317,6 @@ export async function logDailyUtilization(
       .single();
 
     if (upsertError) {
-      console.error('Error logging daily utilization:', upsertError);
       return { success: false, error: 'Failed to log daily utilization' };
     }
 
@@ -389,7 +380,6 @@ export async function logDailyUtilization(
       data: transformDailyLogRow(log as AssetDailyLogRow),
     };
   } catch (error) {
-    console.error('Error in logDailyUtilization:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -421,7 +411,6 @@ export async function getDailyLogs(
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching daily logs:', error);
       return { success: false, error: 'Failed to fetch daily logs' };
     }
 
@@ -430,7 +419,6 @@ export async function getDailyLogs(
       data: (data as AssetDailyLogRow[]).map(transformDailyLogRow),
     };
   } catch (error) {
-    console.error('Error in getDailyLogs:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -456,7 +444,6 @@ export async function getUtilizationSummary(
       .order('utilization_rate', { ascending: false });
 
     if (error) {
-      console.error('Error fetching utilization summary:', error);
       return { success: false, error: 'Failed to fetch utilization summary' };
     }
 
@@ -465,7 +452,6 @@ export async function getUtilizationSummary(
       data: (data as UtilizationSummaryRow[]).map(transformUtilizationSummaryRow),
     };
   } catch (error) {
-    console.error('Error in getUtilizationSummary:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -499,7 +485,6 @@ export async function getUtilizationTrend(
       .in('month', monthStrings);
 
     if (error) {
-      console.error('Error fetching utilization trend:', error);
       return { success: false, error: 'Failed to fetch utilization trend' };
     }
 
@@ -524,7 +509,6 @@ export async function getUtilizationTrend(
 
     return { success: true, data: trend };
   } catch (error) {
-    console.error('Error in getUtilizationTrend:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -547,7 +531,6 @@ export async function getAvailableAssets(
     const { data, error } = await query.order('asset_code');
 
     if (error) {
-      console.error('Error fetching available assets:', error);
       return { success: false, error: 'Failed to fetch available assets' };
     }
 
@@ -556,7 +539,6 @@ export async function getAvailableAssets(
       data: (data as AssetAvailabilityRow[]).map(transformAvailabilityRow),
     };
   } catch (error) {
-    console.error('Error in getAvailableAssets:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -574,14 +556,12 @@ export async function refreshUtilizationView(): Promise<{
     const { error } = await supabase.rpc('refresh_asset_utilization');
 
     if (error) {
-      console.error('Error refreshing utilization view:', error);
       return { success: false, error: 'Failed to refresh utilization view' };
     }
 
     revalidatePath('/equipment/utilization');
     return { success: true };
   } catch (error) {
-    console.error('Error in refreshUtilizationView:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }

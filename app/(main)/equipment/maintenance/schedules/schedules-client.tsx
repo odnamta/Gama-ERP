@@ -35,7 +35,6 @@ export function SchedulesClient() {
       setAssets(assetsData)
       setMaintenanceTypes(typesData)
     } catch (error) {
-      console.error('Failed to load schedules:', error)
       toast({
         title: 'Error',
         description: 'Failed to load maintenance schedules',
@@ -67,7 +66,6 @@ export function SchedulesClient() {
         })
       }
     } catch (error) {
-      console.error('Failed to delete schedule:', error)
       toast({
         title: 'Error',
         description: 'Failed to delete schedule',

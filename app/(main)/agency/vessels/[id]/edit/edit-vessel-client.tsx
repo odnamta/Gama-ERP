@@ -43,7 +43,6 @@ export function EditVesselClient({ vessel, shippingLines }: EditVesselClientProp
         });
       }
     } catch (error) {
-      console.error('Error updating vessel:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

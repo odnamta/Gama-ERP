@@ -40,7 +40,6 @@ async function fetchReportData(): Promise<{
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching budget variance data:', error)
     return { items: [], summary: { totalEstimated: 0, totalActual: 0, totalVariance: 0, itemsWithWarning: 0 } }
   }
 

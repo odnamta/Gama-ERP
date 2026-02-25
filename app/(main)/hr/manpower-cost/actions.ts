@@ -72,7 +72,6 @@ export async function refreshManpowerCostSummary(
   });
 
   if (error) {
-    console.error('Error refreshing manpower cost summary:', error);
     return { success: false, error: error.message };
   }
 
@@ -106,7 +105,6 @@ export async function getManpowerCostSummary(
     .order('total_company_cost', { ascending: false });
 
   if (error) {
-    console.error('Error fetching manpower cost summary:', error);
     return [];
   }
 
@@ -173,7 +171,6 @@ export async function getCostTrendData(
       .eq('period_month', period.month);
 
     if (error) {
-      console.error('Error fetching trend data:', error);
       continue;
     }
 
@@ -226,7 +223,6 @@ export async function getManpowerCostForOverhead(
     .eq('period_month', month);
 
   if (error) {
-    console.error('Error fetching manpower cost for overhead:', error);
     return [];
   }
 
@@ -411,7 +407,6 @@ export async function getAvailablePeriods(): Promise<Array<{ year: number; month
     .order('period_month', { ascending: false });
 
   if (error) {
-    console.error('Error fetching available periods:', error);
     return [];
   }
 

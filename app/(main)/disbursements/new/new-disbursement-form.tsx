@@ -106,7 +106,6 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
       toast.success('Disbursement created successfully')
       router.push(`/disbursements/${result.data?.id}`)
     } catch (error) {
-      console.error('Error creating disbursement:', error)
       toast.error('Failed to create disbursement')
     } finally {
       setIsSubmitting(false)

@@ -25,7 +25,6 @@ export default function TransmittalsPage() {
       const data = await getTransmittals();
       setTransmittals(data);
     } catch (error) {
-      console.error('Error loading transmittals:', error);
     } finally {
       setLoading(false);
     }

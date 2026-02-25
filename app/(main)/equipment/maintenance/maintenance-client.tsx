@@ -78,7 +78,6 @@ export function MaintenanceClient() {
       const costData = await getMaintenanceCostSummary(currentYear)
       setCostSummary(costData)
     } catch (error) {
-      console.error('Failed to load maintenance data:', error)
     } finally {
       setIsLoading(false)
     }
@@ -89,7 +88,6 @@ export function MaintenanceClient() {
       const records = await getMaintenanceHistory(historyFilters)
       setHistoryRecords(records)
     } catch (error) {
-      console.error('Failed to load maintenance history:', error)
     }
   }
 

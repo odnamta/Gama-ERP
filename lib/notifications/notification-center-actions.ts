@@ -27,14 +27,12 @@ export async function archiveNotification(
       .eq('id', notificationId)
 
     if (error) {
-      console.error('Failed to archive notification:', error)
       return { success: false, error: error.message }
     }
 
     revalidatePath('/notifications')
     return { success: true }
   } catch (err) {
-    console.error('Archive notification error:', err)
     return { success: false, error: 'Failed to archive notification' }
   }
 }
@@ -67,14 +65,12 @@ export async function archiveAllNotifications(
     const { data, error } = await query.select('id')
 
     if (error) {
-      console.error('Failed to archive all notifications:', error)
       return { success: false, count: 0, error: error.message }
     }
 
     revalidatePath('/notifications')
     return { success: true, count: data?.length || 0 }
   } catch (err) {
-    console.error('Archive all notifications error:', err)
     return { success: false, count: 0, error: 'Failed to archive notifications' }
   }
 }
@@ -137,7 +133,6 @@ export async function getNotificationsWithFilters(
     const { data, count, error } = await query
 
     if (error) {
-      console.error('Failed to fetch notifications:', error)
       return { notifications: [], total: 0, error: error.message }
     }
 
@@ -146,7 +141,6 @@ export async function getNotificationsWithFilters(
       total: count || 0,
     }
   } catch (err) {
-    console.error('Get notifications error:', err)
     return { notifications: [], total: 0, error: 'Failed to fetch notifications' }
   }
 }
@@ -228,7 +222,6 @@ export async function executeQuickAction(
         return { success: false, error: 'Unknown action' }
     }
   } catch (err) {
-    console.error('Execute quick action error:', err)
     return { success: false, error: 'Failed to execute action' }
   }
 }
@@ -251,13 +244,11 @@ export async function markNotificationAsRead(
       .eq('id', notificationId)
 
     if (error) {
-      console.error('Failed to mark notification as read:', error)
       return { success: false, error: error.message }
     }
 
     return { success: true }
   } catch (err) {
-    console.error('Mark as read error:', err)
     return { success: false, error: 'Failed to mark notification as read' }
   }
 }
@@ -283,14 +274,12 @@ export async function markAllNotificationsAsRead(
       .select('id')
 
     if (error) {
-      console.error('Failed to mark all as read:', error)
       return { success: false, count: 0, error: error.message }
     }
 
     revalidatePath('/notifications')
     return { success: true, count: data?.length || 0 }
   } catch (err) {
-    console.error('Mark all as read error:', err)
     return { success: false, count: 0, error: 'Failed to mark all as read' }
   }
 }
@@ -313,13 +302,11 @@ export async function getUnreadNotificationCount(
       .is('deleted_at', null)
 
     if (error) {
-      console.error('Failed to get unread count:', error)
       return { count: 0, error: error.message }
     }
 
     return { count: count || 0 }
   } catch (err) {
-    console.error('Get unread count error:', err)
     return { count: 0, error: 'Failed to get unread count' }
   }
 }
@@ -342,13 +329,11 @@ export async function updateNotificationCategory(
       .eq('id', notificationId)
 
     if (error) {
-      console.error('Failed to update notification category:', error)
       return { success: false, error: error.message }
     }
 
     return { success: true }
   } catch (err) {
-    console.error('Update category error:', err)
     return { success: false, error: 'Failed to update category' }
   }
 }

@@ -23,7 +23,7 @@ export function QuotationConversionClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'quotation_conversion', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'quotation_conversion', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

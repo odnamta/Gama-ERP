@@ -91,7 +91,6 @@ export async function getShipmentRevenue(
 
     return { success: true, data: revenue };
   } catch (error) {
-    console.error('Error fetching shipment revenue:', error);
     return { success: false, error: 'Failed to fetch shipment revenue' };
   }
 }
@@ -161,7 +160,6 @@ export async function getShipmentRevenueById(
 
     return { success: true, data: revenue };
   } catch (error) {
-    console.error('Error fetching shipment revenue:', error);
     return { success: false, error: 'Failed to fetch shipment revenue' };
   }
 }
@@ -223,7 +221,6 @@ export async function createShipmentRevenue(
     
     return { success: true, data: transformRevenueRow(data as ShipmentRevenueRow) };
   } catch (error) {
-    console.error('Error creating shipment revenue:', error);
     return { success: false, error: 'Failed to create shipment revenue' };
   }
 }
@@ -329,7 +326,6 @@ export async function updateShipmentRevenue(
 
     return { success: true, data: transformRevenueRow(data as ShipmentRevenueRow) };
   } catch (error) {
-    console.error('Error updating shipment revenue:', error);
     return { success: false, error: 'Failed to update shipment revenue' };
   }
 }
@@ -378,7 +374,6 @@ export async function deleteShipmentRevenue(id: string): Promise<ActionResult<vo
 
     return { success: true };
   } catch (error) {
-    console.error('Error deleting shipment revenue:', error);
     return { success: false, error: 'Failed to delete shipment revenue' };
   }
 }
@@ -455,7 +450,6 @@ export async function updateRevenueBillingStatus(
 
     return { success: true, data: transformRevenueRow(data as ShipmentRevenueRow) };
   } catch (error) {
-    console.error('Error updating revenue billing status:', error);
     return { success: false, error: 'Failed to update billing status' };
   }
 }
@@ -517,7 +511,6 @@ export async function getShipmentRevenueByInvoice(
 
     return { success: true, data: revenue };
   } catch (error) {
-    console.error('Error fetching revenue by invoice:', error);
     return { success: false, error: 'Failed to fetch revenue by invoice' };
   }
 }
@@ -580,7 +573,6 @@ export async function getUnbilledRevenueByBooking(
 
     return { success: true, data: revenue };
   } catch (error) {
-    console.error('Error fetching unbilled revenue:', error);
     return { success: false, error: 'Failed to fetch unbilled revenue' };
   }
 }
@@ -643,7 +635,6 @@ export async function bulkUpdateRevenueBillingStatus(
 
     return { success: true, data: { updatedCount: data?.length || 0 } };
   } catch (error) {
-    console.error('Error bulk updating revenue billing status:', error);
     return { success: false, error: 'Failed to update billing status' };
   }
 }

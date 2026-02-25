@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { getUserProfile } from '@/lib/permissions-server'
 import { revalidatePath } from 'next/cache'
 import {
   Asset,
@@ -18,6 +19,9 @@ import {
   AssetStatus,
 } from '@/types/assets'
 
+const ASSET_WRITE_ROLES = ['owner', 'director', 'sysadmin', 'operations_manager', 'engineer'] as const
+const ASSET_READ_ROLES = ['owner', 'director', 'sysadmin', 'operations_manager', 'engineer', 'ops', 'hse'] as const
+
 // ============================================
 // Category and Location Actions
 // ============================================
@@ -26,6 +30,11 @@ import {
  * Get all asset categories ordered by display_order
  */
 export async function getAssetCategories(): Promise<AssetCategory[]> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return []
+  }
+
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -35,7 +44,6 @@ export async function getAssetCategories(): Promise<AssetCategory[]> {
     .order('display_order', { ascending: true })
   
   if (error) {
-    console.error('Error fetching asset categories:', error)
     return []
   }
   
@@ -46,6 +54,11 @@ export async function getAssetCategories(): Promise<AssetCategory[]> {
  * Get all active asset locations
  */
 export async function getAssetLocations(): Promise<AssetLocation[]> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return []
+  }
+
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -55,7 +68,6 @@ export async function getAssetLocations(): Promise<AssetLocation[]> {
     .order('location_name', { ascending: true })
   
   if (error) {
-    console.error('Error fetching asset locations:', error)
     return []
   }
   
@@ -72,6 +84,11 @@ export async function getAssetLocations(): Promise<AssetLocation[]> {
 export async function createAsset(
   data: AssetFormData
 ): Promise<{ success: boolean; asset?: Asset; error?: string }> {
+  const userProfile = await getUserProfile()
+  if (!userProfile || !(ASSET_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
   const supabase = await createClient()
   
   // Validate required fields
@@ -146,7 +163,6 @@ export async function createAsset(
     .single()
 
   if (error) {
-    console.error('Error creating asset:', error)
     return { success: false, error: error.message }
   }
 
@@ -170,6 +186,11 @@ export async function updateAsset(
   id: string,
   data: Partial<AssetFormData>
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
   const supabase = await createClient()
   
   // Validate asset exists
@@ -229,7 +250,6 @@ export async function updateAsset(
     .eq('id', id)
   
   if (error) {
-    console.error('Error updating asset:', error)
     return { success: false, error: error.message }
   }
   
@@ -245,6 +265,11 @@ export async function changeAssetStatus(
   assetId: string,
   data: StatusChangeFormData
 ): Promise<{ success: boolean; error?: string }> {
+  const userProfile = await getUserProfile()
+  if (!userProfile || !(ASSET_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
   const supabase = await createClient()
   
   // Validate reason is provided
@@ -287,7 +312,6 @@ export async function changeAssetStatus(
     .eq('id', assetId)
 
   if (updateError) {
-    console.error('Error updating asset status:', updateError)
     return { success: false, error: updateError.message }
   }
 
@@ -306,7 +330,6 @@ export async function changeAssetStatus(
     })
   
   if (historyError) {
-    console.error('Error logging status history:', historyError)
   }
   
   revalidatePath('/equipment')
@@ -320,6 +343,11 @@ export async function changeAssetStatus(
 export async function getAssets(
   filters: AssetFilterState
 ): Promise<AssetWithRelations[]> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return []
+  }
+
   const supabase = await createClient()
   
   let query = supabase
@@ -363,7 +391,6 @@ export async function getAssets(
   const { data, error } = await query
   
   if (error) {
-    console.error('Error fetching assets:', error)
     return []
   }
   
@@ -374,6 +401,11 @@ export async function getAssets(
  * Get single asset by ID
  */
 export async function getAssetById(id: string): Promise<AssetWithRelations | null> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return null
+  }
+
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -389,7 +421,6 @@ export async function getAssetById(id: string): Promise<AssetWithRelations | nul
     .single()
   
   if (error) {
-    console.error('Error fetching asset:', error)
     return null
   }
   
@@ -404,6 +435,11 @@ export async function getAssetById(id: string): Promise<AssetWithRelations | nul
  * Get documents for an asset
  */
 export async function getAssetDocuments(assetId: string): Promise<AssetDocument[]> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return []
+  }
+
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -413,7 +449,6 @@ export async function getAssetDocuments(assetId: string): Promise<AssetDocument[
     .order('uploaded_at', { ascending: false })
   
   if (error) {
-    console.error('Error fetching asset documents:', error)
     return []
   }
   
@@ -428,6 +463,11 @@ export async function createAssetDocument(
   data: AssetDocumentFormData,
   documentUrl?: string
 ): Promise<{ success: boolean; document?: AssetDocument; error?: string }> {
+  const userProfile = await getUserProfile()
+  if (!userProfile || !(ASSET_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -454,7 +494,6 @@ export async function createAssetDocument(
     .single()
   
   if (error) {
-    console.error('Error creating asset document:', error)
     return { success: false, error: error.message }
   }
   
@@ -468,6 +507,11 @@ export async function createAssetDocument(
 export async function deleteAssetDocument(
   documentId: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
   const supabase = await createClient()
   
   const { error } = await supabase
@@ -476,7 +520,6 @@ export async function deleteAssetDocument(
     .eq('id', documentId)
   
   if (error) {
-    console.error('Error deleting asset document:', error)
     return { success: false, error: error.message }
   }
   
@@ -492,6 +535,11 @@ export async function deleteAssetDocument(
  * Get expiring documents
  */
 export async function getExpiringDocuments(daysAhead: number = 30): Promise<ExpiringDocument[]> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return []
+  }
+
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -501,7 +549,6 @@ export async function getExpiringDocuments(daysAhead: number = 30): Promise<Expi
     .order('expiry_date', { ascending: true })
   
   if (error) {
-    console.error('Error fetching expiring documents:', error)
     return []
   }
   
@@ -512,6 +559,11 @@ export async function getExpiringDocuments(daysAhead: number = 30): Promise<Expi
  * Get asset category summary
  */
 export async function getAssetCategorySummary(): Promise<AssetCategorySummary[]> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return []
+  }
+
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -519,7 +571,6 @@ export async function getAssetCategorySummary(): Promise<AssetCategorySummary[]>
     .select('*')
   
   if (error) {
-    console.error('Error fetching asset summary:', error)
     return []
   }
   
@@ -530,6 +581,11 @@ export async function getAssetCategorySummary(): Promise<AssetCategorySummary[]>
  * Get asset status history
  */
 export async function getAssetStatusHistory(assetId: string): Promise<AssetStatusHistory[]> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return []
+  }
+
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -539,7 +595,6 @@ export async function getAssetStatusHistory(assetId: string): Promise<AssetStatu
     .order('changed_at', { ascending: false })
   
   if (error) {
-    console.error('Error fetching asset status history:', error)
     return []
   }
   
@@ -550,6 +605,11 @@ export async function getAssetStatusHistory(assetId: string): Promise<AssetStatu
  * Get count of expiring documents for summary stats
  */
 export async function getExpiringDocumentsCount(): Promise<number> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return 0
+  }
+
   const supabase = await createClient()
   
   const { count, error } = await supabase
@@ -558,7 +618,6 @@ export async function getExpiringDocumentsCount(): Promise<number> {
     .in('status', ['expired', 'expiring_soon'])
   
   if (error) {
-    console.error('Error counting expiring documents:', error)
     return 0
   }
   

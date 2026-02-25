@@ -75,7 +75,6 @@ export async function getIncidentCategories(): Promise<{
       .order('display_order', { ascending: true });
 
     if (error) {
-      console.error('Error fetching incident categories:', error);
       return { success: false, error: 'Failed to fetch incident categories' };
     }
 
@@ -84,7 +83,6 @@ export async function getIncidentCategories(): Promise<{
       data: (data as IncidentCategoryRow[]).map(transformCategoryRow),
     };
   } catch (error) {
-    console.error('Error in getIncidentCategories:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -189,7 +187,6 @@ export async function reportIncident(
       .single();
 
     if (insertError) {
-      console.error('Error creating incident:', insertError);
       return { success: false, error: 'Failed to report incident' };
     }
 
@@ -247,7 +244,6 @@ export async function reportIncident(
       data: transformIncidentRow(incident as IncidentRow),
     };
   } catch (error) {
-    console.error('Error in reportIncident:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -275,7 +271,6 @@ export async function getIncident(
       .single();
 
     if (error) {
-      console.error('Error fetching incident:', error);
       return { success: false, error: 'Incident not found' };
     }
 
@@ -319,7 +314,6 @@ export async function getIncident(
 
     return { success: true, data: incident };
   } catch (error) {
-    console.error('Error in getIncident:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -398,7 +392,6 @@ export async function getIncidents(
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching incidents:', error);
       return { success: false, error: 'Failed to fetch incidents' };
     }
 
@@ -419,7 +412,6 @@ export async function getIncidents(
 
     return { success: true, data: incidents };
   } catch (error) {
-    console.error('Error in getIncidents:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -465,7 +457,6 @@ export async function startInvestigation(
       .eq('status', 'reported');
 
     if (error) {
-      console.error('Error starting investigation:', error);
       return { success: false, error: 'Failed to start investigation' };
     }
 
@@ -495,7 +486,6 @@ export async function startInvestigation(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in startInvestigation:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -528,7 +518,6 @@ export async function updateRootCause(
       .eq('id', incidentId);
 
     if (error) {
-      console.error('Error updating root cause:', error);
       return { success: false, error: 'Failed to update root cause' };
     }
 
@@ -546,7 +535,6 @@ export async function updateRootCause(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in updateRootCause:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -589,7 +577,6 @@ export async function completeInvestigation(
       .eq('status', 'under_investigation');
 
     if (error) {
-      console.error('Error completing investigation:', error);
       return { success: false, error: 'Failed to complete investigation' };
     }
 
@@ -609,7 +596,6 @@ export async function completeInvestigation(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in completeInvestigation:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -674,7 +660,6 @@ export async function addCorrectiveAction(
       .eq('id', incidentId);
 
     if (error) {
-      console.error('Error adding corrective action:', error);
       return { success: false, error: 'Failed to add corrective action' };
     }
 
@@ -702,7 +687,6 @@ export async function addCorrectiveAction(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in addCorrectiveAction:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -763,7 +747,6 @@ export async function addPreventiveAction(
       .eq('id', incidentId);
 
     if (error) {
-      console.error('Error adding preventive action:', error);
       return { success: false, error: 'Failed to add preventive action' };
     }
 
@@ -791,7 +774,6 @@ export async function addPreventiveAction(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in addPreventiveAction:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -850,7 +832,6 @@ export async function completeAction(
       .eq('id', incidentId);
 
     if (error) {
-      console.error('Error completing action:', error);
       return { success: false, error: 'Failed to complete action' };
     }
 
@@ -868,7 +849,6 @@ export async function completeAction(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in completeAction:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -936,7 +916,6 @@ export async function closeIncident(
       .eq('id', incidentId);
 
     if (error) {
-      console.error('Error closing incident:', error);
       return { success: false, error: 'Failed to close incident' };
     }
 
@@ -964,7 +943,6 @@ export async function closeIncident(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in closeIncident:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -1012,7 +990,6 @@ export async function rejectIncident(
       .eq('id', incidentId);
 
     if (error) {
-      console.error('Error rejecting incident:', error);
       return { success: false, error: 'Failed to reject incident' };
     }
 
@@ -1032,7 +1009,6 @@ export async function rejectIncident(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in rejectIncident:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -1070,7 +1046,6 @@ export async function addPersonToIncident(
       .single();
 
     if (error) {
-      console.error('Error adding person to incident:', error);
       return { success: false, error: 'Failed to add person' };
     }
 
@@ -1081,7 +1056,6 @@ export async function addPersonToIncident(
       data: transformPersonRow(data as IncidentPersonRow),
     };
   } catch (error) {
-    console.error('Error in addPersonToIncident:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -1110,7 +1084,6 @@ export async function removePersonFromIncident(
       .eq('id', personId);
 
     if (error) {
-      console.error('Error removing person from incident:', error);
       return { success: false, error: 'Failed to remove person' };
     }
 
@@ -1118,7 +1091,6 @@ export async function removePersonFromIncident(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in removePersonFromIncident:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -1145,7 +1117,6 @@ export async function getIncidentHistory(
       .order('performed_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching incident history:', error);
       return { success: false, error: 'Failed to fetch history' };
     }
 
@@ -1158,7 +1129,6 @@ export async function getIncidentHistory(
 
     return { success: true, data: history };
   } catch (error) {
-    console.error('Error in getIncidentHistory:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -1186,7 +1156,6 @@ async function logIncidentHistory(
       performed_by: performedBy || null,
     });
   } catch (error) {
-    console.error('Error logging incident history:', error);
   }
 }
 
@@ -1219,7 +1188,6 @@ export async function getIncidentStatistics(
       .neq('status', 'rejected');
 
     if (error) {
-      console.error('Error fetching incident statistics:', error);
       return { success: false, error: 'Failed to fetch statistics' };
     }
 
@@ -1277,7 +1245,6 @@ export async function getIncidentStatistics(
       },
     };
   } catch (error) {
-    console.error('Error in getIncidentStatistics:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -1360,7 +1327,6 @@ export async function getIncidentDashboardSummary(): Promise<{
       },
     };
   } catch (error) {
-    console.error('Error in getIncidentDashboardSummary:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }

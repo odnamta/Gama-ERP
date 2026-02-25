@@ -119,7 +119,6 @@ export function SystemLogsClient({
         })
       }
     } catch (error) {
-      console.error('Export error:', error)
       toast({
         title: 'Export Failed',
         description: 'An unexpected error occurred',
@@ -145,7 +144,6 @@ export function SystemLogsClient({
         })
       }
     } catch (error) {
-      console.error('Stats error:', error)
     } finally {
       setIsLoadingStats(false)
     }

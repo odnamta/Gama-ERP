@@ -54,7 +54,6 @@ export async function getShippingLines(): Promise<ActionResult<ShippingLine[]>> 
     const lines: ShippingLine[] = (data || []).map(mapDbToShippingLine);
     return { success: true, data: lines };
   } catch (error) {
-    console.error('Error fetching shipping lines:', error);
     return { success: false, error: 'Failed to fetch shipping lines' };
   }
 }
@@ -73,7 +72,6 @@ export async function getShippingLineById(id: string): Promise<ActionResult<Ship
 
     return { success: true, data: mapDbToShippingLine(data) };
   } catch (error) {
-    console.error('Error fetching shipping line:', error);
     return { success: false, error: 'Failed to fetch shipping line' };
   }
 }
@@ -108,7 +106,6 @@ export async function createShippingLine(formData: ShippingLineFormData): Promis
     revalidatePath('/agency/shipping-lines');
     return { success: true, data: mapDbToShippingLine(data) };
   } catch (error) {
-    console.error('Error creating shipping line:', error);
     return { success: false, error: 'Failed to create shipping line' };
   }
 }
@@ -145,7 +142,6 @@ export async function updateShippingLine(id: string, formData: ShippingLineFormD
     revalidatePath(`/agency/shipping-lines/${id}`);
     return { success: true, data: mapDbToShippingLine(data) };
   } catch (error) {
-    console.error('Error updating shipping line:', error);
     return { success: false, error: 'Failed to update shipping line' };
   }
 }
@@ -165,7 +161,6 @@ export async function deleteShippingLine(id: string): Promise<ActionResult<void>
     revalidatePath('/agency/shipping-lines');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting shipping line:', error);
     return { success: false, error: 'Failed to delete shipping line' };
   }
 }
@@ -195,7 +190,6 @@ export async function toggleShippingLinePreferred(id: string): Promise<ActionRes
     revalidatePath('/agency/shipping-lines');
     return { success: true, data: mapDbToShippingLine(data) };
   } catch (error) {
-    console.error('Error toggling preferred status:', error);
     return { success: false, error: 'Failed to toggle preferred status' };
   }
 }
@@ -220,7 +214,6 @@ export async function getPortAgents(): Promise<ActionResult<PortAgent[]>> {
     const agents: PortAgent[] = (data || []).map(mapDbToPortAgent);
     return { success: true, data: agents };
   } catch (error) {
-    console.error('Error fetching port agents:', error);
     return { success: false, error: 'Failed to fetch port agents' };
   }
 }
@@ -239,7 +232,6 @@ export async function getPortAgentById(id: string): Promise<ActionResult<PortAge
 
     return { success: true, data: mapDbToPortAgent(data) };
   } catch (error) {
-    console.error('Error fetching port agent:', error);
     return { success: false, error: 'Failed to fetch port agent' };
   }
 }
@@ -270,7 +262,6 @@ export async function getPortAgentsByPort(portCode: string): Promise<ActionResul
     const agents: PortAgent[] = (data || []).map(mapDbToPortAgent);
     return { success: true, data: agents };
   } catch (error) {
-    console.error('Error fetching port agents:', error);
     return { success: false, error: 'Failed to fetch port agents' };
   }
 }
@@ -316,7 +307,6 @@ export async function createPortAgent(formData: PortAgentFormData): Promise<Acti
     revalidatePath('/agency/port-agents');
     return { success: true, data: mapDbToPortAgent(data) };
   } catch (error) {
-    console.error('Error creating port agent:', error);
     return { success: false, error: 'Failed to create port agent' };
   }
 }
@@ -352,7 +342,6 @@ export async function updatePortAgent(id: string, formData: PortAgentFormData): 
     revalidatePath(`/agency/port-agents/${id}`);
     return { success: true, data: mapDbToPortAgent(data) };
   } catch (error) {
-    console.error('Error updating port agent:', error);
     return { success: false, error: 'Failed to update port agent' };
   }
 }
@@ -371,7 +360,6 @@ export async function deletePortAgent(id: string): Promise<ActionResult<void>> {
     revalidatePath('/agency/port-agents');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting port agent:', error);
     return { success: false, error: 'Failed to delete port agent' };
   }
 }
@@ -434,7 +422,6 @@ export async function submitAgentRating(
     revalidatePath(`/agency/port-agents/${agentId}`);
     return { success: true };
   } catch (error) {
-    console.error('Error submitting rating:', error);
     return { success: false, error: 'Failed to submit rating' };
   }
 }
@@ -458,7 +445,6 @@ export async function getServiceProviders(): Promise<ActionResult<ServiceProvide
     const providers: ServiceProvider[] = (data || []).map(mapDbToServiceProvider);
     return { success: true, data: providers };
   } catch (error) {
-    console.error('Error fetching service providers:', error);
     return { success: false, error: 'Failed to fetch service providers' };
   }
 }
@@ -477,7 +463,6 @@ export async function getServiceProviderById(id: string): Promise<ActionResult<S
 
     return { success: true, data: mapDbToServiceProvider(data) };
   } catch (error) {
-    console.error('Error fetching service provider:', error);
     return { success: false, error: 'Failed to fetch service provider' };
   }
 }
@@ -498,7 +483,6 @@ export async function getServiceProvidersByType(providerType: string): Promise<A
     const providers: ServiceProvider[] = (data || []).map(mapDbToServiceProvider);
     return { success: true, data: providers };
   } catch (error) {
-    console.error('Error fetching service providers:', error);
     return { success: false, error: 'Failed to fetch service providers' };
   }
 }
@@ -531,7 +515,6 @@ export async function createServiceProvider(formData: ServiceProviderFormData): 
     revalidatePath('/agency/service-providers');
     return { success: true, data: mapDbToServiceProvider(data) };
   } catch (error) {
-    console.error('Error creating service provider:', error);
     return { success: false, error: 'Failed to create service provider' };
   }
 }
@@ -567,7 +550,6 @@ export async function updateServiceProvider(id: string, formData: ServiceProvide
     revalidatePath(`/agency/service-providers/${id}`);
     return { success: true, data: mapDbToServiceProvider(data) };
   } catch (error) {
-    console.error('Error updating service provider:', error);
     return { success: false, error: 'Failed to update service provider' };
   }
 }
@@ -586,7 +568,6 @@ export async function deleteServiceProvider(id: string): Promise<ActionResult<vo
     revalidatePath('/agency/service-providers');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting service provider:', error);
     return { success: false, error: 'Failed to delete service provider' };
   }
 }
@@ -615,7 +596,6 @@ export async function getShippingRates(): Promise<ActionResult<ShippingRate[]>> 
     const rates: ShippingRate[] = (data || []).map(mapDbToShippingRate);
     return { success: true, data: rates };
   } catch (error) {
-    console.error('Error fetching shipping rates:', error);
     return { success: false, error: 'Failed to fetch shipping rates' };
   }
 }
@@ -639,7 +619,6 @@ export async function getShippingRateById(id: string): Promise<ActionResult<Ship
 
     return { success: true, data: mapDbToShippingRate(data) };
   } catch (error) {
-    console.error('Error fetching shipping rate:', error);
     return { success: false, error: 'Failed to fetch shipping rate' };
   }
 }
@@ -682,7 +661,6 @@ export async function searchShippingRates(
     const rates: ShippingRate[] = (data || []).map(mapDbToShippingRate);
     return { success: true, data: rates };
   } catch (error) {
-    console.error('Error searching shipping rates:', error);
     return { success: false, error: 'Failed to search shipping rates' };
   }
 }
@@ -709,7 +687,6 @@ export async function findBestRate(
 
     return { success: true, data: { best, alternatives } };
   } catch (error) {
-    console.error('Error finding best rate:', error);
     return { success: false, error: 'Failed to find best rate' };
   }
 }
@@ -751,7 +728,6 @@ export async function createShippingRate(formData: ShippingRateFormData): Promis
     revalidatePath('/agency/shipping-rates');
     return { success: true, data: mapDbToShippingRate(data) };
   } catch (error) {
-    console.error('Error creating shipping rate:', error);
     return { success: false, error: 'Failed to create shipping rate' };
   }
 }
@@ -793,7 +769,6 @@ export async function updateShippingRate(id: string, formData: ShippingRateFormD
     revalidatePath('/agency/shipping-rates');
     return { success: true, data: mapDbToShippingRate(data) };
   } catch (error) {
-    console.error('Error updating shipping rate:', error);
     return { success: false, error: 'Failed to update shipping rate' };
   }
 }
@@ -812,7 +787,6 @@ export async function deleteShippingRate(id: string): Promise<ActionResult<void>
     revalidatePath('/agency/shipping-rates');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting shipping rate:', error);
     return { success: false, error: 'Failed to delete shipping rate' };
   }
 }
@@ -836,7 +810,6 @@ export async function getPorts(): Promise<ActionResult<Port[]>> {
     const ports: Port[] = (data || []).map(mapDbToPort);
     return { success: true, data: ports };
   } catch (error) {
-    console.error('Error fetching ports:', error);
     return { success: false, error: 'Failed to fetch ports' };
   }
 }
@@ -855,7 +828,6 @@ export async function getPortByCode(portCode: string): Promise<ActionResult<Port
 
     return { success: true, data: mapDbToPort(data) };
   } catch (error) {
-    console.error('Error fetching port:', error);
     return { success: false, error: 'Failed to fetch port' };
   }
 }
@@ -875,7 +847,6 @@ export async function getPortsByCountry(countryCode: string): Promise<ActionResu
     const ports: Port[] = (data || []).map(mapDbToPort);
     return { success: true, data: ports };
   } catch (error) {
-    console.error('Error fetching ports:', error);
     return { success: false, error: 'Failed to fetch ports' };
   }
 }

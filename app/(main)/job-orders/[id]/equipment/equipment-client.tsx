@@ -88,7 +88,6 @@ export function EquipmentClient({ jobOrderId }: EquipmentClientProps) {
         setSummary(summaryResult.data);
       }
     } catch (error) {
-      console.error('Error loading equipment data:', error);
       toast.error('Gagal memuat data equipment');
     } finally {
       setLoading(false);

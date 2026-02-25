@@ -81,7 +81,6 @@ export async function getVendorInvoices(
 
     return { success: true, data: invoices };
   } catch (error) {
-    console.error('Error fetching vendor invoices:', error);
     return { success: false, error: 'Failed to fetch vendor invoices' };
   }
 }
@@ -133,7 +132,6 @@ export async function getVendorInvoicesByBooking(
 
     return { success: true, data: result };
   } catch (error) {
-    console.error('Error fetching vendor invoices by booking:', error);
     return { success: false, error: 'Failed to fetch vendor invoices for booking' };
   }
 }
@@ -169,7 +167,6 @@ export async function getVendorInvoiceById(
 
     return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
   } catch (error) {
-    console.error('Error fetching vendor invoice:', error);
     return { success: false, error: 'Failed to fetch vendor invoice' };
   }
 }
@@ -242,7 +239,6 @@ export async function createVendorInvoice(
     
     return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
   } catch (error) {
-    console.error('Error creating vendor invoice:', error);
     return { success: false, error: 'Failed to create vendor invoice' };
   }
 }
@@ -347,7 +343,6 @@ export async function updateVendorInvoice(
 
     return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
   } catch (error) {
-    console.error('Error updating vendor invoice:', error);
     return { success: false, error: 'Failed to update vendor invoice' };
   }
 }
@@ -385,7 +380,6 @@ export async function deleteVendorInvoice(id: string): Promise<ActionResult<void
 
     return { success: true };
   } catch (error) {
-    console.error('Error deleting vendor invoice:', error);
     return { success: false, error: 'Failed to delete vendor invoice' };
   }
 }
@@ -460,7 +454,6 @@ export async function updateVendorInvoicePayment(
 
     return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
   } catch (error) {
-    console.error('Error updating vendor invoice payment:', error);
     return { success: false, error: 'Failed to update payment' };
   }
 }
@@ -530,7 +523,6 @@ export async function linkCostsToInvoice(
 
     return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
   } catch (error) {
-    console.error('Error linking costs to invoice:', error);
     return { success: false, error: 'Failed to link costs to invoice' };
   }
 }
@@ -581,7 +573,6 @@ export async function unlinkCostsFromInvoice(
 
     return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
   } catch (error) {
-    console.error('Error unlinking costs from invoice:', error);
     return { success: false, error: 'Failed to unlink costs from invoice' };
   }
 }
@@ -612,7 +603,6 @@ export async function getVendorInvoicesByVendor(
 
     return { success: true, data: invoices };
   } catch (error) {
-    console.error('Error fetching vendor invoices by vendor:', error);
     return { success: false, error: 'Failed to fetch vendor invoices' };
   }
 }
@@ -643,7 +633,6 @@ export async function getOverdueVendorInvoices(): Promise<ActionResult<AgencyVen
 
     return { success: true, data: invoices };
   } catch (error) {
-    console.error('Error fetching overdue vendor invoices:', error);
     return { success: false, error: 'Failed to fetch overdue invoices' };
   }
 }

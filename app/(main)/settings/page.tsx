@@ -17,9 +17,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { UserRole } from '@/types/permissions'
-
-// Role categories for access control
-const ADMIN_ROLES: UserRole[] = ['owner', 'director', 'sysadmin']
+import { ADMIN_ROLES } from '@/lib/permissions'
 const MANAGER_ROLES: UserRole[] = ['marketing_manager', 'finance_manager', 'operations_manager']
 
 export default async function SettingsPage() {

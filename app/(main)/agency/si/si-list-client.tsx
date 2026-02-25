@@ -48,7 +48,6 @@ export function SIListClient({
       const results = await getShippingInstructions(filters);
       setSIs(results);
     } catch (error) {
-      console.error('Failed to search SIs:', error);
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +72,6 @@ export function SIListClient({
       const results = await getShippingInstructions(clearedFilters);
       setSIs(results);
     } catch (error) {
-      console.error('Failed to clear filters:', error);
     } finally {
       setIsLoading(false);
     }

@@ -52,7 +52,6 @@ export function MyFeedbackDetailSheet({ feedback, onClose, onUpdate }: MyFeedbac
         setComments(result.data);
       }
     } catch (error) {
-      console.error('Failed to load comments:', error);
     } finally {
       setLoadingComments(false);
     }

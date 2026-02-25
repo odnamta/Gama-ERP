@@ -25,7 +25,7 @@ export function RevenueByProjectClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'revenue_by_project', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'revenue_by_project', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

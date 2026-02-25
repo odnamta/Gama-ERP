@@ -8,6 +8,15 @@ import { UserRole, UserPermissions, UserProfile, FeatureKey, DepartmentScope } f
 export const OWNER_EMAIL = 'dioatmando@gama-group.co'
 
 /**
+ * Centralized role group constants
+ * Use these instead of inline role arrays throughout the codebase
+ */
+export const ADMIN_ROLES: readonly UserRole[] = ['owner', 'director', 'sysadmin'] as const
+export const EXECUTIVE_ROLES: readonly UserRole[] = ['owner', 'director'] as const
+export const FINANCE_ADMIN_ROLES: readonly UserRole[] = ['owner', 'director', 'sysadmin', 'finance_manager', 'finance'] as const
+export const ALL_MANAGER_ROLES: readonly UserRole[] = ['owner', 'director', 'sysadmin', 'marketing_manager', 'finance_manager', 'operations_manager'] as const
+
+/**
  * Department to staff role mapping for manager inheritance
  */
 export const DEPARTMENT_STAFF_ROLES: Record<DepartmentScope, UserRole[]> = {

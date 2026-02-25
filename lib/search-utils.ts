@@ -58,7 +58,6 @@ export async function performSearch(
   });
 
   if (error) {
-    console.error('Search error:', error);
     throw error;
   }
 

@@ -37,7 +37,6 @@ async function fetchReportData(): Promise<OutstandingInvoicesReport | null> {
     .in('status', ['draft', 'sent', 'overdue'])
 
   if (error) {
-    console.error('Error fetching outstanding invoices:', error)
     return null
   }
 

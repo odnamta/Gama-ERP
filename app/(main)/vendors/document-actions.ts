@@ -156,7 +156,6 @@ export async function uploadVendorDocument(
     .upload(storagePath, file);
 
   if (uploadError) {
-    console.error('Storage upload error:', uploadError);
     return { error: 'Failed to upload file. Please try again.' };
   }
 
@@ -182,7 +181,6 @@ export async function uploadVendorDocument(
   if (error) {
     // Rollback: delete the uploaded file
     await supabase.storage.from(VENDOR_DOCUMENTS_BUCKET).remove([storagePath]);
-    console.error('Database insert error:', error);
     return { error: 'Failed to save document. Please try again.' };
   }
 
@@ -225,7 +223,6 @@ export async function deleteVendorDocument(
       }
     } catch {
       // URL parsing failed, continue with database deletion
-      console.warn('Could not parse file URL for storage deletion');
     }
   }
 
@@ -260,7 +257,6 @@ export async function getDocumentSignedUrl(
     .createSignedUrl(storagePath, expiresIn);
 
   if (error) {
-    console.error('Signed URL error:', error);
     return { error: 'Unable to access file. Please try again.' };
   }
 

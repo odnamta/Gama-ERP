@@ -75,14 +75,12 @@ export async function recordSuccessfulLogin(
     });
     
     if (!result.success) {
-      console.error('Failed to record login:', result.error);
       // Don't fail the auth flow if login recording fails
       return { success: true };
     }
     
     return { success: true };
   } catch (error) {
-    console.error('Error recording successful login:', error);
     // Don't fail the auth flow if login recording fails
     return { success: true };
   }
@@ -110,7 +108,6 @@ export async function signOutWithLogging(): Promise<AuthActionResult> {
       try {
         await recordLogout(user.id);
       } catch (error) {
-        console.error('Failed to record logout:', error);
       }
     }
     
@@ -123,7 +120,6 @@ export async function signOutWithLogging(): Promise<AuthActionResult> {
     
     return { success: true };
   } catch (error) {
-    console.error('Error during sign out:', error);
     return { success: false, error: 'Failed to sign out' };
   }
 }
@@ -155,13 +151,11 @@ export async function recordFailedLoginAttempt(
     });
     
     if (!result.success) {
-      console.error('Failed to record failed login:', result.error);
     }
     
     // Always return success - don't expose login recording failures
     return { success: true };
   } catch (error) {
-    console.error('Error recording failed login:', error);
     return { success: true };
   }
 }

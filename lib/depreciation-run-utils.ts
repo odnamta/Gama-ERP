@@ -343,7 +343,6 @@ export async function getDepreciableAssets(): Promise<DepreciableAsset[]> {
     .gt('useful_life_years', 0);
   
   if (error) {
-    console.error('Error fetching depreciable assets:', error);
     return [];
   }
   
@@ -414,7 +413,6 @@ export async function createDepreciationRecord(
     .single();
   
   if (error || !data) {
-    console.error('Error creating depreciation record:', error);
     return null;
   }
   
@@ -459,7 +457,6 @@ export async function updateAssetBookValue(
     .single();
   
   if (fetchError || !asset) {
-    console.error('Error fetching asset for book value update:', fetchError);
     return false;
   }
   
@@ -479,7 +476,6 @@ export async function updateAssetBookValue(
     .eq('id', assetId);
   
   if (error) {
-    console.error('Error updating asset book value:', error);
     return false;
   }
   

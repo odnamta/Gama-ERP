@@ -39,7 +39,6 @@ async function fetchReportData(): Promise<{ items: CostAnalysisItem[]; totalCost
     .lte('proforma_job_orders.created_at', endDate)
 
   if (error) {
-    console.error('Error fetching cost data:', error)
     return { items: [], totalCost: 0 }
   }
 

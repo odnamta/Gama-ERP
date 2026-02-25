@@ -32,7 +32,6 @@ async function fetchReportData(): Promise<ARAgingReportData | null> {
     .order('due_date', { ascending: true })
 
   if (error) {
-    console.error('Error fetching AR aging data:', error)
     return null
   }
 

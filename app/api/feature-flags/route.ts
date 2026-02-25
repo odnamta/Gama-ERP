@@ -118,7 +118,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<FeatureFla
       flags,
     });
   } catch (error) {
-    console.error('[Feature Flags API] Error fetching flags:', error);
     return NextResponse.json(
       {
         success: false,
@@ -209,7 +208,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ success
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[Feature Flags API] Error updating flag:', error);
     return NextResponse.json(
       {
         success: false,

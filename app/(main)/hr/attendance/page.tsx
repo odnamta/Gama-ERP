@@ -84,7 +84,6 @@ export default function AttendancePage() {
         setDepartments(deptResult.data);
       }
     } catch (error) {
-      console.error('Error loading attendance data:', error);
       toast.error('Failed to load attendance data');
     } finally {
       setIsLoading(false);

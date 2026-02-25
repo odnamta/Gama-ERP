@@ -124,7 +124,6 @@ export function PayablesClient({
         setInvoices(result.data);
       }
     } catch (error) {
-      console.error('Failed to search invoices:', error);
     } finally {
       setIsLoading(false);
     }
@@ -155,7 +154,6 @@ export function PayablesClient({
         setInvoices(result.data);
       }
     } catch (error) {
-      console.error('Failed to clear filters:', error);
     } finally {
       setIsLoading(false);
     }
@@ -268,7 +266,6 @@ export function PayablesClient({
         });
       }
     } catch (error) {
-      console.error('Failed to record payment:', error);
       toast({
         title: 'Error',
         description: 'Failed to record payment',

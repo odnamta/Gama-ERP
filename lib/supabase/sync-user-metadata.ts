@@ -49,13 +49,11 @@ export async function syncUserMetadataToAuth(
     })
 
     if (error) {
-      console.error('Failed to sync user metadata to auth:', error)
       return { success: false, error: error.message }
     }
 
     return { success: true }
   } catch (error) {
-    console.error('Error syncing user metadata:', error)
     return { success: false, error: 'Failed to sync metadata' }
   }
 }
@@ -84,7 +82,6 @@ export async function syncUserMetadataFromProfile(userId: string): Promise<{ suc
       custom_homepage: profile.custom_homepage,
     })
   } catch (error) {
-    console.error('Error syncing metadata from profile:', error)
     return { success: false, error: 'Failed to sync metadata from profile' }
   }
 }

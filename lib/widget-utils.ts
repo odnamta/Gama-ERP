@@ -244,7 +244,6 @@ export async function getAllWidgets(): Promise<Widget[]> {
     .order('display_order');
 
   if (error) {
-    console.error('Error fetching widgets:', error);
     throw error;
   }
 
@@ -269,7 +268,6 @@ export async function getUserWidgets(userId: string, role: string): Promise<Widg
     .eq('is_visible', true);
 
   if (userError) {
-    console.error('Error fetching user widget configs:', userError);
     throw userError;
   }
 
@@ -299,7 +297,6 @@ export async function getUserWidgets(userId: string, role: string): Promise<Widg
     .order('position_x');
 
   if (defaultError) {
-    console.error('Error fetching default layout:', defaultError);
     throw defaultError;
   }
 
@@ -328,7 +325,6 @@ export async function saveWidgetLayout(userId: string, widgets: WidgetConfig[]):
     .eq('user_id', userId);
 
   if (deleteError) {
-    console.error('Error deleting existing configs:', deleteError);
     throw deleteError;
   }
 
@@ -350,7 +346,6 @@ export async function saveWidgetLayout(userId: string, widgets: WidgetConfig[]):
       .insert(configsToInsert as never[]);
 
     if (insertError) {
-      console.error('Error inserting widget configs:', insertError);
       throw insertError;
     }
   }
@@ -369,7 +364,6 @@ export async function resetWidgetLayout(userId: string): Promise<void> {
     .eq('user_id', userId);
 
   if (error) {
-    console.error('Error resetting widget layout:', error);
     throw error;
   }
 }
@@ -403,7 +397,6 @@ export async function updateWidgetConfig(
     });
 
   if (error) {
-    console.error('Error updating widget config:', error);
     throw error;
   }
 }
@@ -433,7 +426,6 @@ export async function getAvailableWidgets(userId: string, role: string): Promise
     .contains('allowed_roles', [role]);
 
   if (widgetsError) {
-    console.error('Error fetching widgets:', widgetsError);
     throw widgetsError;
   }
 
@@ -444,7 +436,6 @@ export async function getAvailableWidgets(userId: string, role: string): Promise
     .eq('user_id', userId);
 
   if (configsError) {
-    console.error('Error fetching user configs:', configsError);
     throw configsError;
   }
 

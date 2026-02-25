@@ -76,7 +76,6 @@ export default function SessionDetailPage() {
         .order('full_name');
       setEmployees(employeesData || []);
     } catch (error) {
-      console.error('Error loading session:', error);
       toast.error('Gagal memuat data sesi');
     } finally {
       setLoading(false);

@@ -26,7 +26,6 @@ export async function getRevenueItems(pjoId: string): Promise<PJORevenueItem[]> 
     .order('created_at', { ascending: true })
   
   if (error) {
-    console.error('Error fetching revenue items:', error)
     return []
   }
   

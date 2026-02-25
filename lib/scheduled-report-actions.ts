@@ -57,7 +57,6 @@ export async function getScheduledReports(filters?: ReportFilters): Promise<{
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching scheduled reports:', error);
     return { data: null, error: error.message };
   }
 
@@ -81,7 +80,6 @@ export async function getScheduledReport(id: string): Promise<{
     .single();
 
   if (error) {
-    console.error('Error fetching scheduled report:', error);
     return { data: null, error: error.message };
   }
 
@@ -137,7 +135,6 @@ export async function createScheduledReport(
     .single();
 
   if (error) {
-    console.error('Error creating scheduled report:', error);
     return { data: null, error: error.message };
   }
 
@@ -205,7 +202,6 @@ export async function updateScheduledReport(
     .single();
 
   if (error) {
-    console.error('Error updating scheduled report:', error);
     return { data: null, error: error.message };
   }
 
@@ -230,7 +226,6 @@ export async function deleteScheduledReport(id: string): Promise<{
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting scheduled report:', error);
     return { success: false, error: error.message };
   }
 
@@ -265,7 +260,6 @@ export async function toggleScheduledReportStatus(id: string): Promise<{
     .single();
 
   if (error) {
-    console.error('Error toggling scheduled report status:', error);
     return { data: null, error: error.message };
   }
 
@@ -324,7 +318,6 @@ export async function getReportHistory(filters?: ReportHistoryFilters): Promise<
   const { data, error, count } = await query;
 
   if (error) {
-    console.error('Error fetching report history:', error);
     return { data: null, error: error.message, count: 0 };
   }
 
@@ -361,7 +354,6 @@ export async function createReportHistory(
     .single();
 
   if (error) {
-    console.error('Error creating report history:', error);
     return { data: null, error: error.message };
   }
 
@@ -405,7 +397,6 @@ export async function updateReportHistory(
     .eq('id', id);
 
   if (error) {
-    console.error('Error updating report history:', error);
     return { success: false, error: error.message };
   }
 
@@ -453,7 +444,6 @@ export async function updateReportRunTime(id: string): Promise<{
     .eq('id', id);
 
   if (error) {
-    console.error('Error updating report run time:', error);
     return { success: false, error: error.message };
   }
 

@@ -866,7 +866,6 @@ export async function gracefulShutdown(timeoutMs: number = 10000): Promise<void>
   if (isShuttingDown) return;
   isShuttingDown = true;
   
-  console.log('[Shutdown] Initiating graceful shutdown...');
   
   const timeout = new Promise<void>((_, reject) => {
     setTimeout(() => reject(new Error('Shutdown timeout')), timeoutMs);
@@ -877,16 +876,13 @@ export async function gracefulShutdown(timeoutMs: number = 10000): Promise<void>
       try {
         await callback();
       } catch (err) {
-        console.error('[Shutdown] Callback error:', err);
       }
     }
   };
   
   try {
     await Promise.race([cleanup(), timeout]);
-    console.log('[Shutdown] Graceful shutdown completed');
   } catch (err) {
-    console.error('[Shutdown] Forced shutdown after timeout:', err);
   }
 }
 
@@ -896,12 +892,10 @@ export async function gracefulShutdown(timeoutMs: number = 10000): Promise<void>
 export function registerShutdownHandlers(): void {
   if (typeof process !== 'undefined') {
     process.on('SIGTERM', () => {
-      console.log('[Shutdown] Received SIGTERM');
       gracefulShutdown();
     });
     
     process.on('SIGINT', () => {
-      console.log('[Shutdown] Received SIGINT');
       gracefulShutdown();
     });
   }

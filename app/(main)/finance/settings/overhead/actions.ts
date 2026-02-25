@@ -31,13 +31,11 @@ export async function getOverheadCategories(): Promise<{
       .order('display_order', { ascending: true });
 
     if (error) {
-      console.error('Error fetching overhead categories:', error);
       return { data: null, error: error.message };
     }
 
     return { data: data as OverheadCategory[], error: null };
   } catch (err) {
-    console.error('Unexpected error fetching overhead categories:', err);
     return { data: null, error: 'Failed to fetch overhead categories' };
   }
 }
@@ -64,14 +62,12 @@ export async function updateOverheadCategoryRate(
       .eq('id', categoryId);
 
     if (error) {
-      console.error('Error updating overhead category rate:', error);
       return { success: false, error: error.message };
     }
 
     revalidatePath('/finance/settings/overhead');
     return { success: true, error: null };
   } catch (err) {
-    console.error('Unexpected error updating overhead category rate:', err);
     return { success: false, error: 'Failed to update rate' };
   }
 }
@@ -92,14 +88,12 @@ export async function toggleOverheadCategoryActive(
       .eq('id', categoryId);
 
     if (error) {
-      console.error('Error toggling overhead category active:', error);
       return { success: false, error: error.message };
     }
 
     revalidatePath('/finance/settings/overhead');
     return { success: true, error: null };
   } catch (err) {
-    console.error('Unexpected error toggling overhead category:', err);
     return { success: false, error: 'Failed to toggle category status' };
   }
 }
@@ -156,7 +150,6 @@ export async function createOverheadCategory(
       .single();
 
     if (error) {
-      console.error('Error creating overhead category:', error);
       if (error.code === '23505') {
         return { data: null, error: 'Category code already exists' };
       }
@@ -166,7 +159,6 @@ export async function createOverheadCategory(
     revalidatePath('/finance/settings/overhead');
     return { data: data as OverheadCategory, error: null };
   } catch (err) {
-    console.error('Unexpected error creating overhead category:', err);
     return { data: null, error: 'Failed to create category' };
   }
 }
@@ -203,14 +195,12 @@ export async function updateOverheadCategory(
       .eq('id', categoryId);
 
     if (error) {
-      console.error('Error updating overhead category:', error);
       return { success: false, error: error.message };
     }
 
     revalidatePath('/finance/settings/overhead');
     return { success: true, error: null };
   } catch (err) {
-    console.error('Unexpected error updating overhead category:', err);
     return { success: false, error: 'Failed to update category' };
   }
 }
@@ -230,14 +220,12 @@ export async function deleteOverheadCategory(
       .eq('id', categoryId);
 
     if (error) {
-      console.error('Error deleting overhead category:', error);
       return { success: false, error: error.message };
     }
 
     revalidatePath('/finance/settings/overhead');
     return { success: true, error: null };
   } catch (err) {
-    console.error('Unexpected error deleting overhead category:', err);
     return { success: false, error: 'Failed to delete category' };
   }
 }
@@ -259,14 +247,12 @@ export async function getTotalOverheadRate(): Promise<{
       .eq('allocation_method', 'revenue_percentage');
 
     if (error) {
-      console.error('Error fetching total overhead rate:', error);
       return { rate: 0, error: error.message };
     }
 
     const totalRate = data?.reduce((sum, cat) => sum + (Number(cat.default_rate) || 0), 0) || 0;
     return { rate: totalRate, error: null };
   } catch (err) {
-    console.error('Unexpected error fetching total overhead rate:', err);
     return { rate: 0, error: 'Failed to calculate total rate' };
   }
 }

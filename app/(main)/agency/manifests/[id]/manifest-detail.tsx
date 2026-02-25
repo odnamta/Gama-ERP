@@ -111,7 +111,6 @@ export function ManifestDetail({ manifest, linkedBLs }: ManifestDetailProps) {
         toast.error(result.error || 'Failed to submit manifest');
       }
     } catch (error) {
-      console.error('Error submitting manifest:', error);
       toast.error('Failed to submit manifest');
     } finally {
       setIsSubmitting(false);
@@ -130,7 +129,6 @@ export function ManifestDetail({ manifest, linkedBLs }: ManifestDetailProps) {
         toast.error(result.error || 'Failed to approve manifest');
       }
     } catch (error) {
-      console.error('Error approving manifest:', error);
       toast.error('Failed to approve manifest');
     } finally {
       setIsApproving(false);
@@ -148,7 +146,6 @@ export function ManifestDetail({ manifest, linkedBLs }: ManifestDetailProps) {
         toast.error(result.error || 'Failed to delete manifest');
       }
     } catch (error) {
-      console.error('Error deleting manifest:', error);
       toast.error('Failed to delete manifest');
     } finally {
       setIsLoading(false);

@@ -48,7 +48,6 @@ export async function syncSingleUserMetadata(userId: string): Promise<SyncResult
     
     return result
   } catch (error) {
-    console.error('Error syncing user metadata:', error)
     return { success: false, error: 'Failed to sync metadata' }
   }
 }
@@ -91,13 +90,11 @@ export async function syncAllUsersMetadata(): Promise<SyncResult> {
         synced++
       } else {
         failed++
-        console.error(`Failed to sync metadata for user ${profile.user_id}:`, result.error)
       }
     }
     
     return { success: true, synced, failed }
   } catch (error) {
-    console.error('Error syncing all users metadata:', error)
     return { success: false, error: 'Failed to sync metadata' }
   }
 }

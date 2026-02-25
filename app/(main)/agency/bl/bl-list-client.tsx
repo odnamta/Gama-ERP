@@ -52,7 +52,6 @@ export function BLListClient({
       const results = await getBillsOfLading(filters);
       setBLs(results);
     } catch (error) {
-      console.error('Failed to search B/Ls:', error);
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +76,6 @@ export function BLListClient({
       const results = await getBillsOfLading(clearedFilters);
       setBLs(results);
     } catch (error) {
-      console.error('Failed to clear filters:', error);
     } finally {
       setIsLoading(false);
     }

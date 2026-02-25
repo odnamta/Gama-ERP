@@ -51,7 +51,6 @@ export async function uploadDocument(
       })
     
     if (uploadError) {
-      console.error('Storage upload error:', uploadError)
       return {
         success: false,
         error: `Failed to upload document: ${uploadError.message}`,
@@ -76,7 +75,6 @@ export async function uploadDocument(
       file_size_kb: bytesToKB(fileData.length),
     }
   } catch (error) {
-    console.error('Upload document error:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error during upload',
@@ -100,7 +98,6 @@ export async function deleteDocument(fileUrl: string): Promise<boolean> {
     const storagePath = extractStoragePathFromUrl(fileUrl, GENERATED_DOCUMENTS_BUCKET)
     
     if (!storagePath) {
-      console.error('Could not extract storage path from URL:', fileUrl)
       return false
     }
     
@@ -110,13 +107,11 @@ export async function deleteDocument(fileUrl: string): Promise<boolean> {
       .remove([storagePath])
     
     if (error) {
-      console.error('Storage delete error:', error)
       return false
     }
     
     return true
   } catch (error) {
-    console.error('Delete document error:', error)
     return false
   }
 }
@@ -181,13 +176,11 @@ export async function getSignedUrl(
       .createSignedUrl(storagePath, expiresIn)
     
     if (error || !data) {
-      console.error('Signed URL error:', error)
       return null
     }
     
     return data.signedUrl
   } catch (error) {
-    console.error('Get signed URL error:', error)
     return null
   }
 }
@@ -220,7 +213,6 @@ export async function uploadDocumentWithPath(
       })
     
     if (uploadError) {
-      console.error('Storage upload error:', uploadError)
       return {
         success: false,
         error: `Failed to upload document: ${uploadError.message}`,
@@ -245,7 +237,6 @@ export async function uploadDocumentWithPath(
       file_size_kb: bytesToKB(fileData.length),
     }
   } catch (error) {
-    console.error('Upload document error:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error during upload',
@@ -283,13 +274,11 @@ export async function listDocuments(
       .list(path)
     
     if (error) {
-      console.error('List documents error:', error)
       return []
     }
     
     return data?.map(file => file.name) || []
   } catch (error) {
-    console.error('List documents error:', error)
     return []
   }
 }

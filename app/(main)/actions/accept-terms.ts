@@ -63,7 +63,6 @@ export async function acceptTerms(): Promise<AcceptTermsResult> {
   const updateError = updateResult.error
   
   if (updateError) {
-    console.error('[acceptTerms] Error updating user_profiles:', updateError)
     return {
       success: false,
       error: 'Failed to record acceptance',

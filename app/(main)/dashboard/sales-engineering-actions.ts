@@ -126,7 +126,6 @@ export async function refreshSalesEngineeringDashboard(): Promise<{ success: boo
   const { error } = await supabase.rpc('refresh_sales_engineering_dashboard')
 
   if (error) {
-    console.error('Failed to refresh sales/engineering dashboard:', error)
     return { success: false, error: error.message }
   }
 
@@ -150,7 +149,6 @@ export async function getUrgentQuotations(maxDays: number = 7): Promise<Quotatio
     .limit(maxDays === 7 ? 5 : 20)
 
   if (error) {
-    console.error('Failed to fetch urgent quotations:', error)
     return []
   }
 
@@ -186,7 +184,6 @@ export async function getRecentQuotations(limit: number = 10): Promise<Quotation
     .limit(limit)
 
   if (error) {
-    console.error('Failed to fetch recent quotations:', error)
     return []
   }
 
@@ -220,7 +217,6 @@ export async function getAllQuotations(): Promise<QuotationListItem[]> {
     .order('updated_at', { ascending: false })
 
   if (error) {
-    console.error('Failed to fetch all quotations:', error)
     return []
   }
 
@@ -269,7 +265,6 @@ export async function getPendingAssessments(limit: number = 5): Promise<{
     .limit(limit)
 
   if (error) {
-    console.error('Failed to fetch pending assessments:', error)
     return []
   }
 

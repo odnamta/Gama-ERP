@@ -14,6 +14,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
+import { ADMIN_ROLES } from '@/lib/permissions';
 import {
   AuditLogEntry,
   CreateAuditLogInput,
@@ -28,8 +29,6 @@ import {
   MAX_PAGE_SIZE,
   calculateChangedFields,
 } from '@/lib/system-audit-utils';
-
-const ADMIN_ROLES = ['owner', 'director', 'sysadmin'];
 
 // =====================================================
 // TYPES
@@ -66,7 +65,7 @@ export async function getAuditLogs(
 ): Promise<ActionResult<PaginatedAuditLogs>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -168,7 +167,6 @@ export async function getAuditLogs(
     
     return { success: true, data: result };
   } catch (error) {
-    console.error('Error fetching audit logs:', error);
     return { success: false, error: 'Failed to fetch audit logs' };
   }
 }
@@ -187,7 +185,7 @@ export async function getEntityHistory(
 ): Promise<ActionResult<AuditLogEntry[]>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -214,7 +212,6 @@ export async function getEntityHistory(
     
     return { success: true, data: (data || []) as AuditLogEntry[] };
   } catch (error) {
-    console.error('Error fetching entity history:', error);
     return { success: false, error: 'Failed to fetch entity history' };
   }
 }
@@ -230,7 +227,7 @@ export async function createManualAuditEntry(
 ): Promise<ActionResult<AuditLogEntry>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -312,7 +309,6 @@ export async function createManualAuditEntry(
     
     return { success: true, data: data as AuditLogEntry };
   } catch (error) {
-    console.error('Error creating audit entry:', error);
     return { success: false, error: 'Failed to create audit entry' };
   }
 }
@@ -331,7 +327,7 @@ export async function getAuditLogStats(
 ): Promise<ActionResult<AuditLogStats>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -420,7 +416,6 @@ export async function getAuditLogStats(
     
     return { success: true, data: stats };
   } catch (error) {
-    console.error('Error fetching audit log stats:', error);
     return { success: false, error: 'Failed to fetch audit log statistics' };
   }
 }
@@ -440,7 +435,7 @@ export async function exportAuditLogs(
 ): Promise<ActionResult<string>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -528,7 +523,6 @@ export async function exportAuditLogs(
     
     return { success: true, data: csv };
   } catch (error) {
-    console.error('Error exporting audit logs:', error);
     return { success: false, error: 'Failed to export audit logs' };
   }
 }
@@ -547,7 +541,7 @@ export async function getAuditLogFilterOptions(): Promise<ActionResult<{
 }>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -586,7 +580,6 @@ export async function getAuditLogFilterOptions(): Promise<ActionResult<{
       },
     };
   } catch (error) {
-    console.error('Error fetching filter options:', error);
     return { success: false, error: 'Failed to fetch filter options' };
   }
 }

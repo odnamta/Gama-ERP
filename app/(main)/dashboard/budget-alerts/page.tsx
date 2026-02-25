@@ -28,7 +28,6 @@ export default async function BudgetAlertsPage() {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching exceeded items:', error)
   }
 
   const items = exceededItems || []

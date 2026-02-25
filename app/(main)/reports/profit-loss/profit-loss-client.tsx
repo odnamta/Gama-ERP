@@ -19,7 +19,7 @@ interface Props {
 export function ProfitLossClient({ initialData, userId }: Props) {
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'fin_profit_loss', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'fin_profit_loss', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

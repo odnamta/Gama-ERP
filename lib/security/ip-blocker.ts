@@ -187,7 +187,6 @@ export async function blockIP(
     .single();
 
   if (error) {
-    console.error('Failed to block IP:', error);
     return { data: null, error: error.message };
   }
 

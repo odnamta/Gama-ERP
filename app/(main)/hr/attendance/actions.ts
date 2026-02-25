@@ -60,7 +60,6 @@ export async function getAttendanceRecords(
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching attendance records:', error);
     return { data: null, error: error.message };
   }
 
@@ -96,7 +95,6 @@ export async function getAttendanceSummary(
     .eq('attendance_date', date);
 
   if (error) {
-    console.error('Error fetching attendance summary:', error);
     return { data: null, error: error.message };
   }
 
@@ -211,7 +209,6 @@ export async function upsertAttendanceRecord(
     .single();
 
   if (error) {
-    console.error('Error upserting attendance record:', error);
     return { success: false, error: error.message };
   }
 
@@ -244,7 +241,6 @@ export async function markAbsent(
     });
 
   if (error) {
-    console.error('Error marking absent:', error);
     return { success: false, error: error.message };
   }
 
@@ -274,7 +270,6 @@ export async function getMonthlyAttendanceSummary(
     .lte('attendance_date', endDate);
 
   if (error) {
-    console.error('Error fetching monthly summary:', error);
     return { data: null, error: error.message };
   }
 
@@ -329,7 +324,6 @@ export async function getMonthlyAttendanceRecords(
     .order('attendance_date');
 
   if (error) {
-    console.error('Error fetching monthly records:', error);
     return { data: null, error: error.message };
   }
 
@@ -378,7 +372,6 @@ export async function getEmployeesWithAttendance(
   const { data: employees, error: empError } = await employeeQuery;
 
   if (empError) {
-    console.error('Error fetching employees:', empError);
     return { data: null, error: empError.message };
   }
 
@@ -389,7 +382,6 @@ export async function getEmployeesWithAttendance(
     .eq('attendance_date', date);
 
   if (attError) {
-    console.error('Error fetching attendance:', attError);
     return { data: null, error: attError.message };
   }
 
@@ -427,7 +419,6 @@ export async function deleteAttendanceRecord(
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting attendance record:', error);
     return { success: false, error: error.message };
   }
 

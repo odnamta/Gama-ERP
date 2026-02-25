@@ -53,7 +53,6 @@ export function BookingsClient({
       const results = await getBookings(filters);
       setBookings(results);
     } catch (error) {
-      console.error('Failed to search bookings:', error);
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +77,6 @@ export function BookingsClient({
       const results = await getBookings(clearedFilters);
       setBookings(results);
     } catch (error) {
-      console.error('Failed to clear filters:', error);
     } finally {
       setIsLoading(false);
     }

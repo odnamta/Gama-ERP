@@ -47,7 +47,7 @@ export function BudgetVarianceClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'budget_variance', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'budget_variance', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

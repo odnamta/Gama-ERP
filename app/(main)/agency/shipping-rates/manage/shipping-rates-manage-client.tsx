@@ -71,7 +71,6 @@ export function ShippingRatesManageClient() {
         setShippingLines(linesResult.data);
       }
     } catch (error) {
-      console.error('Failed to load data:', error);
       toast({
         title: 'Error',
         description: 'Failed to load shipping rates',

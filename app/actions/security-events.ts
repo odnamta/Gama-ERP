@@ -102,7 +102,6 @@ export async function getSecurityEvents(
       },
     }
   } catch (error) {
-    console.error('Error fetching security events:', error)
     return { success: false, error: 'Failed to fetch security events' }
   }
 }
@@ -145,7 +144,6 @@ export async function getSecurityEventById(
     
     return { success: true, data: result.data }
   } catch (error) {
-    console.error('Error fetching security event:', error)
     return { success: false, error: 'Failed to fetch security event' }
   }
 }
@@ -185,7 +183,6 @@ export async function markEventInvestigated(
     
     return { success: true, data: result.data || undefined }
   } catch (error) {
-    console.error('Error marking event as investigated:', error)
     return { success: false, error: 'Failed to mark event as investigated' }
   }
 }
@@ -235,7 +232,6 @@ export async function getSecurityEventStats(
     
     return { success: true, data: result.data || undefined }
   } catch (error) {
-    console.error('Error fetching security event statistics:', error)
     return { success: false, error: 'Failed to fetch statistics' }
   }
 }

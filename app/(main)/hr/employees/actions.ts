@@ -51,7 +51,6 @@ export async function getEmployees(
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching employees:', error);
     return { data: null, error: error.message };
   }
 
@@ -79,7 +78,6 @@ export async function getEmployee(
     .single();
 
   if (error) {
-    console.error('Error fetching employee:', error);
     return { data: null, error: error.message };
   }
 
@@ -191,7 +189,6 @@ export async function createEmployee(
     .single();
 
   if (error) {
-    console.error('Error creating employee:', error);
     return { success: false, error: error.message };
   }
 
@@ -274,7 +271,6 @@ export async function updateEmployee(
     .eq('id', id);
 
   if (error) {
-    console.error('Error updating employee:', error);
     return { success: false, error: error.message };
   }
 
@@ -323,7 +319,6 @@ export async function updateEmployeeStatus(
     .eq('id', id);
 
   if (error) {
-    console.error('Error updating employee status:', error);
     return { success: false, error: error.message };
   }
 
@@ -372,7 +367,6 @@ export async function linkEmployeeToUser(
     .eq('id', employeeId);
 
   if (error) {
-    console.error('Error linking employee to user:', error);
     return { success: false, error: error.message };
   }
 
@@ -394,7 +388,6 @@ export async function getDepartments(): Promise<{ data: Department[] | null; err
     .order('department_name');
 
   if (error) {
-    console.error('Error fetching departments:', error);
     return { data: null, error: error.message };
   }
 
@@ -422,7 +415,6 @@ export async function getPositions(
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching positions:', error);
     return { data: null, error: error.message };
   }
 
@@ -440,7 +432,6 @@ export async function getEmployeeCount(): Promise<{ count: number; error: string
     .select('*', { count: 'exact', head: true });
 
   if (error) {
-    console.error('Error fetching employee count:', error);
     return { count: 0, error: error.message };
   }
 
@@ -463,7 +454,6 @@ export async function getEmployeesForDropdown(): Promise<{
     .order('full_name');
 
   if (error) {
-    console.error('Error fetching employees for dropdown:', error);
     return { data: null, error: error.message };
   }
 
@@ -500,7 +490,6 @@ export async function getUnlinkedUsers(): Promise<{
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching unlinked users:', error);
     return { data: null, error: error.message };
   }
 

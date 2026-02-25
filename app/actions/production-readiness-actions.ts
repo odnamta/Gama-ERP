@@ -114,7 +114,6 @@ export async function getHealthAction(): Promise<ActionResult<HealthStatus>> {
     
     return { success: true, data: healthStatus };
   } catch (error) {
-    console.error('Error getting health status:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to get health status' 
@@ -186,7 +185,6 @@ export async function getConfigAction(
     
     return { success: true, data: config };
   } catch (error) {
-    console.error('Error getting config:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to get config' 
@@ -231,7 +229,6 @@ export async function setConfigAction(
     
     return { success: true };
   } catch (error) {
-    console.error('Error setting config:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to set config' 
@@ -283,7 +280,6 @@ export async function getAllConfigsAction(options: {
     
     return { success: true, data: configs };
   } catch (error) {
-    console.error('Error getting all configs:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to get configs' 
@@ -300,7 +296,6 @@ export async function isMaintenanceModeAction(): Promise<ActionResult<boolean>> 
     const value = await getConfigValueInternal<boolean>(supabase, 'maintenance_mode', false);
     return { success: true, data: value === true };
   } catch (error) {
-    console.error('Error checking maintenance mode:', error);
     return { success: true, data: false };
   }
 }
@@ -403,7 +398,6 @@ export async function isFeatureEnabledAction(
     // No user context, use random
     return { success: true, data: Math.random() * 100 < flag.rolloutPercentage };
   } catch (error) {
-    console.error('Error checking feature flag:', error);
     return { success: true, data: false };
   }
 }
@@ -459,7 +453,6 @@ export async function getFeatureFlagAction(
     
     return { success: true, data: flag };
   } catch (error) {
-    console.error('Error getting feature flag:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to get feature flag' 
@@ -502,7 +495,6 @@ export async function getAllFeatureFlagsAction(): Promise<ActionResult<FeatureFl
     
     return { success: true, data: flags };
   } catch (error) {
-    console.error('Error getting all feature flags:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to get feature flags' 
@@ -546,7 +538,6 @@ export async function updateFeatureFlagAction(
     
     return { success: true };
   } catch (error) {
-    console.error('Error updating feature flag:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to update feature flag' 
@@ -600,7 +591,6 @@ export async function recordDeploymentAction(deployment: {
     
     return { success: true, data: { id: data?.id } };
   } catch (error) {
-    console.error('Error recording deployment:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to record deployment' 
@@ -645,7 +635,6 @@ export async function recordRollbackAction(rollback: {
     
     return { success: true, data: { id: data?.id } };
   } catch (error) {
-    console.error('Error recording rollback:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to record rollback' 
@@ -699,7 +688,6 @@ export async function getDeploymentHistoryAction(options: {
     
     return { success: true, data: deployments };
   } catch (error) {
-    console.error('Error getting deployment history:', error);
     return { 
       success: false, 
       error: error instanceof Error ? error.message : 'Failed to get deployment history' 

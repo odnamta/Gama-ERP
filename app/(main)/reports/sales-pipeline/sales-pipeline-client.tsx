@@ -32,7 +32,7 @@ export function SalesPipelineClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'sales_pipeline', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'sales_pipeline', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

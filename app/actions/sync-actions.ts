@@ -7,9 +7,9 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
+import { ADMIN_ROLES } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 
-const ADMIN_ROLES = ['owner', 'director', 'sysadmin'];
 import {
   type SyncResult,
   type SyncLog,
@@ -68,7 +68,7 @@ export async function triggerManualSync(
 ): Promise<ActionResult<SyncResult>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -230,7 +230,6 @@ export async function triggerManualSync(
     const result = contextToResult(context, log.id);
     return { success: true, data: result };
   } catch (err) {
-    console.error('Error triggering manual sync:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to trigger sync' 
@@ -253,7 +252,7 @@ export async function retryFailedSync(
 ): Promise<ActionResult<SyncResult>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -428,7 +427,6 @@ export async function retryFailedSync(
     const result = contextToResult(context, retryLog.id);
     return { success: true, data: result };
   } catch (err) {
-    console.error('Error retrying failed sync:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to retry sync' 
@@ -671,7 +669,7 @@ export async function getSyncStatus(
 }>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -711,7 +709,6 @@ export async function getSyncStatus(
       },
     };
   } catch (err) {
-    console.error('Error getting sync status:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to get sync status' 
@@ -727,7 +724,7 @@ export async function cancelSync(
 ): Promise<ActionResult<void>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -774,7 +771,6 @@ export async function cancelSync(
 
     return { success: true };
   } catch (err) {
-    console.error('Error cancelling sync:', err);
     return { 
       success: false, 
       error: err instanceof Error ? err.message : 'Failed to cancel sync' 

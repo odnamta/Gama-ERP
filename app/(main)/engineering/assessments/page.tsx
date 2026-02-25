@@ -59,7 +59,6 @@ export default function AssessmentsPage() {
         total: countsData.total || 0,
       });
     } catch (error) {
-      console.error('Error loading data:', error);
     } finally {
       setLoading(false);
     }

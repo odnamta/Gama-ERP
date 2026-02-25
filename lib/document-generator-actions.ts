@@ -182,7 +182,6 @@ export async function generateDocument(
       file_url: uploadResult.file_url,
     }
   } catch (error) {
-    console.error('Error in generateDocument:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error during document generation',
@@ -235,7 +234,6 @@ export async function createGeneratedDocumentRecord(data: {
       .single()
 
     if (error) {
-      console.error('Error creating generated document record:', error)
       return { success: false, error: error.message }
     }
 
@@ -244,7 +242,6 @@ export async function createGeneratedDocumentRecord(data: {
       data: mapDbRecordToGeneratedDocument(record),
     }
   } catch (error) {
-    console.error('Error in createGeneratedDocumentRecord:', error)
     return { success: false, error: 'Failed to create document record' }
   }
 }
@@ -286,13 +283,11 @@ export async function updateSourceEntityPdfUrl(
       .eq('id', entityId)
 
     if (error) {
-      console.error(`Error updating ${tableName} pdf_url:`, error)
       return { success: false, error: error.message }
     }
 
     return { success: true }
   } catch (error) {
-    console.error('Error in updateSourceEntityPdfUrl:', error)
     return { success: false, error: 'Failed to update source entity' }
   }
 }
@@ -327,7 +322,6 @@ async function fetchEntityVariables(
         }
     }
   } catch (error) {
-    console.error('Error fetching entity variables:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch entity data',
@@ -537,7 +531,6 @@ export async function fetchInvoiceData(
       if (invoiceError.code === 'PGRST116') {
         return { success: false, error: 'Invoice not found' }
       }
-      console.error('Error fetching invoice:', invoiceError)
       return { success: false, error: invoiceError.message }
     }
 
@@ -553,7 +546,6 @@ export async function fetchInvoiceData(
       .order('line_number', { ascending: true })
 
     if (lineItemsError) {
-      console.error('Error fetching invoice line items:', lineItemsError)
       // Continue without line items - they may not exist
     }
 
@@ -565,7 +557,6 @@ export async function fetchInvoiceData(
       },
     }
   } catch (error) {
-    console.error('Error in fetchInvoiceData:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch invoice data',
@@ -755,7 +746,6 @@ export async function generateInvoice(
       user_id: userId,
     })
   } catch (error) {
-    console.error('Error in generateInvoice:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error during invoice generation',
@@ -802,7 +792,6 @@ export async function fetchQuotationData(
       if (quotationError.code === 'PGRST116') {
         return { success: false, error: 'Quotation not found' }
       }
-      console.error('Error fetching quotation:', quotationError)
       return { success: false, error: quotationError.message }
     }
 
@@ -818,7 +807,6 @@ export async function fetchQuotationData(
       .order('display_order', { ascending: true })
 
     if (revenueItemsError) {
-      console.error('Error fetching quotation revenue items:', revenueItemsError)
       // Continue without revenue items - they may not exist
     }
 
@@ -830,7 +818,6 @@ export async function fetchQuotationData(
       },
     }
   } catch (error) {
-    console.error('Error in fetchQuotationData:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch quotation data',
@@ -982,7 +969,6 @@ export async function generateQuotation(
       user_id: userId,
     })
   } catch (error) {
-    console.error('Error in generateQuotation:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error during quotation generation',
@@ -1302,7 +1288,6 @@ export async function getGenerationHistory(
     const { data: documents, error } = await query
 
     if (error) {
-      console.error('Error fetching generation history:', error)
       return { success: false, error: error.message }
     }
 
@@ -1311,7 +1296,6 @@ export async function getGenerationHistory(
       data: (documents || []).map(mapDbRecordToGeneratedDocumentWithRelations),
     }
   } catch (error) {
-    console.error('Error in getGenerationHistory:', error)
     return { success: false, error: 'Failed to fetch generation history' }
   }
 }
@@ -1349,7 +1333,6 @@ export async function getGeneratedDocument(
       if (error.code === 'PGRST116') {
         return { success: false, error: 'Document not found' }
       }
-      console.error('Error fetching generated document:', error)
       return { success: false, error: error.message }
     }
 
@@ -1358,7 +1341,6 @@ export async function getGeneratedDocument(
       data: mapDbRecordToGeneratedDocumentWithRelations(document),
     }
   } catch (error) {
-    console.error('Error in getGeneratedDocument:', error)
     return { success: false, error: 'Failed to fetch document' }
   }
 }
@@ -1525,7 +1507,6 @@ export async function fetchDeliveryNoteData(
       if (joError.code === 'PGRST116') {
         return { success: false, error: 'Job order not found' }
       }
-      console.error('Error fetching job order:', joError)
       return { success: false, error: joError.message }
     }
 
@@ -1565,7 +1546,6 @@ export async function fetchDeliveryNoteData(
       },
     }
   } catch (error) {
-    console.error('Error in fetchDeliveryNoteData:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to fetch job order data',
@@ -1710,7 +1690,6 @@ export async function generateDeliveryNote(
       user_id: userId,
     })
   } catch (error) {
-    console.error('Error in generateDeliveryNote:', error)
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error during delivery note generation',

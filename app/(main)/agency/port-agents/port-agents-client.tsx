@@ -80,7 +80,6 @@ export function PortAgentsClient() {
         setPorts(portsResult.data);
       }
     } catch (error) {
-      console.error('Failed to load port agents:', error);
       toast({
         title: 'Error',
         description: 'Failed to load port agents',

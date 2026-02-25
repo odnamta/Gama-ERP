@@ -72,7 +72,6 @@ export async function checkRateLimit(
 
   if (fetchError && fetchError.code !== 'PGRST116') {
     // PGRST116 = no rows found, which is expected for new entries
-    console.error('Error fetching rate limit entry:', fetchError);
     // Fail open - allow request if we can't check rate limit
     return {
       allowed: true,
@@ -96,7 +95,6 @@ export async function checkRateLimit(
       });
 
     if (insertError) {
-      console.error('Error creating rate limit entry:', insertError);
       // Fail open
       return {
         allowed: true,
@@ -148,7 +146,6 @@ export async function checkRateLimit(
     .eq('id', entry.id);
 
   if (updateError) {
-    console.error('Error updating rate limit entry:', updateError);
   }
 
   return {
@@ -507,7 +504,6 @@ async function blockIdentifier(
     .limit(1);
 
   if (error) {
-    console.error('Error blocking identifier:', error);
   }
 }
 

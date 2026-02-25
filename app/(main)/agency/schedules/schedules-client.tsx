@@ -100,7 +100,6 @@ export function SchedulesClient() {
       setVessels(vesselsData);
       setStats(calculateScheduleStats(schedulesData));
     } catch (error) {
-      console.error('Failed to load schedules:', error);
       toast({
         title: 'Error',
         description: 'Failed to load schedules',

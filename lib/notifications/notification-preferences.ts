@@ -16,7 +16,6 @@ export async function getPreferences(userId: string): Promise<NotificationPrefer
 
   if (error && error.code !== 'PGRST116') {
     // PGRST116 = no rows returned
-    console.error('Failed to get notification preferences:', error)
     return null
   }
 
@@ -36,7 +35,6 @@ export async function getPreferences(userId: string): Promise<NotificationPrefer
       .single()
 
     if (insertError) {
-      console.error('Failed to create default preferences:', insertError)
       return null
     }
 
@@ -66,7 +64,6 @@ export async function updatePreferences(
     .single()
 
   if (error) {
-    console.error('Failed to update notification preferences:', error)
     return null
   }
 

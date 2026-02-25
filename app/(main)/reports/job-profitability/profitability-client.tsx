@@ -45,7 +45,7 @@ export function JobProfitabilityClient({ initialData, userId }: Props) {
         reportCode: 'job_profitability',
         userId,
         parameters: {}
-      }).catch(console.error)
+      }).catch(() => {})
     }
   }, [userId])
 

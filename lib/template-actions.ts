@@ -96,14 +96,12 @@ export async function createTemplate(
       .single();
 
     if (error) {
-      console.error('Error creating template:', error);
       return { success: false, error: error.message };
     }
     
     revalidatePath('/customs/templates');
     return { success: true, template: template as unknown as CustomsDocumentTemplate };
   } catch (error) {
-    console.error('Error in createTemplate:', error);
     return { success: false, error: 'Failed to create template' };
   }
 }
@@ -175,7 +173,6 @@ export async function updateTemplate(
       .eq('id', id);
     
     if (error) {
-      console.error('Error updating template:', error);
       return { success: false, error: error.message };
     }
     
@@ -183,7 +180,6 @@ export async function updateTemplate(
     revalidatePath(`/customs/templates/${id}`);
     return { success: true };
   } catch (error) {
-    console.error('Error in updateTemplate:', error);
     return { success: false, error: 'Failed to update template' };
   }
 }
@@ -203,14 +199,12 @@ export async function deactivateTemplate(
       .eq('id', id);
     
     if (error) {
-      console.error('Error deactivating template:', error);
       return { success: false, error: error.message };
     }
     
     revalidatePath('/customs/templates');
     return { success: true };
   } catch (error) {
-    console.error('Error in deactivateTemplate:', error);
     return { success: false, error: 'Failed to deactivate template' };
   }
 }
@@ -230,14 +224,12 @@ export async function activateTemplate(
       .eq('id', id);
     
     if (error) {
-      console.error('Error activating template:', error);
       return { success: false, error: error.message };
     }
     
     revalidatePath('/customs/templates');
     return { success: true };
   } catch (error) {
-    console.error('Error in activateTemplate:', error);
     return { success: false, error: 'Failed to activate template' };
   }
 }
@@ -271,13 +263,11 @@ export async function getTemplates(
     const { data, error } = await query;
     
     if (error) {
-      console.error('Error fetching templates:', error);
       return { templates: [], error: error.message };
     }
     
     return { templates: (data || []) as unknown as CustomsDocumentTemplate[] };
   } catch (error) {
-    console.error('Error in getTemplates:', error);
     return { templates: [], error: 'Failed to fetch templates' };
   }
 }
@@ -308,13 +298,11 @@ export async function getTemplateById(
       if (error.code === 'PGRST116') {
         return { template: null, error: 'Template not found' };
       }
-      console.error('Error fetching template:', error);
       return { template: null, error: error.message };
     }
     
     return { template: data as unknown as CustomsDocumentTemplate };
   } catch (error) {
-    console.error('Error in getTemplateById:', error);
     return { template: null, error: 'Failed to fetch template' };
   }
 }
@@ -376,14 +364,12 @@ export async function generateDocument(
       .single();
     
     if (error) {
-      console.error('Error generating document:', error);
       return { success: false, error: error.message };
     }
     
     revalidatePath('/customs/documents');
     return { success: true, document: document as unknown as GeneratedCustomsDocument };
   } catch (error) {
-    console.error('Error in generateDocument:', error);
     return { success: false, error: 'Failed to generate document' };
   }
 }
@@ -432,7 +418,6 @@ export async function updateDocumentStatus(
       .eq('id', id);
     
     if (error) {
-      console.error('Error updating document status:', error);
       return { success: false, error: error.message };
     }
     
@@ -440,7 +425,6 @@ export async function updateDocumentStatus(
     revalidatePath(`/customs/documents/${id}`);
     return { success: true };
   } catch (error) {
-    console.error('Error in updateDocumentStatus:', error);
     return { success: false, error: 'Failed to update document status' };
   }
 }
@@ -478,7 +462,6 @@ export async function updateDocumentData(
       .eq('id', id);
     
     if (error) {
-      console.error('Error updating document data:', error);
       return { success: false, error: error.message };
     }
     
@@ -486,7 +469,6 @@ export async function updateDocumentData(
     revalidatePath(`/customs/documents/${id}`);
     return { success: true };
   } catch (error) {
-    console.error('Error in updateDocumentData:', error);
     return { success: false, error: 'Failed to update document data' };
   }
 }
@@ -537,13 +519,11 @@ export async function getGeneratedDocuments(
     const { data, error } = await query;
     
     if (error) {
-      console.error('Error fetching documents:', error);
       return { documents: [], error: error.message };
     }
     
     return { documents: (data || []) as unknown as GeneratedDocumentWithRelations[] };
   } catch (error) {
-    console.error('Error in getGeneratedDocuments:', error);
     return { documents: [], error: 'Failed to fetch documents' };
   }
 }
@@ -573,13 +553,11 @@ export async function getGeneratedDocumentById(
       if (error.code === 'PGRST116') {
         return { document: null, error: 'Document not found' };
       }
-      console.error('Error fetching document:', error);
       return { document: null, error: error.message };
     }
     
     return { document: data as unknown as GeneratedDocumentWithRelations };
   } catch (error) {
-    console.error('Error in getGeneratedDocumentById:', error);
     return { document: null, error: 'Failed to fetch document' };
   }
 }
@@ -657,7 +635,6 @@ export async function resolveTemplateData(
     
     return { data: resolved };
   } catch (error) {
-    console.error('Error in resolveTemplateData:', error);
     return { data: {}, error: 'Failed to resolve template data' };
   }
 }
@@ -688,7 +665,6 @@ export async function generatePreviewHtml(
     
     return { html: filledHtml };
   } catch (error) {
-    console.error('Error in generatePreviewHtml:', error);
     return { html: '', error: 'Failed to generate preview' };
   }
 }
@@ -709,7 +685,6 @@ export async function updateDocumentPdfUrl(
       .eq('id', id);
     
     if (error) {
-      console.error('Error updating PDF URL:', error);
       return { success: false, error: error.message };
     }
     
@@ -717,7 +692,6 @@ export async function updateDocumentPdfUrl(
     revalidatePath(`/customs/documents/${id}`);
     return { success: true };
   } catch (error) {
-    console.error('Error in updateDocumentPdfUrl:', error);
     return { success: false, error: 'Failed to update PDF URL' };
   }
 }

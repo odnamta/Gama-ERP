@@ -32,7 +32,6 @@ export default function NewServiceProviderPage() {
         });
       }
     } catch (error) {
-      console.error('Error creating service provider:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

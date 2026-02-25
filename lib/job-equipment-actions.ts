@@ -131,7 +131,6 @@ export async function addEquipmentToJob(
       .single();
 
     if (insertError) {
-      console.error('Error creating equipment usage:', insertError);
       return { success: false, error: 'Failed to add equipment to job' };
     }
 
@@ -161,7 +160,6 @@ export async function addEquipmentToJob(
       data: transformJobEquipmentUsageRow(usage as JobEquipmentUsageRow),
     };
   } catch (error) {
-    console.error('Error in addEquipmentToJob:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -256,7 +254,6 @@ export async function completeEquipmentUsage(
       .eq('id', input.usageId);
 
     if (updateError) {
-      console.error('Error completing equipment usage:', updateError);
       return { success: false, error: 'Failed to complete equipment usage' };
     }
 
@@ -290,7 +287,6 @@ export async function completeEquipmentUsage(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in completeEquipmentUsage:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -321,7 +317,6 @@ export async function getJobEquipmentUsage(
       .order('usage_start', { ascending: false });
 
     if (error) {
-      console.error('Error fetching job equipment usage:', error);
       return { success: false, error: 'Failed to fetch equipment usage' };
     }
 
@@ -352,7 +347,6 @@ export async function getJobEquipmentUsage(
 
     return { success: true, data: usages };
   } catch (error) {
-    console.error('Error in getJobEquipmentUsage:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -373,7 +367,6 @@ export async function updateJobEquipmentCost(
       .eq('job_order_id', jobOrderId);
 
     if (fetchError) {
-      console.error('Error fetching equipment costs:', fetchError);
       return { success: false, error: 'Failed to calculate equipment cost' };
     }
 
@@ -389,13 +382,11 @@ export async function updateJobEquipmentCost(
       .eq('id', jobOrderId);
 
     if (updateError) {
-      console.error('Error updating job equipment cost:', updateError);
       return { success: false, error: 'Failed to update job equipment cost' };
     }
 
     return { success: true };
   } catch (error) {
-    console.error('Error in updateJobEquipmentCost:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -469,7 +460,6 @@ export async function getEquipmentRate(
       data: transformEquipmentRateRow(categoryRate as EquipmentRateRow),
     };
   } catch (error) {
-    console.error('Error in getEquipmentRate:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -492,7 +482,6 @@ export async function getEquipmentRates(): Promise<{
       .order('effective_from', { ascending: false });
 
     if (error) {
-      console.error('Error fetching equipment rates:', error);
       return { success: false, error: 'Failed to fetch equipment rates' };
     }
 
@@ -501,7 +490,6 @@ export async function getEquipmentRates(): Promise<{
       data: (data as EquipmentRateRow[]).map(transformEquipmentRateRow),
     };
   } catch (error) {
-    console.error('Error in getEquipmentRates:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -533,7 +521,6 @@ export async function upsertEquipmentRate(
       .single();
 
     if (error) {
-      console.error('Error upserting equipment rate:', error);
       return { success: false, error: 'Failed to save equipment rate' };
     }
 
@@ -544,7 +531,6 @@ export async function upsertEquipmentRate(
       data: transformEquipmentRateRow(data as EquipmentRateRow),
     };
   } catch (error) {
-    console.error('Error in upsertEquipmentRate:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -635,7 +621,6 @@ export async function getJobEquipmentSummary(
       },
     };
   } catch (error) {
-    console.error('Error in getJobEquipmentSummary:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -667,7 +652,6 @@ export async function deleteEquipmentUsage(
       .eq('id', usageId);
 
     if (deleteError) {
-      console.error('Error deleting equipment usage:', deleteError);
       return { success: false, error: 'Failed to delete equipment usage' };
     }
 
@@ -680,7 +664,6 @@ export async function deleteEquipmentUsage(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in deleteEquipmentUsage:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }

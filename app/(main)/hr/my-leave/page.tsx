@@ -26,7 +26,6 @@ export default function MyLeavePage() {
     try {
       const empId = await getCurrentEmployeeId();
       if (!empId) {
-        console.error('No employee found for current user');
         setIsLoading(false);
         return;
       }
@@ -47,7 +46,6 @@ export default function MyLeavePage() {
       setBalances(balancesData);
       setLeaveTypes(typesData);
     } catch (error) {
-      console.error('Error loading data:', error);
     } finally {
       setIsLoading(false);
     }

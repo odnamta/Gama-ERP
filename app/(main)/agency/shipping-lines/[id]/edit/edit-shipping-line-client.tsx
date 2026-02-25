@@ -36,7 +36,6 @@ export function EditShippingLineClient({ shippingLine }: EditShippingLineClientP
         });
       }
     } catch (error) {
-      console.error('Error updating shipping line:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

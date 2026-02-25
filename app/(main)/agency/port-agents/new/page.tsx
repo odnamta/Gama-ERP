@@ -45,7 +45,6 @@ export default function NewPortAgentPage() {
         });
       }
     } catch (error) {
-      console.error('Error creating port agent:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

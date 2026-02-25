@@ -26,7 +26,6 @@ export function loadRecentSearches(): string[] {
       }
     }
   } catch (error) {
-    console.error('Error loading recent searches:', error);
   }
 
   return [];
@@ -54,7 +53,6 @@ export function saveRecentSearch(query: string): string[] {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (error) {
-    console.error('Error saving recent search:', error);
   }
 
   return updated;
@@ -71,7 +69,6 @@ export function clearRecentSearches(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
-    console.error('Error clearing recent searches:', error);
   }
 }
 
@@ -91,7 +88,6 @@ export function removeRecentSearch(query: string): string[] {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   } catch (error) {
-    console.error('Error removing recent search:', error);
   }
 
   return updated;

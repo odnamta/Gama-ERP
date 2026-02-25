@@ -5,6 +5,7 @@ import { CompanySettings, DEFAULT_SETTINGS, SettingKey, SETTING_KEYS } from '@/t
 import { rowsToSettings, validateRequiredFields } from '@/lib/company-settings-utils';
 import { revalidatePath } from 'next/cache';
 import { getUserProfile } from '@/lib/permissions-server';
+import { ADMIN_ROLES } from '@/lib/permissions';
 
 /**
  * Load all company settings from database
@@ -22,14 +23,12 @@ export async function loadCompanySettings(): Promise<{
       .select('key, value');
     
     if (error) {
-      console.error('Error loading company settings:', error);
       return { success: false, error: error.message };
     }
     
     const settings = rowsToSettings(data || []);
     return { success: true, data: settings };
   } catch (err) {
-    console.error('Unexpected error loading company settings:', err);
     return { success: false, error: 'Failed to load settings' };
   }
 }
@@ -58,7 +57,7 @@ export async function saveCompanySettings(
 
     // Only executive roles (owner, director, sysadmin) can change company settings
     const profile = await getUserProfile();
-    if (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Insufficient permissions. Only executive roles can modify company settings.' };
     }
 
@@ -94,7 +93,6 @@ export async function saveCompanySettings(
         );
       
       if (error) {
-        console.error(`Error saving setting ${update.key}:`, error);
         return { success: false, error: `Failed to save ${update.key}` };
       }
     }
@@ -102,7 +100,6 @@ export async function saveCompanySettings(
     revalidatePath('/settings/company');
     return { success: true };
   } catch (err) {
-    console.error('Unexpected error saving company settings:', err);
     return { success: false, error: 'Failed to save settings' };
   }
 }
@@ -152,7 +149,6 @@ export async function uploadCompanyLogo(
       });
     
     if (uploadError) {
-      console.error('Error uploading logo:', uploadError);
       return { success: false, error: 'Failed to upload logo' };
     }
     
@@ -175,14 +171,12 @@ export async function uploadCompanyLogo(
       );
     
     if (updateError) {
-      console.error('Error updating logo_url setting:', updateError);
       return { success: false, error: 'Failed to save logo URL' };
     }
     
     revalidatePath('/settings/company');
     return { success: true, url: publicUrl };
   } catch (err) {
-    console.error('Unexpected error uploading logo:', err);
     return { success: false, error: 'Failed to upload logo' };
   }
 }

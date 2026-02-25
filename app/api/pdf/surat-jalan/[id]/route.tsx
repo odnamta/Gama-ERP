@@ -73,7 +73,6 @@ export async function GET(
       },
     })
   } catch (error) {
-    console.error('Error generating Surat Jalan PDF:', error)
     return new Response(JSON.stringify({ error: 'Failed to generate PDF' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },

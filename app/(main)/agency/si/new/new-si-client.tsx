@@ -35,7 +35,6 @@ export function NewSIClient({
       toast.success('Shipping Instruction created successfully');
       router.push(`/agency/si/${result.data.id}`);
     } catch (error) {
-      console.error('Error creating SI:', error);
       toast.error('Failed to create Shipping Instruction');
     } finally {
       setIsLoading(false);
@@ -55,7 +54,6 @@ export function NewSIClient({
       toast.success('Draft saved successfully');
       router.push(`/agency/si/${result.data.id}`);
     } catch (error) {
-      console.error('Error saving draft:', error);
       toast.error('Failed to save draft');
     } finally {
       setIsLoading(false);

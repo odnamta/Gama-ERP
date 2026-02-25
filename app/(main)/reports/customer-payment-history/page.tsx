@@ -40,7 +40,6 @@ async function fetchReportData(): Promise<CustomerPaymentReport | null> {
     .lte('invoice_date', endDate)
 
   if (error) {
-    console.error('Error fetching payment history:', error)
     return null
   }
 

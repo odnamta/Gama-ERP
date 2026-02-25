@@ -73,7 +73,6 @@ export async function notifyIncidentReported(
       }
     }
   } catch (error) {
-    console.error('Error sending incident reported notifications:', error);
   }
 }
 
@@ -113,7 +112,6 @@ export async function notifyInvestigatorAssigned(
       });
     }
   } catch (error) {
-    console.error('Error sending investigator assigned notification:', error);
   }
 }
 
@@ -159,7 +157,6 @@ export async function notifyActionAssigned(
       });
     }
   } catch (error) {
-    console.error('Error sending action assigned notification:', error);
   }
 }
 
@@ -199,6 +196,5 @@ export async function notifyIncidentClosed(
       });
     }
   } catch (error) {
-    console.error('Error sending incident closed notification:', error);
   }
 }

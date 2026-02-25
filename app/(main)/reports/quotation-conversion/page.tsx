@@ -37,7 +37,6 @@ async function fetchReportData(): Promise<QuotationConversionReportData | null> 
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching quotation conversion data:', error)
     return null
   }
 

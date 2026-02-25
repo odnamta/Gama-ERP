@@ -64,7 +64,6 @@ export default function ReportsPage() {
           setUseDbConfig(true)
         }
       } catch (error) {
-        console.error('Failed to fetch DB reports, falling back to static config:', error)
       } finally {
         setLoading(false)
       }

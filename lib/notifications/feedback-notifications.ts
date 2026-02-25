@@ -44,7 +44,6 @@ export async function notifyNewFeedback(
       { userIds: adminUsers.map(u => u.id) }
     );
   } catch (error) {
-    console.error('Failed to send new feedback notification:', error);
   }
 }
 
@@ -90,7 +89,6 @@ export async function notifyFeedbackStatusChange(
       entityId: feedbackId,
     });
   } catch (error) {
-    console.error('Failed to send status change notification:', error);
   }
 }
 
@@ -119,7 +117,6 @@ export async function notifyFeedbackComment(
       entityId: feedbackId,
     });
   } catch (error) {
-    console.error('Failed to send comment notification:', error);
   }
 }
 
@@ -148,6 +145,5 @@ export async function notifyFeedbackAssignment(
       entityId: feedbackId,
     });
   } catch (error) {
-    console.error('Failed to send assignment notification:', error);
   }
 }

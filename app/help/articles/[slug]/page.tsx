@@ -32,7 +32,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   // Increment view count (fire and forget)
-  incrementViewCount(article.id).catch(console.error);
+  incrementViewCount(article.id).catch(() => {});
 
   // Get related articles
   const relatedArticles = article.relatedArticles.length > 0

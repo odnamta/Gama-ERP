@@ -161,7 +161,6 @@ export async function createVessel(data: VesselFormData): Promise<ActionResult<V
     revalidatePath('/agency/vessels');
     return { success: true, data: rowToVessel(result as VesselRow) };
   } catch (error) {
-    console.error('Error creating vessel:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create vessel' };
   }
 }
@@ -274,7 +273,6 @@ export async function updateVessel(id: string, data: Partial<VesselFormData>): P
     revalidatePath(`/agency/vessels/${id}`);
     return { success: true, data: rowToVessel(result as VesselRow) };
   } catch (error) {
-    console.error('Error updating vessel:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update vessel' };
   }
 }
@@ -316,7 +314,6 @@ export async function deleteVessel(id: string): Promise<ActionResult<void>> {
     revalidatePath('/agency/vessels');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting vessel:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to delete vessel' };
   }
 }
@@ -344,7 +341,6 @@ export async function getVessel(id: string): Promise<Vessel | null> {
     if (error) throw error;
     return data ? rowToVessel(data as VesselRow) : null;
   } catch (error) {
-    console.error('Error getting vessel:', error);
     return null;
   }
 }
@@ -398,7 +394,6 @@ export async function getVessels(filters?: VesselFilters): Promise<Vessel[]> {
     if (error) throw error;
     return (data || []).map((row: VesselRow) => rowToVessel(row));
   } catch (error) {
-    console.error('Error getting vessels:', error);
     return [];
   }
 }
@@ -508,7 +503,6 @@ export async function createSchedule(data: ScheduleFormData): Promise<ActionResu
     revalidatePath('/agency/vessels');
     return { success: true, data: rowToSchedule(result as VesselScheduleRow) };
   } catch (error) {
-    console.error('Error creating schedule:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create schedule' };
   }
 }
@@ -622,7 +616,6 @@ export async function updateSchedule(id: string, data: Partial<ScheduleFormData>
     revalidatePath('/agency/vessels');
     return { success: true, data: rowToSchedule(result as VesselScheduleRow) };
   } catch (error) {
-    console.error('Error updating schedule:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update schedule' };
   }
 }
@@ -658,7 +651,6 @@ export async function deleteSchedule(id: string): Promise<ActionResult<void>> {
     revalidatePath('/agency/vessels');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting schedule:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to delete schedule' };
   }
 }
@@ -687,7 +679,6 @@ export async function getSchedule(id: string): Promise<VesselSchedule | null> {
     if (error) throw error;
     return data ? rowToSchedule(data as VesselScheduleRow) : null;
   } catch (error) {
-    console.error('Error getting schedule:', error);
     return null;
   }
 }
@@ -750,7 +741,6 @@ export async function getSchedules(filters?: ScheduleFilters): Promise<VesselSch
     if (error) throw error;
     return (data || []).map((row: VesselScheduleRow) => rowToSchedule(row));
   } catch (error) {
-    console.error('Error getting schedules:', error);
     return [];
   }
 }
@@ -796,7 +786,6 @@ export async function getUpcomingArrivals(filters?: ArrivalFilters): Promise<Upc
     if (error) throw error;
     return (data || []).map((row: UpcomingArrivalRow) => rowToUpcomingArrival(row));
   } catch (error) {
-    console.error('Error getting upcoming arrivals:', error);
     return [];
   }
 }
@@ -902,7 +891,6 @@ export async function recordPosition(data: PositionFormData): Promise<ActionResu
       .eq('id', data.vesselId);
 
     if (updateError) {
-      console.error('Error updating vessel current position:', updateError);
       // Don't fail the whole operation, position was recorded
     }
 
@@ -910,7 +898,6 @@ export async function recordPosition(data: PositionFormData): Promise<ActionResu
     revalidatePath(`/agency/vessels/${data.vesselId}`);
     return { success: true, data: rowToPosition(positionResult as VesselPositionRow) };
   } catch (error) {
-    console.error('Error recording position:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to record position' };
   }
 }
@@ -942,7 +929,6 @@ export async function getPositionHistory(vesselId: string, limit: number = 100):
     if (error) throw error;
     return (data || []).map((row: VesselPositionRow) => rowToPosition(row));
   } catch (error) {
-    console.error('Error getting position history:', error);
     return [];
   }
 }
@@ -1058,7 +1044,6 @@ export async function recordTrackingEvent(data: TrackingEventFormData): Promise<
     revalidatePath('/agency/tracking');
     return { success: true, data: rowToTracking(result as ShipmentTrackingRow) };
   } catch (error) {
-    console.error('Error recording tracking event:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to record tracking event' };
   }
 }
@@ -1109,7 +1094,6 @@ export async function getTrackingEvents(params?: TrackingSearchParams): Promise<
     const events = (data || []).map((row: ShipmentTrackingRow) => rowToTracking(row));
     return sortTrackingEventsByTimestamp(events);
   } catch (error) {
-    console.error('Error getting tracking events:', error);
     return [];
   }
 }
@@ -1282,7 +1266,6 @@ export async function searchTracking(query: string): Promise<TrackingSearchResul
       vessel: vesselInfo,
     };
   } catch (error) {
-    console.error('Error searching tracking:', error);
     return null;
   }
 }
@@ -1313,7 +1296,6 @@ export async function getTrackingEvent(id: string): Promise<ShipmentTracking | n
     if (error) throw error;
     return data ? rowToTracking(data as ShipmentTrackingRow) : null;
   } catch (error) {
-    console.error('Error getting tracking event:', error);
     return null;
   }
 }
@@ -1352,7 +1334,6 @@ export async function deleteTrackingEvent(id: string): Promise<ActionResult<void
     revalidatePath('/agency/tracking');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting tracking event:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to delete tracking event' };
   }
 }
@@ -1490,7 +1471,6 @@ export async function createSubscription(
     revalidatePath('/agency/tracking');
     return { success: true, data: rowToSubscription(result as TrackingSubscriptionRow) };
   } catch (error) {
-    console.error('Error creating subscription:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create subscription' };
   }
 }
@@ -1558,7 +1538,6 @@ export async function updateSubscription(
     revalidatePath('/agency/tracking');
     return { success: true, data: rowToSubscription(result as TrackingSubscriptionRow) };
   } catch (error) {
-    console.error('Error updating subscription:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update subscription' };
   }
 }
@@ -1597,7 +1576,6 @@ export async function deleteSubscription(id: string): Promise<ActionResult<void>
     revalidatePath('/agency/tracking');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting subscription:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to delete subscription' };
   }
 }
@@ -1633,7 +1611,6 @@ export async function getUserSubscriptions(userId?: string): Promise<TrackingSub
     if (error) throw error;
     return (data || []).map((row: TrackingSubscriptionRow) => rowToSubscription(row));
   } catch (error) {
-    console.error('Error getting user subscriptions:', error);
     return [];
   }
 }
@@ -1660,7 +1637,6 @@ export async function getSubscription(id: string): Promise<TrackingSubscription 
     if (error) throw error;
     return data ? rowToSubscription(data as TrackingSubscriptionRow) : null;
   } catch (error) {
-    console.error('Error getting subscription:', error);
     return null;
   }
 }
@@ -1692,7 +1668,6 @@ export async function getSubscriptionsByReference(
     if (error) throw error;
     return (data || []).map((row: TrackingSubscriptionRow) => rowToSubscription(row));
   } catch (error) {
-    console.error('Error getting subscriptions by reference:', error);
     return [];
   }
 }

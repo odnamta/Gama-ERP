@@ -42,7 +42,6 @@ export async function logReportExecution(params: {
     } as never)
   
   if (error) {
-    console.error('Error logging report execution:', error)
     return { success: false, error: error.message }
   }
   
@@ -67,7 +66,6 @@ export async function getRecentReports(
     .limit(limit * 2) // Get more to deduplicate
   
   if (error) {
-    console.error('Error fetching recent reports:', error)
     return []
   }
   
@@ -87,7 +85,6 @@ export async function getRecentReports(
     .eq('is_active', true)
   
   if (configError) {
-    console.error('Error fetching report configurations:', configError)
     return []
   }
   
@@ -132,7 +129,6 @@ export async function getReportExecutionHistory(
     .limit(limit)
   
   if (error) {
-    console.error('Error fetching report execution history:', error)
     return []
   }
   

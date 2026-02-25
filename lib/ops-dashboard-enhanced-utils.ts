@@ -156,7 +156,6 @@ export async function getOperationsJobList(): Promise<OperationsJobItem[]> {
     .limit(10)
 
   if (error) {
-    console.error('Error fetching operations job list:', error)
     return []
   }
 
@@ -199,7 +198,6 @@ export async function getDeliverySchedule(): Promise<DeliveryItem[]> {
     .limit(10)
 
   if (error) {
-    console.error('Error fetching delivery schedule:', error)
     return []
   }
 

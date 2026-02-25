@@ -50,7 +50,6 @@ export function ShippingLinesClient() {
         setStats(calculateShippingLineStats(result.data));
       }
     } catch (error) {
-      console.error('Failed to load shipping lines:', error);
       toast({
         title: 'Error',
         description: 'Failed to load shipping lines',

@@ -15,6 +15,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
+import { ADMIN_ROLES } from '@/lib/permissions';
 import {
   LoginHistoryEntry,
   LoginHistoryFilters,
@@ -33,8 +34,6 @@ import {
   calculateSessionStatistics,
   exportToCsv,
 } from '@/lib/login-history-utils';
-
-const ADMIN_ROLES = ['owner', 'director', 'sysadmin'];
 
 // =====================================================
 // TYPES
@@ -68,7 +67,7 @@ export async function getLoginHistory(
 ): Promise<ActionResult<PaginatedLoginHistory>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -147,7 +146,6 @@ export async function getLoginHistory(
     
     return { success: true, data: result };
   } catch (error) {
-    console.error('Error fetching login history:', error);
     return { success: false, error: 'Failed to fetch login history' };
   }
 }
@@ -162,7 +160,7 @@ export async function getUserSessionStats(
 ): Promise<ActionResult<SessionStatistics>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -188,7 +186,6 @@ export async function getUserSessionStats(
     
     return { success: true, data: stats };
   } catch (error) {
-    console.error('Error fetching user session stats:', error);
     return { success: false, error: 'Failed to fetch session statistics' };
   }
 }
@@ -225,7 +222,6 @@ export async function recordLogin(
     
     return { success: true, data: data as unknown as LoginHistoryEntry };
   } catch (error) {
-    console.error('Error recording login:', error);
     return { success: false, error: 'Failed to record login' };
   }
 }
@@ -281,7 +277,6 @@ export async function recordLogout(
     
     return { success: true, data: data as unknown as LoginHistoryEntry };
   } catch (error) {
-    console.error('Error recording logout:', error);
     return { success: false, error: 'Failed to record logout' };
   }
 }
@@ -296,7 +291,7 @@ export async function recordFailedLogin(
 ): Promise<ActionResult<LoginHistoryEntry>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -319,7 +314,6 @@ export async function recordFailedLogin(
     
     return { success: true, data: data as unknown as LoginHistoryEntry };
   } catch (error) {
-    console.error('Error recording failed login:', error);
     return { success: false, error: 'Failed to record failed login' };
   }
 }
@@ -339,7 +333,7 @@ export async function exportLoginHistory(
 ): Promise<ActionResult<string>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -385,7 +379,6 @@ export async function exportLoginHistory(
     
     return { success: true, data: csv };
   } catch (error) {
-    console.error('Error exporting login history:', error);
     return { success: false, error: 'Failed to export login history' };
   }
 }
@@ -405,7 +398,7 @@ export async function getLoginHistoryFilterOptions(): Promise<ActionResult<{
 }>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -453,7 +446,6 @@ export async function getLoginHistoryFilterOptions(): Promise<ActionResult<{
       },
     };
   } catch (error) {
-    console.error('Error fetching filter options:', error);
     return { success: false, error: 'Failed to fetch filter options' };
   }
 }
@@ -464,7 +456,7 @@ export async function getLoginHistoryFilterOptions(): Promise<ActionResult<{
 export async function getActiveSessions(): Promise<ActionResult<LoginHistoryEntry[]>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -481,7 +473,6 @@ export async function getActiveSessions(): Promise<ActionResult<LoginHistoryEntr
     
     return { success: true, data: (data || []) as unknown as LoginHistoryEntry[] };
   } catch (error) {
-    console.error('Error fetching active sessions:', error);
     return { success: false, error: 'Failed to fetch active sessions' };
   }
 }
@@ -495,7 +486,7 @@ export async function getRecentFailedLogins(
 ): Promise<ActionResult<LoginHistoryEntry[]>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -516,7 +507,6 @@ export async function getRecentFailedLogins(
     
     return { success: true, data: (data || []) as unknown as LoginHistoryEntry[] };
   } catch (error) {
-    console.error('Error fetching recent failed logins:', error);
     return { success: false, error: 'Failed to fetch recent failed logins' };
   }
 }
@@ -535,7 +525,7 @@ export async function getLoginHistorySummary(
 }>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -581,7 +571,6 @@ export async function getLoginHistorySummary(
       },
     };
   } catch (error) {
-    console.error('Error fetching login history summary:', error);
     return { success: false, error: 'Failed to fetch login history summary' };
   }
 }

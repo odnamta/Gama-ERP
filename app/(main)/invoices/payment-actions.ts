@@ -93,7 +93,6 @@ export async function recordPayment(data: PaymentFormData): Promise<{
     .single()
 
   if (paymentError || !payment) {
-    console.error('Error creating payment:', paymentError)
     return { error: paymentError?.message || 'Failed to record payment' }
   }
 
@@ -131,7 +130,6 @@ export async function recordPayment(data: PaymentFormData): Promise<{
     .eq('id', data.invoice_id)
 
   if (updateError) {
-    console.error('Error updating invoice:', updateError)
     // Don't rollback payment - it's recorded, just log the error
   }
 
@@ -190,7 +188,6 @@ export async function getPayments(invoiceId: string): Promise<PaymentWithRecorde
     .order('payment_date', { ascending: false })
 
   if (error) {
-    console.error('Error fetching payments:', error)
     return []
   }
 

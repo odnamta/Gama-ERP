@@ -5,6 +5,7 @@
 // =====================================================
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/permissions-server';
 import type { Json } from '@/types/database';
 import {
   AuditType,
@@ -37,6 +38,9 @@ import {
   calculateAverageScore,
 } from '@/lib/audit-utils';
 
+const AUDIT_WRITE_ROLES = ['owner', 'director', 'sysadmin'] as const;
+const AUDIT_READ_ROLES = ['owner', 'director', 'sysadmin', 'hse', 'operations_manager'] as const;
+
 // =====================================================
 // Audit Type Actions
 // =====================================================
@@ -47,6 +51,11 @@ import {
 export async function createAuditType(
   input: CreateAuditTypeInput
 ): Promise<{ data: AuditType | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const validation = validateAuditType(input);
   if (!validation.valid) {
     return { data: null, error: validation.errors[0].message };
@@ -84,6 +93,11 @@ export async function updateAuditType(
   id: string,
   input: UpdateAuditTypeInput
 ): Promise<{ data: AuditType | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {};
@@ -114,6 +128,11 @@ export async function updateAuditType(
 export async function deactivateAuditType(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -135,6 +154,11 @@ export async function getAuditTypes(): Promise<{
   data: AuditType[];
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: [], error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -156,6 +180,11 @@ export async function getActiveAuditTypes(): Promise<{
   data: AuditType[];
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: [], error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -177,6 +206,11 @@ export async function getActiveAuditTypes(): Promise<{
 export async function getAuditType(
   id: string
 ): Promise<{ data: AuditType | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -203,6 +237,11 @@ export async function getAuditType(
 export async function createAudit(
   input: CreateAuditInput
 ): Promise<{ data: Audit | null; error: string | null }> {
+  const userProfile = await getUserProfile();
+  if (!userProfile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const validation = validateAudit(input);
   if (!validation.valid) {
     return { data: null, error: validation.errors[0].message };
@@ -260,6 +299,11 @@ export async function updateAudit(
   id: string,
   input: UpdateAuditInput
 ): Promise<{ data: Audit | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // Check if audit can be modified
@@ -311,6 +355,11 @@ export async function updateAudit(
 export async function startAudit(
   id: string
 ): Promise<{ data: Audit | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -338,6 +387,11 @@ export async function completeAudit(
   id: string,
   input: CompleteAuditInput
 ): Promise<{ data: Audit | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // Get the audit and its type to calculate score
@@ -394,6 +448,11 @@ export async function completeAudit(
 export async function cancelAudit(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -415,6 +474,11 @@ export async function cancelAudit(
 export async function getAudit(
   id: string
 ): Promise<{ data: Audit | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -439,6 +503,11 @@ export async function getAudits(filters?: {
   date_from?: string;
   date_to?: string;
 }): Promise<{ data: Audit[]; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: [], error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   let query = supabase
@@ -474,6 +543,11 @@ export async function getAudits(filters?: {
 export async function getAuditsByType(
   auditTypeId: string
 ): Promise<{ data: Audit[]; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: [], error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -500,6 +574,11 @@ export async function getAuditsByType(
 export async function createFinding(
   input: CreateFindingInput
 ): Promise<{ data: AuditFinding | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const validation = validateFinding(input);
   if (!validation.valid) {
     return { data: null, error: validation.errors[0].message };
@@ -576,6 +655,11 @@ export async function updateFinding(
   id: string,
   input: UpdateFindingInput
 ): Promise<{ data: AuditFinding | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {};
@@ -612,6 +696,11 @@ export async function closeFinding(
   id: string,
   input: CloseFindingInput
 ): Promise<{ data: AuditFinding | null; error: string | null }> {
+  const userProfile = await getUserProfile();
+  if (!userProfile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const validation = validateClosureEvidence(input.closure_evidence);
   if (!validation.valid) {
     return { data: null, error: validation.errors[0].message };
@@ -665,6 +754,11 @@ export async function closeFinding(
 export async function verifyFinding(
   id: string
 ): Promise<{ data: AuditFinding | null; error: string | null }> {
+  const userProfile = await getUserProfile();
+  if (!userProfile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // Check if finding is closed
@@ -721,6 +815,11 @@ export async function verifyFinding(
 export async function getFindingsByAudit(
   auditId: string
 ): Promise<{ data: AuditFinding[]; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: [], error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -744,6 +843,11 @@ export async function getFindings(filters?: {
   status?: string;
   responsible_id?: string;
 }): Promise<{ data: AuditFinding[]; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: [], error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   let query = supabase
@@ -782,6 +886,11 @@ export async function getAuditSchedule(): Promise<{
   data: AuditScheduleItem[];
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: [], error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -811,6 +920,11 @@ export async function getOpenFindings(): Promise<{
   data: OpenFindingView[];
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: [], error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -835,6 +949,11 @@ export async function getAuditDashboardData(): Promise<{
   } | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // Get audit schedule
@@ -915,6 +1034,11 @@ export async function getRecentAuditsByType(
   auditTypeId: string,
   limit: number = 5
 ): Promise<{ data: Audit[]; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: [], error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase

@@ -45,7 +45,6 @@ export async function logHSCodeSearch(
     
     return { success: true };
   } catch (error) {
-    console.error('Error logging HS code search:', error);
     return { success: false, error: 'Failed to log search' };
   }
 }
@@ -90,7 +89,6 @@ export async function createHSCode(
     
     return { success: true, data: transformHSCode(result as HSCodeRow) };
   } catch (error) {
-    console.error('Error creating HS code:', error);
     return { success: false, error: 'Failed to create HS code' };
   }
 }
@@ -142,7 +140,6 @@ export async function updateHSCode(
     
     return { success: true, data: transformHSCode(result as HSCodeRow) };
   } catch (error) {
-    console.error('Error updating HS code:', error);
     return { success: false, error: 'Failed to update HS code' };
   }
 }
@@ -168,7 +165,6 @@ export async function deactivateHSCode(
     
     return { success: true };
   } catch (error) {
-    console.error('Error deactivating HS code:', error);
     return { success: false, error: 'Failed to deactivate HS code' };
   }
 }
@@ -194,7 +190,6 @@ export async function reactivateHSCode(
     
     return { success: true };
   } catch (error) {
-    console.error('Error reactivating HS code:', error);
     return { success: false, error: 'Failed to reactivate HS code' };
   }
 }
@@ -232,7 +227,6 @@ export async function upsertPreferentialRate(
     
     return { success: true, data: transformPreferentialRate(result as HSPreferentialRateRow) };
   } catch (error) {
-    console.error('Error upserting preferential rate:', error);
     return { success: false, error: 'Failed to save preferential rate' };
   }
 }
@@ -257,7 +251,6 @@ export async function deletePreferentialRate(
     
     return { success: true };
   } catch (error) {
-    console.error('Error deleting preferential rate:', error);
     return { success: false, error: 'Failed to delete preferential rate' };
   }
 }
@@ -333,7 +326,6 @@ export async function getFrequentHSCodesAction(
     
     return { success: true, data: sortedCodes };
   } catch (error) {
-    console.error('Error getting frequent HS codes:', error);
     return { success: false, error: 'Failed to get frequent HS codes' };
   }
 }
@@ -357,7 +349,6 @@ export async function clearSearchHistory(): Promise<{ success: boolean; error?: 
     
     return { success: true };
   } catch (error) {
-    console.error('Error clearing search history:', error);
     return { success: false, error: 'Failed to clear search history' };
   }
 }

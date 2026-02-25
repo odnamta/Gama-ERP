@@ -237,7 +237,6 @@ export async function createBooking(data: BookingFormData): Promise<{ success: b
     revalidatePath('/agency/bookings');
     return { success: true, data: rowToBooking(result) };
   } catch (error) {
-    console.error('Error creating booking:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create booking' };
   }
 }
@@ -326,7 +325,6 @@ export async function updateBooking(id: string, data: BookingFormData): Promise<
     revalidatePath(`/agency/bookings/${id}`);
     return { success: true, data: rowToBooking(result) };
   } catch (error) {
-    console.error('Error updating booking:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update booking' };
   }
 }
@@ -356,7 +354,6 @@ export async function getBooking(id: string): Promise<FreightBooking | null> {
     if (error) throw error;
     return data ? rowToBooking(data) : null;
   } catch (error) {
-    console.error('Error getting booking:', error);
     return null;
   }
 }
@@ -422,7 +419,6 @@ export async function getBookings(filters?: BookingFilters): Promise<FreightBook
     if (error) throw error;
     return (data || []).map(rowToBooking);
   } catch (error) {
-    console.error('Error getting bookings:', error);
     return [];
   }
 }
@@ -446,7 +442,6 @@ export async function deleteBooking(id: string): Promise<{ success: boolean; err
     revalidatePath('/agency/bookings');
     return { success: true };
   } catch (error) {
-    console.error('Error deleting booking:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to delete booking' };
   }
 }
@@ -520,7 +515,6 @@ export async function submitBookingRequest(id: string): Promise<{ success: boole
     revalidatePath(`/agency/bookings/${id}`);
     return { success: true, data: rowToBooking(result) };
   } catch (error) {
-    console.error('Error submitting booking request:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to submit booking request' };
   }
 }
@@ -578,7 +572,6 @@ export async function confirmBooking(id: string, carrierBookingNumber?: string):
     revalidatePath(`/agency/bookings/${id}`);
     return { success: true, data: rowToBooking(result) };
   } catch (error) {
-    console.error('Error confirming booking:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to confirm booking' };
   }
 }
@@ -635,7 +628,6 @@ export async function cancelBooking(id: string, reason?: string): Promise<{ succ
     revalidatePath(`/agency/bookings/${id}`);
     return { success: true, data: rowToBooking(result) };
   } catch (error) {
-    console.error('Error cancelling booking:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to cancel booking' };
   }
 }
@@ -690,7 +682,6 @@ export async function markAsShipped(id: string): Promise<{ success: boolean; dat
     revalidatePath(`/agency/bookings/${id}`);
     return { success: true, data: rowToBooking(result) };
   } catch (error) {
-    console.error('Error marking booking as shipped:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to mark booking as shipped' };
   }
 }
@@ -744,7 +735,6 @@ export async function completeBooking(id: string): Promise<{ success: boolean; d
     revalidatePath(`/agency/bookings/${id}`);
     return { success: true, data: rowToBooking(result) };
   } catch (error) {
-    console.error('Error completing booking:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to complete booking' };
   }
 }
@@ -787,7 +777,6 @@ export async function addContainer(bookingId: string, data: ContainerFormData): 
     revalidatePath(`/agency/bookings/${bookingId}`);
     return { success: true, data: rowToContainer(result) };
   } catch (error) {
-    console.error('Error adding container:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to add container' };
   }
 }
@@ -824,7 +813,6 @@ export async function updateContainer(id: string, data: ContainerFormData): Prom
     revalidatePath('/agency/bookings');
     return { success: true, data: rowToContainer(result) };
   } catch (error) {
-    console.error('Error updating container:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update container' };
   }
 }
@@ -848,7 +836,6 @@ export async function removeContainer(id: string): Promise<{ success: boolean; e
     revalidatePath('/agency/bookings');
     return { success: true };
   } catch (error) {
-    console.error('Error removing container:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to remove container' };
   }
 }
@@ -871,7 +858,6 @@ export async function getBookingContainers(bookingId: string): Promise<BookingCo
     if (error) throw error;
     return (data || []).map(rowToContainer);
   } catch (error) {
-    console.error('Error getting booking containers:', error);
     return [];
   }
 }
@@ -924,7 +910,6 @@ export async function requestAmendment(bookingId: string, data: AmendmentFormDat
     revalidatePath(`/agency/bookings/${bookingId}`);
     return { success: true, data: rowToAmendment(result) };
   } catch (error) {
-    console.error('Error requesting amendment:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to request amendment' };
   }
 }
@@ -989,7 +974,6 @@ export async function approveAmendment(id: string): Promise<{ success: boolean; 
     revalidatePath(`/agency/bookings/${amendment.booking_id}`);
     return { success: true, data: rowToAmendment(result) };
   } catch (error) {
-    console.error('Error approving amendment:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to approve amendment' };
   }
 }
@@ -1023,7 +1007,6 @@ export async function rejectAmendment(id: string, reason?: string): Promise<{ su
     revalidatePath('/agency/bookings');
     return { success: true, data: rowToAmendment(result) };
   } catch (error) {
-    console.error('Error rejecting amendment:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to reject amendment' };
   }
 }
@@ -1046,7 +1029,6 @@ export async function getBookingAmendments(bookingId: string): Promise<BookingAm
     if (error) throw error;
     return (data || []).map(rowToAmendment);
   } catch (error) {
-    console.error('Error getting booking amendments:', error);
     return [];
   }
 }
@@ -1116,7 +1098,6 @@ export async function lookupRates(params: RateLookupParams): Promise<ShippingRat
       destinationPort: row.destination_port as unknown as Port,
     })) as unknown as ShippingRate[];
   } catch (error) {
-    console.error('Error looking up rates:', error);
     return [];
   }
 }
@@ -1147,7 +1128,6 @@ export async function getStatusHistory(bookingId: string): Promise<BookingStatus
     if (error) throw error;
     return (data || []).map(rowToStatusHistory);
   } catch (error) {
-    console.error('Error getting status history:', error);
     return [];
   }
 }
@@ -1205,7 +1185,6 @@ export async function getBookingStats(): Promise<BookingStats> {
       cancelledCount: counts.cancelled,
     };
   } catch (error) {
-    console.error('Error getting booking stats:', error);
     return {
       totalBookings: 0,
       draftCount: 0,

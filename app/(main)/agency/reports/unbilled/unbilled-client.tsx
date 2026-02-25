@@ -93,7 +93,6 @@ export function UnbilledRevenueClient({
         setUnbilledRevenue(result.data);
       }
     } catch (error) {
-      console.error('Failed to search unbilled revenue:', error);
     } finally {
       setIsLoading(false);
     }
@@ -118,7 +117,6 @@ export function UnbilledRevenueClient({
         setUnbilledRevenue(result.data);
       }
     } catch (error) {
-      console.error('Failed to clear filters:', error);
     } finally {
       setIsLoading(false);
     }

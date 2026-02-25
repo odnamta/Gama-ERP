@@ -159,7 +159,6 @@ export async function sendNotification(
       logIds
     );
   } catch (error) {
-    console.error('sendNotification error:', error);
     return buildFailureResult(error instanceof Error ? error.message : 'Unknown error');
   }
 }

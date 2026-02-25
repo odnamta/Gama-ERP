@@ -37,7 +37,6 @@ async function fetchReportData(): Promise<CustomerAcquisitionReport | null> {
     `)
 
   if (error) {
-    console.error('Error fetching customer data:', error)
     return null
   }
 

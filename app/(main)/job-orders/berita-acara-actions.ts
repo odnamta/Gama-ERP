@@ -22,7 +22,6 @@ export async function generateBANumber(): Promise<string> {
     .gte('created_at', `${year}-01-01`)
   
   if (error) {
-    console.error('Error counting BA records:', error)
     throw new Error('Failed to generate BA number')
   }
   
@@ -48,7 +47,6 @@ export async function getBeritaAcaraList(joId: string): Promise<BeritaAcaraWithR
     .order('created_at', { ascending: false })
   
   if (error) {
-    console.error('Error fetching Berita Acara list:', error)
     return []
   }
   
@@ -80,7 +78,6 @@ export async function getBeritaAcara(id: string): Promise<BeritaAcaraWithRelatio
     .single()
   
   if (error) {
-    console.error('Error fetching Berita Acara:', error)
     return null
   }
   
@@ -138,7 +135,6 @@ export async function createBeritaAcara(
     .single()
   
   if (error) {
-    console.error('Error creating Berita Acara:', error)
     return { error: error.message }
   }
   
@@ -249,7 +245,6 @@ export async function updateBeritaAcaraStatus(
       .eq('id', ba.jo_id)
     
     if (joError) {
-      console.error('Error updating JO has_berita_acara:', joError)
     }
   }
   

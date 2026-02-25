@@ -79,7 +79,6 @@ export async function logEvent(
     .single();
 
   if (error) {
-    console.error('Failed to log security event:', error);
     return { data: null, error: error.message };
   }
 
@@ -89,7 +88,6 @@ export async function logEvent(
   if (params.severity === 'critical') {
     // Fire and forget - don't block on alert sending
     sendSecurityAlert(event).catch((err) => {
-      console.error('Failed to send security alert:', err);
     });
   }
 
@@ -384,16 +382,7 @@ export async function updateInvestigationNotes(
  * @param event - The security event to alert on
  */
 export async function sendSecurityAlert(event: SecurityEvent): Promise<void> {
-  // Log the alert (in production, this would integrate with alerting systems)
-  console.warn('🚨 SECURITY ALERT:', {
-    id: event.id,
-    type: event.event_type,
-    severity: event.severity,
-    description: event.description,
-    timestamp: event.timestamp,
-    ipAddress: event.ip_address,
-    userId: event.user_id,
-  });
+  // In production, this would integrate with alerting systems
 
   // In a production environment, this would:
   // 1. Send email to security team

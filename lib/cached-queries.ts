@@ -72,7 +72,6 @@ export async function getCachedCustomerList(): Promise<CachedCustomer[]> {
         .order('name');
 
       if (error) {
-        console.error('Error fetching customers:', error);
         throw error;
       }
 
@@ -100,7 +99,6 @@ export async function getCachedEmployeeList(): Promise<CachedEmployee[]> {
         .order('full_name');
 
       if (error) {
-        console.error('Error fetching employees:', error);
         throw error;
       }
 
@@ -127,7 +125,6 @@ export async function getCachedDashboardStats(): Promise<DashboardStats> {
       const { data, error } = await (supabase.rpc as any)('get_dashboard_stats');
 
       if (error) {
-        console.error('Error fetching dashboard stats:', error);
         throw error;
       }
 

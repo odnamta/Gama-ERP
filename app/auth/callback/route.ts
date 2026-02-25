@@ -30,7 +30,6 @@ export async function GET(request: Request) {
     const { error: exchangeError, data: sessionData } = await supabase.auth.exchangeCodeForSession(code)
 
     if (exchangeError) {
-      console.error('[AUTH CALLBACK] Exchange code error:', exchangeError)
       await recordFailedLoginAttempt(
         undefined,
         exchangeError.message,
@@ -59,7 +58,6 @@ export async function GET(request: Request) {
         try {
           await initializeOnboardingForUser(user.id, profile.role)
         } catch (e) {
-          console.error('[AUTH CALLBACK] Failed to initialize onboarding:', e)
         }
       }
 
@@ -96,7 +94,6 @@ export async function GET(request: Request) {
             'first_login'
           )
         } catch (e) {
-          console.error('Failed to send first login notification:', e)
         }
       }
     }

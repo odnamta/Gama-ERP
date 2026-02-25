@@ -104,7 +104,6 @@ export default function AssetDetailPage() {
       setLocations(locationsResult)
       setMaintenanceHistory(maintenanceResult)
     } catch (error) {
-      console.error('Failed to load asset:', error)
       toast({
         title: 'Error',
         description: 'Failed to load asset details',

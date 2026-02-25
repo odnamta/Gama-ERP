@@ -20,7 +20,6 @@
  */
 export function debugLog(component: string, message: string, data?: unknown) {
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[${component}] ${message}`, data ?? '')
   }
 }
 
@@ -33,6 +32,5 @@ export function debugLog(component: string, message: string, data?: unknown) {
  */
 export function debugError(component: string, message: string, error?: unknown) {
   if (process.env.NODE_ENV === 'development') {
-    console.error(`[${component}] ${message}`, error ?? '')
   }
 }

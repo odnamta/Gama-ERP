@@ -37,7 +37,6 @@ export async function getCostItems(pjoId: string): Promise<PJOCostItem[]> {
     .order('created_at', { ascending: true })
   
   if (error) {
-    console.error('Error fetching cost items:', error)
     return []
   }
   

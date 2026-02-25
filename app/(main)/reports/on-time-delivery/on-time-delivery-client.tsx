@@ -25,7 +25,7 @@ export function OnTimeDeliveryClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'on_time_delivery', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'on_time_delivery', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

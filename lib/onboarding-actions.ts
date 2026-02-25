@@ -33,7 +33,6 @@ export async function getUserOnboardingProgress(
     .single();
 
   if (statusError && statusError.code !== 'PGRST116') {
-    console.error('Error fetching onboarding status:', statusError);
   }
 
   // Get all progress with step details
@@ -47,7 +46,6 @@ export async function getUserOnboardingProgress(
     .order('step(step_order)');
 
   if (progressError) {
-    console.error('Error fetching onboarding progress:', progressError);
   }
 
   const steps: OnboardingProgressWithStep[] = ((progressData || []) as Array<{
@@ -331,7 +329,6 @@ export async function initializeOnboardingForUser(
     .single();
 
   if (checkError && checkError.code !== 'PGRST116') {
-    console.error('[initializeOnboardingForUser] Error checking existing status:', checkError);
   }
 
   if (existingStatus) {
@@ -344,7 +341,6 @@ export async function initializeOnboardingForUser(
     .insert({ user_id: userId });
 
   if (statusError) {
-    console.error('[initializeOnboardingForUser] Error creating status:', statusError);
     return { success: false, error: statusError.message };
   }
 
@@ -356,7 +352,6 @@ export async function initializeOnboardingForUser(
     .contains('applicable_roles', [userRole]);
 
   if (stepsError) {
-    console.error('[initializeOnboardingForUser] Error fetching steps:', stepsError);
     return { success: false, error: stepsError.message };
   }
 
@@ -373,7 +368,6 @@ export async function initializeOnboardingForUser(
       .insert(progressEntries);
 
     if (progressError) {
-      console.error('[initializeOnboardingForUser] Error creating progress entries:', progressError);
       return { success: false, error: progressError.message };
     }
   }
@@ -385,7 +379,6 @@ export async function initializeOnboardingForUser(
     .eq('user_id', userId);
 
   if (updateError) {
-    console.error('[initializeOnboardingForUser] Error updating total steps:', updateError);
     return { success: false, error: updateError.message };
   }
 
@@ -435,7 +428,6 @@ export async function requestRoleChange(
       .eq('is_active', true);
 
     if (adminsError) {
-      console.error('Error fetching admins:', adminsError);
       return { success: false, error: 'Failed to find administrators' };
     }
 
@@ -464,7 +456,6 @@ export async function requestRoleChange(
       .insert(notifications);
 
     if (notificationError) {
-      console.error('Error creating notifications:', notificationError);
       return { success: false, error: 'Failed to send notifications' };
     }
 
@@ -481,7 +472,6 @@ export async function requestRoleChange(
 
     return { success: true };
   } catch (e: any) {
-    console.error('Error in requestRoleChange:', e);
     return { success: false, error: e.message || 'Unknown error occurred' };
   }
 }

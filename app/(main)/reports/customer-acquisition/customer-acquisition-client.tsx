@@ -25,7 +25,7 @@ export function CustomerAcquisitionClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'customer_acquisition', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'customer_acquisition', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

@@ -65,7 +65,6 @@ export function EditSIClient({ si, bookings }: EditSIClientProps) {
       toast.success('Shipping Instruction updated successfully');
       router.push(`/agency/si/${si.id}`);
     } catch (error) {
-      console.error('Error updating SI:', error);
       toast.error('Failed to update Shipping Instruction');
     } finally {
       setIsLoading(false);

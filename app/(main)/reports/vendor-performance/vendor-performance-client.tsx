@@ -23,7 +23,7 @@ export function VendorPerformanceClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'vendor_performance', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'vendor_performance', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

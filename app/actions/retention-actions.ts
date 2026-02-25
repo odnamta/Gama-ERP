@@ -14,6 +14,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
+import { ADMIN_ROLES } from '@/lib/permissions';
 import {
   RetentionConfig,
   RetentionPeriods,
@@ -22,8 +23,6 @@ import {
   ArchiveResult,
 } from '@/types/audit';
 import type { LogType } from '@/lib/retention-constants';
-
-const ADMIN_ROLES = ['owner', 'director', 'sysadmin'];
 
 // Re-export LogType for convenience
 export type { LogType } from '@/lib/retention-constants';
@@ -118,7 +117,7 @@ const LOG_TYPE_TIMESTAMP_MAP: Record<LogType, string> = {
 export async function getStorageStats(): Promise<ActionResult<AuditStorageStats>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -148,7 +147,6 @@ export async function getStorageStats(): Promise<ActionResult<AuditStorageStats>
     
     return { success: true, data: stats };
   } catch (error) {
-    console.error('Error fetching storage stats:', error);
     return { success: false, error: 'Failed to fetch storage statistics' };
   }
 }
@@ -168,7 +166,6 @@ async function getTableStats(
       .select('*', { count: 'exact', head: true });
     
     if (countError) {
-      console.error(`Error getting count for ${tableName}:`, countError);
     }
     
     // Get oldest entry
@@ -180,7 +177,6 @@ async function getTableStats(
       .single();
     
     if (oldestError && oldestError.code !== 'PGRST116') {
-      console.error(`Error getting oldest entry for ${tableName}:`, oldestError);
     }
     
     // Get newest entry
@@ -192,7 +188,6 @@ async function getTableStats(
       .single();
     
     if (newestError && newestError.code !== 'PGRST116') {
-      console.error(`Error getting newest entry for ${tableName}:`, newestError);
     }
     
     // Estimate size (rough estimate: ~500 bytes per row for audit tables)
@@ -214,7 +209,6 @@ async function getTableStats(
       newest_entry: newestEntry,
     };
   } catch (error) {
-    console.error(`Error getting stats for ${tableName}:`, error);
     return {
       count: 0,
       size_bytes: 0,
@@ -232,7 +226,7 @@ export async function getLogTypeStorageStats(
 ): Promise<ActionResult<TableStats>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -244,7 +238,6 @@ export async function getLogTypeStorageStats(
     
     return { success: true, data: stats };
   } catch (error) {
-    console.error(`Error fetching storage stats for ${logType}:`, error);
     return { success: false, error: `Failed to fetch storage statistics for ${logType}` };
   }
 }
@@ -261,7 +254,7 @@ export async function getLogTypeStorageStats(
 export async function getRetentionConfig(): Promise<ActionResult<RetentionConfig>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -276,7 +269,6 @@ export async function getRetentionConfig(): Promise<ActionResult<RetentionConfig
     
     if (error && error.code !== 'PGRST116') {
       // PGRST116 = no rows returned, which is fine (use defaults)
-      console.error('Error fetching retention config:', error);
     }
     
     // Parse stored config or use defaults
@@ -312,7 +304,6 @@ export async function getRetentionConfig(): Promise<ActionResult<RetentionConfig
           nextCleanupAt = (config.next_cleanup_at as string) ?? null;
         }
       } catch (parseError) {
-        console.error('Error parsing retention config:', parseError);
       }
     }
     
@@ -327,7 +318,6 @@ export async function getRetentionConfig(): Promise<ActionResult<RetentionConfig
     
     return { success: true, data: config };
   } catch (error) {
-    console.error('Error fetching retention config:', error);
     return { success: false, error: 'Failed to fetch retention configuration' };
   }
 }
@@ -342,7 +332,7 @@ export async function updateRetentionConfig(
 ): Promise<ActionResult<RetentionConfig>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -402,7 +392,6 @@ export async function updateRetentionConfig(
     
     return { success: true, data: newConfig };
   } catch (error) {
-    console.error('Error updating retention config:', error);
     return { success: false, error: 'Failed to update retention configuration' };
   }
 }
@@ -433,7 +422,7 @@ export async function archiveLogs(
 ): Promise<ActionResult<ArchiveResult>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -549,7 +538,6 @@ export async function archiveLogs(
           status: 'success',
         });
     } catch (auditError) {
-      console.error('Failed to create audit log for archive operation:', auditError);
     }
     
     const result: ArchiveResult = {
@@ -561,7 +549,6 @@ export async function archiveLogs(
     
     return { success: true, data: result };
   } catch (error) {
-    console.error('Error archiving logs:', error);
     return {
       success: false,
       error: 'Failed to archive logs',
@@ -588,7 +575,7 @@ export async function archiveLogsBasedOnRetention(): Promise<ActionResult<{
 }>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -664,7 +651,6 @@ export async function archiveLogsBasedOnRetention(): Promise<ActionResult<{
       },
     };
   } catch (error) {
-    console.error('Error archiving logs based on retention:', error);
     return { success: false, error: 'Failed to archive logs based on retention' };
   }
 }
@@ -685,7 +671,7 @@ export async function getArchivePreview(): Promise<ActionResult<{
 }>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -755,7 +741,6 @@ export async function getArchivePreview(): Promise<ActionResult<{
       },
     };
   } catch (error) {
-    console.error('Error getting archive preview:', error);
     return { success: false, error: 'Failed to get archive preview' };
   }
 }
@@ -768,7 +753,7 @@ export async function getArchiveHistory(
 ): Promise<ActionResult<ArchiveRecord[]>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -791,7 +776,6 @@ export async function getArchiveHistory(
     
     return { success: true, data: (data || []) as unknown as ArchiveRecord[] };
   } catch (error) {
-    console.error('Error fetching archive history:', error);
     // Return empty array instead of error for missing table
     return { success: true, data: [] };
   }
@@ -818,7 +802,7 @@ export async function getRetentionSummary(): Promise<ActionResult<{
 }>> {
   try {
     const profile = await getUserProfile();
-    if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -849,7 +833,6 @@ export async function getRetentionSummary(): Promise<ActionResult<{
       },
     };
   } catch (error) {
-    console.error('Error getting retention summary:', error);
     return { success: false, error: 'Failed to get retention summary' };
   }
 }

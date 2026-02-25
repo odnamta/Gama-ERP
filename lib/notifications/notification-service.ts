@@ -45,7 +45,6 @@ export async function createNotification(
     .single()
 
   if (error) {
-    console.error('Failed to create notification:', error)
     return null
   }
 
@@ -72,7 +71,6 @@ export async function createBulkNotifications(
       .eq('is_active', true)
 
     if (error) {
-      console.error('Failed to fetch users by role:', error)
       return []
     }
 
@@ -124,7 +122,6 @@ export async function createBulkNotifications(
     .select()
 
   if (error) {
-    console.error('Failed to create bulk notifications:', error)
     return []
   }
 
@@ -171,7 +168,6 @@ export async function getNotifications(
   const { data, error } = await query
 
   if (error) {
-    console.error('Failed to fetch notifications:', error)
     return []
   }
 
@@ -192,7 +188,6 @@ export async function getUnreadCount(userId: string): Promise<number> {
     .is('deleted_at', null)
 
   if (error) {
-    console.error('Failed to get unread count:', error)
     return 0
   }
 
@@ -214,7 +209,6 @@ export async function markAsRead(notificationId: string): Promise<boolean> {
     .eq('id', notificationId)
 
   if (error) {
-    console.error('Failed to mark notification as read:', error)
     return false
   }
 
@@ -238,7 +232,6 @@ export async function markAllAsRead(userId: string): Promise<boolean> {
     .is('deleted_at', null)
 
   if (error) {
-    console.error('Failed to mark all notifications as read:', error)
     return false
   }
 
@@ -259,7 +252,6 @@ export async function deleteNotification(notificationId: string): Promise<boolea
     .eq('id', notificationId)
 
   if (error) {
-    console.error('Failed to delete notification:', error)
     return false
   }
 
@@ -330,7 +322,6 @@ export async function getUsersByPermission(
     .eq('is_active', true)
 
   if (error) {
-    console.error('Failed to get users by permission:', error)
     return []
   }
 
@@ -352,7 +343,6 @@ export async function getUsersByRoles(
     .eq('is_active', true)
 
   if (error) {
-    console.error('Failed to get users by roles:', error)
     return []
   }
 

@@ -32,7 +32,6 @@ export async function getLeaveTypes(): Promise<LeaveType[]> {
     .order('type_name');
   
   if (error) {
-    console.error('Error fetching leave types:', error);
     throw new Error('Failed to fetch leave types');
   }
   
@@ -52,7 +51,6 @@ export async function getLeaveType(id: string): Promise<LeaveType | null> {
     .single();
   
   if (error) {
-    console.error('Error fetching leave type:', error);
     return null;
   }
   
@@ -83,7 +81,6 @@ export async function getLeaveBalances(
     .eq('year', targetYear);
   
   if (error) {
-    console.error('Error fetching leave balances:', error);
     throw new Error('Failed to fetch leave balances');
   }
   
@@ -113,7 +110,6 @@ export async function getLeaveBalance(
     .single();
   
   if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching leave balance:', error);
     return null;
   }
   
@@ -196,7 +192,6 @@ export async function initializeYearlyBalances(
     
     return { success: true };
   } catch (error) {
-    console.error('Error initializing yearly balances:', error);
     return { success: false, error: 'Failed to initialize leave balances' };
   }
 }
@@ -324,7 +319,6 @@ export async function submitLeaveRequest(
     
     return { success: true, data: request as unknown as LeaveRequest };
   } catch (error) {
-    console.error('Error submitting leave request:', error);
     return { success: false, error: 'Failed to submit leave request' };
   }
 }
@@ -429,7 +423,6 @@ export async function approveLeaveRequest(
     
     return { success: true };
   } catch (error) {
-    console.error('Error approving leave request:', error);
     return { success: false, error: 'Failed to approve leave request' };
   }
 }
@@ -531,7 +524,6 @@ export async function rejectLeaveRequest(
     
     return { success: true };
   } catch (error) {
-    console.error('Error rejecting leave request:', error);
     return { success: false, error: 'Failed to reject leave request' };
   }
 }
@@ -594,7 +586,6 @@ export async function cancelLeaveRequest(
     
     return { success: true };
   } catch (error) {
-    console.error('Error cancelling leave request:', error);
     return { success: false, error: 'Failed to cancel leave request' };
   }
 }
@@ -689,7 +680,6 @@ export async function getLeaveRequests(
   const { data, error } = await query;
   
   if (error) {
-    console.error('Error fetching leave requests:', error);
     throw new Error('Failed to fetch leave requests');
   }
   
@@ -717,7 +707,6 @@ export async function getPendingRequestsCount(): Promise<number> {
     .eq('status', 'pending');
   
   if (error) {
-    console.error('Error fetching pending count:', error);
     return 0;
   }
   
@@ -742,7 +731,6 @@ export async function getLeaveRequest(id: string): Promise<LeaveRequest | null> 
     .single();
   
   if (error) {
-    console.error('Error fetching leave request:', error);
     return null;
   }
   
@@ -762,7 +750,6 @@ export async function getEmployeesForSelect(): Promise<{ id: string; full_name: 
     .order('full_name');
   
   if (error) {
-    console.error('Error fetching employees:', error);
     return [];
   }
   

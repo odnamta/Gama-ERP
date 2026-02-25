@@ -33,7 +33,6 @@ export function NewShippingRateClient() {
         setPorts(portsResult.data);
       }
     } catch (error) {
-      console.error('Failed to load data:', error);
       toast({
         title: 'Error',
         description: 'Failed to load data',
@@ -66,7 +65,6 @@ export function NewShippingRateClient() {
         });
       }
     } catch (error) {
-      console.error('Failed to create shipping rate:', error);
       toast({
         title: 'Error',
         description: 'Failed to create shipping rate',

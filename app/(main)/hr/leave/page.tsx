@@ -53,7 +53,6 @@ export default function LeaveRequestsPage() {
       }
       setBalancesMap(balances);
     } catch (error) {
-      console.error('Error loading data:', error);
     } finally {
       setIsLoading(false);
     }

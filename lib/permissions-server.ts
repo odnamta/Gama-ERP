@@ -227,7 +227,6 @@ export async function createUserProfile(
   const { data, error } = result
 
   if (error) {
-    console.error('Error creating user profile:', error)
     return null
   }
 
@@ -259,7 +258,6 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
     .single()
 
   if (existingError && existingError.code !== 'PGRST116') {
-    console.error('[ensureUserProfile] Error fetching existing profile:', existingError)
   }
 
   // If profile exists with user_id, update last_login and return
@@ -295,7 +293,6 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
     .single()
 
   if (preregError && preregError.code !== 'PGRST116') {
-    console.error('[ensureUserProfile] Error fetching pre-registered profile:', preregError)
   }
 
   if (preregisteredProfile) {
@@ -316,7 +313,6 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
       .single()
 
     if (error) {
-      console.error('[ensureUserProfile] Error linking pre-registered profile:', error)
       return null
     }
 
@@ -325,7 +321,6 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
       const { initializeOnboardingForUser } = await import('@/lib/onboarding-actions')
       await initializeOnboardingForUser(user.id, linkedProfile.role)
     } catch (e) {
-      console.error('[ensureUserProfile] Failed to initialize onboarding for linked user:', e)
       // Don't fail the profile linking if onboarding initialization fails
     }
 
@@ -445,7 +440,6 @@ export async function ensureUserProfile(): Promise<UserProfile | null> {
     .single()
 
   if (error) {
-    console.error('[ensureUserProfile] Error creating user profile:', error)
     return null
   }
 
@@ -551,7 +545,6 @@ export async function updateUserRole(
     const { syncUserMetadataFromProfile } = await import('@/lib/supabase/sync-user-metadata')
     await syncUserMetadataFromProfile(targetUserId)
   } catch (e) {
-    console.error('Failed to sync user metadata after role change:', e)
     // Don't fail the operation if metadata sync fails
   }
 
@@ -570,7 +563,6 @@ export async function updateUserRole(
     const { invalidateOwnerDashboardCache } = await import('@/lib/dashboard-cache-actions')
     await invalidateOwnerDashboardCache()
   } catch (e) {
-    console.error('Failed to invalidate dashboard cache:', e)
   }
 
   // Send notification for role change
@@ -595,7 +587,6 @@ export async function updateUserRole(
       )
     }
   } catch (e) {
-    console.error('Failed to send role change notification:', e)
   }
 
   return { success: true }
@@ -614,7 +605,6 @@ export async function getAllUsers(): Promise<UserProfile[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching users:', error)
     return []
   }
 
@@ -679,7 +669,6 @@ export async function createPreregisteredUser(
     .single()
 
   if (error) {
-    console.error('Error creating pre-registered user:', error)
     return { success: false, error: error.message }
   }
 
@@ -688,7 +677,6 @@ export async function createPreregisteredUser(
     const { invalidateOwnerDashboardCache } = await import('@/lib/dashboard-cache-actions')
     await invalidateOwnerDashboardCache()
   } catch (e) {
-    console.error('Failed to invalidate dashboard cache:', e)
   }
 
   return { success: true, profile: data as unknown as UserProfile }
@@ -753,7 +741,6 @@ export async function toggleUserActive(
       const { syncUserMetadataFromProfile } = await import('@/lib/supabase/sync-user-metadata')
       await syncUserMetadataFromProfile(targetProfile.user_id)
     } catch (e) {
-      console.error('Failed to sync user metadata after active status change:', e)
       // Don't fail the operation if metadata sync fails
     }
   }
@@ -773,7 +760,6 @@ export async function toggleUserActive(
     const { invalidateOwnerDashboardCache } = await import('@/lib/dashboard-cache-actions')
     await invalidateOwnerDashboardCache()
   } catch (e) {
-    console.error('Failed to invalidate dashboard cache:', e)
   }
 
   // Send notification for deactivation
@@ -789,7 +775,6 @@ export async function toggleUserActive(
         'deactivated'
       )
     } catch (e) {
-      console.error('Failed to send deactivation notification:', e)
     }
   }
 

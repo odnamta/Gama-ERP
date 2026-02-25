@@ -109,7 +109,6 @@ export async function createVendorInvoice(
     .single()
   
   if (error) {
-    console.error('Error creating vendor invoice:', error)
     return { error: error.message }
   }
   
@@ -121,7 +120,6 @@ export async function createVendorInvoice(
       .eq('id', data.bkk_id)
     
     if (bkkError) {
-      console.error('Error linking BKK:', bkkError)
     }
   }
   
@@ -399,7 +397,6 @@ export async function getVendorInvoices(
   const { data, error } = await query
   
   if (error) {
-    console.error('Error fetching vendor invoices:', error)
     return []
   }
   
@@ -482,7 +479,6 @@ export async function getVendorInvoiceById(
     .single()
   
   if (error) {
-    console.error('Error fetching vendor invoice:', error)
     return null
   }
   
@@ -516,7 +512,6 @@ export async function getMatchingBKKs(
   const { data, error } = await query.order('created_at', { ascending: false })
   
   if (error) {
-    console.error('Error fetching matching BKKs:', error)
     return []
   }
   
@@ -536,7 +531,6 @@ export async function getVendorsForDropdown(): Promise<{ id: string; vendor_name
     .order('vendor_name')
   
   if (error) {
-    console.error('Error fetching vendors:', error)
     return []
   }
   
@@ -557,7 +551,6 @@ export async function getJobOrdersForDropdown(): Promise<{ id: string; jo_number
     .limit(100)
   
   if (error) {
-    console.error('Error fetching job orders:', error)
     return []
   }
   
@@ -578,7 +571,6 @@ export async function getPJOsForDropdown(): Promise<{ id: string; pjo_number: st
     .limit(100)
   
   if (error) {
-    console.error('Error fetching PJOs:', error)
     return []
   }
   
@@ -891,7 +883,6 @@ export async function recordVendorPayment(
     .single()
   
   if (paymentError) {
-    console.error('Error recording payment:', paymentError)
     return { error: paymentError.message }
   }
   
@@ -914,7 +905,6 @@ export async function recordVendorPayment(
     .eq('id', data.vendor_invoice_id)
   
   if (updateError) {
-    console.error('Error updating invoice after payment:', updateError)
     // Payment was recorded but invoice update failed - log but don't fail
   }
   
@@ -958,7 +948,6 @@ export async function getVendorPayments(
     .order('payment_date', { ascending: false })
   
   if (error) {
-    console.error('Error fetching vendor payments:', error)
     return []
   }
   
@@ -1086,7 +1075,6 @@ export async function getAPSummary(): Promise<APSummary> {
     .not('status', 'in', '("paid","cancelled")')
   
   if (invoicesError) {
-    console.error('Error fetching invoices for summary:', invoicesError)
     return {
       totalUnpaid: 0,
       dueToday: 0,
@@ -1104,7 +1092,6 @@ export async function getAPSummary(): Promise<APSummary> {
     .lte('payment_date', today)
   
   if (paymentsError) {
-    console.error('Error fetching payments for summary:', paymentsError)
   }
   
   // Calculate summary
@@ -1178,7 +1165,6 @@ export async function getAPSummaryWithAging(): Promise<APSummaryWithAging> {
     .not('status', 'in', '("paid","cancelled")')
   
   if (error) {
-    console.error('Error fetching invoices for aging:', error)
     return {
       ...summary,
       aging: {
@@ -1271,7 +1257,6 @@ export async function updateVendorInvoiceJOReference(
     .select('id')
   
   if (error) {
-    console.error('Error updating vendor invoice JO references:', error)
     return { error: error.message }
   }
   

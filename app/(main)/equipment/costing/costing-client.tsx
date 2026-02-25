@@ -71,7 +71,6 @@ export function CostingClient() {
         setCostBreakdown(breakdownResult.data);
       }
     } catch (error) {
-      console.error('Error loading costing data:', error);
       toast.error('Failed to load costing data');
     } finally {
       setLoading(false);
@@ -93,7 +92,6 @@ export function CostingClient() {
         toast.error(result.error || 'Failed to refresh data');
       }
     } catch (error) {
-      console.error('Error refreshing data:', error);
       toast.error('Failed to refresh data');
     } finally {
       setRefreshing(false);
@@ -168,7 +166,6 @@ export function CostingClient() {
 
       toast.success('Report exported successfully');
     } catch (error) {
-      console.error('Error exporting report:', error);
       toast.error('Failed to export report');
     } finally {
       setExporting(false);

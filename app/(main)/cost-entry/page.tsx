@@ -62,7 +62,6 @@ export default async function CostEntryPage() {
   const { data: pjos, error } = await fetchPJOsForCostEntry()
 
   if (error) {
-    console.error('Error fetching PJOs for cost entry:', error)
   }
 
   return (

@@ -30,7 +30,6 @@ export function NewScheduleClient() {
       setAssets(assetsData)
       setMaintenanceTypes(typesData)
     } catch (error) {
-      console.error('Failed to load data:', error)
     } finally {
       setIsLoading(false)
     }

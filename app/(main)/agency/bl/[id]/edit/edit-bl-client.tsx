@@ -74,7 +74,6 @@ export function EditBLClient({
       toast.success('Bill of Lading updated successfully');
       router.push(`/agency/bl/${bl.id}`);
     } catch (error) {
-      console.error('Error updating B/L:', error);
       toast.error('Failed to update Bill of Lading');
     } finally {
       setIsLoading(false);
@@ -94,7 +93,6 @@ export function EditBLClient({
       toast.success('Draft saved successfully');
       router.push(`/agency/bl/${bl.id}`);
     } catch (error) {
-      console.error('Error saving draft:', error);
       toast.error('Failed to save draft');
     } finally {
       setIsLoading(false);

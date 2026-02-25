@@ -27,7 +27,7 @@ export function OutstandingInvoicesClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'outstanding_invoices', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'outstanding_invoices', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 

@@ -33,7 +33,6 @@ export default function TransmittalDetailPage({ params }: TransmittalDetailPageP
       }
       setTransmittal(data);
     } catch (error) {
-      console.error('Error loading transmittal:', error);
       router.push('/engineering/drawings/transmittals');
     } finally {
       setLoading(false);

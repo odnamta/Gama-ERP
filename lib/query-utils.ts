@@ -171,7 +171,6 @@ export async function buildOptimizedQuery<T>(
   const { data, error, count } = await query;
 
   if (error) {
-    console.error('Query error:', error);
     throw error;
   }
 

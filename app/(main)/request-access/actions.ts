@@ -14,7 +14,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { RoleRequest, RoleRequestActionResult, RoleRequestFormData } from '@/types/role-request'
-import { DEPARTMENT_ROLES } from '@/lib/permissions'
+import { ADMIN_ROLES, DEPARTMENT_ROLES } from '@/lib/permissions'
 import { createBulkNotifications } from '@/lib/notifications/notification-service'
 
 // =====================================================
@@ -69,7 +69,6 @@ export async function submitRoleRequest(
   const checkError = checkResult.error
   
   if (checkError) {
-    console.error('[submitRoleRequest] Error checking existing request:', checkError)
     return {
       success: false,
       error: 'Failed to check for existing requests. Please try again.',
@@ -103,7 +102,6 @@ export async function submitRoleRequest(
     } as any)
   
   if (insertResult.error) {
-    console.error('[submitRoleRequest] Error creating request:', insertResult.error)
     return {
       success: false,
       error: 'Failed to submit role request. Please try again.',
@@ -131,12 +129,11 @@ export async function submitRoleRequest(
         },
       },
       {
-        roles: ['owner', 'director', 'sysadmin'],
+        roles: [...ADMIN_ROLES],
       }
     )
   } catch (notificationError) {
     // Log but don't fail the request
-    console.error('[submitRoleRequest] Failed to create admin notification:', notificationError)
   }
   
   return { success: true }
@@ -176,7 +173,6 @@ export async function getUserRoleRequest(): Promise<RoleRequest | null> {
     .maybeSingle()
   
   if (fetchResult.error) {
-    console.error('[getUserRoleRequest] Error fetching request:', fetchResult.error)
     return null
   }
   

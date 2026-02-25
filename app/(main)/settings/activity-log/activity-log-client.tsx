@@ -101,7 +101,6 @@ export function ActivityLogClient({
       const allLogs = await getActivityLogsForExport(filters)
       exportToCsv(allLogs)
     } catch (error) {
-      console.error('Export failed:', error)
     } finally {
       setIsExporting(false)
     }

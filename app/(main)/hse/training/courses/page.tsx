@@ -49,7 +49,6 @@ export default function CoursesPage() {
       const data = await getCourses(filters);
       setCourses(data);
     } catch (error) {
-      console.error('Error loading courses:', error);
     } finally {
       setLoading(false);
     }

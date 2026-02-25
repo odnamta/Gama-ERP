@@ -91,7 +91,6 @@ export async function getShipmentCosts(
 
     return { success: true, data: costs };
   } catch (error) {
-    console.error('Error fetching shipment costs:', error);
     return { success: false, error: 'Failed to fetch shipment costs' };
   }
 }
@@ -160,7 +159,6 @@ export async function getShipmentCostById(
 
     return { success: true, data: cost };
   } catch (error) {
-    console.error('Error fetching shipment cost:', error);
     return { success: false, error: 'Failed to fetch shipment cost' };
   }
 }
@@ -222,7 +220,6 @@ export async function createShipmentCost(
     
     return { success: true, data: transformCostRow(data as ShipmentCostRow) };
   } catch (error) {
-    console.error('Error creating shipment cost:', error);
     return { success: false, error: 'Failed to create shipment cost' };
   }
 }
@@ -333,7 +330,6 @@ export async function updateShipmentCost(
 
     return { success: true, data: transformCostRow(data as ShipmentCostRow) };
   } catch (error) {
-    console.error('Error updating shipment cost:', error);
     return { success: false, error: 'Failed to update shipment cost' };
   }
 }
@@ -387,7 +383,6 @@ export async function deleteShipmentCost(id: string): Promise<ActionResult<void>
 
     return { success: true };
   } catch (error) {
-    console.error('Error deleting shipment cost:', error);
     return { success: false, error: 'Failed to delete shipment cost' };
   }
 }
@@ -487,7 +482,6 @@ export async function updateCostPaymentStatus(
 
     return { success: true, data: transformCostRow(data as ShipmentCostRow) };
   } catch (error) {
-    console.error('Error updating cost payment status:', error);
     return { success: false, error: 'Failed to update payment status' };
   }
 }
@@ -549,7 +543,6 @@ export async function getShipmentCostsByVendor(
 
     return { success: true, data: costs };
   } catch (error) {
-    console.error('Error fetching costs by vendor:', error);
     return { success: false, error: 'Failed to fetch costs by vendor' };
   }
 }
@@ -612,7 +605,6 @@ export async function getUnpaidCostsByBooking(
 
     return { success: true, data: costs };
   } catch (error) {
-    console.error('Error fetching unpaid costs:', error);
     return { success: false, error: 'Failed to fetch unpaid costs' };
   }
 }

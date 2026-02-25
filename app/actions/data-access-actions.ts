@@ -149,7 +149,6 @@ export async function getDataAccessLogs(
     
     return { success: true, data: result };
   } catch (error) {
-    console.error('Error fetching data access logs:', error);
     return { success: false, error: 'Failed to fetch data access logs' };
   }
 }
@@ -200,7 +199,6 @@ export async function logDataExport(
     
     return { success: true, data: data as unknown as DataAccessLogEntry };
   } catch (error) {
-    console.error('Error logging data export:', error);
     return { success: false, error: 'Failed to log data export' };
   }
 }
@@ -240,7 +238,6 @@ export async function logDataAccess(
     
     return { success: true, data: data as unknown as DataAccessLogEntry };
   } catch (error) {
-    console.error('Error logging data access:', error);
     return { success: false, error: 'Failed to log data access' };
   }
 }
@@ -290,7 +287,6 @@ export async function getDataAccessStats(
     
     return { success: true, data: stats };
   } catch (error) {
-    console.error('Error fetching data access stats:', error);
     return { success: false, error: 'Failed to fetch data access statistics' };
   }
 }
@@ -361,7 +357,6 @@ export async function exportDataAccessLogs(
     
     return { success: true, data: csv };
   } catch (error) {
-    console.error('Error exporting data access logs:', error);
     return { success: false, error: 'Failed to export data access logs' };
   }
 }
@@ -428,7 +423,6 @@ export async function getDataAccessFilterOptions(): Promise<ActionResult<{
       },
     };
   } catch (error) {
-    console.error('Error fetching filter options:', error);
     return { success: false, error: 'Failed to fetch filter options' };
   }
 }
@@ -458,7 +452,6 @@ export async function getUserDataAccessLogs(
     
     return { success: true, data: (data || []) as unknown as DataAccessLogEntry[] };
   } catch (error) {
-    console.error('Error fetching user data access logs:', error);
     return { success: false, error: 'Failed to fetch user data access logs' };
   }
 }
@@ -490,7 +483,6 @@ export async function getEntityDataAccessLogs(
     
     return { success: true, data: (data || []) as unknown as DataAccessLogEntry[] };
   } catch (error) {
-    console.error('Error fetching entity data access logs:', error);
     return { success: false, error: 'Failed to fetch entity data access logs' };
   }
 }
@@ -520,7 +512,6 @@ export async function getRecentExports(
     
     return { success: true, data: (data || []) as unknown as DataAccessLogEntry[] };
   } catch (error) {
-    console.error('Error fetching recent exports:', error);
     return { success: false, error: 'Failed to fetch recent exports' };
   }
 }
@@ -580,7 +571,6 @@ export async function getDataAccessSummary(
       },
     };
   } catch (error) {
-    console.error('Error fetching data access summary:', error);
     return { success: false, error: 'Failed to fetch data access summary' };
   }
 }

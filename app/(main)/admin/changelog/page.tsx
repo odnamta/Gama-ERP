@@ -10,6 +10,7 @@
 
 import { redirect } from 'next/navigation';
 import { getUserProfile } from '@/lib/permissions-server';
+import { ADMIN_ROLES } from '@/lib/permissions';
 import { getDashboardPath } from '@/lib/navigation';
 import { getChangelogEntries } from './actions';
 import { ChangelogEntryForm } from '@/components/changelog/changelog-entry-form';
@@ -22,14 +23,12 @@ export const metadata = {
   description: 'Add and manage changelog entries',
 };
 
-const ADMIN_ROLES = ['owner', 'director', 'sysadmin'];
-
 export default async function AdminChangelogPage() {
   // Requirement 7.1: Check admin access
   const profile = await getUserProfile();
-  
+
   // Requirement 7.5: Redirect non-admins to their dashboard
-  if (!profile || !ADMIN_ROLES.includes(profile.role)) {
+  if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
     const dashboardPath = getDashboardPath(profile?.role || 'ops');
     redirect(dashboardPath);
   }

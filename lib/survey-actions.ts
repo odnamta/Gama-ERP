@@ -88,7 +88,6 @@ export async function createSurvey(data: SurveyFormData): Promise<{ success: boo
       .single();
 
     if (error) {
-      console.error('Error creating survey:', error);
       return { success: false, error: error.message };
     }
 
@@ -98,7 +97,6 @@ export async function createSurvey(data: SurveyFormData): Promise<{ success: boo
     revalidatePath('/engineering/surveys');
     return { success: true, data: rowToSurvey(survey as unknown as RouteSurveyRow) };
   } catch (error) {
-    console.error('Error in createSurvey:', error);
     return { success: false, error: 'Failed to create survey' };
   }
 }
@@ -119,7 +117,6 @@ export async function getSurvey(id: string): Promise<{ success: boolean; data?: 
 
     return { success: true, data: rowToSurvey(survey as unknown as RouteSurveyRow) };
   } catch (error) {
-    console.error('Error in getSurvey:', error);
     return { success: false, error: 'Failed to get survey' };
   }
 }
@@ -172,7 +169,6 @@ export async function getSurveyWithRelations(id: string): Promise<{ success: boo
       },
     };
   } catch (error) {
-    console.error('Error in getSurveyWithRelations:', error);
     return { success: false, error: 'Failed to get survey' };
   }
 }
@@ -196,7 +192,6 @@ export async function getSurveys(): Promise<{ success: boolean; data?: RouteSurv
 
     return { success: true, data: surveys.map(s => rowToSurvey(s as unknown as RouteSurveyRow)) };
   } catch (error) {
-    console.error('Error in getSurveys:', error);
     return { success: false, error: 'Failed to get surveys' };
   }
 }
@@ -253,7 +248,6 @@ export async function updateSurvey(
     revalidatePath(`/engineering/surveys/${id}`);
     return { success: true, data: rowToSurvey(survey as unknown as RouteSurveyRow) };
   } catch (error) {
-    console.error('Error in updateSurvey:', error);
     return { success: false, error: 'Failed to update survey' };
   }
 }
@@ -274,7 +268,6 @@ export async function deleteSurvey(id: string): Promise<{ success: boolean; erro
     revalidatePath('/engineering/surveys');
     return { success: true };
   } catch (error) {
-    console.error('Error in deleteSurvey:', error);
     return { success: false, error: 'Failed to delete survey' };
   }
 }
@@ -317,7 +310,6 @@ export async function scheduleSurvey(
     revalidatePath(`/engineering/surveys/${id}`);
     return { success: true };
   } catch (error) {
-    console.error('Error in scheduleSurvey:', error);
     return { success: false, error: 'Failed to schedule survey' };
   }
 }
@@ -342,7 +334,6 @@ export async function startSurvey(id: string): Promise<{ success: boolean; error
     revalidatePath(`/engineering/surveys/${id}`);
     return { success: true };
   } catch (error) {
-    console.error('Error in startSurvey:', error);
     return { success: false, error: 'Failed to start survey' };
   }
 }
@@ -390,7 +381,6 @@ export async function completeSurvey(
     revalidatePath(`/engineering/surveys/${id}`);
     return { success: true };
   } catch (error) {
-    console.error('Error in completeSurvey:', error);
     return { success: false, error: 'Failed to complete survey' };
   }
 }
@@ -415,7 +405,6 @@ export async function cancelSurvey(id: string): Promise<{ success: boolean; erro
     revalidatePath(`/engineering/surveys/${id}`);
     return { success: true };
   } catch (error) {
-    console.error('Error in cancelSurvey:', error);
     return { success: false, error: 'Failed to cancel survey' };
   }
 }
@@ -449,7 +438,6 @@ export async function updateSurveyStatus(
     revalidatePath(`/engineering/surveys/${id}`);
     return { success: true };
   } catch (error) {
-    console.error('Error in updateSurveyStatus:', error);
     return { success: false, error: 'Failed to update survey status' };
   }
 }
@@ -520,7 +508,6 @@ export async function createWaypoint(
     revalidatePath(`/engineering/surveys/${surveyId}`);
     return { success: true, data: rowToWaypoint(waypoint as unknown as RouteWaypointRow) };
   } catch (error) {
-    console.error('Error in createWaypoint:', error);
     return { success: false, error: 'Failed to create waypoint' };
   }
 }
@@ -571,7 +558,6 @@ export async function updateWaypoint(
     revalidatePath(`/engineering/surveys/${waypoint.survey_id}`);
     return { success: true, data: rowToWaypoint(waypoint as unknown as RouteWaypointRow) };
   } catch (error) {
-    console.error('Error in updateWaypoint:', error);
     return { success: false, error: 'Failed to update waypoint' };
   }
 }
@@ -621,7 +607,6 @@ export async function deleteWaypoint(id: string): Promise<{ success: boolean; er
     revalidatePath(`/engineering/surveys/${waypoint.survey_id}`);
     return { success: true };
   } catch (error) {
-    console.error('Error in deleteWaypoint:', error);
     return { success: false, error: 'Failed to delete waypoint' };
   }
 }
@@ -642,7 +627,6 @@ export async function getWaypoints(surveyId: string): Promise<{ success: boolean
 
     return { success: true, data: waypoints.map(w => rowToWaypoint(w as unknown as RouteWaypointRow)) };
   } catch (error) {
-    console.error('Error in getWaypoints:', error);
     return { success: false, error: 'Failed to get waypoints' };
   }
 }
@@ -688,7 +672,6 @@ export async function initializeSurveyChecklist(surveyId: string): Promise<{ suc
 
     return { success: true };
   } catch (error) {
-    console.error('Error in initializeSurveyChecklist:', error);
     return { success: false, error: 'Failed to initialize checklist' };
   }
 }
@@ -723,7 +706,6 @@ export async function updateChecklistItem(
     revalidatePath(`/engineering/surveys/${item.survey_id}`);
     return { success: true, data: rowToChecklistItem(item as unknown as SurveyChecklistItemRow) };
   } catch (error) {
-    console.error('Error in updateChecklistItem:', error);
     return { success: false, error: 'Failed to update checklist item' };
   }
 }
@@ -744,7 +726,6 @@ export async function getChecklist(surveyId: string): Promise<{ success: boolean
 
     return { success: true, data: checklist.map(c => rowToChecklistItem(c as unknown as SurveyChecklistItemRow)) };
   } catch (error) {
-    console.error('Error in getChecklist:', error);
     return { success: false, error: 'Failed to get checklist' };
   }
 }
@@ -768,7 +749,6 @@ export async function getEmployees(): Promise<{ success: boolean; data?: { id: s
 
     return { success: true, data: employees };
   } catch (error) {
-    console.error('Error in getEmployees:', error);
     return { success: false, error: 'Failed to get employees' };
   }
 }
@@ -789,7 +769,6 @@ export async function getCustomers(): Promise<{ success: boolean; data?: { id: s
 
     return { success: true, data: customers };
   } catch (error) {
-    console.error('Error in getCustomers:', error);
     return { success: false, error: 'Failed to get customers' };
   }
 }
@@ -809,7 +788,6 @@ export async function getQuotations(): Promise<{ success: boolean; data?: { id: 
 
     return { success: true, data: quotations };
   } catch (error) {
-    console.error('Error in getQuotations:', error);
     return { success: false, error: 'Failed to get quotations' };
   }
 }
@@ -829,7 +807,6 @@ export async function getProjects(): Promise<{ success: boolean; data?: { id: st
 
     return { success: true, data: projects };
   } catch (error) {
-    console.error('Error in getProjects:', error);
     return { success: false, error: 'Failed to get projects' };
   }
 }

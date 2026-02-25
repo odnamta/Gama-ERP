@@ -29,7 +29,7 @@ export function CostAnalysisClient({ initialData, userId }: Props) {
         reportCode: 'cost_analysis',
         userId,
         parameters: {}
-      }).catch(console.error)
+      }).catch(() => {})
     }
   }, [userId])
 

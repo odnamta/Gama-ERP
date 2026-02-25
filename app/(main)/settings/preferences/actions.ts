@@ -41,14 +41,12 @@ export async function getUserPreferences(): Promise<ActionResult<UserPreferences
       .single()
 
     if (error) {
-      console.error('Failed to fetch preferences:', error)
       return { success: false, error: 'Failed to load preferences' }
     }
 
     const preferences = mergePreferencesWithDefaults(profile?.preferences as Partial<UserPreferences>)
     return { success: true, data: preferences }
   } catch (error) {
-    console.error('Error getting preferences:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
 }
@@ -88,14 +86,12 @@ export async function saveUserPreferences(
       .eq('user_id', user.id)
 
     if (error) {
-      console.error('Failed to save preferences:', error)
       return { success: false, error: 'Failed to save preferences' }
     }
 
     revalidatePath('/settings')
     return { success: true }
   } catch (error) {
-    console.error('Error saving preferences:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
 }
@@ -118,7 +114,6 @@ export async function resetPreferencesToDefaults(): Promise<ActionResult> {
       .eq('user_id', user.id)
 
     if (error) {
-      console.error('Failed to reset preferences:', error)
       return { success: false, error: 'Failed to reset preferences' }
     }
 
@@ -131,7 +126,6 @@ export async function resetPreferencesToDefaults(): Promise<ActionResult> {
     revalidatePath('/settings')
     return { success: true }
   } catch (error) {
-    console.error('Error resetting preferences:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
 }
@@ -167,7 +161,6 @@ export async function getNotificationTypesWithPreferences(): Promise<
       .order('display_order')
 
     if (typesError) {
-      console.error('Failed to fetch notification types:', typesError)
       return { success: false, error: 'Failed to load notification types' }
     }
 
@@ -178,7 +171,6 @@ export async function getNotificationTypesWithPreferences(): Promise<
       .eq('user_id', user.id)
 
     if (prefsError) {
-      console.error('Failed to fetch notification preferences:', prefsError)
       // Continue with defaults if preferences fail to load
     }
 
@@ -191,7 +183,6 @@ export async function getNotificationTypesWithPreferences(): Promise<
 
     return { success: true, data: typesWithPrefs }
   } catch (error) {
-    console.error('Error getting notification types:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
 }
@@ -233,7 +224,6 @@ export async function saveNotificationTypePreference(
         .eq('id', existing.id)
 
       if (error) {
-        console.error('Failed to update notification preference:', error)
         return { success: false, error: 'Failed to save preference' }
       }
     } else {
@@ -256,14 +246,12 @@ export async function saveNotificationTypePreference(
         })
 
       if (error) {
-        console.error('Failed to insert notification preference:', error)
         return { success: false, error: 'Failed to save preference' }
       }
     }
 
     return { success: true }
   } catch (error) {
-    console.error('Error saving notification preference:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
 }

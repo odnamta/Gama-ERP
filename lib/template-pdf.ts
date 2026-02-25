@@ -120,7 +120,6 @@ export async function generateDocumentPdf(
       // pdfUrl would be set after actual PDF generation and upload
     };
   } catch (error) {
-    console.error('Error generating PDF:', error);
     return { success: false, error: 'Failed to generate PDF' };
   }
 }

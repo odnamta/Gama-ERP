@@ -88,7 +88,6 @@ export async function createSafetyPermit(
       .single();
 
     if (insertError) {
-      console.error('Error creating safety permit:', insertError);
       return { success: false, error: 'Gagal membuat izin kerja' };
     }
 
@@ -99,7 +98,6 @@ export async function createSafetyPermit(
       data: transformPermitRow(permit as SafetyPermitRow),
     };
   } catch (error) {
-    console.error('Error in createSafetyPermit:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -128,7 +126,6 @@ export async function getSafetyPermit(
       .single();
 
     if (error) {
-      console.error('Error fetching safety permit:', error);
       return { success: false, error: 'Izin kerja tidak ditemukan' };
     }
 
@@ -152,7 +149,6 @@ export async function getSafetyPermit(
 
     return { success: true, data: permit };
   } catch (error) {
-    console.error('Error in getSafetyPermit:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -198,7 +194,6 @@ export async function getSafetyPermits(
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching safety permits:', error);
       return { success: false, error: 'Gagal mengambil daftar izin kerja' };
     }
 
@@ -215,7 +210,6 @@ export async function getSafetyPermits(
 
     return { success: true, data: permits };
   } catch (error) {
-    console.error('Error in getSafetyPermits:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -264,7 +258,6 @@ export async function approveBySupervisor(
       .is('supervisor_approved_by', null);
 
     if (error) {
-      console.error('Error approving by supervisor:', error);
       return { success: false, error: 'Gagal menyetujui izin kerja' };
     }
 
@@ -273,7 +266,6 @@ export async function approveBySupervisor(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in approveBySupervisor:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -328,7 +320,6 @@ export async function approveByHSE(
       .eq('status', 'pending');
 
     if (error) {
-      console.error('Error approving by HSE:', error);
       return { success: false, error: 'Gagal menyetujui izin kerja' };
     }
 
@@ -337,7 +328,6 @@ export async function approveByHSE(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in approveByHSE:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -360,7 +350,6 @@ export async function activatePermit(
       .eq('status', 'approved');
 
     if (error) {
-      console.error('Error activating permit:', error);
       return { success: false, error: 'Gagal mengaktifkan izin kerja' };
     }
 
@@ -369,7 +358,6 @@ export async function activatePermit(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in activatePermit:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -421,7 +409,6 @@ export async function closePermit(
       .eq('status', 'active');
 
     if (error) {
-      console.error('Error closing permit:', error);
       return { success: false, error: 'Gagal menutup izin kerja' };
     }
 
@@ -430,7 +417,6 @@ export async function closePermit(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in closePermit:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -477,7 +463,6 @@ export async function cancelPermit(
       .in('status', ['pending', 'approved', 'active']);
 
     if (error) {
-      console.error('Error cancelling permit:', error);
       return { success: false, error: 'Gagal membatalkan izin kerja' };
     }
 
@@ -486,7 +471,6 @@ export async function cancelPermit(
 
     return { success: true };
   } catch (error) {
-    console.error('Error in cancelPermit:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -510,7 +494,6 @@ export async function expireOverduePermits(): Promise<{ success: boolean; count?
       .select('id');
 
     if (error) {
-      console.error('Error expiring permits:', error);
       return { success: false, error: 'Gagal mengupdate izin kadaluarsa' };
     }
 
@@ -518,7 +501,6 @@ export async function expireOverduePermits(): Promise<{ success: boolean; count?
 
     return { success: true, count: data?.length || 0 };
   } catch (error) {
-    console.error('Error in expireOverduePermits:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }
@@ -543,7 +525,6 @@ export async function getPermitStatistics(): Promise<{
       .select('id, status, permit_type, closed_at');
 
     if (error) {
-      console.error('Error fetching permit statistics:', error);
       return { success: false, error: 'Gagal mengambil statistik izin kerja' };
     }
 
@@ -603,7 +584,6 @@ export async function getPermitStatistics(): Promise<{
       },
     };
   } catch (error) {
-    console.error('Error in getPermitStatistics:', error);
     return { success: false, error: 'Terjadi kesalahan' };
   }
 }

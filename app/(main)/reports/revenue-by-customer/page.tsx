@@ -47,7 +47,6 @@ async function fetchReportData(): Promise<{
     .in('status', ['completed', 'invoiced', 'closed'])
 
   if (error) {
-    console.error('Error fetching revenue data:', error)
     return { items: [], totalRevenue: 0, customerCount: 0 }
   }
 

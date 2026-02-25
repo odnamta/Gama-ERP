@@ -48,7 +48,6 @@ export default function DrawingsPage() {
       setCategories(categoriesData);
       setProjects(projectsData);
     } catch (error) {
-      console.error('Error loading initial data:', error);
     }
   };
 
@@ -68,7 +67,6 @@ export default function DrawingsPage() {
       const data = await getDrawings(filters);
       setDrawings(data);
     } catch (error) {
-      console.error('Error loading drawings:', error);
     } finally {
       setLoading(false);
     }

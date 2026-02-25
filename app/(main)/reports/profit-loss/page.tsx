@@ -35,7 +35,6 @@ async function fetchReportData(): Promise<PLReportData | null> {
     .in('proforma_job_orders.status', ['approved', 'converted'])
 
   if (revenueError) {
-    console.error('Error fetching revenue data:', revenueError)
     return null
   }
 
@@ -52,7 +51,6 @@ async function fetchReportData(): Promise<PLReportData | null> {
     .in('proforma_job_orders.status', ['approved', 'converted'])
 
   if (costError) {
-    console.error('Error fetching cost data:', costError)
     return null
   }
 

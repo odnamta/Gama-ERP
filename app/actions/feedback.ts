@@ -18,6 +18,7 @@ import type {
 } from '@/types/feedback';
 import { validateFeedbackForm } from '@/lib/feedback-utils';
 import { getUserProfile } from '@/lib/permissions-server';
+import { ADMIN_ROLES } from '@/lib/permissions';
 import {
   notifyNewFeedback,
   notifyFeedbackStatusChange,
@@ -101,7 +102,6 @@ export async function submitFeedback(
       .single();
 
     if (error) {
-      console.error('Error submitting feedback:', error);
       return { success: false, error: 'Failed to submit feedback' };
     }
 
@@ -125,7 +125,6 @@ export async function submitFeedback(
       data: { ticketNumber: result.ticket_number, id: result.id },
     };
   } catch (err) {
-    console.error('Unexpected error submitting feedback:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -169,7 +168,6 @@ export async function uploadScreenshot(
       });
 
     if (uploadError) {
-      console.error('Error uploading screenshot:', uploadError);
       return { success: false, error: 'Failed to upload screenshot' };
     }
 
@@ -187,7 +185,6 @@ export async function uploadScreenshot(
       },
     };
   } catch (err) {
-    console.error('Unexpected error uploading screenshot:', err);
     return { success: false, error: 'Failed to upload screenshot' };
   }
 }
@@ -222,13 +219,11 @@ export async function getMySubmissions(): Promise<FeedbackActionResult<FeedbackL
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching submissions:', error);
       return { success: false, error: 'Failed to fetch submissions' };
     }
 
     return { success: true, data: data as unknown as FeedbackListItem[] };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -252,13 +247,11 @@ export async function getMyOpenTicketCount(): Promise<FeedbackActionResult<numbe
       .not('status', 'in', '("resolved","closed","wont_fix")');
 
     if (error) {
-      console.error('Error fetching open ticket count:', error);
       return { success: true, data: 0 };
     }
 
     return { success: true, data: count || 0 };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: true, data: 0 };
   }
 }
@@ -287,7 +280,7 @@ export async function getAllFeedback(
       .eq('user_id', user.id)
       .single();
 
-    if (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -331,7 +324,6 @@ export async function getAllFeedback(
       .range(from, to);
 
     if (error) {
-      console.error('Error fetching feedback:', error);
       return { success: false, error: 'Failed to fetch feedback' };
     }
 
@@ -351,7 +343,6 @@ export async function getAllFeedback(
       },
     };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -370,7 +361,7 @@ export async function getFeedbackSummary(): Promise<FeedbackActionResult<Feedbac
 
     // Check admin role
     const profile = await getUserProfile();
-    if (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -413,7 +404,6 @@ export async function getFeedbackSummary(): Promise<FeedbackActionResult<Feedbac
       },
     };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -441,7 +431,7 @@ export async function updateFeedbackStatus(
       .eq('user_id', user.id)
       .single();
 
-    if (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -475,7 +465,6 @@ export async function updateFeedbackStatus(
       .eq('id', feedbackId);
 
     if (error) {
-      console.error('Error updating status:', error);
       return { success: false, error: 'Failed to update status' };
     }
 
@@ -496,7 +485,6 @@ export async function updateFeedbackStatus(
 
     return { success: true };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -523,7 +511,7 @@ export async function assignFeedback(
       .eq('user_id', user.id)
       .single();
 
-    if (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -544,7 +532,6 @@ export async function assignFeedback(
       .eq('id', feedbackId);
 
     if (error) {
-      console.error('Error assigning feedback:', error);
       return { success: false, error: 'Failed to assign feedback' };
     }
 
@@ -563,7 +550,6 @@ export async function assignFeedback(
 
     return { success: true };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -585,7 +571,7 @@ export async function markAsDuplicate(
 
     // Check admin role
     const profile = await getUserProfile();
-    if (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -599,7 +585,6 @@ export async function markAsDuplicate(
       .eq('id', feedbackId);
 
     if (error) {
-      console.error('Error marking as duplicate:', error);
       return { success: false, error: 'Failed to mark as duplicate' };
     }
 
@@ -607,7 +592,6 @@ export async function markAsDuplicate(
 
     return { success: true };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -636,7 +620,7 @@ export async function addFeedbackComment(
       .single();
 
     // Only admins can post internal comments
-    if (isInternal && (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role))) {
+    if (isInternal && (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role))) {
       return { success: false, error: 'Only admins can post internal comments' };
     }
 
@@ -653,7 +637,6 @@ export async function addFeedbackComment(
       .single();
 
     if (error) {
-      console.error('Error adding comment:', error);
       return { success: false, error: 'Failed to add comment' };
     }
 
@@ -680,7 +663,6 @@ export async function addFeedbackComment(
 
     return { success: true, data: data as FeedbackComment };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -706,7 +688,7 @@ export async function getFeedbackComments(
       .eq('user_id', user.id)
       .single();
 
-    const isAdmin = profile && ['owner', 'director', 'sysadmin'].includes(profile.role);
+    const isAdmin = profile && (ADMIN_ROLES as readonly string[]).includes(profile.role);
 
     let query = supabase
       .from('feedback_comments')
@@ -722,13 +704,11 @@ export async function getFeedbackComments(
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching comments:', error);
       return { success: false, error: 'Failed to fetch comments' };
     }
 
     return { success: true, data: data as FeedbackComment[] };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -754,7 +734,6 @@ export async function getFeedbackById(
       .single();
 
     if (error) {
-      console.error('Error fetching feedback:', error);
       return { success: false, error: 'Failed to fetch feedback' };
     }
 
@@ -765,15 +744,14 @@ export async function getFeedbackById(
       .eq('user_id', user.id)
       .single();
 
-    const isAdmin = profile && ['owner', 'director', 'sysadmin'].includes(profile.role);
-    
+    const isAdmin = profile && (ADMIN_ROLES as readonly string[]).includes(profile.role);
+
     if (data.submitted_by !== user.id && !isAdmin) {
       return { success: false, error: 'Unauthorized' };
     }
 
     return { success: true, data: data as unknown as FeedbackSubmission };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -796,7 +774,7 @@ export async function getFeedbackHistory(
 
     // Check admin role
     const profile = await getUserProfile();
-    if (!profile || !['owner', 'director', 'sysadmin'].includes(profile.role)) {
+    if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
       return { success: false, error: 'Unauthorized' };
     }
 
@@ -807,7 +785,6 @@ export async function getFeedbackHistory(
       .order('changed_at', { ascending: true });
 
     if (error) {
-      console.error('Error fetching history:', error);
       return { success: false, error: 'Failed to fetch history' };
     }
 
@@ -820,7 +797,6 @@ export async function getFeedbackHistory(
       notes: string | null;
     }> };
   } catch (err) {
-    console.error('Unexpected error:', err);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }

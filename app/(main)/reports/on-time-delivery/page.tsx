@@ -39,7 +39,6 @@ async function fetchReportData(): Promise<OnTimeDeliveryReport | null> {
     .not('completed_at', 'is', null)
 
   if (error) {
-    console.error('Error fetching on-time delivery data:', error)
     return null
   }
 

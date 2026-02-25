@@ -125,7 +125,6 @@ export async function getResources(filters?: ResourceFilters): Promise<Engineeri
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching resources:', error);
     throw new Error('Failed to fetch resources');
   }
 
@@ -157,7 +156,6 @@ export async function getResourceById(id: string): Promise<ResourceWithDetails |
 
   if (error) {
     if (error.code === 'PGRST116') return null;
-    console.error('Error fetching resource:', error);
     throw new Error('Failed to fetch resource');
   }
 
@@ -242,7 +240,6 @@ export async function createResource(input: ResourceInput): Promise<EngineeringR
     .single();
 
   if (error) {
-    console.error('Error creating resource:', error);
     throw new Error('Failed to create resource');
   }
 
@@ -283,7 +280,6 @@ export async function updateResource(id: string, input: ResourceInput): Promise<
     .single();
 
   if (error) {
-    console.error('Error updating resource:', error);
     throw new Error('Failed to update resource');
   }
 
@@ -301,7 +297,6 @@ export async function deleteResource(id: string): Promise<void> {
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting resource:', error);
     throw new Error('Failed to delete resource');
   }
 
@@ -352,7 +347,6 @@ export async function getAssignments(filters?: AssignmentFilters): Promise<Assig
   const { data, error } = await query;
 
   if (error) {
-    console.error('Error fetching assignments:', error);
     throw new Error('Failed to fetch assignments');
   }
 
@@ -394,7 +388,6 @@ export async function getAssignmentById(id: string): Promise<AssignmentWithDetai
 
   if (error) {
     if (error.code === 'PGRST116') return null;
-    console.error('Error fetching assignment:', error);
     throw new Error('Failed to fetch assignment');
   }
 
@@ -496,7 +489,6 @@ export async function createAssignment(
     .single();
 
   if (error) {
-    console.error('Error creating assignment:', error);
     throw new Error('Failed to create assignment');
   }
 
@@ -545,7 +537,6 @@ export async function updateAssignment(id: string, input: AssignmentInput): Prom
     .single();
 
   if (error) {
-    console.error('Error updating assignment:', error);
     throw new Error('Failed to update assignment');
   }
 
@@ -562,7 +553,6 @@ export async function deleteAssignment(id: string): Promise<void> {
     .eq('id', id);
 
   if (error) {
-    console.error('Error deleting assignment:', error);
     throw new Error('Failed to delete assignment');
   }
 
@@ -583,7 +573,6 @@ export async function updateAssignmentStatus(
     .single();
 
   if (error) {
-    console.error('Error updating assignment status:', error);
     throw new Error('Failed to update assignment status');
   }
 
@@ -602,7 +591,6 @@ export async function recordActualHours(id: string, actualHours: number): Promis
     .single();
 
   if (error) {
-    console.error('Error recording actual hours:', error);
     throw new Error('Failed to record actual hours');
   }
 
@@ -630,7 +618,6 @@ export async function getAvailability(
     .order('date');
 
   if (error) {
-    console.error('Error fetching availability:', error);
     throw new Error('Failed to fetch availability');
   }
 
@@ -679,7 +666,6 @@ export async function setUnavailability(input: UnavailabilityInput): Promise<{
     .upsert(records, { onConflict: 'resource_id,date' });
 
   if (error) {
-    console.error('Error setting unavailability:', error);
     throw new Error('Failed to set unavailability');
   }
 
@@ -697,7 +683,6 @@ export async function removeUnavailability(resourceId: string, date: string): Pr
     .eq('date', date);
 
   if (error) {
-    console.error('Error removing unavailability:', error);
     throw new Error('Failed to remove unavailability');
   }
 
@@ -719,7 +704,6 @@ export async function getSkills(): Promise<ResourceSkill[]> {
     .order('skill_name');
 
   if (error) {
-    console.error('Error fetching skills:', error);
     throw new Error('Failed to fetch skills');
   }
 
@@ -744,7 +728,6 @@ export async function createSkill(input: {
     .single();
 
   if (error) {
-    console.error('Error creating skill:', error);
     throw new Error('Failed to create skill');
   }
 
@@ -780,7 +763,6 @@ export async function getCalendarData(
   const { data: resources, error: resourceError } = await resourceQuery;
 
   if (resourceError) {
-    console.error('Error fetching resources for calendar:', resourceError);
     throw new Error('Failed to fetch calendar data');
   }
 
@@ -897,7 +879,6 @@ export async function getUtilizationReport(
   const { data: resources, error: resourceError } = await resourceQuery;
 
   if (resourceError) {
-    console.error('Error fetching resources for utilization:', resourceError);
     throw new Error('Failed to fetch utilization data');
   }
 

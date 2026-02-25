@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/permissions-server';
 import {
   BudgetItem,
   CashFlowForecast,
@@ -29,6 +30,9 @@ import {
 // and views customer_profitability, job_type_profitability, monthly_pl_summary
 // are not in generated Supabase types yet. Using 'as any' for table names.
 
+const FINANCIAL_WRITE_ROLES = ['owner', 'director', 'sysadmin', 'finance_manager', 'finance'] as const;
+const FINANCIAL_READ_ROLES = ['owner', 'director', 'sysadmin', 'finance_manager', 'finance'] as const;
+
 // ============================================
 // Budget Item Actions
 // ============================================
@@ -42,6 +46,11 @@ import {
 export async function createBudgetItem(
   data: CreateBudgetItemInput
 ): Promise<{ success: boolean; error?: string; data?: BudgetItem }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // Validate category
@@ -99,6 +108,11 @@ export async function updateBudgetItem(
   id: string,
   data: Partial<CreateBudgetItemInput>
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // Validate category if provided
@@ -135,6 +149,11 @@ export async function fetchBudgetItems(
   year: number,
   month: number
 ): Promise<BudgetItem[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -146,7 +165,6 @@ export async function fetchBudgetItems(
     .order('category');
 
   if (error) {
-    console.error('Error fetching budget items:', error);
     return [];
   }
 
@@ -159,6 +177,11 @@ export async function fetchBudgetItems(
 export async function deleteBudgetItem(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -186,6 +209,11 @@ export async function fetchMonthlyActuals(
   year: number,
   month: number
 ): Promise<MonthlyActual[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -197,7 +225,6 @@ export async function fetchMonthlyActuals(
     .order('category');
 
   if (error) {
-    console.error('Error fetching monthly actuals:', error);
     return [];
   }
 
@@ -217,6 +244,11 @@ export async function fetchMonthlyActuals(
 export async function createCashFlowTransaction(
   data: CreateCashFlowTransactionInput
 ): Promise<{ success: boolean; error?: string; data?: CashFlowTransaction }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // Validate category based on flow type
@@ -261,6 +293,11 @@ export async function fetchCashFlowTransactions(
   startDate: string,
   endDate: string
 ): Promise<CashFlowTransaction[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -272,7 +309,6 @@ export async function fetchCashFlowTransactions(
     .order('transaction_date', { ascending: true });
 
   if (error) {
-    console.error('Error fetching cash flow transactions:', error);
     return [];
   }
 
@@ -291,6 +327,11 @@ export async function fetchCashFlowTransactions(
 export async function createCashFlowForecast(
   data: CreateCashFlowForecastInput
 ): Promise<{ success: boolean; error?: string; data?: CashFlowForecast }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   const supabase = await createClient();
 
   // Validate category based on flow type
@@ -340,6 +381,11 @@ export async function fetchCashFlowForecast(
   startDate: string,
   endDate: string
 ): Promise<CashFlowForecast[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -351,7 +397,6 @@ export async function fetchCashFlowForecast(
     .order('forecast_date', { ascending: true });
 
   if (error) {
-    console.error('Error fetching cash flow forecast:', error);
     return [];
   }
 
@@ -369,6 +414,11 @@ export async function fetchCashFlowForecast(
  * Validates: Requirements 6.1, 6.2, 6.4
  */
 export async function fetchCustomerProfitability(): Promise<CustomerProfitability[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -378,7 +428,6 @@ export async function fetchCustomerProfitability(): Promise<CustomerProfitabilit
     .order('total_profit', { ascending: false });
 
   if (error) {
-    console.error('Error fetching customer profitability:', error);
     return [];
   }
 
@@ -390,6 +439,11 @@ export async function fetchCustomerProfitability(): Promise<CustomerProfitabilit
  * Validates: Requirements 7.1, 7.2
  */
 export async function fetchJobTypeProfitability(): Promise<JobTypeProfitability[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -399,7 +453,6 @@ export async function fetchJobTypeProfitability(): Promise<JobTypeProfitability[
     .order('total_profit', { ascending: false });
 
   if (error) {
-    console.error('Error fetching job type profitability:', error);
     return [];
   }
 
@@ -411,6 +464,11 @@ export async function fetchJobTypeProfitability(): Promise<JobTypeProfitability[
  * Validates: Requirements 8.1, 8.2
  */
 export async function fetchMonthlyPLSummary(): Promise<MonthlyPLSummary[]> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return [];
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -420,7 +478,6 @@ export async function fetchMonthlyPLSummary(): Promise<MonthlyPLSummary[]> {
     .order('month', { ascending: false });
 
   if (error) {
-    console.error('Error fetching monthly P&L summary:', error);
     return [];
   }
 
@@ -440,6 +497,19 @@ export async function fetchFinancialAnalyticsData(
   year: number,
   month: number
 ): Promise<FinancialAnalyticsData> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return {
+      cashPosition: { current_balance: 0, net_cash_flow_mtd: 0, total_inflows_mtd: 0, total_outflows_mtd: 0, forecast_30_days: 0, forecast_60_days: 0, forecast_90_days: 0 },
+      budgetVsActual: [],
+      customerProfitability: [],
+      jobTypeProfitability: [],
+      monthlyPL: [],
+      cashFlowTransactions: [],
+      cashFlowForecast: [],
+    };
+  }
+
   // Calculate date range for the month
   const startDate = new Date(year, month - 1, 1);
   const endDate = new Date(year, month, 0); // Last day of month
@@ -502,6 +572,11 @@ export async function exportFinancialReport(
   reportType: string,
   dateRange: { year: number; month: number }
 ): Promise<{ success: boolean; url?: string; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile || !(FINANCIAL_READ_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
   try {
     // Fetch data for the report (validates data exists before generating URL)
     await fetchFinancialAnalyticsData(dateRange.year, dateRange.month);

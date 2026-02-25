@@ -42,13 +42,11 @@ export async function logAudit(
     } as Database['public']['Tables']['audit_logs']['Insert'])
     
     if (error) {
-      console.error('Failed to log audit entry:', error)
       return { success: false, error: error.message }
     }
     
     return { success: true }
   } catch (err) {
-    console.error('Audit log error:', err)
     return { success: false, error: 'Failed to create audit log' }
   }
 }
@@ -233,7 +231,6 @@ export async function queryAuditLogs(
   const { data, error, count } = await query
   
   if (error) {
-    console.error('Failed to query audit logs:', error)
     return { logs: [], total: 0, hasMore: false }
   }
   

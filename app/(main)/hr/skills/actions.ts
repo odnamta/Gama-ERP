@@ -26,7 +26,6 @@ export async function getSkillCategories(): Promise<SkillCategory[]> {
     .order('display_order');
   
   if (error) {
-    console.error('Error fetching skill categories:', error);
     return [];
   }
   
@@ -50,7 +49,6 @@ export async function getSkills(): Promise<Skill[]> {
     .order('skill_name');
   
   if (error) {
-    console.error('Error fetching skills:', error);
     return [];
   }
   
@@ -70,7 +68,6 @@ export async function getSkillById(id: string): Promise<Skill | null> {
     .single();
   
   if (error) {
-    console.error('Error fetching skill:', error);
     return null;
   }
   
@@ -97,7 +94,6 @@ export async function getEmployeeSkills(employeeId: string): Promise<EmployeeSki
     .order('created_at', { ascending: false });
   
   if (error) {
-    console.error('Error fetching employee skills:', error);
     return [];
   }
   
@@ -126,7 +122,6 @@ export async function addEmployeeSkill(
     if (error.code === '23505') {
       return { success: false, error: 'Employee already has this skill assigned' };
     }
-    console.error('Error adding employee skill:', error);
     return { success: false, error: error.message };
   }
   
@@ -155,7 +150,6 @@ export async function updateEmployeeSkill(
     .eq('id', id);
   
   if (error) {
-    console.error('Error updating employee skill:', error);
     return { success: false, error: error.message };
   }
   
@@ -174,7 +168,6 @@ export async function deleteEmployeeSkill(
     .eq('id', id);
   
   if (error) {
-    console.error('Error deleting employee skill:', error);
     return { success: false, error: error.message };
   }
   
@@ -203,7 +196,6 @@ export async function bulkAssignSkill(
     .select();
   
   if (error) {
-    console.error('Error bulk assigning skill:', error);
     return { success: false, error: error.message, assigned: 0 };
   }
   
@@ -224,7 +216,6 @@ export async function getSkillGapAnalysis(): Promise<SkillGapAnalysis[]> {
     .order('gap_percent', { ascending: false, nullsFirst: false });
   
   if (error) {
-    console.error('Error fetching skill gap analysis:', error);
     return [];
   }
   
@@ -247,7 +238,6 @@ export async function getExpiringCertifications(
     .order('days_until_expiry');
   
   if (error) {
-    console.error('Error fetching expiring certifications:', error);
     return [];
   }
   
@@ -275,7 +265,6 @@ export async function getEmployeesWithSkillCount(): Promise<
     .order('full_name');
   
   if (error) {
-    console.error('Error fetching employees with skill count:', error);
     return [];
   }
   
@@ -333,7 +322,6 @@ export async function getActiveEmployees(): Promise<
     .order('full_name');
   
   if (error) {
-    console.error('Error fetching active employees:', error);
     return [];
   }
   

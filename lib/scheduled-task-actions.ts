@@ -706,13 +706,7 @@ export async function handleTaskFailure(
   const errorMessage = error instanceof Error ? error.message : error;
   const timestamp = new Date().toISOString();
   
-  // Log the failure
-  console.error(`[TASK FAILURE] ${task.task_code}: ${errorMessage}`, {
-    task_code: task.task_code,
-    task_name: task.task_name,
-    execution_id: executionId,
-    timestamp,
-  });
+  // Error handled by return
   
   // Update execution record if provided
   if (executionId) {
@@ -733,7 +727,6 @@ export async function handleTaskFailure(
     },
   };
   
-  console.log('[NOTIFICATION] Task failure alert:', notificationData);
 }
 
 /**
@@ -891,7 +884,6 @@ export async function executeTaskIsolated<T>(
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
     // Log but don't throw - isolation means we contain the failure
-    console.error(`[ISOLATED FAILURE] Task ${taskCode} failed:`, errorMessage);
     
     return { success: false, result: null, error: errorMessage };
   }

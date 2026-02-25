@@ -38,7 +38,6 @@ export async function getPayrollComponents(): Promise<PayrollComponent[]> {
     .order('display_order', { ascending: true });
 
   if (error) {
-    console.error('Error fetching payroll components:', error);
     return [];
   }
 
@@ -67,7 +66,6 @@ export async function getEmployeePayrollSetup(
     .eq('is_active', true);
 
   if (error) {
-    console.error('Error fetching employee payroll setup:', error);
     return [];
   }
 
@@ -100,7 +98,6 @@ export async function updateEmployeePayrollSetup(
     });
 
   if (error) {
-    console.error('Error updating employee payroll setup:', error);
     return { success: false, error: error.message };
   }
 
@@ -125,7 +122,6 @@ export async function getPayrollPeriods(): Promise<PayrollPeriod[]> {
     .order('period_month', { ascending: false });
 
   if (error) {
-    console.error('Error fetching payroll periods:', error);
     return [];
   }
 
@@ -145,7 +141,6 @@ export async function getPayrollPeriod(periodId: string): Promise<PayrollPeriod 
     .single();
 
   if (error) {
-    console.error('Error fetching payroll period:', error);
     return null;
   }
 
@@ -201,7 +196,6 @@ export async function createPayrollPeriod(
     .single();
 
   if (error) {
-    console.error('Error creating payroll period:', error);
     return { success: false, error: error.message };
   }
 
@@ -240,7 +234,6 @@ export async function getPayrollRecords(periodId: string): Promise<PayrollRecord
     .order('created_at', { ascending: true });
 
   if (error) {
-    console.error('Error fetching payroll records:', error);
     return [];
   }
 
@@ -275,7 +268,6 @@ export async function getPayrollRecord(recordId: string): Promise<PayrollRecord 
     .single();
 
   if (error) {
-    console.error('Error fetching payroll record:', error);
     return null;
   }
 
@@ -361,7 +353,6 @@ export async function calculateEmployeePayroll(
     .single();
 
   if (error) {
-    console.error('Error calculating employee payroll:', error);
     return { success: false, error: error.message };
   }
 
@@ -507,7 +498,6 @@ export async function approvePayrollPeriod(
     .eq('id', periodId);
 
   if (periodError) {
-    console.error('Error approving payroll period:', periodError);
     return { success: false, error: periodError.message };
   }
 
@@ -560,7 +550,6 @@ export async function generateSalarySlip(
     .single();
 
   if (error) {
-    console.error('Error generating salary slip:', error);
     return { success: false, error: error.message };
   }
 
@@ -627,7 +616,6 @@ export async function getManpowerCostByDepartment(
     .eq('period_id', period.id);
 
   if (error || !records) {
-    console.error('Error fetching manpower costs:', error);
     return [];
   }
 

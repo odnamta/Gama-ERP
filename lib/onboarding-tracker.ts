@@ -22,7 +22,6 @@ export async function trackRecordCreation(table: string): Promise<void> {
     await trackAction(user.id, table, 'create');
   } catch (error) {
     // Silently fail - onboarding tracking should not break main functionality
-    console.error('Error tracking record creation for onboarding:', error);
   }
 }
 

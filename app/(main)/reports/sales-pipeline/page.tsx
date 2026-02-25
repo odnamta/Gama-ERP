@@ -29,7 +29,6 @@ async function fetchReportData(): Promise<SalesPipelineReport | null> {
     .lte('created_at', endDate)
 
   if (error) {
-    console.error('Error fetching sales pipeline:', error)
     return null
   }
 

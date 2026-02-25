@@ -53,7 +53,6 @@ export function VendorsClient() {
         setStats(statsResult.data);
       }
     } catch (error) {
-      console.error('Failed to load vendors:', error);
     } finally {
       setLoading(false);
     }

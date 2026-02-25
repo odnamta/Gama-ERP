@@ -30,7 +30,6 @@ export async function getJobOrders(): Promise<JobOrderWithRelations[]> {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Error fetching job orders:', error)
     return []
   }
 
@@ -91,7 +90,6 @@ export async function getJobOrder(id: string): Promise<JobOrderWithRelations | n
     .single()
 
   if (error) {
-    console.error('Error fetching job order:', error)
     return null
   }
 
@@ -147,7 +145,6 @@ export async function markCompleted(joId: string): Promise<{ error?: string }> {
       'completed'
     )
   } catch (e) {
-    console.error('Failed to send JO completion notification:', e)
   }
 
   // Invalidate dashboard cache (Requirement 6.6)
@@ -209,7 +206,6 @@ export async function submitToFinance(joId: string): Promise<{ error?: string }>
       'submitted_to_finance'
     )
   } catch (e) {
-    console.error('Failed to send JO submission notification:', e)
   }
 
   // Check for revenue discrepancy between PJO items and JO final revenue
@@ -240,7 +236,6 @@ export async function submitToFinance(joId: string): Promise<{ error?: string }>
         }
       }
     } catch (e) {
-      console.error('Failed to check revenue discrepancy:', e)
     }
   }
 
@@ -262,7 +257,6 @@ export async function getJORevenueItems(pjoId: string) {
     .order('created_at', { ascending: true })
 
   if (error) {
-    console.error('Error fetching revenue items:', error)
     return []
   }
 
@@ -279,7 +273,6 @@ export async function getJOCostItems(pjoId: string) {
     .order('created_at', { ascending: true })
 
   if (error) {
-    console.error('Error fetching cost items:', error)
     return []
   }
 
@@ -370,7 +363,6 @@ export async function getJOInvoices(joId: string) {
     .order('created_at', { ascending: true })
 
   if (error) {
-    console.error('Error fetching JO invoices:', error)
     return []
   }
 

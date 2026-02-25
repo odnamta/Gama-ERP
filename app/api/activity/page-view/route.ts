@@ -53,13 +53,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error('[PageViewAPI] Failed to log page view:', error.message);
       return NextResponse.json({ error: 'Failed to log' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[PageViewAPI] Error:', error);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

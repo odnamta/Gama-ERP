@@ -81,7 +81,6 @@ export async function uploadAttachment(
       .upload(storagePath, file);
 
     if (uploadError) {
-      console.error('Storage upload error:', uploadError);
       return { data: null, error: 'Failed to upload file. Please try again.' };
     }
 
@@ -104,13 +103,11 @@ export async function uploadAttachment(
     if (dbError) {
       // Rollback: delete the uploaded file
       await supabase.storage.from(STORAGE_BUCKET).remove([storagePath]);
-      console.error('Database insert error:', dbError);
       return { data: null, error: 'Failed to save attachment. Please try again.' };
     }
 
     return { data: attachment as DocumentAttachment, error: null };
   } catch (error) {
-    console.error('Upload attachment error:', error);
     return { data: null, error: 'An unexpected error occurred' };
   }
 }
@@ -144,7 +141,6 @@ export async function deleteAttachment(
       .remove([attachment.storage_path]);
 
     if (storageError) {
-      console.error('Storage delete error:', storageError);
       return { success: false, error: 'Failed to delete file. Please try again.' };
     }
 
@@ -155,13 +151,11 @@ export async function deleteAttachment(
       .eq('id', attachmentId);
 
     if (dbError) {
-      console.error('Database delete error:', dbError);
       return { success: false, error: 'Failed to remove attachment record.' };
     }
 
     return { success: true, error: null };
   } catch (error) {
-    console.error('Delete attachment error:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -193,7 +187,6 @@ export async function getAttachments(
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Fetch attachments error:', error);
       return { data: [], error: 'Failed to load attachments' };
     }
 
@@ -214,7 +207,6 @@ export async function getAttachments(
 
     return { data: attachments, error: null };
   } catch (error) {
-    console.error('Get attachments error:', error);
     return { data: [], error: 'An unexpected error occurred' };
   }
 }
@@ -238,13 +230,11 @@ export async function getSignedUrl(
       .createSignedUrl(storagePath, expiresIn);
 
     if (error) {
-      console.error('Signed URL error:', error);
       return { url: null, error: 'Unable to access file. Please try again.' };
     }
 
     return { url: data.signedUrl, error: null };
   } catch (error) {
-    console.error('Get signed URL error:', error);
     return { url: null, error: 'An unexpected error occurred' };
   }
 }

@@ -54,7 +54,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<ConfigResp
       configs,
     });
   } catch (error) {
-    console.error('[Config API] Error fetching configs:', error);
     return NextResponse.json(
       {
         success: false,
@@ -138,7 +137,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<{ success
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[Config API] Error updating config:', error);
     return NextResponse.json(
       {
         success: false,

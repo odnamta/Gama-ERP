@@ -131,7 +131,6 @@ export async function recordDepreciation(
       .single();
 
     if (insertError) {
-      console.error('Error recording depreciation:', insertError);
       return { success: false, error: 'Failed to record depreciation' };
     }
 
@@ -166,7 +165,6 @@ export async function recordDepreciation(
       data: transformDepreciationRow(depreciation as AssetDepreciationRow),
     };
   } catch (error) {
-    console.error('Error in recordDepreciation:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -188,7 +186,6 @@ export async function getDepreciationHistory(
       .order('period_start', { ascending: false });
 
     if (error) {
-      console.error('Error fetching depreciation history:', error);
       return { success: false, error: 'Failed to fetch depreciation history' };
     }
 
@@ -197,7 +194,6 @@ export async function getDepreciationHistory(
       data: (data as AssetDepreciationRow[]).map(transformDepreciationRow),
     };
   } catch (error) {
-    console.error('Error in getDepreciationHistory:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -228,7 +224,6 @@ export async function runMonthlyDepreciation(
       .not('useful_life_years', 'is', null);
 
     if (assetsError) {
-      console.error('Error fetching assets:', assetsError);
       return { success: false, error: 'Failed to fetch assets' };
     }
 
@@ -277,7 +272,6 @@ export async function runMonthlyDepreciation(
     revalidatePath('/equipment/costing');
     return { success: true, data: result };
   } catch (error) {
-    console.error('Error in runMonthlyDepreciation:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -348,7 +342,6 @@ export async function recordCost(
       .single();
 
     if (insertError) {
-      console.error('Error recording cost:', insertError);
       return { success: false, error: 'Failed to record cost' };
     }
 
@@ -360,7 +353,6 @@ export async function recordCost(
       data: transformCostTrackingRow(cost as AssetCostTrackingRow),
     };
   } catch (error) {
-    console.error('Error in recordCost:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -399,7 +391,6 @@ export async function getCostHistory(
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching cost history:', error);
       return { success: false, error: 'Failed to fetch cost history' };
     }
 
@@ -408,7 +399,6 @@ export async function getCostHistory(
       data: (data as AssetCostTrackingRow[]).map(transformCostTrackingRow),
     };
   } catch (error) {
-    console.error('Error in getCostHistory:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -441,7 +431,6 @@ export async function getCostBreakdown(
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching cost breakdown:', error);
       return { success: false, error: 'Failed to fetch cost breakdown' };
     }
 
@@ -455,7 +444,6 @@ export async function getCostBreakdown(
       data: calculateCostBreakdown(costs),
     };
   } catch (error) {
-    console.error('Error in getCostBreakdown:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -480,7 +468,6 @@ export async function getTCOSummary(
     const { data, error } = await query;
 
     if (error) {
-      console.error('Error fetching TCO summary:', error);
       return { success: false, error: 'Failed to fetch TCO summary' };
     }
 
@@ -500,7 +487,6 @@ export async function getTCOSummary(
 
     return { success: true, data: summaries };
   } catch (error) {
-    console.error('Error in getTCOSummary:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -518,14 +504,12 @@ export async function refreshTCOView(): Promise<{
     const { error } = await supabase.rpc('refresh_asset_tco_summary');
 
     if (error) {
-      console.error('Error refreshing TCO view:', error);
       return { success: false, error: 'Failed to refresh TCO view' };
     }
 
     revalidatePath('/equipment/costing');
     return { success: true };
   } catch (error) {
-    console.error('Error in refreshTCOView:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }
@@ -545,14 +529,12 @@ export async function deleteCost(
       .eq('id', costId);
 
     if (error) {
-      console.error('Error deleting cost:', error);
       return { success: false, error: 'Failed to delete cost' };
     }
 
     revalidatePath('/equipment/costing');
     return { success: true };
   } catch (error) {
-    console.error('Error in deleteCost:', error);
     return { success: false, error: 'An unexpected error occurred' };
   }
 }

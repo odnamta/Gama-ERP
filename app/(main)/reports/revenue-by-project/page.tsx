@@ -40,7 +40,6 @@ async function fetchReportData(): Promise<RevenueByProjectReport | null> {
     .in('status', ['completed', 'invoiced', 'closed'])
 
   if (error) {
-    console.error('Error fetching revenue by project:', error)
     return null
   }
 

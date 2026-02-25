@@ -105,7 +105,6 @@ export async function initializeQuotationEngineeringReview(
       complexity_score: complexityScore,
     })
   } catch (e) {
-    console.error('Failed to send assignment notification:', e)
   }
 
   revalidatePath(`/quotations/${quotationId}`)
@@ -328,7 +327,6 @@ export async function completeQuotationEngineeringReview(
         created_by: quotation.created_by,
       })
     } catch (e) {
-      console.error('Failed to send completion notification:', e)
     }
   }
 

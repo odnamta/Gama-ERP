@@ -31,7 +31,6 @@ export async function allocateJobOverhead(
       .single();
 
     if (jobError || !job) {
-      console.error('Error fetching job order:', jobError);
       return { totalOverhead: 0, error: 'Job order not found' };
     }
 
@@ -61,7 +60,6 @@ export async function allocateJobOverhead(
       .order('display_order');
 
     if (catError) {
-      console.error('Error fetching overhead categories:', catError);
       return { totalOverhead: 0, error: 'Failed to fetch overhead categories' };
     }
 
@@ -106,7 +104,6 @@ export async function allocateJobOverhead(
         .insert(allocations);
 
       if (insertError) {
-        console.error('Error inserting overhead allocations:', insertError);
         return { totalOverhead: 0, error: 'Failed to save overhead allocations' };
       }
     }
@@ -127,14 +124,12 @@ export async function allocateJobOverhead(
       .eq('id', joId);
 
     if (updateError) {
-      console.error('Error updating job order overhead:', updateError);
       return { totalOverhead, error: 'Failed to update job order' };
     }
 
     revalidatePath(`/job-orders/${joId}`);
     return { totalOverhead, error: null };
   } catch (err) {
-    console.error('Unexpected error allocating job overhead:', err);
     return { totalOverhead: 0, error: 'Failed to allocate overhead' };
   }
 }
@@ -162,7 +157,6 @@ export async function getJobOverheadBreakdown(
       .order('created_at');
 
     if (error) {
-      console.error('Error fetching job overhead breakdown:', error);
       return { allocations: [], total: 0, error: error.message };
     }
 
@@ -171,7 +165,6 @@ export async function getJobOverheadBreakdown(
 
     return { allocations, total, error: null };
   } catch (err) {
-    console.error('Unexpected error fetching job overhead breakdown:', err);
     return { allocations: [], total: 0, error: 'Failed to fetch overhead breakdown' };
   }
 }
@@ -213,7 +206,6 @@ export async function batchRecalculateOverhead(
       .lte('created_at', `${endDate}T23:59:59`);
 
     if (jobsError) {
-      console.error('Error fetching jobs for batch recalculation:', jobsError);
       return { count: 0, error: 'Failed to fetch jobs' };
     }
 
@@ -231,13 +223,11 @@ export async function batchRecalculateOverhead(
     }
 
     if (errors.length > 0) {
-      console.error('Batch recalculation errors:', errors);
     }
 
     revalidatePath('/job-orders');
     return { count, error: errors.length > 0 ? `${errors.length} jobs failed` : null };
   } catch (err) {
-    console.error('Unexpected error in batch recalculation:', err);
     return { count: 0, error: 'Failed to batch recalculate overhead' };
   }
 }
@@ -267,7 +257,6 @@ export async function getJobProfitability(joId: string): Promise<{
       .single();
 
     if (error || !job) {
-      console.error('Error fetching job profitability:', error);
       return { data: null, error: 'Job order not found' };
     }
 
@@ -289,7 +278,6 @@ export async function getJobProfitability(joId: string): Promise<{
       error: null,
     };
   } catch (err) {
-    console.error('Unexpected error fetching job profitability:', err);
     return { data: null, error: 'Failed to fetch profitability data' };
   }
 }

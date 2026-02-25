@@ -33,7 +33,7 @@ export function RevenueByCustomerClient({ initialData, userId }: Props) {
         reportCode: 'revenue_by_customer',
         userId,
         parameters: {}
-      }).catch(console.error)
+      }).catch(() => {})
     }
   }, [userId])
 

@@ -37,7 +37,6 @@ export function EditPortAgentClient({ portAgent, ports }: EditPortAgentClientPro
         });
       }
     } catch (error) {
-      console.error('Error updating port agent:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',

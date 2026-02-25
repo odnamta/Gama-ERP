@@ -84,7 +84,6 @@ export function UtilizationClient() {
         setTrend(trendResult.data);
       }
     } catch (error) {
-      console.error('Error loading utilization data:', error);
       toast.error('Failed to load utilization data');
     } finally {
       setLoading(false);
@@ -106,7 +105,6 @@ export function UtilizationClient() {
         toast.error(result.error || 'Failed to refresh data');
       }
     } catch (error) {
-      console.error('Error refreshing data:', error);
       toast.error('Failed to refresh data');
     } finally {
       setRefreshing(false);
@@ -178,7 +176,6 @@ export function UtilizationClient() {
 
       toast.success('Report exported successfully');
     } catch (error) {
-      console.error('Error exporting report:', error);
       toast.error('Failed to export report');
     } finally {
       setExporting(false);

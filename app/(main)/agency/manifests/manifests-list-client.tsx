@@ -98,7 +98,6 @@ export function ManifestsListClient({
       const results = await getCargoManifests(filters);
       setManifests(results);
     } catch (error) {
-      console.error('Failed to search manifests:', error);
       toast({
         title: 'Error',
         description: 'Failed to search cargo manifests',
@@ -128,7 +127,6 @@ export function ManifestsListClient({
       const results = await getCargoManifests(clearedFilters);
       setManifests(results);
     } catch (error) {
-      console.error('Failed to clear filters:', error);
     } finally {
       setIsLoading(false);
     }
@@ -169,7 +167,6 @@ export function ManifestsListClient({
         });
       }
     } catch (error) {
-      console.error('Failed to submit manifest:', error);
       toast({
         title: 'Error',
         description: 'Failed to submit manifest',

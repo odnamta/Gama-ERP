@@ -23,7 +23,6 @@ export async function generateSJNumber(): Promise<string> {
     .gte('created_at', `${year}-01-01`)
   
   if (error) {
-    console.error('Error counting SJ records:', error)
     throw new Error('Failed to generate SJ number')
   }
   
@@ -49,7 +48,6 @@ export async function getSuratJalanList(joId: string): Promise<SuratJalanWithRel
     .order('created_at', { ascending: false })
   
   if (error) {
-    console.error('Error fetching Surat Jalan list:', error)
     return []
   }
   
@@ -81,7 +79,6 @@ export async function getSuratJalan(id: string): Promise<SuratJalanWithRelations
     .single()
   
   if (error) {
-    console.error('Error fetching Surat Jalan:', error)
     return null
   }
   
@@ -143,7 +140,6 @@ export async function createSuratJalan(
     .single()
   
   if (error) {
-    console.error('Error creating Surat Jalan:', error)
     return { error: error.message }
   }
   
@@ -219,7 +215,6 @@ export async function updateSuratJalanStatus(
       .eq('id', sj.jo_id)
     
     if (joError) {
-      console.error('Error updating JO has_surat_jalan:', joError)
     }
   }
   

@@ -33,7 +33,7 @@ export function ARAgingClient({ initialData, userId }: Props) {
 
   useEffect(() => {
     if (userId) {
-      logReportExecution({ reportCode: 'fin_ar_aging', userId, parameters: {} }).catch(console.error)
+      logReportExecution({ reportCode: 'fin_ar_aging', userId, parameters: {} }).catch(() => {})
     }
   }, [userId])
 
