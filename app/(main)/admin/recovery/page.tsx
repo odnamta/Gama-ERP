@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getDeletedRecordsAction, getRecoveryStatsAction } from '@/app/actions/recovery-actions'
@@ -32,8 +33,9 @@ export default async function RecoveryPage() {
     getRecoveryStatsAction(),
   ])
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const records = recordsResult.success && recordsResult.data ? recordsResult.data as any[] : []
+  const records = recordsResult.success && recordsResult.data
+    ? recordsResult.data as ComponentProps<typeof RecoveryClient>['initialRecords']
+    : []
   const stats = statsResult.success && statsResult.data ? statsResult.data : null
 
   return (

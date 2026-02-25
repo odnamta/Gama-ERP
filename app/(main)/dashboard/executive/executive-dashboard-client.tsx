@@ -36,6 +36,7 @@ import {
 } from '@/types/executive-dashboard';
 import { PreviewDropdown } from '@/components/preview/preview-dropdown';
 import { usePreview } from '@/hooks/use-preview';
+import { UserRole } from '@/types/permissions';
 import { Download, RefreshCw, Settings } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -203,7 +204,7 @@ export function ExecutiveDashboardClient({
           {/* Preview Dropdown for Owner */}
           <PreviewDropdown
             currentRole={effectiveRole}
-            actualRole={userRole as any}
+            actualRole={userRole as UserRole}
             onRoleSelect={setPreviewRole}
             canUsePreview={canUsePreview}
             isPreviewActive={isPreviewActive}

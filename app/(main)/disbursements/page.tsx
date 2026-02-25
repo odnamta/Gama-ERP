@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 import { getUserProfile } from '@/lib/permissions-server'
 import { guardPage } from '@/lib/auth-utils'
@@ -42,8 +43,7 @@ export default async function DisbursementsPage() {
   return (
     <>
       {explorerReadOnly && <ExplorerReadOnlyBanner />}
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      <DisbursementsClient initialData={(bkks as any) || []} userRole={profile?.role || 'viewer'} />
+      <DisbursementsClient initialData={(bkks || []) as unknown as ComponentProps<typeof DisbursementsClient>['initialData']} userRole={profile?.role || 'viewer'} />
     </>
   )
 }

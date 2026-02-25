@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient } from '@/lib/supabase/server'
-import { SuratJalanPDF } from '@/lib/pdf/surat-jalan-pdf'
+import { SuratJalanPDF, SuratJalanPDFProps } from '@/lib/pdf/surat-jalan-pdf'
 import { getCompanySettingsForPDF } from '@/lib/pdf/pdf-utils'
 
 export async function GET(
@@ -36,22 +36,22 @@ export async function GET(
     const company = await getCompanySettingsForPDF()
 
     // Prepare data for PDF
-    const pdfProps = {
+    const pdfProps: SuratJalanPDFProps = {
       suratJalan: {
         sj_number: suratJalan.sj_number,
         delivery_date: suratJalan.delivery_date,
-        vehicle_plate: suratJalan.vehicle_plate,
-        driver_name: suratJalan.driver_name,
-        driver_phone: suratJalan.driver_phone,
-        origin: suratJalan.origin,
-        destination: suratJalan.destination,
-        cargo_description: suratJalan.cargo_description,
-        quantity: suratJalan.quantity,
-        quantity_unit: suratJalan.quantity_unit,
-        weight_kg: suratJalan.weight_kg,
-        sender_name: suratJalan.sender_name,
-        receiver_name: suratJalan.receiver_name,
-        notes: suratJalan.notes,
+        vehicle_plate: suratJalan.vehicle_plate ?? undefined,
+        driver_name: suratJalan.driver_name ?? undefined,
+        driver_phone: suratJalan.driver_phone ?? undefined,
+        origin: suratJalan.origin ?? undefined,
+        destination: suratJalan.destination ?? undefined,
+        cargo_description: suratJalan.cargo_description ?? undefined,
+        quantity: suratJalan.quantity ?? undefined,
+        quantity_unit: suratJalan.quantity_unit ?? undefined,
+        weight_kg: suratJalan.weight_kg ?? undefined,
+        sender_name: suratJalan.sender_name ?? undefined,
+        receiver_name: suratJalan.receiver_name ?? undefined,
+        notes: suratJalan.notes ?? undefined,
       },
       jobOrder: {
         jo_number: suratJalan.job_orders?.jo_number || '-',
@@ -60,7 +60,7 @@ export async function GET(
     }
 
     // Generate PDF
-    const buffer = await renderToBuffer(<SuratJalanPDF {...pdfProps as any} />)
+    const buffer = await renderToBuffer(<SuratJalanPDF {...pdfProps} />)
 
     // Set headers
     const filename = `${suratJalan.sj_number}.pdf`

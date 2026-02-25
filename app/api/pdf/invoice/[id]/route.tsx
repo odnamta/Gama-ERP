@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient } from '@/lib/supabase/server'
-import { InvoicePDF } from '@/lib/pdf/invoice-pdf'
+import { InvoicePDF, InvoicePDFProps } from '@/lib/pdf/invoice-pdf'
 import { getCompanySettingsForPDF } from '@/lib/pdf/pdf-utils'
 
 export async function GET(
@@ -44,20 +44,20 @@ export async function GET(
     const company = await getCompanySettingsForPDF()
 
     // Prepare data for PDF
-    const pdfProps = {
+    const pdfProps: InvoicePDFProps = {
       invoice: {
         invoice_number: invoice.invoice_number,
-        invoice_date: invoice.invoice_date || invoice.created_at,
-        due_date: invoice.due_date,
+        invoice_date: invoice.invoice_date || invoice.created_at || new Date().toISOString(),
+        due_date: invoice.due_date || new Date().toISOString(),
         subtotal: invoice.subtotal || 0,
         tax_amount: invoice.tax_amount || 0,
         total_amount: invoice.total_amount || 0,
-        term_description: invoice.term_description,
-        notes: invoice.notes,
+        term_description: invoice.term_description ?? undefined,
+        notes: invoice.notes ?? undefined,
       },
       customer: {
         name: invoice.customers?.name || 'Unknown Customer',
-        address: invoice.customers?.address,
+        address: invoice.customers?.address ?? undefined,
       },
       jobOrder: {
         jo_number: invoice.job_orders?.jo_number || '-',
@@ -65,7 +65,7 @@ export async function GET(
       lineItems: (lineItems || []).map(item => ({
         description: item.description,
         quantity: item.quantity || 1,
-        unit: item.unit,
+        unit: item.unit ?? undefined,
         unit_price: item.unit_price || 0,
         subtotal: item.subtotal || (item.quantity || 1) * (item.unit_price || 0),
       })),
@@ -73,7 +73,7 @@ export async function GET(
     }
 
     // Generate PDF
-    const buffer = await renderToBuffer(<InvoicePDF {...pdfProps as any} />)
+    const buffer = await renderToBuffer(<InvoicePDF {...pdfProps} />)
 
     // Set headers
     const filename = `${invoice.invoice_number}.pdf`

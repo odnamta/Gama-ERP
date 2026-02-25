@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 import { getUserProfile } from '@/lib/permissions-server'
 import { guardPage } from '@/lib/auth-utils'
@@ -68,8 +69,7 @@ export default async function CostEntryPage() {
     <>
       {explorerReadOnly && <ExplorerReadOnlyBanner />}
       <CostEntryClient
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        pjos={(pjos as any) || []}
+        pjos={(pjos || []) as ComponentProps<typeof CostEntryClient>['pjos']}
         userRole={profile?.role || 'ops'}
       />
     </>

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient } from '@/lib/supabase/server'
-import { BeritaAcaraPDF } from '@/lib/pdf/berita-acara-pdf'
+import { BeritaAcaraPDF, BeritaAcaraPDFProps } from '@/lib/pdf/berita-acara-pdf'
 import { getCompanySettingsForPDF } from '@/lib/pdf/pdf-utils'
 
 export async function GET(
@@ -54,18 +54,18 @@ export async function GET(
     }
 
     // Prepare data for PDF
-    const pdfProps = {
+    const pdfProps: BeritaAcaraPDFProps = {
       beritaAcara: {
         ba_number: beritaAcara.ba_number,
         handover_date: beritaAcara.handover_date,
-        location: beritaAcara.location,
-        work_description: beritaAcara.work_description,
-        cargo_condition: beritaAcara.cargo_condition,
-        condition_notes: beritaAcara.condition_notes,
-        company_representative: beritaAcara.company_representative,
-        client_representative: beritaAcara.client_representative,
+        location: beritaAcara.location ?? undefined,
+        work_description: beritaAcara.work_description ?? undefined,
+        cargo_condition: beritaAcara.cargo_condition ?? undefined,
+        condition_notes: beritaAcara.condition_notes ?? undefined,
+        company_representative: beritaAcara.company_representative ?? undefined,
+        client_representative: beritaAcara.client_representative ?? undefined,
         photo_urls: photoUrls,
-        notes: beritaAcara.notes,
+        notes: beritaAcara.notes ?? undefined,
       },
       jobOrder: {
         jo_number: beritaAcara.job_orders?.jo_number || '-',
@@ -77,7 +77,7 @@ export async function GET(
     }
 
     // Generate PDF
-    const buffer = await renderToBuffer(<BeritaAcaraPDF {...pdfProps as any} />)
+    const buffer = await renderToBuffer(<BeritaAcaraPDF {...pdfProps} />)
 
     // Set headers
     const filename = `${beritaAcara.ba_number}.pdf`

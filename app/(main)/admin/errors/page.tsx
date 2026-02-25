@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getErrorsAction, getErrorSummaryAction } from '@/app/actions/error-tracking-actions'
@@ -32,8 +33,9 @@ export default async function ErrorDashboardPage() {
     getErrorSummaryAction(),
   ])
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const errors = errorsResult.success && errorsResult.data ? errorsResult.data as any[] : []
+  const errors = errorsResult.success && errorsResult.data
+    ? errorsResult.data as ComponentProps<typeof ErrorDashboardClient>['initialErrors']
+    : []
   const summary = summaryResult.success && summaryResult.data ? summaryResult.data : null
 
   return (

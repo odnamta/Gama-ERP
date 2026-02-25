@@ -32,7 +32,7 @@ async function getUserRole(): Promise<string> {
     .eq('user_id', user.id)
     .single();
   
-  return (profile as any)?.role || 'viewer';
+  return profile?.role || 'viewer';
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {

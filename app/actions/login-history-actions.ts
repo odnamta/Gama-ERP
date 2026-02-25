@@ -260,12 +260,12 @@ export async function recordLogout(
       return { success: false, error: 'No active session found for user' };
     }
     
-    // Cast to any to access properties
-    const session = activeSession as any;
-    
+    // Access properties from the active session
+    const session = activeSession as unknown as LoginHistoryEntry;
+
     // Calculate logout update using utility function
     const logoutUpdate = createLogoutUpdate(session.login_at);
-    
+
     const { data, error } = await supabase
       .from('login_history' as AnyTable)
       .update(logoutUpdate)
@@ -410,7 +410,7 @@ export async function getLoginHistoryFilterOptions(): Promise<ActionResult<{
       .select('login_method')
       .not('login_method', 'is', null);
     
-    const loginMethods = [...new Set(((methodData || []) as any[]).map((d) => d.login_method))].filter(Boolean).sort();
+    const loginMethods = [...new Set(((methodData || []) as unknown as { login_method: string }[]).map((d) => d.login_method))].filter(Boolean).sort();
     
     // Get distinct device types
     const { data: deviceData } = await supabase
@@ -418,7 +418,7 @@ export async function getLoginHistoryFilterOptions(): Promise<ActionResult<{
       .select('device_type')
       .not('device_type', 'is', null);
     
-    const deviceTypes = [...new Set(((deviceData || []) as any[]).map((d) => d.device_type))].filter(Boolean).sort();
+    const deviceTypes = [...new Set(((deviceData || []) as unknown as { device_type: string }[]).map((d) => d.device_type))].filter(Boolean).sort();
     
     // Get distinct browsers
     const { data: browserData } = await supabase
@@ -426,7 +426,7 @@ export async function getLoginHistoryFilterOptions(): Promise<ActionResult<{
       .select('browser')
       .not('browser', 'is', null);
     
-    const browsers = [...new Set(((browserData || []) as any[]).map((d) => d.browser))].filter(Boolean).sort();
+    const browsers = [...new Set(((browserData || []) as unknown as { browser: string }[]).map((d) => d.browser))].filter(Boolean).sort();
     
     // Get distinct operating systems
     const { data: osData } = await supabase
@@ -434,7 +434,7 @@ export async function getLoginHistoryFilterOptions(): Promise<ActionResult<{
       .select('os')
       .not('os', 'is', null);
     
-    const operatingSystems = [...new Set(((osData || []) as any[]).map((d) => d.os))].filter(Boolean).sort();
+    const operatingSystems = [...new Set(((osData || []) as unknown as { os: string }[]).map((d) => d.os))].filter(Boolean).sort();
     
     return {
       success: true,
