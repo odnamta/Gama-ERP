@@ -54,16 +54,16 @@ async function fetchReportData(): Promise<PLReportData | null> {
     return null
   }
 
-  const revenueItems = ((revenueData || []) as any[]).map(item => ({
+  const revenueItems = ((revenueData || []) as unknown as { description: string; subtotal: number | null; unit: string }[]).map(item => ({
     description: item.description,
     subtotal: item.subtotal ?? 0,
     unit: item.unit,
   }))
 
-  const costItems = ((costData || []) as any[]).map(item => ({
+  const costItems = ((costData || []) as unknown as { category: string; actual_amount: number | null; estimated_amount: number | null }[]).map(item => ({
     category: item.category,
     actual_amount: item.actual_amount,
-    estimated_amount: item.estimated_amount,
+    estimated_amount: item.estimated_amount ?? 0,
   }))
 
   return buildPLReportData(revenueItems, costItems, {

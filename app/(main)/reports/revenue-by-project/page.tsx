@@ -43,10 +43,22 @@ async function fetchReportData(): Promise<RevenueByProjectReport | null> {
     return null
   }
 
-  const transformedData = (joData || []).map(jo => ({
-    projectId: (jo as any).proforma_job_orders?.projects?.id || '',
-    projectName: (jo as any).proforma_job_orders?.projects?.name || 'Unknown',
-    customerName: (jo as any).proforma_job_orders?.projects?.customers?.name || 'Unknown',
+  type JOProjectRow = {
+    id: string;
+    final_revenue: number | null;
+    final_cost: number | null;
+    proforma_job_orders?: {
+      projects?: {
+        id: string;
+        name: string;
+        customers?: { name: string };
+      };
+    };
+  };
+  const transformedData = ((joData || []) as unknown as JOProjectRow[]).map(jo => ({
+    projectId: jo.proforma_job_orders?.projects?.id || '',
+    projectName: jo.proforma_job_orders?.projects?.name || 'Unknown',
+    customerName: jo.proforma_job_orders?.projects?.customers?.name || 'Unknown',
     revenue: jo.final_revenue || 0,
     cost: jo.final_cost || 0,
   }))

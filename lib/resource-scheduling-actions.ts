@@ -169,11 +169,13 @@ export async function getResourceById(id: string): Promise<ResourceWithDetails |
     .order('start_date');
 
   const resource = mapRowToResource(data as Record<string, unknown>);
-  
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const employeeData = (data as any).employees;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const assetData = (data as any).assets;
+
+  const joinedData = data as unknown as Record<string, unknown> & {
+    employees?: { id: string; full_name: string; position?: string };
+    assets?: { id: string; asset_code: string; asset_name: string };
+  };
+  const employeeData = joinedData.employees;
+  const assetData = joinedData.assets;
   
   return {
     ...resource,
@@ -350,14 +352,21 @@ export async function getAssignments(filters?: AssignmentFilters): Promise<Assig
     throw new Error('Failed to fetch assignments');
   }
 
+  type AssignmentJoinedRow = Record<string, unknown> & {
+    engineering_resources?: Record<string, unknown>;
+    projects?: { id: string; name: string; project_number?: string };
+    job_orders?: { id: string; jo_number: string };
+    technical_assessments?: { id: string; assessment_number: string };
+    route_surveys?: { id: string; survey_number: string };
+    journey_management_plans?: { id: string; jmp_number: string };
+  };
   return (data || []).map(a => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const row = a as any;
-    const assignment = mapRowToAssignment(row as Record<string, unknown>);
+    const row = a as unknown as AssignmentJoinedRow;
+    const assignment = mapRowToAssignment(row);
     return {
       ...assignment,
       resource: row.engineering_resources ? {
-        ...mapRowToResource(row.engineering_resources as Record<string, unknown>),
+        ...mapRowToResource(row.engineering_resources),
       } : undefined,
       project: row.projects || undefined,
       job_order: row.job_orders || undefined,
@@ -391,13 +400,21 @@ export async function getAssignmentById(id: string): Promise<AssignmentWithDetai
     throw new Error('Failed to fetch assignment');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const row = data as any;
-  const assignment = mapRowToAssignment(row as Record<string, unknown>);
-  
+  type AssignmentDetailJoinedRow = Record<string, unknown> & {
+    engineering_resources?: Record<string, unknown>;
+    projects?: { id: string; name: string; project_number?: string };
+    job_orders?: { id: string; jo_number: string };
+    technical_assessments?: { id: string; assessment_number: string };
+    route_surveys?: { id: string; survey_number: string };
+    journey_management_plans?: { id: string; jmp_number: string };
+    user_profiles?: { id: string; full_name: string };
+  };
+  const row = data as unknown as AssignmentDetailJoinedRow;
+  const assignment = mapRowToAssignment(row);
+
   return {
     ...assignment,
-    resource: row.engineering_resources ? mapRowToResource(row.engineering_resources as Record<string, unknown>) : undefined,
+    resource: row.engineering_resources ? mapRowToResource(row.engineering_resources) : undefined,
     project: row.projects || undefined,
     job_order: row.job_orders || undefined,
     assessment: row.technical_assessments || undefined,

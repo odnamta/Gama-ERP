@@ -1,5 +1,3 @@
-'use server';
-
 // =====================================================
 // BARREL RE-EXPORT FILE
 // This file has been split into domain-specific modules:

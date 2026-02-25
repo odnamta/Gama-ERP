@@ -67,9 +67,10 @@ export async function getShipmentRevenue(
 
     if (error) throw error;
 
-    const revenue: ShipmentRevenue[] = ((data || []) as any[]).map((row) => {
-      const rev = transformRevenueRow(row as ShipmentRevenueRow);
-      
+    type RevenueRowWithJoin = ShipmentRevenueRow & { agency_charge_types?: Record<string, unknown> };
+    const revenue: ShipmentRevenue[] = ((data || []) as unknown as RevenueRowWithJoin[]).map((row) => {
+      const rev = transformRevenueRow(row);
+
       // Add joined charge type if available
       if (row.agency_charge_types) {
         rev.chargeType = {
@@ -85,7 +86,7 @@ export async function getShipmentRevenue(
           createdAt: row.agency_charge_types.created_at as string,
         };
       }
-      
+
       return rev;
     });
 
@@ -208,7 +209,7 @@ export async function createShipmentRevenue(
 
     const { data, error } = await supabase
       .from('shipment_revenue')
-      .insert(dbData as any)
+      .insert(dbData as never)
       .select()
       .single();
 
@@ -311,7 +312,7 @@ export async function updateShipmentRevenue(
 
     const { data, error } = await supabase
       .from('shipment_revenue')
-      .update(updateData as any)
+      .update(updateData as never)
       .eq('id', id)
       .select()
       .single();
@@ -488,9 +489,10 @@ export async function getShipmentRevenueByInvoice(
 
     if (error) throw error;
 
-    const revenue: ShipmentRevenue[] = ((data || []) as any[]).map((row) => {
-      const rev = transformRevenueRow(row as ShipmentRevenueRow);
-      
+    type RevenueRowWithJoinInv = ShipmentRevenueRow & { agency_charge_types?: Record<string, unknown> };
+    const revenue: ShipmentRevenue[] = ((data || []) as unknown as RevenueRowWithJoinInv[]).map((row) => {
+      const rev = transformRevenueRow(row);
+
       if (row.agency_charge_types) {
         rev.chargeType = {
           id: row.agency_charge_types.id as string,
@@ -505,7 +507,7 @@ export async function getShipmentRevenueByInvoice(
           createdAt: row.agency_charge_types.created_at as string,
         };
       }
-      
+
       return rev;
     });
 
@@ -550,9 +552,10 @@ export async function getUnbilledRevenueByBooking(
 
     if (error) throw error;
 
-    const revenue: ShipmentRevenue[] = ((data || []) as any[]).map((row) => {
-      const rev = transformRevenueRow(row as ShipmentRevenueRow);
-      
+    type RevenueRowWithJoinUnbilled = ShipmentRevenueRow & { agency_charge_types?: Record<string, unknown> };
+    const revenue: ShipmentRevenue[] = ((data || []) as unknown as RevenueRowWithJoinUnbilled[]).map((row) => {
+      const rev = transformRevenueRow(row);
+
       if (row.agency_charge_types) {
         rev.chargeType = {
           id: row.agency_charge_types.id as string,
@@ -567,7 +570,7 @@ export async function getUnbilledRevenueByBooking(
           createdAt: row.agency_charge_types.created_at as string,
         };
       }
-      
+
       return rev;
     });
 

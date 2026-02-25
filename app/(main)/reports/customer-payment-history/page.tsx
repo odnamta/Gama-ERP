@@ -43,13 +43,26 @@ async function fetchReportData(): Promise<CustomerPaymentReport | null> {
     return null
   }
 
-  const payments = (invoiceData || []).map(inv => {
+  type PaymentInvoiceRow = {
+    id: string;
+    total_amount: number | null;
+    status: string;
+    invoice_date: string;
+    job_orders?: {
+      proforma_job_orders?: {
+        projects?: {
+          customers?: { id: string; name: string };
+        };
+      };
+    };
+  };
+  const payments = ((invoiceData || []) as unknown as PaymentInvoiceRow[]).map(inv => {
     const isPaid = inv.status === 'paid'
     const daysToPay = isPaid ? 30 : null
 
     return {
-      customerId: (inv as any).job_orders?.proforma_job_orders?.projects?.customers?.id || '',
-      customerName: (inv as any).job_orders?.proforma_job_orders?.projects?.customers?.name || 'Unknown',
+      customerId: inv.job_orders?.proforma_job_orders?.projects?.customers?.id || '',
+      customerName: inv.job_orders?.proforma_job_orders?.projects?.customers?.name || 'Unknown',
       invoiceAmount: inv.total_amount || 0,
       paidAmount: isPaid ? (inv.total_amount || 0) : 0,
       daysToPay,

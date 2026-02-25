@@ -40,7 +40,22 @@ async function fetchReportData(): Promise<OutstandingInvoicesReport | null> {
     return null
   }
 
-  const items = ((invoiceData || []) as any[]).map(inv => {
+  type InvoiceJoinedRow = {
+    id: string;
+    invoice_number: string;
+    total_amount: number | null;
+    invoice_date: string;
+    due_date: string;
+    job_orders?: {
+      jo_number: string;
+      proforma_job_orders?: {
+        projects?: {
+          customers?: { name: string };
+        };
+      };
+    };
+  };
+  const items = ((invoiceData || []) as unknown as InvoiceJoinedRow[]).map(inv => {
     const daysOutstanding = calculateDaysOutstanding(new Date(inv.due_date))
     return {
       invoiceId: inv.id,

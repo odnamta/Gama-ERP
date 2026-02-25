@@ -41,7 +41,17 @@ async function fetchReportData(): Promise<VendorPerformanceReport | null> {
     return null
   }
 
-  const costItems = ((costData || []) as any[]).map(item => ({
+  type CostJoinedRow = {
+    category: string | null;
+    actual_amount: number | null;
+    estimated_amount: number | null;
+    proforma_job_orders?: {
+      id: string;
+      created_at: string;
+      job_orders?: { id: string }[];
+    };
+  };
+  const costItems = ((costData || []) as unknown as CostJoinedRow[]).map(item => ({
     vendorName: item.category || 'Unknown',
     amount: item.actual_amount ?? item.estimated_amount ?? 0,
     joId: item.proforma_job_orders?.job_orders?.[0]?.id || item.proforma_job_orders?.id || '',

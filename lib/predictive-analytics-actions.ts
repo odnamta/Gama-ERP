@@ -385,7 +385,6 @@ export async function assessCustomerChurnRisk(): Promise<{
       const recommendations = generateChurnRecommendations(riskResult.score, riskResult.factors);
 
       // Save assessment
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { data: savedAssessment, error: saveError } = await supabase
         .from('customer_churn_risk')
         .upsert({
@@ -399,7 +398,7 @@ export async function assessCustomerChurnRisk(): Promise<{
           payment_behavior_score: paymentBehaviorScore,
           contributing_factors: riskResult.factors as unknown,
           recommended_actions: recommendations as unknown,
-        } as any, {
+        } as never, {
           onConflict: 'customer_id,assessment_date',
         })
         .select()
@@ -605,7 +604,6 @@ export async function generatePaymentPrediction(
     });
 
     // Save prediction
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: savedPrediction, error: saveError } = await supabase
       .from('payment_predictions')
       .insert({
@@ -616,7 +614,7 @@ export async function generatePaymentPrediction(
         days_to_payment_predicted: prediction.daysToPayment,
         late_payment_risk: riskResult.risk,
         risk_factors: riskResult.factors as unknown,
-      } as any)
+      } as never)
       .select()
       .single();
 

@@ -282,8 +282,7 @@ async function getHealthMetrics(): Promise<HealthStatus['metrics']> {
       .single();
     
     if (data) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const row = data as any;
+      const row = data as unknown as { database_size?: number; active_connections?: number; error_count?: number };
       return {
         databaseSize: row.database_size,
         activeConnections: row.active_connections,

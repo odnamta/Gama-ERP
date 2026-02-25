@@ -67,9 +67,10 @@ export async function getShipmentCosts(
 
     if (error) throw error;
 
-    const costs: ShipmentCost[] = ((data || []) as any[]).map((row) => {
-      const cost = transformCostRow(row as ShipmentCostRow);
-      
+    type CostRowWithJoin = ShipmentCostRow & { agency_charge_types?: Record<string, unknown> };
+    const costs: ShipmentCost[] = ((data || []) as unknown as CostRowWithJoin[]).map((row) => {
+      const cost = transformCostRow(row);
+
       // Add joined charge type if available
       if (row.agency_charge_types) {
         cost.chargeType = {
@@ -85,7 +86,7 @@ export async function getShipmentCosts(
           createdAt: row.agency_charge_types.created_at as string,
         };
       }
-      
+
       return cost;
     });
 
@@ -207,7 +208,7 @@ export async function createShipmentCost(
 
     const { data, error } = await supabase
       .from('shipment_costs')
-      .insert(dbData as any)
+      .insert(dbData as never)
       .select()
       .single();
 
@@ -315,7 +316,7 @@ export async function updateShipmentCost(
 
     const { data, error } = await supabase
       .from('shipment_costs')
-      .update(updateData as any)
+      .update(updateData as never)
       .eq('id', id)
       .select()
       .single();
@@ -520,9 +521,10 @@ export async function getShipmentCostsByVendor(
 
     if (error) throw error;
 
-    const costs: ShipmentCost[] = ((data || []) as any[]).map((row) => {
-      const cost = transformCostRow(row as ShipmentCostRow);
-      
+    type CostRowWithJoinVendor = ShipmentCostRow & { agency_charge_types?: Record<string, unknown> };
+    const costs: ShipmentCost[] = ((data || []) as unknown as CostRowWithJoinVendor[]).map((row) => {
+      const cost = transformCostRow(row);
+
       if (row.agency_charge_types) {
         cost.chargeType = {
           id: row.agency_charge_types.id as string,
@@ -537,7 +539,7 @@ export async function getShipmentCostsByVendor(
           createdAt: row.agency_charge_types.created_at as string,
         };
       }
-      
+
       return cost;
     });
 
@@ -582,9 +584,10 @@ export async function getUnpaidCostsByBooking(
 
     if (error) throw error;
 
-    const costs: ShipmentCost[] = ((data || []) as any[]).map((row) => {
-      const cost = transformCostRow(row as ShipmentCostRow);
-      
+    type CostRowWithJoinUnpaid = ShipmentCostRow & { agency_charge_types?: Record<string, unknown> };
+    const costs: ShipmentCost[] = ((data || []) as unknown as CostRowWithJoinUnpaid[]).map((row) => {
+      const cost = transformCostRow(row);
+
       if (row.agency_charge_types) {
         cost.chargeType = {
           id: row.agency_charge_types.id as string,
@@ -599,7 +602,7 @@ export async function getUnpaidCostsByBooking(
           createdAt: row.agency_charge_types.created_at as string,
         };
       }
-      
+
       return cost;
     });
 
