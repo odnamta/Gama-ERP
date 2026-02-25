@@ -415,17 +415,19 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     title: 'HR',
-    href: '/hr/employees',
+    href: '/hr/leave',
     icon: UserCog,
-    roles: ['owner', 'director', 'hr'],
+    roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse', 'agency', 'customs'],
     children: [
       {
         title: 'Employees',
         href: '/hr/employees',
+        roles: ['owner', 'director', 'hr'],
       },
       {
         title: 'Attendance',
         href: '/hr/attendance',
+        roles: ['owner', 'director', 'hr'],
       },
       {
         title: 'Leave Requests',
@@ -434,18 +436,22 @@ export const NAV_ITEMS: NavItem[] = [
       {
         title: 'Payroll',
         href: '/hr/payroll',
+        roles: ['owner', 'director', 'hr', 'finance_manager', 'finance'],
       },
       {
         title: 'Manpower Cost',
         href: '/hr/manpower-cost',
+        roles: ['owner', 'director', 'hr', 'finance_manager'],
       },
       {
         title: 'Schedules',
         href: '/hr/attendance/schedules',
+        roles: ['owner', 'director', 'hr'],
       },
       {
         title: 'Holidays',
         href: '/hr/attendance/holidays',
+        roles: ['owner', 'director', 'hr'],
       },
     ],
   },
