@@ -18,6 +18,7 @@ import {
   ExpiringDocument,
   AssetStatus,
 } from '@/types/assets'
+import { ActionResult } from '@/types/actions'
 
 const ASSET_WRITE_ROLES = ['owner', 'director', 'sysadmin', 'operations_manager', 'engineer'] as const
 const ASSET_READ_ROLES = ['owner', 'director', 'sysadmin', 'operations_manager', 'engineer', 'ops', 'hse'] as const
@@ -83,7 +84,7 @@ export async function getAssetLocations(): Promise<AssetLocation[]> {
  */
 export async function createAsset(
   data: AssetFormData
-): Promise<{ success: boolean; asset?: Asset; error?: string }> {
+): Promise<ActionResult<Asset>> {
   const userProfile = await getUserProfile()
   if (!userProfile || !(ASSET_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
     return { success: false, error: 'Unauthorized' }
@@ -174,9 +175,9 @@ export async function createAsset(
     reason: 'Initial asset registration',
     changed_by: profile?.id || null,
   })
-  
+
   revalidatePath('/equipment')
-  return { success: true, asset: asset as unknown as Asset }
+  return { success: true, data: asset as unknown as Asset }
 }
 
 /**
@@ -185,7 +186,7 @@ export async function createAsset(
 export async function updateAsset(
   id: string,
   data: Partial<AssetFormData>
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionResult<void>> {
   const profile = await getUserProfile()
   if (!profile || !(ASSET_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' }
@@ -255,7 +256,7 @@ export async function updateAsset(
   
   revalidatePath('/equipment')
   revalidatePath(`/equipment/${id}`)
-  return { success: true }
+  return { success: true, data: undefined as void }
 }
 
 /**
@@ -264,7 +265,7 @@ export async function updateAsset(
 export async function changeAssetStatus(
   assetId: string,
   data: StatusChangeFormData
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionResult<void>> {
   const userProfile = await getUserProfile()
   if (!userProfile || !(ASSET_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
     return { success: false, error: 'Unauthorized' }
@@ -334,7 +335,7 @@ export async function changeAssetStatus(
   
   revalidatePath('/equipment')
   revalidatePath(`/equipment/${assetId}`)
-  return { success: true }
+  return { success: true, data: undefined as void }
 }
 
 /**
@@ -462,7 +463,7 @@ export async function createAssetDocument(
   assetId: string,
   data: AssetDocumentFormData,
   documentUrl?: string
-): Promise<{ success: boolean; document?: AssetDocument; error?: string }> {
+): Promise<ActionResult<AssetDocument>> {
   const userProfile = await getUserProfile()
   if (!userProfile || !(ASSET_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
     return { success: false, error: 'Unauthorized' }
@@ -496,9 +497,9 @@ export async function createAssetDocument(
   if (error) {
     return { success: false, error: error.message }
   }
-  
+
   revalidatePath(`/equipment/${assetId}`)
-  return { success: true, document: document as unknown as AssetDocument }
+  return { success: true, data: document as unknown as AssetDocument }
 }
 
 /**
@@ -506,7 +507,7 @@ export async function createAssetDocument(
  */
 export async function deleteAssetDocument(
   documentId: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionResult<void>> {
   const profile = await getUserProfile()
   if (!profile || !(ASSET_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' }
@@ -524,7 +525,7 @@ export async function deleteAssetDocument(
   }
   
   revalidatePath('/equipment')
-  return { success: true }
+  return { success: true, data: undefined as void }
 }
 
 // ============================================

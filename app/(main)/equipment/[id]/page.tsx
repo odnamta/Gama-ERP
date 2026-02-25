@@ -120,7 +120,7 @@ export default function AssetDetailPage() {
 
   const handleAddDocument = async (data: AssetDocumentFormData) => {
     const result = await createAssetDocument(assetId, data)
-    if (result.error) {
+    if (!result.success) {
       toast({
         title: 'Error',
         description: result.error,
@@ -139,7 +139,7 @@ export default function AssetDetailPage() {
 
   const handleDeleteDocument = async (documentId: string) => {
     const result = await deleteAssetDocument(documentId)
-    if (result.error) {
+    if (!result.success) {
       toast({
         title: 'Error',
         description: result.error,

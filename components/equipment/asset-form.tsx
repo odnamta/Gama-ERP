@@ -79,9 +79,9 @@ export function AssetForm({ asset, categories, locations, mode }: AssetFormProps
     try {
       if (mode === 'create') {
         const result = await createAsset(formData)
-        if (result.success && result.asset) {
+        if (result.success) {
           toast.success('Asset created successfully')
-          router.push(`/equipment/${result.asset.id}`)
+          router.push(`/equipment/${result.data.id}`)
         } else {
           toast.error(result.error || 'Failed to create asset')
         }

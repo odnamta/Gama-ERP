@@ -19,6 +19,7 @@ import { calculateTermInvoiceTotals } from '@/lib/invoice-terms-utils'
 import { DEFAULT_SETTINGS } from '@/types/company-settings'
 import { invalidateDashboardCache } from '@/lib/cached-queries'
 import { logActivity } from '@/lib/activity-logger'
+import { ActionResult } from '@/types/actions'
 
 const INVOICE_ALLOWED_ROLES = ['owner', 'director', 'sysadmin', 'finance_manager', 'finance', 'administration', 'marketing_manager'] as const
 
@@ -65,13 +66,10 @@ export async function generateInvoiceNumber(): Promise<string> {
 /**
  * Get invoice data pre-filled from a Job Order
  */
-export async function getInvoiceDataFromJO(joId: string): Promise<{
-  data?: InvoiceFormData & { invoiceNumber: string; customerName: string; joNumber: string }
-  error?: string
-}> {
+export async function getInvoiceDataFromJO(joId: string): Promise<ActionResult<InvoiceFormData & { invoiceNumber: string; customerName: string; joNumber: string }>> {
   const profile = await getUserProfile()
   if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
-    return { error: 'Unauthorized' }
+    return { success: false, error: 'Unauthorized' }
   }
 
   const supabase = await createClient()
@@ -88,12 +86,12 @@ export async function getInvoiceDataFromJO(joId: string): Promise<{
     .single()
 
   if (joError || !jo) {
-    return { error: 'Job Order not found' }
+    return { success: false, error: 'Job Order not found' }
   }
 
   // Validate JO status
   if (jo.status !== 'submitted_to_finance') {
-    return { error: 'Only Job Orders submitted to finance can be invoiced' }
+    return { success: false, error: 'Only Job Orders submitted to finance can be invoiced' }
   }
 
   // Fetch revenue items from the linked PJO
@@ -143,6 +141,7 @@ export async function getInvoiceDataFromJO(joId: string): Promise<{
   const dueDate = getDefaultDueDate(paymentTerms)
 
   return {
+    success: true,
     data: {
       jo_id: joId,
       customer_id: jo.customer_id,
@@ -159,13 +158,10 @@ export async function getInvoiceDataFromJO(joId: string): Promise<{
 /**
  * Create a new invoice from form data
  */
-export async function createInvoice(data: InvoiceFormData): Promise<{
-  data?: { id: string; invoice_number: string }
-  error?: string
-}> {
+export async function createInvoice(data: InvoiceFormData): Promise<ActionResult<{ id: string; invoice_number: string }>> {
   const profile = await getUserProfile()
   if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
-    return { error: 'Unauthorized' }
+    return { success: false, error: 'Unauthorized' }
   }
 
   const supabase = await createClient()
@@ -178,11 +174,11 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
     .single()
 
   if (joError || !jo) {
-    return { error: 'Job Order not found' }
+    return { success: false, error: 'Job Order not found' }
   }
 
   if (jo.status !== 'submitted_to_finance') {
-    return { error: 'Only Job Orders submitted to finance can be invoiced' }
+    return { success: false, error: 'Only Job Orders submitted to finance can be invoiced' }
   }
 
   // Calculate totals
@@ -216,7 +212,7 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
     .single()
 
   if (invoiceError || !invoice) {
-    return { error: invoiceError?.message || 'Failed to create invoice' }
+    return { success: false, error: invoiceError?.message || 'Failed to create invoice' }
   }
 
   // Create line items
@@ -236,7 +232,7 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
   if (lineItemsError) {
     // Rollback invoice creation
     await supabase.from('invoices').delete().eq('id', invoice.id)
-    return { error: 'Failed to create invoice line items' }
+    return { success: false, error: 'Failed to create invoice line items' }
   }
 
   // Update JO status to 'invoiced'
@@ -265,7 +261,7 @@ export async function createInvoice(data: InvoiceFormData): Promise<{
   revalidatePath('/job-orders')
   revalidatePath(`/job-orders/${data.jo_id}`)
 
-  return { data: { id: invoice.id, invoice_number: invoice.invoice_number } }
+  return { success: true, data: { id: invoice.id, invoice_number: invoice.invoice_number } }
 }
 
 
@@ -362,10 +358,10 @@ export async function getInvoice(id: string): Promise<InvoiceWithRelations | nul
 export async function updateInvoiceStatus(
   id: string,
   targetStatus: InvoiceStatus
-): Promise<{ error?: string }> {
+): Promise<ActionResult<void>> {
   const profile = await getUserProfile()
   if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
-    return { error: 'Unauthorized' }
+    return { success: false, error: 'Unauthorized' }
   }
 
   const supabase = await createClient()
@@ -378,14 +374,14 @@ export async function updateInvoiceStatus(
     .single()
 
   if (fetchError || !invoice) {
-    return { error: 'Invoice not found' }
+    return { success: false, error: 'Invoice not found' }
   }
 
   const currentStatus = invoice.status as InvoiceStatus
 
   // Validate status transition
   if (!isValidStatusTransition(currentStatus, targetStatus)) {
-    return { error: `Cannot transition from ${currentStatus} to ${targetStatus}` }
+    return { success: false, error: `Cannot transition from ${currentStatus} to ${targetStatus}` }
   }
 
   // Special validation for overdue - must be past due date
@@ -396,7 +392,7 @@ export async function updateInvoiceStatus(
     dueDate.setHours(0, 0, 0, 0)
     
     if (dueDate >= today) {
-      return { error: 'Cannot mark as overdue - due date has not passed' }
+      return { success: false, error: 'Cannot mark as overdue - due date has not passed' }
     }
   }
 
@@ -422,7 +418,7 @@ export async function updateInvoiceStatus(
     .eq('id', id)
 
   if (updateError) {
-    return { error: updateError.message }
+    return { success: false, error: updateError.message }
   }
 
   // Send notification for status change
@@ -521,7 +517,7 @@ export async function updateInvoiceStatus(
   revalidatePath(`/job-orders/${invoice.jo_id}`)
   revalidatePath('/dashboard')
 
-  return {}
+  return { success: true, data: undefined as void }
 }
 
 
@@ -531,10 +527,10 @@ export async function updateInvoiceStatus(
 export async function generateSplitInvoice(
   joId: string,
   termIndex: number
-): Promise<{ data?: { id: string; invoice_number: string }; error?: string }> {
+): Promise<ActionResult<{ id: string; invoice_number: string }>> {
   const profile = await getUserProfile()
   if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
-    return { error: 'Unauthorized' }
+    return { success: false, error: 'Unauthorized' }
   }
 
   const supabase = await createClient()
@@ -547,25 +543,25 @@ export async function generateSplitInvoice(
     .single()
 
   if (joError || !jo) {
-    return { error: 'Job Order not found' }
+    return { success: false, error: 'Job Order not found' }
   }
 
   // Parse invoice terms
   const terms = parseInvoiceTerms(jo.invoice_terms)
 
   if (terms.length === 0) {
-    return { error: 'No invoice terms configured for this Job Order' }
+    return { success: false, error: 'No invoice terms configured for this Job Order' }
   }
 
   if (termIndex < 0 || termIndex >= terms.length) {
-    return { error: 'Invalid term index' }
+    return { success: false, error: 'Invalid term index' }
   }
 
   const term = terms[termIndex]
 
   // Check if term is already invoiced
   if (term.invoiced) {
-    return { error: 'This term has already been invoiced' }
+    return { success: false, error: 'This term has already been invoiced' }
   }
 
   // Calculate amounts
@@ -613,7 +609,7 @@ export async function generateSplitInvoice(
     .single()
 
   if (invoiceError || !invoice) {
-    return { error: invoiceError?.message || 'Failed to create invoice' }
+    return { success: false, error: invoiceError?.message || 'Failed to create invoice' }
   }
 
   // Create a single line item for the term
@@ -631,7 +627,7 @@ export async function generateSplitInvoice(
   if (lineItemError) {
     // Rollback invoice
     await supabase.from('invoices').delete().eq('id', invoice.id)
-    return { error: 'Failed to create invoice line item' }
+    return { success: false, error: 'Failed to create invoice line item' }
   }
 
   // Update term as invoiced
@@ -674,5 +670,5 @@ export async function generateSplitInvoice(
   revalidatePath('/job-orders')
   revalidatePath(`/job-orders/${joId}`)
 
-  return { data: { id: invoice.id, invoice_number: invoice.invoice_number } }
+  return { success: true, data: { id: invoice.id, invoice_number: invoice.invoice_number } }
 }

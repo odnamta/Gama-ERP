@@ -96,7 +96,7 @@ export function InvoiceTermsTable({
     setLoadingIndex(termIndex)
     try {
       const result = await generateSplitInvoice(joId, termIndex)
-      if (result.error) {
+      if (!result.success) {
         toast({
           title: 'Error',
           description: result.error,
@@ -105,7 +105,7 @@ export function InvoiceTermsTable({
       } else {
         toast({
           title: 'Success',
-          description: `Invoice ${result.data?.invoice_number} created`,
+          description: `Invoice ${result.data.invoice_number} created`,
         })
         router.refresh()
       }

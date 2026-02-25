@@ -33,6 +33,7 @@ import {
   calculateStorageDays,
   calculateStorageFee,
 } from '@/lib/fee-utils';
+import { ActionResult } from '@/types/actions';
 
 const FEE_WRITE_ROLES = ['owner', 'director', 'sysadmin', 'finance_manager', 'finance', 'administration'] as const;
 const FEE_READ_ROLES = ['owner', 'director', 'sysadmin', 'finance_manager', 'finance', 'administration', 'customs', 'operations_manager'] as const;
@@ -90,7 +91,7 @@ export async function getFeeTypesByCategory(category: FeeCategory): Promise<Cust
 
 export async function createFee(
   data: CustomsFeeFormData
-): Promise<{ success: boolean; data?: CustomsFee; error?: string }> {
+): Promise<ActionResult<CustomsFee>> {
   const userProfile = await getUserProfile();
   if (!userProfile || !(FEE_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -143,7 +144,7 @@ export async function createFee(
 export async function updateFee(
   id: string,
   data: Partial<CustomsFeeFormData>
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionResult<void>> {
   const profile = await getUserProfile();
   if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -172,10 +173,10 @@ export async function updateFee(
   }
 
   revalidatePath('/customs/fees');
-  return { success: true };
+  return { success: true, data: undefined as void };
 }
 
-export async function deleteFee(id: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteFee(id: string): Promise<ActionResult<void>> {
   const profile = await getUserProfile();
   if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -193,7 +194,7 @@ export async function deleteFee(id: string): Promise<{ success: boolean; error?:
   }
 
   revalidatePath('/customs/fees');
-  return { success: true };
+  return { success: true, data: undefined as void };
 }
 
 export async function getFee(id: string): Promise<CustomsFeeWithRelations | null> {
@@ -337,7 +338,7 @@ export async function getFeesByJob(jobOrderId: string): Promise<CustomsFeeWithRe
 export async function markFeePaid(
   id: string,
   data: PaymentFormData
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionResult<void>> {
   const profile = await getUserProfile();
   if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -370,13 +371,13 @@ export async function markFeePaid(
   }
 
   revalidatePath('/customs/fees');
-  return { success: true };
+  return { success: true, data: undefined as void };
 }
 
 export async function markFeeWaived(
   id: string,
   notes?: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionResult<void>> {
   const profile = await getUserProfile();
   if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -402,13 +403,13 @@ export async function markFeeWaived(
   }
 
   revalidatePath('/customs/fees');
-  return { success: true };
+  return { success: true, data: undefined as void };
 }
 
 export async function cancelFee(
   id: string,
   notes?: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionResult<void>> {
   const profile = await getUserProfile();
   if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -434,7 +435,7 @@ export async function cancelFee(
   }
 
   revalidatePath('/customs/fees');
-  return { success: true };
+  return { success: true, data: undefined as void };
 }
 
 // =====================================================
@@ -443,7 +444,7 @@ export async function cancelFee(
 
 export async function createContainer(
   data: ContainerFormData
-): Promise<{ success: boolean; data?: ContainerTracking; error?: string }> {
+): Promise<ActionResult<ContainerTracking>> {
   const profile = await getUserProfile();
   if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -494,7 +495,7 @@ export async function createContainer(
 export async function updateContainer(
   id: string,
   data: Partial<ContainerFormData>
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionResult<void>> {
   const profile = await getUserProfile();
   if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -541,10 +542,10 @@ export async function updateContainer(
   }
 
   revalidatePath('/customs/containers');
-  return { success: true };
+  return { success: true, data: undefined as void };
 }
 
-export async function deleteContainer(id: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteContainer(id: string): Promise<ActionResult<void>> {
   const profile = await getUserProfile();
   if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -562,7 +563,7 @@ export async function deleteContainer(id: string): Promise<{ success: boolean; e
   }
 
   revalidatePath('/customs/containers');
-  return { success: true };
+  return { success: true, data: undefined as void };
 }
 
 export async function getContainer(id: string): Promise<ContainerTrackingWithRelations | null> {
@@ -661,7 +662,7 @@ export async function updateContainerStatus(
   id: string,
   status: ContainerStatus,
   gateOutDate?: string
-): Promise<{ success: boolean; error?: string }> {
+): Promise<ActionResult<void>> {
   const profile = await getUserProfile();
   if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -685,12 +686,12 @@ export async function updateContainerStatus(
   }
 
   revalidatePath('/customs/containers');
-  return { success: true };
+  return { success: true, data: undefined as void };
 }
 
 export async function calculateContainerStorage(
   id: string
-): Promise<{ success: boolean; storageDays?: number; totalFee?: number; error?: string }> {
+): Promise<ActionResult<{ storageDays: number; totalFee: number }>> {
   const profile = await getUserProfile();
   if (!profile || !(FEE_WRITE_ROLES as readonly string[]).includes(profile.role)) {
     return { success: false, error: 'Unauthorized' };
@@ -730,7 +731,7 @@ export async function calculateContainerStorage(
   }
 
   revalidatePath('/customs/containers');
-  return { success: true, storageDays, totalFee };
+  return { success: true, data: { storageDays, totalFee } };
 }
 
 // =====================================================

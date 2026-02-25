@@ -82,9 +82,9 @@ export function InvoiceForm({ initialData, vatRate = VAT_RATE }: InvoiceFormProp
         notes: notes || undefined,
       })
 
-      if (result.error) {
+      if (!result.success) {
         toast({ title: 'Error', description: result.error, variant: 'destructive' })
-      } else if (result.data) {
+      } else {
         toast({ title: 'Success', description: `Invoice ${result.data.invoice_number} created` })
         router.push(`/invoices/${result.data.id}`)
       }

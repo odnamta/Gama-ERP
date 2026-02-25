@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { getInvoiceDataFromJO } from '../actions'
 import { InvoiceForm } from '@/components/invoices/invoice-form'
 import { getCompanySetting } from '@/app/(main)/settings/company/actions'
@@ -17,7 +17,7 @@ export default async function NewInvoicePage({ searchParams }: NewInvoicePagePro
 
   const result = await getInvoiceDataFromJO(joId)
 
-  if (result.error) {
+  if (!result.success) {
     // Show error page or redirect
     return (
       <div className="space-y-6">
@@ -30,10 +30,6 @@ export default async function NewInvoicePage({ searchParams }: NewInvoicePagePro
         </div>
       </div>
     )
-  }
-
-  if (!result.data) {
-    notFound()
   }
 
   // Get VAT rate from company settings

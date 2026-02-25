@@ -38,7 +38,7 @@ export function InvoiceDetailView({ invoice, userRole = 'viewer', userId }: Invo
     setIsLoading(true)
     try {
       const result = await updateInvoiceStatus(invoice.id, targetStatus)
-      if (result.error) {
+      if (!result.success) {
         toast({ title: 'Error', description: result.error, variant: 'destructive' })
       } else {
         toast({ title: 'Success', description: `Invoice marked as ${targetStatus}` })
