@@ -26,6 +26,7 @@ import {
   isValidStatusTransition,
 } from '@/lib/drawing-utils';
 import { Json } from '@/types/database';
+import { getCurrentProfileId, getCurrentEmployeeId } from '@/lib/auth-helpers';
 
 // Action result type
 interface ActionResult<T> {
@@ -85,7 +86,7 @@ export async function getDrawings(filters?: DrawingFilters): Promise<DrawingWith
     query = query.or(`drawing_number.ilike.%${filters.search}%,title.ilike.%${filters.search}%`);
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query.limit(100);
 
   if (error) {
     return [];
@@ -144,19 +145,9 @@ export async function createDrawing(input: DrawingFormInput): Promise<ActionResu
 
   const drawingNumber = numberResult || `DRW-${Date.now()}`;
 
-  // Get current user and profile
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return { success: false, error: 'Anda harus login terlebih dahulu' };
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from('user_profiles')
-    .select('id')
-    .eq('user_id', user.id)
-    .single();
-
-  if (profileError || !profile) {
+  // Get current user's profile ID
+  const profileId = await getCurrentProfileId();
+  if (!profileId) {
     return { success: false, error: 'Profil pengguna tidak ditemukan. Coba logout dan login kembali.' };
   }
 
@@ -177,7 +168,7 @@ export async function createDrawing(input: DrawingFormInput): Promise<ActionResu
       status: 'draft',
       current_revision: 'A',
       revision_count: 1,
-      created_by: profile.id,
+      created_by: profileId,
     })
     .select()
     .single();
@@ -401,25 +392,7 @@ async function updateDrawingStatus(
   }
 
   // Get current user's employee ID
-  const { data: { user } } = await supabase.auth.getUser();
-  let employeeId: string | null = null;
-
-  if (user && timestampField) {
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
-
-    if (profile) {
-      const { data: employee } = await supabase
-        .from('employees')
-        .select('id')
-        .eq('user_id', profile.id)
-        .single();
-      employeeId = employee?.id || null;
-    }
-  }
+  const employeeId = timestampField ? await getCurrentEmployeeId() : null;
 
   const updateData: Record<string, unknown> = { status: newStatus };
   
@@ -463,7 +436,7 @@ export async function getTransmittals(projectId?: string): Promise<DrawingTransm
     query = query.eq('project_id', projectId);
   }
 
-  const { data, error } = await query;
+  const { data, error } = await query.limit(100);
 
   if (error) {
     return [];
@@ -534,22 +507,15 @@ export async function createTransmittal(
 }
 
 export async function sendTransmittal(id: string): Promise<ActionResult<DrawingTransmittal>> {
+  const profileId = await getCurrentProfileId();
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Get user profile (for FK references to user_profiles)
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('id')
-    .eq('user_id', user?.id || '')
-    .single();
 
   const { data, error } = await supabase
     .from('drawing_transmittals')
     .update({
       status: 'sent',
       sent_at: new Date().toISOString(),
-      sent_by: profile?.id || null,
+      sent_by: profileId,
     })
     .eq('id', id)
     .select()

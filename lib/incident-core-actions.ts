@@ -36,6 +36,7 @@ import {
   notifyActionAssigned,
   notifyIncidentClosed,
 } from './notifications/incident-notifications';
+import { getCurrentProfileId } from '@/lib/auth-helpers';
 
 // Type helper for tables not yet in database.types.ts
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -406,7 +407,7 @@ export async function getIncidents(
       query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,incident_number.ilike.%${filters.search}%`);
     }
 
-    const { data, error } = await query;
+    const { data, error } = await query.limit(100);
 
     if (error) {
       return { success: false, error: 'Failed to fetch incidents' };
@@ -445,16 +446,8 @@ export async function startInvestigation(
   investigatorId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profileId = await getCurrentProfileId();
     const supabase = await createClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Get user profile (FK references user_profiles.id, not auth UUID)
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user?.id || '')
-      .single();
 
     // Get incident details for notification
     const { data: incidentData } = await fromIncidentTable(supabase, 'incidents')
@@ -484,7 +477,7 @@ export async function startInvestigation(
       'Investigasi dimulai',
       'reported',
       'under_investigation',
-      profile?.id
+      profileId ?? undefined
     );
 
     // Notify investigator
@@ -515,16 +508,8 @@ export async function updateRootCause(
   input: { rootCause: string; contributingFactors?: unknown }
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profileId = await getCurrentProfileId();
     const supabase = await createClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Get user profile (FK references user_profiles.id, not auth UUID)
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user?.id || '')
-      .single();
 
     const { error } = await fromIncidentTable(supabase, 'incidents')
       .update({
@@ -545,7 +530,7 @@ export async function updateRootCause(
       'Root cause analysis diperbarui',
       null,
       input.rootCause,
-      profile?.id
+      profileId ?? undefined
     );
 
     revalidatePath(`/hse/incidents/${incidentId}`);
@@ -563,16 +548,8 @@ export async function completeInvestigation(
   incidentId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profileId = await getCurrentProfileId();
     const supabase = await createClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Get user profile (FK references user_profiles.id, not auth UUID)
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user?.id || '')
-      .single();
 
     // Get incident to check root cause
     const { data: incident } = await fromIncidentTable(supabase, 'incidents')
@@ -604,7 +581,7 @@ export async function completeInvestigation(
       'Investigasi selesai',
       'under_investigation',
       'pending_actions',
-      profile?.id
+      profileId ?? undefined
     );
 
     revalidatePath('/hse');
@@ -629,16 +606,8 @@ export async function addCorrectiveAction(
   action: AddActionInput
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profileId = await getCurrentProfileId();
     const supabase = await createClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Get user profile (FK references user_profiles.id, not auth UUID)
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user?.id || '')
-      .single();
 
     // Get current actions and incident details
     const { data: incident } = await fromIncidentTable(supabase, 'incidents')
@@ -687,7 +656,7 @@ export async function addCorrectiveAction(
       `Tindakan korektif ditambahkan: ${action.description}`,
       null,
       null,
-      profile?.id
+      profileId ?? undefined
     );
 
     // Notify responsible person
@@ -716,16 +685,8 @@ export async function addPreventiveAction(
   action: AddActionInput
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profileId = await getCurrentProfileId();
     const supabase = await createClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Get user profile (for FK references to user_profiles)
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user?.id || '')
-      .single();
 
     // Get current actions and incident details
     const { data: incident } = await fromIncidentTable(supabase, 'incidents')
@@ -774,7 +735,7 @@ export async function addPreventiveAction(
       `Tindakan preventif ditambahkan: ${action.description}`,
       null,
       null,
-      profile?.id || undefined
+      profileId ?? undefined
     );
 
     // Notify responsible person
@@ -804,16 +765,8 @@ export async function completeAction(
   actionType: 'corrective' | 'preventive'
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profileId = await getCurrentProfileId();
     const supabase = await createClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Get user profile (FK references user_profiles.id, not auth UUID)
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user?.id || '')
-      .single();
 
     const field = actionType === 'corrective' ? 'corrective_actions' : 'preventive_actions';
 
@@ -859,7 +812,7 @@ export async function completeAction(
       `Tindakan ${actionType === 'corrective' ? 'korektif' : 'preventif'} diselesaikan: ${actions[actionIndex].description}`,
       'pending',
       'completed',
-      profile?.id
+      profileId ?? undefined
     );
 
     revalidatePath(`/hse/incidents/${incidentId}`);
@@ -882,16 +835,8 @@ export async function closeIncident(
   input: CloseIncidentInput
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profileId = await getCurrentProfileId();
     const supabase = await createClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Get user profile (FK references user_profiles.id, not auth UUID)
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user?.id || '')
-      .single();
 
     // Get incident to validate closure
     const { data: incident } = await fromIncidentTable(supabase, 'incidents')
@@ -926,7 +871,7 @@ export async function closeIncident(
       .update({
         status: 'closed',
         closed_at: new Date().toISOString(),
-        closed_by: profile?.id,
+        closed_by: profileId,
         closure_notes: input.closureNotes,
         updated_at: new Date().toISOString(),
       })
@@ -943,7 +888,7 @@ export async function closeIncident(
       `Insiden ditutup: ${input.closureNotes}`,
       incident.status,
       'closed',
-      profile?.id
+      profileId ?? undefined
     );
 
     // Notify reporter that incident is closed
@@ -972,16 +917,8 @@ export async function rejectIncident(
   reason: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profileId = await getCurrentProfileId();
     const supabase = await createClient();
-
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Get user profile (FK references user_profiles.id, not auth UUID)
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user?.id || '')
-      .single();
 
     const { data: incident } = await fromIncidentTable(supabase, 'incidents')
       .select('status')
@@ -1001,7 +938,7 @@ export async function rejectIncident(
         status: 'rejected',
         closure_notes: reason,
         closed_at: new Date().toISOString(),
-        closed_by: profile?.id,
+        closed_by: profileId,
         updated_at: new Date().toISOString(),
       })
       .eq('id', incidentId);
@@ -1017,7 +954,7 @@ export async function rejectIncident(
       `Insiden ditolak: ${reason}`,
       'reported',
       'rejected',
-      profile?.id
+      profileId ?? undefined
     );
 
     revalidatePath('/hse');

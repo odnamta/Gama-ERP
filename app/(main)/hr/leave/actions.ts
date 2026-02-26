@@ -14,6 +14,7 @@ import {
   LeaveRequestFilters,
 } from '@/types/leave';
 import { calculateWorkingDays, validateLeaveRequest, calculateCarryOver } from '@/lib/leave-utils';
+import { getCurrentEmployeeId as getEmployeeId, getCurrentProfileId } from '@/lib/auth-helpers';
 
 // =====================================================
 // Leave Types
@@ -348,25 +349,15 @@ export async function approveLeaveRequest(
       return { success: false, error: 'Request is not pending' };
     }
     
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return { success: false, error: 'Not authenticated' };
-    }
-
-    // Get user profile for FK reference
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
+    // Get current user's profile ID
+    const profileId = await getCurrentProfileId();
 
     // Update request status
     const { error: updateError } = await supabase
       .from('leave_requests')
       .update({
         status: 'approved',
-        approved_by: profile?.id || null,
+        approved_by: profileId,
         approved_at: new Date().toISOString(),
       })
       .eq('id', requestId);
@@ -459,25 +450,15 @@ export async function rejectLeaveRequest(
       return { success: false, error: 'Request is not pending' };
     }
     
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return { success: false, error: 'Not authenticated' };
-    }
-
-    // Get user profile for FK reference
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
+    // Get current user's profile ID
+    const profileId = await getCurrentProfileId();
 
     // Update request status
     const { error: updateError } = await supabase
       .from('leave_requests')
       .update({
         status: 'rejected',
-        approved_by: profile?.id || null,
+        approved_by: profileId,
         approved_at: new Date().toISOString(),
         rejection_reason: reason,
       })
@@ -771,27 +752,6 @@ export async function getEmployeesForSelect(): Promise<{ id: string; full_name: 
 
 /**
  * Get current employee ID from user
+ * Re-exports from centralized auth-helpers
  */
-export async function getCurrentEmployeeId(): Promise<string | null> {
-  const supabase = await createClient();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  // employees.user_id references user_profiles.id, not auth UUID
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('id')
-    .eq('user_id', user.id)
-    .single();
-
-  if (!profile) return null;
-
-  const { data: employee } = await supabase
-    .from('employees')
-    .select('id')
-    .eq('user_id', profile.id)
-    .single();
-
-  return employee?.id || null;
-}
+export { getEmployeeId as getCurrentEmployeeId };

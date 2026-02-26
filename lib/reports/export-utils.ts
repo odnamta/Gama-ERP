@@ -1,6 +1,6 @@
 // Export Utility Functions for Reports
 
-import ExcelJS from 'exceljs'
+import type ExcelJS from 'exceljs'
 import { DateRange } from '@/types/reports'
 
 export interface ExportColumn {
@@ -68,8 +68,10 @@ export function formatExportData(
  */
 export async function generateExcelReport(options: ExportOptions): Promise<Blob> {
   const { reportTitle, columns, data, metadata, summary } = options
-  
-  const workbook = new ExcelJS.Workbook()
+
+  const ExcelJSModule = await import('exceljs')
+  const ExcelJSLib = ExcelJSModule.default
+  const workbook = new ExcelJSLib.Workbook()
   const worksheet = workbook.addWorksheet('Report')
   
   let currentRow = 1
@@ -132,7 +134,8 @@ export async function generateExcelReport(options: ExportOptions): Promise<Blob>
   }
   
   // Auto-fit columns
-  worksheet.columns.forEach((column: Partial<ExcelJS.Column>) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  worksheet.columns.forEach((column: any) => {
     column.width = 15
   })
   

@@ -28,6 +28,7 @@ import {
   validateWaypointData,
   validateFeasibilityData,
 } from '@/lib/survey-utils';
+import { getCurrentProfileId } from '@/lib/auth-helpers';
 
 // =====================================================
 // SURVEY CRUD OPERATIONS
@@ -40,18 +41,8 @@ export async function createSurvey(data: SurveyFormData): Promise<{ success: boo
       return { success: false, error: validation.errors.join(', ') };
     }
 
+    const profileId = await getCurrentProfileId();
     const supabase = await createClient();
-    
-    // Get current user and profile
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return { success: false, error: 'Not authenticated' };
-    }
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('id')
-      .eq('user_id', user.id)
-      .single();
 
     const { data: survey, error } = await supabase
       .from('route_surveys')
@@ -82,7 +73,7 @@ export async function createSurvey(data: SurveyFormData): Promise<{ success: boo
         survey_date: data.surveyDate || null,
         notes: data.notes || null,
         status: 'requested',
-        requested_by: profile?.id || null,
+        requested_by: profileId,
       } as never)
       .select()
       .single();
@@ -188,7 +179,8 @@ export async function getSurveys(): Promise<{ success: boolean; data?: RouteSurv
         customer:customers(id, name),
         surveyor:employees(id, full_name)
       `)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(100);
 
     if (error) {
       return { success: false, error: error.message };

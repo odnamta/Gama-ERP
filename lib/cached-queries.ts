@@ -69,7 +69,8 @@ export async function getCachedCustomerList(): Promise<CachedCustomer[]> {
         .from('customers')
         .select('id, name, email, phone, is_active')
         .eq('is_active', true)
-        .order('name');
+        .order('name')
+        .limit(500);
 
       if (error) {
         throw error;
@@ -96,7 +97,8 @@ export async function getCachedEmployeeList(): Promise<CachedEmployee[]> {
         .from('employees')
         .select('id, employee_code, full_name, email, status, department_id, position_id')
         .eq('status', 'active')
-        .order('full_name');
+        .order('full_name')
+        .limit(500);
 
       if (error) {
         throw error;
