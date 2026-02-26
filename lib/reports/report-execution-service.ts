@@ -132,7 +132,7 @@ export async function getReportExecutionHistory(
     return []
   }
   
-  return (data || []) as unknown as ReportExecution[]
+  return (data ?? []) as ReportExecution[]
 }
 
 /**

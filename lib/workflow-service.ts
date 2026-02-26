@@ -344,7 +344,7 @@ export async function getWorkflowStatus(
     
     if (data) {
       currentStatus = mapToWorkflowStatus(data.status)
-      workflowData = data as unknown as RawDocumentData
+      workflowData = data as RawDocumentData
     }
   } else if (documentType === 'jo') {
     const { data } = await supabase
@@ -355,7 +355,7 @@ export async function getWorkflowStatus(
     
     if (data) {
       currentStatus = mapToWorkflowStatus(data.status)
-      workflowData = data as unknown as RawDocumentData
+      workflowData = data as RawDocumentData
     }
   } else if (documentType === 'bkk') {
     const { data } = await (supabase as unknown as { from: (table: string) => { select: (cols: string) => { eq: (col: string, val: string) => { single: () => Promise<{ data: RawDocumentData | null }> } } } })

@@ -87,7 +87,7 @@ export async function createTemplate(
         description: data.description || null,
         document_type: data.document_type,
         template_html: data.template_html,
-        placeholders: data.placeholders as unknown as never,
+        placeholders: data.placeholders as never,
         paper_size: data.paper_size,
         orientation: data.orientation,
         include_company_header: data.include_company_header,
@@ -268,7 +268,7 @@ export async function getTemplates(
       return { templates: [], error: error.message };
     }
     
-    return { templates: (data || []) as unknown as CustomsDocumentTemplate[] };
+    return { templates: (data ?? []) as unknown as CustomsDocumentTemplate[] };
   } catch (error) {
     return { templates: [], error: 'Failed to fetch templates' };
   }
@@ -358,7 +358,7 @@ export async function generateDocument(
         pib_id: data.pib_id || null,
         peb_id: data.peb_id || null,
         job_order_id: data.job_order_id || null,
-        document_data: documentData as unknown as never,
+        document_data: documentData as never,
         status: 'draft',
         created_by: genProfile?.id || null,
       } as never)
@@ -460,7 +460,7 @@ export async function updateDocumentData(
     // Update document data
     const { error } = await supabase
       .from('generated_customs_documents')
-      .update({ document_data: documentData as unknown as never })
+      .update({ document_data: documentData as never })
       .eq('id', id);
     
     if (error) {
@@ -524,7 +524,7 @@ export async function getGeneratedDocuments(
       return { documents: [], error: error.message };
     }
     
-    return { documents: (data || []) as unknown as GeneratedDocumentWithRelations[] };
+    return { documents: (data ?? []) as unknown as GeneratedDocumentWithRelations[] };
   } catch (error) {
     return { documents: [], error: 'Failed to fetch documents' };
   }

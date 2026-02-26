@@ -184,7 +184,7 @@ export async function getShipmentProfitability(
     if (error) throw error;
 
     // Transform rows to entities
-    let profitability: ShipmentProfitability[] = ((data || []) as unknown as ShipmentProfitabilityRow[]).map((row) =>
+    let profitability: ShipmentProfitability[] = ((data ?? []) as ShipmentProfitabilityRow[]).map((row) =>
       transformProfitabilityRow(row)
     );
 

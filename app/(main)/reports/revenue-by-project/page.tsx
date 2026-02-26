@@ -55,7 +55,7 @@ async function fetchReportData(): Promise<RevenueByProjectReport | null> {
       };
     };
   };
-  const transformedData = ((joData || []) as unknown as JOProjectRow[]).map(jo => ({
+  const transformedData = ((joData ?? []) as JOProjectRow[]).map(jo => ({
     projectId: jo.proforma_job_orders?.projects?.id || '',
     projectName: jo.proforma_job_orders?.projects?.name || 'Unknown',
     customerName: jo.proforma_job_orders?.projects?.customers?.name || 'Unknown',

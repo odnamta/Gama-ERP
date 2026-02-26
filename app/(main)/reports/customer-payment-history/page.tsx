@@ -56,7 +56,7 @@ async function fetchReportData(): Promise<CustomerPaymentReport | null> {
       };
     };
   };
-  const payments = ((invoiceData || []) as unknown as PaymentInvoiceRow[]).map(inv => {
+  const payments = ((invoiceData ?? []) as PaymentInvoiceRow[]).map(inv => {
     const isPaid = inv.status === 'paid'
     const daysToPay = isPaid ? 30 : null
 

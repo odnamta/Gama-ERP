@@ -60,7 +60,7 @@ export async function getFeeTypes(): Promise<CustomsFeeType[]> {
     return [];
   }
 
-  return (data || []) as unknown as CustomsFeeType[];
+  return (data ?? []) as CustomsFeeType[];
 }
 
 export async function getFeeTypesByCategory(category: FeeCategory): Promise<CustomsFeeType[]> {
@@ -82,7 +82,7 @@ export async function getFeeTypesByCategory(category: FeeCategory): Promise<Cust
     return [];
   }
 
-  return (data || []) as unknown as CustomsFeeType[];
+  return (data ?? []) as CustomsFeeType[];
 }
 
 // =====================================================
@@ -138,7 +138,7 @@ export async function createFee(
   }
 
   revalidatePath('/customs/fees');
-  return { success: true, data: fee as unknown as CustomsFee };
+  return { success: true, data: fee as CustomsFee };
 }
 
 export async function updateFee(
@@ -222,7 +222,7 @@ export async function getFee(id: string): Promise<CustomsFeeWithRelations | null
     return null;
   }
 
-  return data as unknown as CustomsFeeWithRelations;
+  return data as CustomsFeeWithRelations;
 }
 
 export async function getFees(filters?: FeeFilters): Promise<CustomsFeeWithRelations[]> {
@@ -267,7 +267,7 @@ export async function getFees(filters?: FeeFilters): Promise<CustomsFeeWithRelat
     return [];
   }
 
-  return (data || []) as unknown as CustomsFeeWithRelations[];
+  return (data ?? []) as CustomsFeeWithRelations[];
 }
 
 export async function getFeesByDocument(
@@ -300,7 +300,7 @@ export async function getFeesByDocument(
     return [];
   }
 
-  return (data || []) as unknown as CustomsFeeWithRelations[];
+  return (data ?? []) as CustomsFeeWithRelations[];
 }
 
 export async function getFeesByJob(jobOrderId: string): Promise<CustomsFeeWithRelations[]> {
@@ -328,7 +328,7 @@ export async function getFeesByJob(jobOrderId: string): Promise<CustomsFeeWithRe
     return [];
   }
 
-  return (data || []) as unknown as CustomsFeeWithRelations[];
+  return (data ?? []) as CustomsFeeWithRelations[];
 }
 
 // =====================================================
@@ -489,7 +489,7 @@ export async function createContainer(
   }
 
   revalidatePath('/customs/containers');
-  return { success: true, data: container as unknown as ContainerTracking };
+  return { success: true, data: container as ContainerTracking };
 }
 
 export async function updateContainer(
@@ -589,7 +589,7 @@ export async function getContainer(id: string): Promise<ContainerTrackingWithRel
     return null;
   }
 
-  return data as unknown as ContainerTrackingWithRelations;
+  return data as ContainerTrackingWithRelations;
 }
 
 export async function getContainers(filters?: ContainerFilters): Promise<ContainerTrackingWithRelations[]> {
@@ -620,7 +620,7 @@ export async function getContainers(filters?: ContainerFilters): Promise<Contain
     return [];
   }
 
-  return (data || []) as unknown as ContainerTrackingWithRelations[];
+  return (data ?? []) as ContainerTrackingWithRelations[];
 }
 
 export async function getContainersByDocument(
@@ -651,7 +651,7 @@ export async function getContainersByDocument(
     return [];
   }
 
-  return (data || []) as unknown as ContainerTrackingWithRelations[];
+  return (data ?? []) as ContainerTrackingWithRelations[];
 }
 
 // =====================================================
@@ -756,7 +756,7 @@ export async function getJobCustomsCosts(jobOrderId: string): Promise<JobCustoms
     return null;
   }
 
-  return data as unknown as JobCustomsCostSummary;
+  return data as JobCustomsCostSummary;
 }
 
 export async function getAllJobCustomsCosts(): Promise<JobCustomsCostSummary[]> {
@@ -777,7 +777,7 @@ export async function getAllJobCustomsCosts(): Promise<JobCustomsCostSummary[]> 
     return [];
   }
 
-  return (data || []) as unknown as JobCustomsCostSummary[];
+  return (data ?? []) as JobCustomsCostSummary[];
 }
 
 export async function getPendingPayments(): Promise<PendingCustomsPayment[]> {
@@ -797,7 +797,7 @@ export async function getPendingPayments(): Promise<PendingCustomsPayment[]> {
     return [];
   }
 
-  return (data || []) as unknown as PendingCustomsPayment[];
+  return (data ?? []) as PendingCustomsPayment[];
 }
 
 export async function getFeeStatistics(): Promise<FeeStatistics> {

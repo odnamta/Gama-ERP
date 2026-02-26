@@ -60,7 +60,7 @@ async function fetchReportData(): Promise<{
     }
   }
 
-  const transformedData = ((joData || []) as unknown as JODataRow[]).map(jo => ({
+  const transformedData = ((joData ?? []) as JODataRow[]).map(jo => ({
     customerId: jo.proforma_job_orders?.projects?.customers?.id || '',
     customerName: jo.proforma_job_orders?.projects?.customers?.name || 'Unknown',
     revenue: jo.final_revenue || 0,

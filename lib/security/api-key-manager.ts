@@ -67,7 +67,7 @@ export async function generateKey(
   // Extract prefix for display (first 8 chars after gama_)
   const keyPrefix = keyString.substring(0, KEY_PREFIX.length + 8);
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const keyData: APIKeyInsert = {
     key_hash: keyHash,
@@ -161,7 +161,7 @@ export async function validateKey(
   // Hash the provided key
   const keyHash = await hashKey(keyString);
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   // Find key by hash
   const { data, error } = await supabase
@@ -286,7 +286,7 @@ export async function revokeKey(
     return { success: false, error: 'Key ID is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { error } = await supabase
     .from('api_keys')
@@ -323,7 +323,7 @@ export async function listUserKeys(
     return { data: [], error: 'User ID is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   let query = supabase
     .from('api_keys')
@@ -341,7 +341,7 @@ export async function listUserKeys(
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []) as APIKey[], error: null };
+  return { data: (data ?? []) as APIKey[], error: null };
 }
 
 /**
@@ -359,7 +359,7 @@ export async function updateKeyPermissions(
     return { data: null, error: 'Key ID is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('api_keys')
@@ -394,7 +394,7 @@ export async function updateKeyRateLimit(
     return { data: null, error: 'Rate limit must be at least 1' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('api_keys')
@@ -419,7 +419,7 @@ export async function updateKeyRateLimit(
 export async function getKeyById(
   keyId: string
 ): Promise<{ data: APIKey | null; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('api_keys')
@@ -496,7 +496,7 @@ export async function getAllKeys(
   },
   limit: number = 100
 ): Promise<{ data: APIKey[]; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   let query = supabase
     .from('api_keys')
@@ -520,7 +520,7 @@ export async function getAllKeys(
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []) as APIKey[], error: null };
+  return { data: (data ?? []) as APIKey[], error: null };
 }
 
 // =============================================================================
@@ -536,7 +536,7 @@ export async function getAllKeys(
 export async function cleanupExpiredKeys(
   deleteExpired: boolean = false
 ): Promise<{ affectedCount: number; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const now = new Date().toISOString();
 

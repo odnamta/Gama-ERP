@@ -368,7 +368,7 @@ export async function addPEBItem(
     return { data: null, error: error.message };
   }
 
-  return { data: data as PEBItem, error: null };
+  return { data: data as unknown as PEBItem, error: null };
 }
 
 /**
@@ -433,7 +433,7 @@ export async function updatePEBItem(
     return { data: null, error: error.message };
   }
 
-  return { data: data as PEBItem, error: null };
+  return { data: data as unknown as PEBItem, error: null };
 }
 
 /**
@@ -495,7 +495,7 @@ export async function getPEBItems(
     return { data: [], error: error.message };
   }
 
-  return { data: data as PEBItem[], error: null };
+  return { data: data as unknown as PEBItem[], error: null };
 }
 
 // =====================================================
@@ -617,7 +617,7 @@ export async function getPEBStatusHistory(
     return { data: [], error: error.message };
   }
 
-  return { data: data as PEBStatusHistory[], error: null };
+  return { data: data as unknown as PEBStatusHistory[], error: null };
 }
 
 // =====================================================
@@ -643,7 +643,7 @@ export async function getExportTypes(): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: data as ExportType[], error: null };
+  return { data: data as unknown as ExportType[], error: null };
 }
 
 /**
@@ -665,7 +665,7 @@ export async function getCustomsOffices(): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: data as CustomsOffice[], error: null };
+  return { data: data as unknown as CustomsOffice[], error: null };
 }
 
 /**

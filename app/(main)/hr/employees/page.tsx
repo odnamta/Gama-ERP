@@ -34,7 +34,7 @@ export default async function EmployeesPage({ searchParams }: PageProps) {
       .select('*')
       .eq('user_id', user.id)
       .single();
-    userProfile = data as unknown as UserProfile | null;
+    userProfile = data as UserProfile | null;
   }
 
   // Fetch data

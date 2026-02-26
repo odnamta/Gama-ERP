@@ -52,7 +52,7 @@ export async function logEvent(
     };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   // Truncate payload sample if too long (max 1000 chars)
   const payloadSample = params.payloadSample
@@ -136,7 +136,7 @@ export async function getEventsByType(
   type: SecurityEventType,
   limit: number = 100
 ): Promise<{ data: SecurityEvent[]; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('security_events')
@@ -149,7 +149,7 @@ export async function getEventsByType(
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []) as SecurityEvent[], error: null };
+  return { data: (data ?? []) as SecurityEvent[], error: null };
 }
 
 /**
@@ -163,7 +163,7 @@ export async function getEventsBySeverity(
   severity: SecuritySeverity,
   limit: number = 100
 ): Promise<{ data: SecurityEvent[]; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('security_events')
@@ -176,7 +176,7 @@ export async function getEventsBySeverity(
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []) as SecurityEvent[], error: null };
+  return { data: (data ?? []) as SecurityEvent[], error: null };
 }
 
 /**
@@ -198,7 +198,7 @@ export async function getEvents(
   },
   limit: number = 100
 ): Promise<{ data: SecurityEvent[]; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   let query = supabase
     .from('security_events')
@@ -234,7 +234,7 @@ export async function getEvents(
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []) as SecurityEvent[], error: null };
+  return { data: (data ?? []) as SecurityEvent[], error: null };
 }
 
 /**
@@ -246,7 +246,7 @@ export async function getEvents(
 export async function getEventById(
   eventId: string
 ): Promise<{ data: SecurityEvent | null; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('security_events')
@@ -272,7 +272,7 @@ export async function getUninvestigatedEvents(
   minSeverity?: SecuritySeverity,
   limit: number = 100
 ): Promise<{ data: SecurityEvent[]; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   let query = supabase
     .from('security_events')
@@ -295,7 +295,7 @@ export async function getUninvestigatedEvents(
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []) as SecurityEvent[], error: null };
+  return { data: (data ?? []) as SecurityEvent[], error: null };
 }
 
 // =============================================================================
@@ -322,7 +322,7 @@ export async function markInvestigated(
     };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('security_events')
@@ -353,7 +353,7 @@ export async function updateInvestigationNotes(
   eventId: string,
   notes: string
 ): Promise<{ data: SecurityEvent | null; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('security_events')
@@ -392,7 +392,7 @@ export async function sendSecurityAlert(event: SecurityEvent): Promise<void> {
 
   // For now, we'll create a notification in the system if the notifications table exists
   try {
-    const supabase = await createClient() as unknown as AnySupabaseClient;
+    const supabase = await createClient() as AnySupabaseClient;
 
     // Try to create a notification for admins
     await supabase.from('notifications').insert({
@@ -436,7 +436,7 @@ export async function getEventStatistics(
   } | null;
   error: string | null;
 }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   let query = supabase.from('security_events').select('*');
 
@@ -453,7 +453,7 @@ export async function getEventStatistics(
     return { data: null, error: error.message };
   }
 
-  const events = (data || []) as SecurityEvent[];
+  const events = (data ?? []) as SecurityEvent[];
 
   // Calculate statistics
   const byType: Record<string, number> = {};
@@ -506,7 +506,7 @@ export async function getEventStatistics(
 export async function cleanupOldEvents(
   retentionDays: number = 90
 ): Promise<{ deletedCount: number; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - retentionDays);

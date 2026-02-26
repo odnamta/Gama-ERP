@@ -73,7 +73,7 @@ export function ResourceCalendar({ initialData }: ResourceCalendarProps) {
 
   const getCell = (resourceId: string, date: string): CalendarCellType | undefined => {
     if (!calendarData?.cells) return undefined
-    const cells = calendarData.cells as unknown as Map<string, CalendarCellType>
+    const cells = calendarData.cells as Map<string, CalendarCellType>
     if (cells instanceof Map) {
       return cells.get(`${resourceId}_${date}`)
     }

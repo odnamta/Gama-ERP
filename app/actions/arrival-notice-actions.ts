@@ -96,7 +96,7 @@ export async function createArrivalNotice(data: ArrivalNoticeFormData): Promise<
     if (error) throw error;
 
     revalidatePath('/agency/arrivals');
-    return { success: true, data: mapArrivalNoticeRowToModel(result as ArrivalNoticeRow) };
+    return { success: true, data: mapArrivalNoticeRowToModel(result as unknown as ArrivalNoticeRow) };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create Arrival Notice' };
   }
@@ -170,7 +170,7 @@ export async function updateArrivalNotice(id: string, data: Partial<ArrivalNotic
 
     revalidatePath('/agency/arrivals');
     revalidatePath(`/agency/arrivals/${id}`);
-    return { success: true, data: mapArrivalNoticeRowToModel(result as ArrivalNoticeRow) };
+    return { success: true, data: mapArrivalNoticeRowToModel(result as unknown as ArrivalNoticeRow) };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update Arrival Notice' };
   }
@@ -196,7 +196,7 @@ export async function getArrivalNotice(id: string): Promise<ArrivalNotice | null
       .single();
 
     if (error) throw error;
-    return data ? mapArrivalNoticeRowToModel(data as ArrivalNoticeRow) : null;
+    return data ? mapArrivalNoticeRowToModel(data as unknown as ArrivalNoticeRow) : null;
   } catch (error) {
     return null;
   }
@@ -380,7 +380,7 @@ export async function markConsigneeNotified(id: string, notifiedBy: string): Pro
 
     revalidatePath('/agency/arrivals');
     revalidatePath(`/agency/arrivals/${id}`);
-    return { success: true, data: mapArrivalNoticeRowToModel(result as ArrivalNoticeRow) };
+    return { success: true, data: mapArrivalNoticeRowToModel(result as unknown as ArrivalNoticeRow) };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Failed to mark consignee as notified' };
   }
@@ -435,7 +435,7 @@ export async function markCargoCleared(id: string): Promise<ActionResult<Arrival
 
     revalidatePath('/agency/arrivals');
     revalidatePath(`/agency/arrivals/${id}`);
-    return { success: true, data: mapArrivalNoticeRowToModel(result as ArrivalNoticeRow) };
+    return { success: true, data: mapArrivalNoticeRowToModel(result as unknown as ArrivalNoticeRow) };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Failed to mark cargo as cleared' };
   }
@@ -490,7 +490,7 @@ export async function markCargoDelivered(id: string): Promise<ActionResult<Arriv
 
     revalidatePath('/agency/arrivals');
     revalidatePath(`/agency/arrivals/${id}`);
-    return { success: true, data: mapArrivalNoticeRowToModel(result as ArrivalNoticeRow) };
+    return { success: true, data: mapArrivalNoticeRowToModel(result as unknown as ArrivalNoticeRow) };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Failed to mark cargo as delivered' };
   }

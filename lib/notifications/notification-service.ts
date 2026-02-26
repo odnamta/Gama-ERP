@@ -39,7 +39,7 @@ export async function createNotification(
       entity_id: params.entityId || null,
       action_url: params.actionUrl || null,
       expires_at: params.expiresAt?.toISOString() || null,
-      metadata: (params.metadata || {}) as Json,
+      metadata: (params.metadata || {}) as unknown as Json,
     })
     .select()
     .single()
@@ -113,7 +113,7 @@ export async function createBulkNotifications(
     entity_id: params.entityId || null,
     action_url: params.actionUrl || null,
     expires_at: params.expiresAt?.toISOString() || null,
-    metadata: (params.metadata || {}) as Json,
+    metadata: (params.metadata || {}) as unknown as Json,
   }))
 
   const { data, error } = await supabase

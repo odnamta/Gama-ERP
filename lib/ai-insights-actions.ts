@@ -41,7 +41,7 @@ export async function logQuery(input: QueryHistoryInput): Promise<{ success: boo
         natural_query: input.natural_query,
         generated_sql: input.generated_sql,
         response_type: input.response_type,
-        response_data: input.response_data as Json,
+        response_data: input.response_data as unknown as Json,
         response_text: input.response_text,
         execution_time_ms: input.execution_time_ms,
       });
@@ -75,7 +75,7 @@ export async function getQueryHistory(userId: string): Promise<AIQueryHistory[]>
       return [];
     }
 
-    return (data || []) as unknown as AIQueryHistory[];
+    return (data ?? []) as unknown as AIQueryHistory[];
   } catch (error) {
     return [];
   }
@@ -132,7 +132,7 @@ export async function getQueryTemplates(): Promise<AIQueryTemplate[]> {
       return [];
     }
 
-    return (data || []) as unknown as AIQueryTemplate[];
+    return (data ?? []) as unknown as AIQueryTemplate[];
   } catch (error) {
     return [];
   }

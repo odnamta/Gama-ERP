@@ -57,7 +57,7 @@ export async function getAlertRules(activeOnly = false): Promise<{
   }
 
   return {
-    data: (data as AlertRuleDB[])?.map(mapAlertRuleFromDB) || [],
+    data: (data as unknown as AlertRuleDB[])?.map(mapAlertRuleFromDB) || [],
     error: null,
   };
 }
@@ -85,7 +85,7 @@ export async function getAlertRule(id: string): Promise<{
   }
 
   return {
-    data: mapAlertRuleFromDB(data as AlertRuleDB),
+    data: mapAlertRuleFromDB(data as unknown as AlertRuleDB),
     error: null,
   };
 }
@@ -141,7 +141,7 @@ export async function createAlertRule(formData: AlertRuleFormData): Promise<{
   revalidatePath('/dashboard/alerts/rules');
 
   return {
-    data: mapAlertRuleFromDB(data as AlertRuleDB),
+    data: mapAlertRuleFromDB(data as unknown as AlertRuleDB),
     error: null,
   };
 }
@@ -197,7 +197,7 @@ export async function updateAlertRule(
   revalidatePath('/dashboard/alerts/rules');
 
   return {
-    data: mapAlertRuleFromDB(data as AlertRuleDB),
+    data: mapAlertRuleFromDB(data as unknown as AlertRuleDB),
     error: null,
   };
 }
@@ -267,7 +267,7 @@ export async function toggleAlertRuleStatus(id: string): Promise<{
   revalidatePath('/dashboard/alerts/rules');
 
   return {
-    data: mapAlertRuleFromDB(data as AlertRuleDB),
+    data: mapAlertRuleFromDB(data as unknown as AlertRuleDB),
     error: null,
   };
 }
@@ -390,9 +390,9 @@ export async function createAlertInstance(
       current_value: currentValue,
       threshold_value: thresholdValue,
       alert_message: alertMessage,
-      context_data: (contextData ?? null) as Json,
+      context_data: (contextData ?? null) as unknown as Json,
       status: 'active',
-      notifications_sent: [] as Json,
+      notifications_sent: [] as unknown as Json,
     })
     .select(`*, alert_rules (*, kpi_definitions (kpi_name))`)
     .single();

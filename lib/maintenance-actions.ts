@@ -49,7 +49,7 @@ export async function getMaintenanceTypes(): Promise<MaintenanceType[]> {
     return [];
   }
 
-  return (data || []).map((row) => transformMaintenanceTypeRow(row as unknown as MaintenanceTypeRow));
+  return (data ?? []).map((row) => transformMaintenanceTypeRow(row as MaintenanceTypeRow));
 }
 
 export async function getMaintenanceTypeById(id: string): Promise<MaintenanceType | null> {
@@ -65,7 +65,7 @@ export async function getMaintenanceTypeById(id: string): Promise<MaintenanceTyp
     return null;
   }
 
-  return transformMaintenanceTypeRow(data as unknown as MaintenanceTypeRow);
+  return transformMaintenanceTypeRow(data as MaintenanceTypeRow);
 }
 
 // =====================================================
@@ -94,9 +94,9 @@ export async function getMaintenanceSchedules(assetId?: string): Promise<Mainten
     return [];
   }
 
-  return (data || []).map(row => ({
-    ...transformMaintenanceScheduleRow(row as unknown as MaintenanceScheduleRow),
-    maintenanceType: row.maintenance_type ? transformMaintenanceTypeRow(row.maintenance_type as unknown as MaintenanceTypeRow) : undefined,
+  return (data ?? []).map(row => ({
+    ...transformMaintenanceScheduleRow(row as MaintenanceScheduleRow),
+    maintenanceType: row.maintenance_type ? transformMaintenanceTypeRow(row.maintenance_type as MaintenanceTypeRow) : undefined,
   }));
 }
 
@@ -132,7 +132,7 @@ export async function createMaintenanceSchedule(
   }
 
   revalidatePath('/equipment/maintenance');
-  return { success: true, schedule: transformMaintenanceScheduleRow(data as unknown as MaintenanceScheduleRow) };
+  return { success: true, schedule: transformMaintenanceScheduleRow(data as MaintenanceScheduleRow) };
 }
 
 export async function updateMaintenanceSchedule(
@@ -195,7 +195,7 @@ export async function getUpcomingMaintenance(): Promise<UpcomingMaintenance[]> {
     return [];
   }
 
-  return (data || []).map((row) => transformUpcomingMaintenanceRow(row as unknown as UpcomingMaintenanceRow));
+  return (data ?? []).map((row) => transformUpcomingMaintenanceRow(row as UpcomingMaintenanceRow));
 }
 
 export async function getAllUpcomingMaintenance(): Promise<UpcomingMaintenance[]> {
@@ -209,7 +209,7 @@ export async function getAllUpcomingMaintenance(): Promise<UpcomingMaintenance[]
     return [];
   }
 
-  return (data || []).map((row) => transformUpcomingMaintenanceRow(row as unknown as UpcomingMaintenanceRow));
+  return (data ?? []).map((row) => transformUpcomingMaintenanceRow(row as UpcomingMaintenanceRow));
 }
 
 
@@ -338,7 +338,7 @@ export async function createMaintenanceRecord(
   revalidatePath('/equipment/costing');
   revalidatePath(`/equipment/${input.assetId}`);
   
-  return { success: true, record: transformMaintenanceRecordRow(record as unknown as MaintenanceRecordRow) };
+  return { success: true, record: transformMaintenanceRecordRow(record as MaintenanceRecordRow) };
 }
 
 async function updateNextMaintenanceDue(
@@ -415,8 +415,8 @@ export async function getMaintenanceRecordById(id: string): Promise<MaintenanceR
   }
 
   return {
-    ...transformMaintenanceRecordRow(data as unknown as MaintenanceRecordRow),
-    maintenanceType: data.maintenance_type ? transformMaintenanceTypeRow(data.maintenance_type as unknown as MaintenanceTypeRow) : undefined,
+    ...transformMaintenanceRecordRow(data as MaintenanceRecordRow),
+    maintenanceType: data.maintenance_type ? transformMaintenanceTypeRow(data.maintenance_type as MaintenanceTypeRow) : undefined,
     parts: (data.parts || []).map((row: unknown) => transformMaintenancePartRow(row as MaintenancePartRow)),
   };
 }
@@ -459,8 +459,8 @@ export async function getMaintenanceHistory(
     return [];
   }
 
-  return (data || []).map(row => ({
-    ...transformMaintenanceRecordRow(row as unknown as MaintenanceRecordRow),
+  return (data ?? []).map(row => ({
+    ...transformMaintenanceRecordRow(row as MaintenanceRecordRow),
     maintenanceType: row.maintenance_type ? { typeName: row.maintenance_type.type_name } as MaintenanceType : undefined,
     asset: row.asset,
   })) as MaintenanceRecord[];
@@ -490,7 +490,7 @@ export async function getMaintenanceParts(recordId: string): Promise<Maintenance
     return [];
   }
 
-  return (data || []).map((row) => transformMaintenancePartRow(row as unknown as MaintenancePartRow));
+  return (data ?? []).map((row) => transformMaintenancePartRow(row as MaintenancePartRow));
 }
 
 // =====================================================
@@ -522,7 +522,7 @@ export async function getMaintenanceCostSummary(
     return [];
   }
 
-  return (data || []).map((row) => transformMaintenanceCostSummaryRow(row as unknown as MaintenanceCostSummaryRow));
+  return (data ?? []).map((row) => transformMaintenanceCostSummaryRow(row as MaintenanceCostSummaryRow));
 }
 
 export async function getCostMTD(): Promise<number> {

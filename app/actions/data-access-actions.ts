@@ -140,7 +140,7 @@ export async function getDataAccessLogs(
     const totalPages = Math.ceil(total / pageSize);
     
     const result: PaginatedDataAccessLogs = {
-      data: (data || []) as unknown as DataAccessLogEntry[],
+      data: (data ?? []) as unknown as DataAccessLogEntry[],
       total,
       page,
       page_size: pageSize,
@@ -280,7 +280,7 @@ export async function getDataAccessStats(
     
     if (error) throw error;
     
-    const logs = (entries || []) as unknown as DataAccessLogEntry[];
+    const logs = (entries ?? []) as unknown as DataAccessLogEntry[];
     
     // Calculate statistics using utility function
     const stats = calculateDataAccessStats(logs);
@@ -350,7 +350,7 @@ export async function exportDataAccessLogs(
     
     if (error) throw error;
     
-    const entries = (data || []) as unknown as DataAccessLogEntry[];
+    const entries = (data ?? []) as unknown as DataAccessLogEntry[];
     
     // Generate CSV using utility function
     const csv = exportToCsv(entries);
@@ -383,34 +383,34 @@ export async function getDataAccessFilterOptions(): Promise<ActionResult<{
       .select('data_type')
       .not('data_type', 'is', null);
     
-    const rawDataTypes = (dataTypeData || []) as unknown as Array<{ data_type: string }>;
+    const rawDataTypes = (dataTypeData ?? []) as unknown as Array<{ data_type: string }>;
     const dataTypes = [...new Set(rawDataTypes.map(d => d.data_type))].filter(Boolean).sort();
-    
+
     // Get distinct entity types
     const { data: entityTypeData } = await supabase
       .from('data_access_log' as AnyTable)
       .select('entity_type')
       .not('entity_type', 'is', null);
-    
-    const rawEntityTypes = (entityTypeData || []) as unknown as Array<{ entity_type: string }>;
+
+    const rawEntityTypes = (entityTypeData ?? []) as unknown as Array<{ entity_type: string }>;
     const entityTypes = [...new Set(rawEntityTypes.map(d => d.entity_type))].filter(Boolean).sort();
-    
+
     // Get distinct access types
     const { data: accessTypeData } = await supabase
       .from('data_access_log' as AnyTable)
       .select('access_type')
       .not('access_type', 'is', null);
-    
-    const rawAccessTypes = (accessTypeData || []) as unknown as Array<{ access_type: string }>;
+
+    const rawAccessTypes = (accessTypeData ?? []) as unknown as Array<{ access_type: string }>;
     const accessTypes = [...new Set(rawAccessTypes.map(d => d.access_type))].filter(Boolean).sort();
-    
+
     // Get distinct file formats
     const { data: formatData } = await supabase
       .from('data_access_log' as AnyTable)
       .select('file_format')
       .not('file_format', 'is', null);
-    
-    const rawFormats = (formatData || []) as unknown as Array<{ file_format: string }>;
+
+    const rawFormats = (formatData ?? []) as unknown as Array<{ file_format: string }>;
     const fileFormats = [...new Set(rawFormats.map(d => d.file_format))].filter(Boolean).sort();
     
     return {
@@ -450,7 +450,7 @@ export async function getUserDataAccessLogs(
     
     if (error) throw error;
     
-    return { success: true, data: (data || []) as unknown as DataAccessLogEntry[] };
+    return { success: true, data: (data ?? []) as unknown as DataAccessLogEntry[] };
   } catch (error) {
     return { success: false, error: 'Failed to fetch user data access logs' };
   }
@@ -481,7 +481,7 @@ export async function getEntityDataAccessLogs(
     
     if (error) throw error;
     
-    return { success: true, data: (data || []) as unknown as DataAccessLogEntry[] };
+    return { success: true, data: (data ?? []) as unknown as DataAccessLogEntry[] };
   } catch (error) {
     return { success: false, error: 'Failed to fetch entity data access logs' };
   }
@@ -510,7 +510,7 @@ export async function getRecentExports(
     
     if (error) throw error;
     
-    return { success: true, data: (data || []) as unknown as DataAccessLogEntry[] };
+    return { success: true, data: (data ?? []) as unknown as DataAccessLogEntry[] };
   } catch (error) {
     return { success: false, error: 'Failed to fetch recent exports' };
   }
@@ -541,7 +541,7 @@ export async function getDataAccessSummary(
     
     if (error) throw error;
     
-    const entries = (data || []) as unknown as DataAccessLogEntry[];
+    const entries = (data ?? []) as unknown as DataAccessLogEntry[];
     
     const totalAccesses = entries.length;
     const totalExports = entries.filter(e => e.access_type === 'export').length;

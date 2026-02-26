@@ -50,7 +50,7 @@ async function fetchReportData(): Promise<JobProfitabilityData[]> {
   }
 
   // Transform to profitability data
-  const profitabilityData = ((jobOrders || []) as unknown as JobOrderRow[]).map(job => {
+  const profitabilityData = ((jobOrders ?? []) as JobOrderRow[]).map(job => {
     const revenue = job.final_revenue ?? 0
     const directCost = job.final_cost ?? 0
     const equipmentCost = job.equipment_cost ?? 0

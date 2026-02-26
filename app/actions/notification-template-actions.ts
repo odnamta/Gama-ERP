@@ -40,7 +40,7 @@ export async function getNotificationTemplates(): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: (data as NotificationTemplate[]) || [], error: null };
+  return { data: (data as unknown as NotificationTemplate[]) || [], error: null };
 }
 
 /**
@@ -62,7 +62,7 @@ export async function getActiveNotificationTemplates(): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: (data as NotificationTemplate[]) || [], error: null };
+  return { data: (data as unknown as NotificationTemplate[]) || [], error: null };
 }
 
 /**
@@ -83,7 +83,7 @@ export async function getNotificationTemplate(
     return { data: null, error: error.message };
   }
 
-  return { data: data as NotificationTemplate | null, error: null };
+  return { data: data as unknown as NotificationTemplate | null, error: null };
 }
 
 /**
@@ -104,7 +104,7 @@ export async function getNotificationTemplateByCode(
     return { data: null, error: error.message };
   }
 
-  return { data: data as NotificationTemplate | null, error: null };
+  return { data: data as unknown as NotificationTemplate | null, error: null };
 }
 
 /**
@@ -126,7 +126,7 @@ export async function getTemplatesByEventType(
     return { data: [], error: error.message };
   }
 
-  return { data: (data as NotificationTemplate[]) || [], error: null };
+  return { data: (data as unknown as NotificationTemplate[]) || [], error: null };
 }
 
 /**
@@ -154,7 +154,7 @@ export async function createNotificationTemplate(
   }
 
   revalidatePath('/admin/notification-templates');
-  return { data: data as NotificationTemplate, error: null };
+  return { data: data as unknown as NotificationTemplate, error: null };
 }
 
 /**
@@ -187,7 +187,7 @@ export async function updateNotificationTemplate(
 
   revalidatePath('/admin/notification-templates');
   revalidatePath(`/admin/notification-templates/${id}`);
-  return { data: data as NotificationTemplate, error: null };
+  return { data: data as unknown as NotificationTemplate, error: null };
 }
 
 /**

@@ -149,7 +149,7 @@ export async function getAutomationLogs(
       return { data: [], error: error.message };
     }
 
-    return { data: (data || []) as AutomationLog[], error: null };
+    return { data: (data ?? []) as AutomationLog[], error: null };
   } catch (err) {
     return { data: [], error: err instanceof Error ? err.message : 'Unknown error' };
   }

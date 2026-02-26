@@ -208,7 +208,7 @@ export async function triggerManualSync(
       .from('sync_log')
       .update({
         ...completionData,
-        error_details: (errors.length > 0 ? errors : null) as Json,
+        error_details: (errors.length > 0 ? errors : null) as unknown as Json,
       })
       .eq('id', log.id);
 
@@ -355,7 +355,7 @@ export async function retryFailedSync(
         .select('*')
         .eq('id', log.mapping_id)
         .single();
-      mapping = mappingData as SyncMapping | null;
+      mapping = mappingData as unknown as SyncMapping | null;
     }
 
     // Execute retry sync
@@ -402,7 +402,7 @@ export async function retryFailedSync(
       .from('sync_log')
       .update({
         ...completionData,
-        error_details: (errors.length > 0 ? errors : null) as Json,
+        error_details: (errors.length > 0 ? errors : null) as unknown as Json,
       })
       .eq('id', retryLog.id);
 

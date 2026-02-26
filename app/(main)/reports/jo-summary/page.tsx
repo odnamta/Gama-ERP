@@ -58,7 +58,7 @@ async function fetchReportData(): Promise<JOSummaryReport | null> {
       };
     };
   };
-  const items = ((joData || []) as unknown as JOSummaryRow[]).map(jo => {
+  const items = ((joData ?? []) as JOSummaryRow[]).map(jo => {
     const revenue = jo.final_revenue || 0
     const cost = jo.final_cost || 0
     return {

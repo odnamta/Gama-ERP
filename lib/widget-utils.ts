@@ -247,7 +247,7 @@ export async function getAllWidgets(): Promise<Widget[]> {
     throw error;
   }
 
-  return (data || []).map(row => transformWidgetRow(row as unknown as DashboardWidgetRow));
+  return (data || []).map(row => transformWidgetRow(row as DashboardWidgetRow));
 }
 
 /**
@@ -444,5 +444,5 @@ export async function getAvailableWidgets(userId: string, role: string): Promise
   // Return widgets not in user's config
   return (allWidgets || [])
     .filter((w: { id: string }) => !configuredWidgetIds.has(w.id))
-    .map(row => transformWidgetRow(row as unknown as DashboardWidgetRow));
+    .map(row => transformWidgetRow(row as DashboardWidgetRow));
 }

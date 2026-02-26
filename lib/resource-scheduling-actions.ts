@@ -172,7 +172,7 @@ export async function getResourceById(id: string): Promise<ResourceWithDetails |
 
   const resource = mapRowToResource(data as Record<string, unknown>);
 
-  const joinedData = data as unknown as Record<string, unknown> & {
+  const joinedData = data as Record<string, unknown> & {
     employees?: { id: string; full_name: string; position?: string };
     assets?: { id: string; asset_code: string; asset_name: string };
   };
@@ -230,7 +230,7 @@ export async function createResource(input: ResourceInput): Promise<EngineeringR
       employee_id: input.employee_id,
       asset_id: input.asset_id,
       skills: input.skills || [],
-      certifications: input.certifications as unknown as never || [],
+      certifications: (input.certifications ?? []) as never,
       capacity_unit: input.capacity_unit || 'hours',
       daily_capacity: input.daily_capacity || 8,
       hourly_rate: input.hourly_rate,
@@ -268,7 +268,7 @@ export async function updateResource(id: string, input: ResourceInput): Promise<
       employee_id: input.employee_id,
       asset_id: input.asset_id,
       skills: input.skills || [],
-      certifications: input.certifications as unknown as never,
+      certifications: input.certifications as never,
       capacity_unit: input.capacity_unit,
       daily_capacity: input.daily_capacity,
       hourly_rate: input.hourly_rate,
@@ -470,8 +470,8 @@ export async function createAssignment(
     input.resource_id,
     input.start_date,
     input.end_date,
-    (existingAssignments || []) as unknown as ResourceAssignment[],
-    (unavailability || []) as unknown as ResourceAvailability[]
+    (existingAssignments ?? []) as unknown as ResourceAssignment[],
+    (unavailability ?? []) as unknown as ResourceAvailability[]
   );
 
   if (conflicts.has_conflict && !forceCreate) {
@@ -640,7 +640,7 @@ export async function getAvailability(
     throw new Error('Failed to fetch availability');
   }
 
-  return (data || []) as unknown as ResourceAvailability[];
+  return (data ?? []) as unknown as ResourceAvailability[];
 }
 
 export async function setUnavailability(input: UnavailabilityInput): Promise<{ 
@@ -726,7 +726,7 @@ export async function getSkills(): Promise<ResourceSkill[]> {
     throw new Error('Failed to fetch skills');
   }
 
-  return (data || []) as unknown as ResourceSkill[];
+  return (data ?? []) as unknown as ResourceSkill[];
 }
 
 export async function createSkill(input: { 

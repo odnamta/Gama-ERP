@@ -120,7 +120,7 @@ export async function GET(
     const filename = `${quotation.quotation_number}.pdf`
     const disposition = download ? `attachment; filename="${filename}"` : `inline; filename="${filename}"`
 
-    return new Response(buffer as unknown as BodyInit, {
+    return new Response(buffer as BodyInit, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': disposition,

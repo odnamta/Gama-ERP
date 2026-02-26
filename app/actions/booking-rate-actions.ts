@@ -81,7 +81,7 @@ export async function lookupRates(params: RateLookupParams): Promise<ShippingRat
       notes: row.notes,
       isActive: row.is_active,
       createdAt: row.created_at,
-      shippingLine: row.shipping_lines as unknown as Partial<ShippingLine>,
+      shippingLine: row.shipping_lines as Partial<ShippingLine>,
       originPort: row.origin_port as unknown as Port,
       destinationPort: row.destination_port as unknown as Port,
     })) as unknown as ShippingRate[];

@@ -58,7 +58,7 @@ async function QuotationsContent() {
     <>
       {explorerReadOnly && <ExplorerReadOnlyBanner />}
       <QuotationList
-        quotations={(quotations || []) as unknown as QuotationWithRelations[]}
+        quotations={(quotations ?? []) as QuotationWithRelations[]}
         customers={customers || []}
         userRole={profile?.role}
       />

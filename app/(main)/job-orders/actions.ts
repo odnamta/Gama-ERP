@@ -34,7 +34,7 @@ export async function getJobOrders(): Promise<JobOrderWithRelations[]> {
     return []
   }
 
-  return (data || []) as unknown as JobOrderWithRelations[]
+  return (data ?? []) as JobOrderWithRelations[]
 }
 
 export async function getJobOrder(id: string): Promise<JobOrderWithRelations | null> {
@@ -94,7 +94,7 @@ export async function getJobOrder(id: string): Promise<JobOrderWithRelations | n
     return null
   }
 
-  return data as unknown as JobOrderWithRelations
+  return data as JobOrderWithRelations
 }
 
 export async function markCompleted(joId: string): Promise<{ error?: string }> {

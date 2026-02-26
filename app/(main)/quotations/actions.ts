@@ -276,7 +276,7 @@ export async function getQuotation(id: string): Promise<ActionResult<QuotationWi
       return { success: false, error: error.message }
     }
     
-    return { success: true, data: quotation as unknown as QuotationWithRelations }
+    return { success: true, data: quotation as QuotationWithRelations }
   } catch (err) {
     console.error('getQuotation error:', err)
     return { success: false, error: 'Failed to get quotation' }
@@ -329,7 +329,7 @@ export async function listQuotations(filters?: {
       return { success: false, error: error.message }
     }
 
-    return { success: true, data: data as unknown as QuotationWithRelations[] }
+    return { success: true, data: data as QuotationWithRelations[] }
   } catch (err) {
     console.error('listQuotations error:', err)
     return { success: false, error: 'Failed to list quotations' }
@@ -1029,7 +1029,7 @@ export async function convertToPJO(
           duration_days: pjoData.duration_days,
           market_type: pjoData.market_type,
           complexity_score: pjoData.complexity_score,
-          complexity_factors: pjoData.complexity_factors as Json,
+          complexity_factors: pjoData.complexity_factors as unknown as Json,
           requires_engineering: false,
           engineering_status: 'not_required',
           quotation_id: quotationId,

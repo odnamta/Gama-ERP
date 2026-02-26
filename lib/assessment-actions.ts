@@ -55,7 +55,7 @@ export async function getAssessmentTypes(): Promise<TechnicalAssessmentType[]> {
     return [];
   }
 
-  return (data || []) as unknown as TechnicalAssessmentType[];
+  return (data ?? []) as unknown as TechnicalAssessmentType[];
 }
 
 export async function getAssessmentType(id: string): Promise<TechnicalAssessmentType | null> {
@@ -106,7 +106,7 @@ export async function createAssessment(
       customer_id: input.customer_id || null,
       cargo_description: input.cargo_description || null,
       cargo_weight_tons: input.cargo_weight_tons || null,
-      cargo_dimensions: input.cargo_dimensions as unknown || null,
+      cargo_dimensions: input.cargo_dimensions || null,
       status: 'draft',
       revision_number: 1,
     } as any)
@@ -288,7 +288,7 @@ export async function getAssessments(
     return [];
   }
 
-  return (data || []) as unknown as TechnicalAssessment[];
+  return (data ?? []) as unknown as TechnicalAssessment[];
 }
 
 
@@ -739,7 +739,7 @@ export async function getLiftingPlans(assessmentId: string): Promise<LiftingPlan
     return [];
   }
 
-  return (data || []) as unknown as LiftingPlan[];
+  return (data ?? []) as unknown as LiftingPlan[];
 }
 
 
@@ -805,7 +805,7 @@ export async function createAxleCalculation(
       prime_mover_weight_tons: input.prime_mover_weight_tons || null,
       cargo_weight_tons: input.cargo_weight_tons,
       cargo_cog_from_front_m: input.cargo_cog_from_front_m || null,
-      axle_loads: axleLoads as unknown,
+      axle_loads: axleLoads,
       total_weight_tons: totalWeight,
       max_single_axle_load_tons: maxSingleAxle,
       max_tandem_axle_load_tons: maxTandemAxle,
@@ -948,7 +948,7 @@ export async function getAxleCalculations(assessmentId: string): Promise<AxleLoa
     return [];
   }
 
-  return (data || []) as unknown as AxleLoadCalculation[];
+  return (data ?? []) as unknown as AxleLoadCalculation[];
 }
 
 // ============================================

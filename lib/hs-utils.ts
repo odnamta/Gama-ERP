@@ -143,7 +143,7 @@ export async function searchHSCodes(
     if (error) throw error;
     
     return (data || []).map((row) => ({
-      ...transformHSCode(row as unknown as HSCodeRow),
+      ...transformHSCode(row as HSCodeRow),
       relevanceScore: 1,
       chapterName: (row as { heading?: { chapter?: { chapter_name?: string } } }).heading?.chapter?.chapter_name,
       headingName: (row as { heading?: { heading_name?: string } }).heading?.heading_name,
@@ -168,7 +168,7 @@ export async function searchHSCodes(
   if (error) throw error;
   
   const results = (data || []).map((row) => {
-    const hsCode = transformHSCode(row as unknown as HSCodeRow);
+    const hsCode = transformHSCode(row as HSCodeRow);
     const rowWithHeading = row as { description: string; description_id?: string; heading?: { chapter?: { chapter_name?: string }; heading_name?: string } };
     const relevanceEn = calculateRelevance(trimmedQuery, rowWithHeading.description);
     const relevanceId = rowWithHeading.description_id 
@@ -295,7 +295,7 @@ export async function getPreferentialRates(hsCode: string): Promise<HSPreferenti
   
   if (error || !data) return [];
   
-  return data.map((row) => transformPreferentialRate(row as unknown as HSPreferentialRateRow));
+  return data.map((row) => transformPreferentialRate(row as HSPreferentialRateRow));
 }
 
 // Calculate duties from rates (pure function for testing)
@@ -391,7 +391,7 @@ export async function getHSChapters(): Promise<HSChapter[]> {
   
   if (error) throw error;
   
-  return (data || []).map((row) => transformChapter(row as unknown as HSChapterRow));
+  return (data || []).map((row) => transformChapter(row as HSChapterRow));
 }
 
 // Get headings for a chapter
@@ -409,7 +409,7 @@ export async function getHSHeadings(chapterId: string): Promise<HSHeading[]> {
   
   if (error) throw error;
   
-  return (data || []).map((row) => transformHeading(row as unknown as HSHeadingRow));
+  return (data || []).map((row) => transformHeading(row as HSHeadingRow));
 }
 
 // Get headings by chapter code
@@ -446,7 +446,7 @@ export async function getHSCodesForHeading(headingId: string): Promise<HSCode[]>
   
   if (error) throw error;
   
-  return (data || []).map((row) => transformHSCode(row as unknown as HSCodeRow));
+  return (data || []).map((row) => transformHSCode(row as HSCodeRow));
 }
 
 // Get HS codes by heading code

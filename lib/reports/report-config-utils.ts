@@ -21,7 +21,7 @@ export async function getReportConfigurations(role: string): Promise<ReportConfi
   }
   
   // Filter by role
-  return ((data || []) as unknown as ReportConfigurationDB[]).filter(report => 
+  return ((data ?? []) as unknown as ReportConfigurationDB[]).filter(report => 
     report.allowed_roles?.includes(role) ?? false
   )
 }

@@ -43,7 +43,7 @@ export default async function DisbursementsPage() {
   return (
     <>
       {explorerReadOnly && <ExplorerReadOnlyBanner />}
-      <DisbursementsClient initialData={(bkks || []) as unknown as ComponentProps<typeof DisbursementsClient>['initialData']} userRole={profile?.role || 'viewer'} />
+      <DisbursementsClient initialData={(bkks ?? []) as unknown as ComponentProps<typeof DisbursementsClient>['initialData']} userRole={profile?.role || 'viewer'} />
     </>
   )
 }

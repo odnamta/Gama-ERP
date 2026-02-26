@@ -420,7 +420,7 @@ export async function addPIBItem(
   // Recalculate PIB totals
   await recalculatePIBTotals(pibId);
 
-  return { data: data as PIBItem, error: null };
+  return { data: data as unknown as PIBItem, error: null };
 }
 
 /**
@@ -508,7 +508,7 @@ export async function updatePIBItem(
   // Recalculate PIB totals
   await recalculatePIBTotals(item.pib_id);
 
-  return { data: data as PIBItem, error: null };
+  return { data: data as unknown as PIBItem, error: null };
 }
 
 /**
@@ -573,7 +573,7 @@ export async function getPIBItems(
     return { data: [], error: error.message };
   }
 
-  return { data: data as PIBItem[], error: null };
+  return { data: data as unknown as PIBItem[], error: null };
 }
 
 /**
@@ -591,7 +591,7 @@ async function recalculatePIBTotals(pibId: string): Promise<void> {
   if (!items) return;
 
   // Aggregate duties
-  const totals = aggregatePIBDuties(items as PIBItem[]);
+  const totals = aggregatePIBDuties(items as unknown as PIBItem[]);
 
   // Update PIB document
   await supabase
@@ -722,7 +722,7 @@ export async function getPIBStatusHistory(
     return { data: [], error: error.message };
   }
 
-  return { data: data as PIBStatusHistory[], error: null };
+  return { data: data as unknown as PIBStatusHistory[], error: null };
 }
 
 // =====================================================
@@ -748,7 +748,7 @@ export async function getCustomsOffices(): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: data as CustomsOffice[], error: null };
+  return { data: data as unknown as CustomsOffice[], error: null };
 }
 
 /**
@@ -770,7 +770,7 @@ export async function getImportTypes(): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: data as ImportType[], error: null };
+  return { data: data as unknown as ImportType[], error: null };
 }
 
 /**

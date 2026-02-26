@@ -31,7 +31,7 @@ export default async function EmployeeDetailPage({ params }: PageProps) {
     .eq('user_id', user.id)
     .single();
 
-  const userProfile = userProfileData as unknown as UserProfile | null;
+  const userProfile = userProfileData as UserProfile | null;
 
   // Check permission (layout already handles explorer mode, this is a fallback)
   await guardPage(canViewEmployees(userProfile));

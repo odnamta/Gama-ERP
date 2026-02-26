@@ -62,7 +62,7 @@ export async function getVendorDocuments(vendorId: string): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []).map(d => ({ ...d, document_type: d.document_type as DocumentType })) as unknown as VendorDocument[] };
+  return { data: (data ?? []).map(d => ({ ...d, document_type: d.document_type as DocumentType })) as VendorDocument[] };
 }
 
 /**
@@ -84,7 +84,7 @@ export async function getDocumentById(id: string): Promise<{
     return { data: null, error: error.message };
   }
 
-  return { data: data ? { ...data, document_type: data.document_type as DocumentType } as unknown as VendorDocument : null };
+  return { data: data ? { ...data, document_type: data.document_type as DocumentType } as VendorDocument : null };
 }
 
 /**
@@ -185,7 +185,7 @@ export async function uploadVendorDocument(
   }
 
   revalidatePath(`/vendors/${vendorId}`);
-  return { data: data ? { ...data, document_type: data.document_type as DocumentType } as unknown as VendorDocument : undefined };
+  return { data: data ? { ...data, document_type: data.document_type as DocumentType } as VendorDocument : undefined };
 }
 
 /**
@@ -290,5 +290,5 @@ export async function getExpiringDocuments(
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []).map(d => ({ ...d, document_type: d.document_type as DocumentType })) as unknown as VendorDocument[] };
+  return { data: (data ?? []).map(d => ({ ...d, document_type: d.document_type as DocumentType })) as VendorDocument[] };
 }

@@ -71,7 +71,7 @@ export async function createAuditType(
       description: input.description || null,
       category: input.category,
       frequency_days: input.frequency_days || null,
-      checklist_template: (input.checklist_template || { sections: [] }) as unknown as Json,
+      checklist_template: (input.checklist_template ?? { sections: [] }) as unknown as Json,
     })
     .select()
     .single();
@@ -170,7 +170,7 @@ export async function getAuditTypes(): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: data as unknown as AuditType[], error: null };
+  return { data: (data ?? []) as unknown as AuditType[], error: null };
 }
 
 /**
@@ -197,7 +197,7 @@ export async function getActiveAuditTypes(): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: data as unknown as AuditType[], error: null };
+  return { data: (data ?? []) as unknown as AuditType[], error: null };
 }
 
 /**
@@ -414,7 +414,7 @@ export async function completeAudit(
   }
 
   // Calculate score based on checklist template and responses
-  const template = audit.audit_types?.checklist_template as unknown as ChecklistTemplate || { sections: [] };
+  const template = (audit.audit_types?.checklist_template as unknown as ChecklistTemplate) ?? { sections: [] };
   const score = calculateAuditScore(template, input.checklist_responses);
   const rating = determineAuditRating(score);
 
@@ -423,8 +423,8 @@ export async function completeAudit(
     .update({
       checklist_responses: input.checklist_responses as unknown as Json,
       summary: input.summary || null,
-      photos: (input.photos || []) as unknown as Json,
-      documents: (input.documents || []) as unknown as Json,
+      photos: (input.photos ?? []) as unknown as Json,
+      documents: (input.documents ?? []) as unknown as Json,
       overall_score: score,
       overall_rating: rating,
       status: 'completed',
@@ -534,7 +534,7 @@ export async function getAudits(filters?: {
     return { data: [], error: error.message };
   }
 
-  return { data: data as unknown as Audit[], error: null };
+  return { data: (data ?? []) as unknown as Audit[], error: null };
 }
 
 /**
@@ -560,7 +560,7 @@ export async function getAuditsByType(
     return { data: [], error: error.message };
   }
 
-  return { data: data as unknown as Audit[], error: null };
+  return { data: (data ?? []) as unknown as Audit[], error: null };
 }
 
 
@@ -686,7 +686,7 @@ export async function updateFinding(
     return { data: null, error: error.message };
   }
 
-  return { data: data as AuditFinding, error: null };
+  return { data: data as unknown as AuditFinding, error: null };
 }
 
 /**
@@ -745,7 +745,7 @@ export async function closeFinding(
     return { data: null, error: error.message };
   }
 
-  return { data: data as AuditFinding, error: null };
+  return { data: data as unknown as AuditFinding, error: null };
 }
 
 /**
@@ -806,7 +806,7 @@ export async function verifyFinding(
     return { data: null, error: error.message };
   }
 
-  return { data: data as AuditFinding, error: null };
+  return { data: data as unknown as AuditFinding, error: null };
 }
 
 /**
@@ -832,7 +832,7 @@ export async function getFindingsByAudit(
     return { data: [], error: error.message };
   }
 
-  return { data: data as AuditFinding[], error: null };
+  return { data: data as unknown as AuditFinding[], error: null };
 }
 
 /**
@@ -871,7 +871,7 @@ export async function getFindings(filters?: {
     return { data: [], error: error.message };
   }
 
-  return { data: data as unknown as AuditFinding[], error: null };
+  return { data: (data ?? []) as unknown as AuditFinding[], error: null };
 }
 
 
@@ -935,7 +935,7 @@ export async function getOpenFindings(): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: data as unknown as OpenFindingView[], error: null };
+  return { data: (data ?? []) as unknown as OpenFindingView[], error: null };
 }
 
 /**
@@ -994,12 +994,12 @@ export async function getAuditDashboardData(): Promise<{
   const scheduleWithOverdue = (schedule || []).map((item) => ({
     ...item,
     is_overdue: item.next_due ? new Date(item.next_due) < today : false,
-  })) as AuditScheduleItem[];
+  })) as unknown as AuditScheduleItem[];
 
   const dueSoonAudits = getAuditsDueSoon(scheduleWithOverdue, 7, today);
   const overdueAudits = dueSoonAudits.filter((a) => a.is_overdue);
 
-  const criticalMajorFindings = (openFindings || []).filter(
+  const criticalMajorFindings = (openFindings ?? []).filter(
     (f) => f.severity === 'critical' || f.severity === 'major'
   ) as unknown as OpenFindingView[];
 
@@ -1007,7 +1007,7 @@ export async function getAuditDashboardData(): Promise<{
     (f) => f.severity === 'critical'
   ).length;
 
-  const avgScore = calculateAverageScore(monthAudits as unknown as Audit[] || []);
+  const avgScore = calculateAverageScore((monthAudits ?? []) as unknown as Audit[]);
 
   const metrics: AuditDashboardMetrics = {
     dueSoonCount: dueSoonAudits.length,
@@ -1053,5 +1053,5 @@ export async function getRecentAuditsByType(
     return { data: [], error: error.message };
   }
 
-  return { data: data as unknown as Audit[], error: null };
+  return { data: (data ?? []) as unknown as Audit[], error: null };
 }

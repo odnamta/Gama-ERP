@@ -89,7 +89,7 @@ export async function createSurvey(data: SurveyFormData): Promise<{ success: boo
     }
 
     revalidatePath('/engineering/surveys');
-    return { success: true, data: rowToSurvey(survey as unknown as RouteSurveyRow) };
+    return { success: true, data: rowToSurvey(survey as RouteSurveyRow) };
   } catch (error) {
     console.error('createSurvey error:', error);
     return { success: false, error: `Gagal membuat survey: ${error instanceof Error ? error.message : 'Unknown error'}` };
@@ -110,7 +110,7 @@ export async function getSurvey(id: string): Promise<{ success: boolean; data?: 
       return { success: false, error: error.message };
     }
 
-    return { success: true, data: rowToSurvey(survey as unknown as RouteSurveyRow) };
+    return { success: true, data: rowToSurvey(survey as RouteSurveyRow) };
   } catch (error) {
     return { success: false, error: 'Failed to get survey' };
   }
@@ -150,7 +150,7 @@ export async function getSurveyWithRelations(id: string): Promise<{ success: boo
       .eq('survey_id', id)
       .order('created_at');
 
-    const surveyData = rowToSurvey(survey as unknown as RouteSurveyRow);
+    const surveyData = rowToSurvey(survey as RouteSurveyRow);
     return {
       success: true,
       data: {
@@ -159,8 +159,8 @@ export async function getSurveyWithRelations(id: string): Promise<{ success: boo
         quotation: survey.quotation ?? undefined,
         project: survey.project ?? undefined,
         surveyor: survey.surveyor ?? undefined,
-        waypoints: waypoints?.map(w => rowToWaypoint(w as unknown as RouteWaypointRow)) || [],
-        checklist: checklist?.map(c => rowToChecklistItem(c as unknown as SurveyChecklistItemRow)) || [],
+        waypoints: waypoints?.map(w => rowToWaypoint(w as RouteWaypointRow)) ?? [],
+        checklist: checklist?.map(c => rowToChecklistItem(c as SurveyChecklistItemRow)) ?? [],
       },
     };
   } catch (error) {
@@ -186,7 +186,7 @@ export async function getSurveys(): Promise<{ success: boolean; data?: RouteSurv
       return { success: false, error: error.message };
     }
 
-    return { success: true, data: surveys.map(s => rowToSurvey(s as unknown as RouteSurveyRow)) };
+    return { success: true, data: surveys.map(s => rowToSurvey(s as RouteSurveyRow)) };
   } catch (error) {
     return { success: false, error: 'Failed to get surveys' };
   }
@@ -242,7 +242,7 @@ export async function updateSurvey(
 
     revalidatePath('/engineering/surveys');
     revalidatePath(`/engineering/surveys/${id}`);
-    return { success: true, data: rowToSurvey(survey as unknown as RouteSurveyRow) };
+    return { success: true, data: rowToSurvey(survey as RouteSurveyRow) };
   } catch (error) {
     return { success: false, error: 'Failed to update survey' };
   }
@@ -353,7 +353,7 @@ export async function completeSurvey(
         feasibility_notes: assessment.feasibilityNotes,
         route_distance_km: assessment.routeDistanceKm,
         estimated_travel_time_hours: assessment.estimatedTravelTimeHours,
-        permits_required: assessment.permitsRequired as unknown as never,
+        permits_required: assessment.permitsRequired as never,
         escort_required: assessment.escortRequired,
         escort_type: assessment.escortType || null,
         escort_vehicles_count: assessment.escortVehiclesCount || null,
@@ -502,7 +502,7 @@ export async function createWaypoint(
     }
 
     revalidatePath(`/engineering/surveys/${surveyId}`);
-    return { success: true, data: rowToWaypoint(waypoint as unknown as RouteWaypointRow) };
+    return { success: true, data: rowToWaypoint(waypoint as RouteWaypointRow) };
   } catch (error) {
     return { success: false, error: 'Failed to create waypoint' };
   }
@@ -552,7 +552,7 @@ export async function updateWaypoint(
     }
 
     revalidatePath(`/engineering/surveys/${waypoint.survey_id}`);
-    return { success: true, data: rowToWaypoint(waypoint as unknown as RouteWaypointRow) };
+    return { success: true, data: rowToWaypoint(waypoint as RouteWaypointRow) };
   } catch (error) {
     return { success: false, error: 'Failed to update waypoint' };
   }
@@ -621,7 +621,7 @@ export async function getWaypoints(surveyId: string): Promise<{ success: boolean
       return { success: false, error: error.message };
     }
 
-    return { success: true, data: waypoints.map(w => rowToWaypoint(w as unknown as RouteWaypointRow)) };
+    return { success: true, data: waypoints.map(w => rowToWaypoint(w as RouteWaypointRow)) };
   } catch (error) {
     return { success: false, error: 'Failed to get waypoints' };
   }
@@ -700,7 +700,7 @@ export async function updateChecklistItem(
     }
 
     revalidatePath(`/engineering/surveys/${item.survey_id}`);
-    return { success: true, data: rowToChecklistItem(item as unknown as SurveyChecklistItemRow) };
+    return { success: true, data: rowToChecklistItem(item as SurveyChecklistItemRow) };
   } catch (error) {
     return { success: false, error: 'Failed to update checklist item' };
   }
@@ -720,7 +720,7 @@ export async function getChecklist(surveyId: string): Promise<{ success: boolean
       return { success: false, error: error.message };
     }
 
-    return { success: true, data: checklist.map(c => rowToChecklistItem(c as unknown as SurveyChecklistItemRow)) };
+    return { success: true, data: checklist.map(c => rowToChecklistItem(c as SurveyChecklistItemRow)) };
   } catch (error) {
     return { success: false, error: 'Failed to get checklist' };
   }

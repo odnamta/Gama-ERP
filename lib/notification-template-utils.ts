@@ -36,7 +36,7 @@ export async function getTemplateByCode(
     return { data: null, error: error.message };
   }
 
-  return { data: data as NotificationTemplate | null, error: null };
+  return { data: data as unknown as NotificationTemplate | null, error: null };
 }
 
 /**
@@ -57,7 +57,7 @@ export async function getTemplateById(
     return { data: null, error: error.message };
   }
 
-  return { data: data as NotificationTemplate | null, error: null };
+  return { data: data as unknown as NotificationTemplate | null, error: null };
 }
 
 /**

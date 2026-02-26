@@ -69,7 +69,7 @@ export function EquipmentClient() {
       
       // Calculate stats from assets
       const calculatedStats = calculateAssetSummaryStats(
-        assetsResult as unknown as import('@/types/assets').Asset[],
+        assetsResult as import('@/types/assets').Asset[],
         expiringCount
       )
       setStats(calculatedStats)

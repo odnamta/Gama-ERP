@@ -668,7 +668,7 @@ export async function addFeedbackComment(
     revalidatePath('/feedback');
     revalidatePath('/admin/feedback');
 
-    return { success: true, data: data as FeedbackComment };
+    return { success: true, data: data as unknown as FeedbackComment };
   } catch (err) {
     return { success: false, error: 'An unexpected error occurred' };
   }
@@ -715,7 +715,7 @@ export async function getFeedbackComments(
       return { success: false, error: 'Failed to fetch comments' };
     }
 
-    return { success: true, data: data as FeedbackComment[] };
+    return { success: true, data: data as unknown as FeedbackComment[] };
   } catch (err) {
     return { success: false, error: 'An unexpected error occurred' };
   }
@@ -797,7 +797,7 @@ export async function getFeedbackHistory(
       return { success: false, error: 'Failed to fetch history' };
     }
 
-    return { success: true, data: data as unknown as Array<{
+    return { success: true, data: data as Array<{
       id: string;
       old_status: FeedbackStatus | null;
       new_status: FeedbackStatus;

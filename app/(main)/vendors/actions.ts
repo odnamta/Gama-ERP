@@ -111,7 +111,7 @@ export async function getVendors(filters?: Partial<VendorFilterState>): Promise<
     vendor_type: v.vendor_type as VendorType,
     equipment_count: v.vendor_equipment?.[0]?.count || 0,
     ratings_count: v.vendor_ratings?.[0]?.count || 0,
-  })) as unknown as VendorWithStats[];
+  })) as VendorWithStats[];
 
   return { data: vendors };
 }
@@ -149,7 +149,7 @@ export async function getVendorById(id: string): Promise<{
     })) as VendorEquipment[],
     equipment_count: data.vendor_equipment?.length || 0,
     ratings_count: data.vendor_ratings?.[0]?.count || 0,
-  } as unknown as VendorWithStats;
+  } as VendorWithStats;
 
   return { data: vendor };
 }
@@ -177,7 +177,7 @@ export async function getVendorsByType(type: VendorType): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []).map(v => ({ ...v, vendor_type: v.vendor_type as VendorType })) as unknown as Vendor[] };
+  return { data: (data ?? []).map(v => ({ ...v, vendor_type: v.vendor_type as VendorType })) as Vendor[] };
 }
 
 /**
@@ -201,7 +201,7 @@ export async function getActiveVendors(): Promise<{
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []).map(v => ({ ...v, vendor_type: v.vendor_type as VendorType })) as unknown as Vendor[] };
+  return { data: (data ?? []).map(v => ({ ...v, vendor_type: v.vendor_type as VendorType })) as Vendor[] };
 }
 
 /**
@@ -294,7 +294,7 @@ export async function createVendor(input: VendorFormInput): Promise<{
   }
 
   revalidatePath('/vendors');
-  return { data: data as unknown as Vendor };
+  return { data: data as Vendor };
 }
 
 /**

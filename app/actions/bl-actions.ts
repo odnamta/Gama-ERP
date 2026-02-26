@@ -110,7 +110,7 @@ export async function createBillOfLading(data: BLFormData): Promise<ActionResult
     if (error) throw error;
 
     revalidatePath('/agency/bl');
-    return { success: true, data: mapBLRowToModel(result as BillOfLadingRow) };
+    return { success: true, data: mapBLRowToModel(result as unknown as BillOfLadingRow) };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create Bill of Lading' };
   }
@@ -207,7 +207,7 @@ export async function updateBillOfLading(id: string, data: Partial<BLFormData>):
 
     revalidatePath('/agency/bl');
     revalidatePath(`/agency/bl/${id}`);
-    return { success: true, data: mapBLRowToModel(result as BillOfLadingRow) };
+    return { success: true, data: mapBLRowToModel(result as unknown as BillOfLadingRow) };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update Bill of Lading' };
   }
@@ -233,7 +233,7 @@ export async function getBillOfLading(id: string): Promise<BillOfLading | null> 
       .single();
 
     if (error) throw error;
-    return data ? mapBLRowToModel(data as BillOfLadingRow) : null;
+    return data ? mapBLRowToModel(data as unknown as BillOfLadingRow) : null;
   } catch (error) {
     return null;
   }
@@ -378,7 +378,7 @@ export async function updateBLStatus(id: string, newStatus: BLStatus): Promise<A
 
     revalidatePath('/agency/bl');
     revalidatePath(`/agency/bl/${id}`);
-    return { success: true, data: mapBLRowToModel(result as BillOfLadingRow) };
+    return { success: true, data: mapBLRowToModel(result as unknown as BillOfLadingRow) };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update B/L status' };
   }

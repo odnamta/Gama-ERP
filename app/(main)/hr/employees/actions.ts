@@ -56,7 +56,7 @@ export async function getEmployees(
     return { data: null, error: error.message };
   }
 
-  return { data: (data || []) as unknown as EmployeeWithRelations[], error: null };
+  return { data: (data ?? []) as unknown as EmployeeWithRelations[], error: null };
 }
 
 /**
@@ -497,5 +497,5 @@ export async function getUnlinkedUsers(): Promise<{
     return { data: null, error: error.message };
   }
 
-  return { data: (data || []) as unknown as { id: string; email: string; full_name: string }[], error: null };
+  return { data: (data ?? []) as { id: string; email: string; full_name: string }[], error: null };
 }

@@ -35,7 +35,7 @@ async function fetchReportData(): Promise<ARAgingReportData | null> {
     return null
   }
 
-  return buildARAgingReportData(invoices as unknown as InvoiceData[] || [])
+  return buildARAgingReportData((invoices ?? []) as InvoiceData[])
 }
 
 async function ARAgingContent() {

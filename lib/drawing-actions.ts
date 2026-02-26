@@ -51,7 +51,7 @@ export async function getCategories(): Promise<DrawingCategory[]> {
     return [];
   }
 
-  return (data || []) as unknown as DrawingCategory[];
+  return (data ?? []) as unknown as DrawingCategory[];
 }
 
 // ============ Drawings CRUD ============
@@ -94,7 +94,7 @@ export async function getDrawings(filters?: DrawingFilters): Promise<DrawingWith
     return [];
   }
 
-  return (data || []) as unknown as DrawingWithDetails[];
+  return (data ?? []) as unknown as DrawingWithDetails[];
 }
 
 export async function getDrawingById(id: string): Promise<DrawingWithDetails | null> {
@@ -266,7 +266,7 @@ export async function getDrawingRevisions(drawingId: string): Promise<DrawingRev
     return [];
   }
 
-  return (data || []) as DrawingRevisionWithDetails[];
+  return (data || []) as unknown as DrawingRevisionWithDetails[];
 }
 
 export async function createRevision(
@@ -444,7 +444,7 @@ export async function getTransmittals(projectId?: string): Promise<DrawingTransm
     return [];
   }
 
-  return (data || []) as unknown as DrawingTransmittalWithDetails[];
+  return (data ?? []) as unknown as DrawingTransmittalWithDetails[];
 }
 
 export async function getTransmittalById(id: string): Promise<DrawingTransmittalWithDetails | null> {

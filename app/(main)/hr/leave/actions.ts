@@ -36,7 +36,7 @@ export async function getLeaveTypes(): Promise<LeaveType[]> {
     throw new Error('Failed to fetch leave types');
   }
   
-  return (data || []) as unknown as LeaveType[];
+  return (data ?? []) as LeaveType[];
 }
 
 /**
@@ -55,7 +55,7 @@ export async function getLeaveType(id: string): Promise<LeaveType | null> {
     return null;
   }
   
-  return data as unknown as LeaveType;
+  return data as LeaveType;
 }
 
 // =====================================================
@@ -85,7 +85,7 @@ export async function getLeaveBalances(
     throw new Error('Failed to fetch leave balances');
   }
   
-  return (data || []) as unknown as LeaveBalance[];
+  return (data ?? []) as LeaveBalance[];
 }
 
 /**
@@ -114,7 +114,7 @@ export async function getLeaveBalance(
     return null;
   }
   
-  return data as unknown as LeaveBalance | null;
+  return data as LeaveBalance | null;
 }
 
 /**
@@ -165,9 +165,9 @@ export async function initializeYearlyBalances(
           available_days: prevBalance.available_days ?? 0,
           created_at: prevBalance.created_at ?? new Date().toISOString(),
           updated_at: prevBalance.updated_at ?? new Date().toISOString(),
-          leave_type: prevBalance.leave_type as unknown as LeaveType,
+          leave_type: prevBalance.leave_type as LeaveType,
         };
-        carriedOver = calculateCarryOver(balanceForCalc, leaveType as unknown as LeaveType);
+        carriedOver = calculateCarryOver(balanceForCalc, leaveType as LeaveType);
       }
       
       // Upsert the balance
@@ -319,7 +319,7 @@ export async function submitLeaveRequest(
     revalidatePath('/hr/leave');
     revalidatePath('/hr/my-leave');
     
-    return { success: true, data: request as unknown as LeaveRequest };
+    return { success: true, data: request as LeaveRequest };
   } catch (error) {
     console.error('submitLeaveRequest error:', error);
     const msg = error instanceof Error ? error.message : 'Unknown error';
@@ -673,7 +673,7 @@ export async function getLeaveRequests(
     throw new Error('Failed to fetch leave requests');
   }
 
-  return (data || []) as unknown as LeaveRequest[];
+  return (data ?? []) as unknown as LeaveRequest[];
 }
 
 /**

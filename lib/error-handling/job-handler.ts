@@ -66,7 +66,7 @@ export async function recordJobFailure(params: {
     throw new Error(`Failed to record job failure: ${error.message}`);
   }
 
-  return data as unknown as JobFailureRecord;
+  return data as JobFailureRecord;
 }
 
 /**
@@ -164,7 +164,7 @@ export async function getJobsForRetry(): Promise<JobFailureRecord[]> {
     throw new Error(`Failed to get jobs for retry: ${error.message}`);
   }
 
-  return (data || []) as unknown as JobFailureRecord[];
+  return (data || []) as JobFailureRecord[];
 }
 
 /**
@@ -210,7 +210,7 @@ export async function getJobFailures(
     throw new Error(`Failed to get job failures: ${error.message}`);
   }
 
-  return (data || []) as unknown as JobFailureRecord[];
+  return (data || []) as JobFailureRecord[];
 }
 
 /**
@@ -234,7 +234,7 @@ export async function getJobFailureById(
     throw new Error(`Failed to get job failure: ${error.message}`);
   }
 
-  return data as unknown as JobFailureRecord;
+  return data as JobFailureRecord;
 }
 
 /**

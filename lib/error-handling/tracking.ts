@@ -182,7 +182,7 @@ export async function getErrors(filters?: ErrorFilters): Promise<ErrorTracking[]
     throw new Error(`Failed to get errors: ${error.message}`);
   }
 
-  return (data || []) as unknown as ErrorTracking[];
+  return (data || []) as ErrorTracking[];
 }
 
 /**
@@ -204,7 +204,7 @@ export async function getErrorById(errorId: string): Promise<ErrorTracking | nul
     throw new Error(`Failed to get error: ${error.message}`);
   }
 
-  return data as unknown as ErrorTracking;
+  return data as ErrorTracking;
 }
 
 /**
@@ -288,7 +288,7 @@ export async function getErrorSummary(): Promise<ErrorSummary> {
   return {
     total,
     by_status: statusCounts,
-    top_errors: (topErrors || []) as unknown as ErrorSummary['top_errors'],
+    top_errors: (topErrors || []) as ErrorSummary['top_errors'],
     errors_today: errorsToday || 0,
     errors_this_week: errorsThisWeek || 0,
     errors_this_month: errorsThisMonth || 0,
@@ -315,7 +315,7 @@ export async function getErrorByHash(errorHash: string): Promise<ErrorTracking |
     throw new Error(`Failed to get error by hash: ${error.message}`);
   }
 
-  return data as unknown as ErrorTracking;
+  return data as ErrorTracking;
 }
 
 /**

@@ -65,7 +65,7 @@ export async function softDeleteWithRecovery(
     deleted_by: userId,
     source_table: table,
     source_id: id,
-    record_data: record as Json,
+    record_data: record as unknown as Json,
     purge_after: calculatePurgeDate(now),
   });
 

@@ -49,7 +49,7 @@ async function fetchReportData(): Promise<{ items: CostAnalysisItem[]; totalCost
     proforma_job_orders?: { id: string; job_orders?: { id: string } | null }
   }
 
-  const costItems = ((costData || []) as unknown as CostDataRow[]).map(item => ({
+  const costItems = ((costData ?? []) as CostDataRow[]).map(item => ({
     category: item.category,
     amount: item.actual_amount ?? item.estimated_amount ?? 0,
     joId: item.proforma_job_orders?.job_orders?.id || item.proforma_job_orders?.id || '',

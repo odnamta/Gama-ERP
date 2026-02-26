@@ -84,7 +84,7 @@ export async function getAvailableTours(): Promise<{
     const sortedTours = sortToursByDisplayOrder(filteredTours);
 
     // Transform progress
-    const progress = (progressRows as TourProgressRow[] || []).map(mapDbRowToProgress);
+    const progress = (progressRows as unknown as TourProgressRow[] || []).map(mapDbRowToProgress);
 
     // Combine tours with progress
     const toursWithProgress = combineTourWithProgress(sortedTours, progress);
@@ -451,7 +451,7 @@ export async function getTourProgress(tourId: string): Promise<{
       return { data: null, error: error.message };
     }
 
-    const progress = mapDbRowToProgress(progressRow as TourProgressRow);
+    const progress = mapDbRowToProgress(progressRow as unknown as TourProgressRow);
     return { data: progress, error: null };
   } catch (error) {
     return { data: null, error: 'Failed to fetch progress' };

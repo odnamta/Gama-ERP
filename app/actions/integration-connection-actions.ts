@@ -86,7 +86,7 @@ export async function createIntegrationConnection(
     }
 
     revalidatePath('/settings/integrations');
-    return { success: true, data: data as IntegrationConnection };
+    return { success: true, data: data as unknown as IntegrationConnection };
   } catch (err) {
     return { 
       success: false, 
@@ -154,7 +154,7 @@ export async function updateIntegrationConnection(
 
     revalidatePath('/settings/integrations');
     revalidatePath(`/settings/integrations/${id}`);
-    return { success: true, data: data as IntegrationConnection };
+    return { success: true, data: data as unknown as IntegrationConnection };
   } catch (err) {
     return { 
       success: false, 
@@ -254,7 +254,7 @@ export async function testIntegrationConnection(
       };
     }
 
-    const conn = connection as IntegrationConnection;
+    const conn = connection as unknown as IntegrationConnection;
     const responseTime = Date.now() - startTime;
 
     // Check OAuth token expiration
@@ -416,7 +416,7 @@ export async function getIntegrationConnection(
       };
     }
 
-    return { success: true, data: data as IntegrationConnection };
+    return { success: true, data: data as unknown as IntegrationConnection };
   } catch (err) {
     return { 
       success: false, 
@@ -459,7 +459,7 @@ export async function listIntegrationConnections(filters?: {
       return { success: false, error: error.message };
     }
 
-    return { success: true, data: data as IntegrationConnection[] };
+    return { success: true, data: data as unknown as IntegrationConnection[] };
   } catch (err) {
     return { 
       success: false, 
@@ -507,7 +507,7 @@ export async function toggleIntegrationConnectionActive(
     }
 
     revalidatePath('/settings/integrations');
-    return { success: true, data: data as IntegrationConnection };
+    return { success: true, data: data as unknown as IntegrationConnection };
   } catch (err) {
     return { 
       success: false, 

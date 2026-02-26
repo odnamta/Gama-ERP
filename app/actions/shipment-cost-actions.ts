@@ -68,7 +68,7 @@ export async function getShipmentCosts(
     if (error) throw error;
 
     type CostRowWithJoin = ShipmentCostRow & { agency_charge_types?: Record<string, unknown> };
-    const costs: ShipmentCost[] = ((data || []) as unknown as CostRowWithJoin[]).map((row) => {
+    const costs: ShipmentCost[] = ((data ?? []) as CostRowWithJoin[]).map((row) => {
       const cost = transformCostRow(row);
 
       // Add joined charge type if available
@@ -522,7 +522,7 @@ export async function getShipmentCostsByVendor(
     if (error) throw error;
 
     type CostRowWithJoinVendor = ShipmentCostRow & { agency_charge_types?: Record<string, unknown> };
-    const costs: ShipmentCost[] = ((data || []) as unknown as CostRowWithJoinVendor[]).map((row) => {
+    const costs: ShipmentCost[] = ((data ?? []) as CostRowWithJoinVendor[]).map((row) => {
       const cost = transformCostRow(row);
 
       if (row.agency_charge_types) {
@@ -585,7 +585,7 @@ export async function getUnpaidCostsByBooking(
     if (error) throw error;
 
     type CostRowWithJoinUnpaid = ShipmentCostRow & { agency_charge_types?: Record<string, unknown> };
-    const costs: ShipmentCost[] = ((data || []) as unknown as CostRowWithJoinUnpaid[]).map((row) => {
+    const costs: ShipmentCost[] = ((data ?? []) as CostRowWithJoinUnpaid[]).map((row) => {
       const cost = transformCostRow(row);
 
       if (row.agency_charge_types) {

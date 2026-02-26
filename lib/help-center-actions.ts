@@ -73,7 +73,7 @@ export async function getArticlesForRole(
     return [];
   }
 
-  return (data || []).map((row) => mapDbRowToArticle(row as unknown as HelpArticleRow));
+  return (data || []).map((row) => mapDbRowToArticle(row as HelpArticleRow));
 }
 
 /**
@@ -97,7 +97,7 @@ export async function getArticleBySlug(
     return null;
   }
 
-  return mapDbRowToArticle(data as unknown as HelpArticleRow);
+  return mapDbRowToArticle(data as HelpArticleRow);
 }
 
 /**
@@ -124,7 +124,7 @@ export async function getContextualArticles(
     return [];
   }
 
-  return (data || []).map((row) => mapDbRowToArticle(row as unknown as HelpArticleRow));
+  return (data || []).map((row) => mapDbRowToArticle(row as HelpArticleRow));
 }
 
 /**
@@ -148,7 +148,7 @@ export async function getArticlesByCategory(
     return [];
   }
 
-  return (data || []).map((row) => mapDbRowToArticle(row as unknown as HelpArticleRow));
+  return (data || []).map((row) => mapDbRowToArticle(row as HelpArticleRow));
 }
 
 /**
@@ -173,7 +173,7 @@ export async function getRelatedArticles(
     return [];
   }
 
-  return (data || []).map((row) => mapDbRowToArticle(row as unknown as HelpArticleRow));
+  return (data || []).map((row) => mapDbRowToArticle(row as HelpArticleRow));
 }
 
 // =====================================================
@@ -198,7 +198,7 @@ export async function getFAQsForRole(
     return [];
   }
 
-  return (data || []).map((row) => mapDbRowToFAQ(row as unknown as HelpFAQRow));
+  return (data || []).map((row) => mapDbRowToFAQ(row as HelpFAQRow));
 }
 
 // =====================================================

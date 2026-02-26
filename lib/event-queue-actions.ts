@@ -69,7 +69,7 @@ export async function getPendingEvents(
       return { data: [], error: error.message };
     }
 
-    return { data: (data || []) as EventQueueItem[], error: null };
+    return { data: (data ?? []) as EventQueueItem[], error: null };
   } catch (err) {
     return { data: [], error: err instanceof Error ? err.message : 'Unknown error' };
   }

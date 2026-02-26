@@ -39,7 +39,7 @@ export async function isBlocked(
     return { blocked: false };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('blocked_ips')
@@ -133,7 +133,7 @@ export async function blockIP(
     return { data: null, error: 'Block reason is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   // Check if IP is already blocked
   const { data: existing } = await supabase
@@ -246,7 +246,7 @@ export async function unblockIP(
     return { success: false, error: 'Invalid IP address format' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('blocked_ips')
@@ -288,7 +288,7 @@ export async function unblockIPById(
     return { success: false, error: 'Block ID is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('blocked_ips')
@@ -328,7 +328,7 @@ export async function listBlockedIPs(
   includeExpired: boolean = false,
   includeInactive: boolean = false
 ): Promise<{ data: BlockedIP[]; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   let query = supabase
     .from('blocked_ips')
@@ -350,7 +350,7 @@ export async function listBlockedIPs(
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []) as BlockedIP[], error: null };
+  return { data: (data ?? []) as BlockedIP[], error: null };
 }
 
 /**
@@ -366,7 +366,7 @@ export async function getBlockByIP(
     return { data: null, error: 'IP address is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('blocked_ips')
@@ -399,7 +399,7 @@ export async function getBlockById(
     return { data: null, error: 'Block ID is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('blocked_ips')
@@ -420,7 +420,7 @@ export async function getBlockById(
  * @returns Number of active blocks
  */
 export async function countBlockedIPs(): Promise<{ count: number; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { count, error } = await supabase
     .from('blocked_ips')
@@ -448,7 +448,7 @@ export async function cleanupExpiredBlocks(): Promise<{
   cleanedCount: number;
   error: string | null;
 }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const now = new Date().toISOString();
 
@@ -476,7 +476,7 @@ export async function cleanupExpiredBlocks(): Promise<{
 export async function deleteOldBlocks(
   retentionDays: number = 30
 ): Promise<{ deletedCount: number; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
@@ -636,7 +636,7 @@ export async function getBlockStatistics(): Promise<{
   } | null;
   error: string | null;
 }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase.from('blocked_ips').select('*');
 
@@ -644,7 +644,7 @@ export async function getBlockStatistics(): Promise<{
     return { data: null, error: error.message };
   }
 
-  const blocks = (data || []) as BlockedIP[];
+  const blocks = (data ?? []) as BlockedIP[];
   const now = new Date();
   const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 

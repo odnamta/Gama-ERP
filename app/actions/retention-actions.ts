@@ -774,7 +774,7 @@ export async function getArchiveHistory(
       throw error;
     }
     
-    return { success: true, data: (data || []) as unknown as ArchiveRecord[] };
+    return { success: true, data: (data ?? []) as unknown as ArchiveRecord[] };
   } catch (error) {
     // Return empty array instead of error for missing table
     return { success: true, data: [] };

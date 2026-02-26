@@ -38,7 +38,7 @@ export async function getPendingRoleRequests(): Promise<RoleRequestWithUser[]> {
     }
     
     // Cast to RoleRequestWithUser[] - the query returns the exact fields we need
-    return (data || []) as unknown as RoleRequestWithUser[]
+    return (data ?? []) as unknown as RoleRequestWithUser[]
   } catch (error) {
     return []
   }
@@ -93,12 +93,12 @@ export async function approveRoleRequest(
       requested_department: string | null
       status: string
     }
-    
+
     // Check if request is still pending
     if (request.status !== 'pending') {
       return { success: false, error: 'This request has already been processed' }
     }
-    
+
     // Determine the role to assign (use override if provided, otherwise use requested_role)
     const roleToAssign = (assignedRole || request.requested_role) as UserRole
     
@@ -276,14 +276,14 @@ export async function rejectRoleRequest(
       requested_department: string | null
       status: string
     }
-    
+
     // Check if request is still pending
     if (request.status !== 'pending') {
       return { success: false, error: 'This request has already been processed' }
     }
-    
+
     const now = new Date().toISOString()
-    
+
     // Update role_requests: status='rejected', admin_notes=reason, reviewed_by, reviewed_at
     const { error: updateRequestError } = await supabase
       .from('role_requests' as 'activity_log')

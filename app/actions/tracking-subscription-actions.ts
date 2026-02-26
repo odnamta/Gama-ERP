@@ -161,7 +161,7 @@ export async function createSubscription(
     if (error) throw error;
 
     revalidatePath('/agency/tracking');
-    return { success: true, data: rowToSubscription(result as TrackingSubscriptionRow) };
+    return { success: true, data: rowToSubscription(result as unknown as TrackingSubscriptionRow) };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Failed to create subscription' };
   }
@@ -215,7 +215,7 @@ export async function updateSubscription(
 
     // Only update if there are changes
     if (Object.keys(updateData).length === 0) {
-      return { success: true, data: rowToSubscription(existing as TrackingSubscriptionRow) };
+      return { success: true, data: rowToSubscription(existing as unknown as TrackingSubscriptionRow) };
     }
 
     const { data: result, error } = await (supabase as SupabaseAny)
@@ -228,7 +228,7 @@ export async function updateSubscription(
     if (error) throw error;
 
     revalidatePath('/agency/tracking');
-    return { success: true, data: rowToSubscription(result as TrackingSubscriptionRow) };
+    return { success: true, data: rowToSubscription(result as unknown as TrackingSubscriptionRow) };
   } catch (error) {
     return { success: false, error: error instanceof Error ? error.message : 'Failed to update subscription' };
   }
@@ -327,7 +327,7 @@ export async function getSubscription(id: string): Promise<TrackingSubscription 
       .single();
 
     if (error) throw error;
-    return data ? rowToSubscription(data as TrackingSubscriptionRow) : null;
+    return data ? rowToSubscription(data as unknown as TrackingSubscriptionRow) : null;
   } catch (error) {
     return null;
   }

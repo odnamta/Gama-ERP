@@ -29,7 +29,7 @@ export default async function NewEmployeePage() {
     .eq('user_id', user.id)
     .single();
 
-  const userProfile = userProfileData as unknown as UserProfile | null;
+  const userProfile = userProfileData as UserProfile | null;
 
   // Check permission
   if (!canCreateEmployee(userProfile)) {

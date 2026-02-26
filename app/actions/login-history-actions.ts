@@ -137,7 +137,7 @@ export async function getLoginHistory(
     const totalPages = Math.ceil(total / pageSize);
     
     const result: PaginatedLoginHistory = {
-      data: (data || []) as unknown as LoginHistoryEntry[],
+      data: (data ?? []) as unknown as LoginHistoryEntry[],
       total,
       page,
       page_size: pageSize,
@@ -179,7 +179,7 @@ export async function getUserSessionStats(
     
     if (error) throw error;
     
-    const entries = (data || []) as unknown as LoginHistoryEntry[];
+    const entries = (data ?? []) as unknown as LoginHistoryEntry[];
     
     // Calculate statistics using utility function
     const stats = calculateSessionStatistics(userId, entries);
@@ -372,7 +372,7 @@ export async function exportLoginHistory(
     
     if (error) throw error;
     
-    const entries = (data || []) as unknown as LoginHistoryEntry[];
+    const entries = (data ?? []) as unknown as LoginHistoryEntry[];
     
     // Generate CSV using utility function
     const csv = exportToCsv(entries);
@@ -410,31 +410,31 @@ export async function getLoginHistoryFilterOptions(): Promise<ActionResult<{
       .select('login_method')
       .not('login_method', 'is', null);
     
-    const loginMethods = [...new Set(((methodData || []) as unknown as { login_method: string }[]).map((d) => d.login_method))].filter(Boolean).sort();
-    
+    const loginMethods = [...new Set(((methodData ?? []) as unknown as { login_method: string }[]).map((d) => d.login_method))].filter(Boolean).sort();
+
     // Get distinct device types
     const { data: deviceData } = await supabase
       .from('login_history' as AnyTable)
       .select('device_type')
       .not('device_type', 'is', null);
-    
-    const deviceTypes = [...new Set(((deviceData || []) as unknown as { device_type: string }[]).map((d) => d.device_type))].filter(Boolean).sort();
-    
+
+    const deviceTypes = [...new Set(((deviceData ?? []) as unknown as { device_type: string }[]).map((d) => d.device_type))].filter(Boolean).sort();
+
     // Get distinct browsers
     const { data: browserData } = await supabase
       .from('login_history' as AnyTable)
       .select('browser')
       .not('browser', 'is', null);
-    
-    const browsers = [...new Set(((browserData || []) as unknown as { browser: string }[]).map((d) => d.browser))].filter(Boolean).sort();
-    
+
+    const browsers = [...new Set(((browserData ?? []) as unknown as { browser: string }[]).map((d) => d.browser))].filter(Boolean).sort();
+
     // Get distinct operating systems
     const { data: osData } = await supabase
       .from('login_history' as AnyTable)
       .select('os')
       .not('os', 'is', null);
-    
-    const operatingSystems = [...new Set(((osData || []) as unknown as { os: string }[]).map((d) => d.os))].filter(Boolean).sort();
+
+    const operatingSystems = [...new Set(((osData ?? []) as unknown as { os: string }[]).map((d) => d.os))].filter(Boolean).sort();
     
     return {
       success: true,
@@ -471,7 +471,7 @@ export async function getActiveSessions(): Promise<ActionResult<LoginHistoryEntr
     
     if (error) throw error;
     
-    return { success: true, data: (data || []) as unknown as LoginHistoryEntry[] };
+    return { success: true, data: (data ?? []) as unknown as LoginHistoryEntry[] };
   } catch (error) {
     return { success: false, error: 'Failed to fetch active sessions' };
   }
@@ -505,7 +505,7 @@ export async function getRecentFailedLogins(
     
     if (error) throw error;
     
-    return { success: true, data: (data || []) as unknown as LoginHistoryEntry[] };
+    return { success: true, data: (data ?? []) as unknown as LoginHistoryEntry[] };
   } catch (error) {
     return { success: false, error: 'Failed to fetch recent failed logins' };
   }
@@ -541,7 +541,7 @@ export async function getLoginHistorySummary(
     
     if (error) throw error;
     
-    const entries = (data || []) as unknown as LoginHistoryEntry[];
+    const entries = (data ?? []) as unknown as LoginHistoryEntry[];
     
     const totalLogins = entries.length;
     const successfulLogins = entries.filter(e => e.status === 'success').length;

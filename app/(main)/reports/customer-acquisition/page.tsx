@@ -53,7 +53,7 @@ async function fetchReportData(): Promise<CustomerAcquisitionReport | null> {
     }>
   }
 
-  const customers = ((customerData || []) as unknown as CustomerRow[]).map(customer => {
+  const customers = ((customerData ?? []) as CustomerRow[]).map(customer => {
     const projects = customer.projects || []
     const firstProject = projects.sort((a, b) =>
       new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()

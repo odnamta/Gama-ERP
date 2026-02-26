@@ -21,7 +21,7 @@ export default async function NewAssetPage() {
     .eq('user_id', user.id)
     .single()
 
-  const profile = profileData as unknown as UserProfile | null
+  const profile = profileData as UserProfile | null
 
   if (!profile || !canCreateAsset(profile)) {
     redirect('/equipment')

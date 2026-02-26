@@ -60,7 +60,7 @@ export async function requestAmendment(bookingId: string, data: AmendmentFormDat
 
     const amendments = (existingAmendments || []).map(a => ({
       amendmentNumber: a.amendment_number,
-    })) as unknown as BookingAmendment[];
+    })) as BookingAmendment[];
 
     const nextNumber = getNextAmendmentNumber(amendments);
 

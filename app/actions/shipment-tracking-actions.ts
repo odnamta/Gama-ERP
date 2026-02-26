@@ -505,14 +505,14 @@ export async function searchTracking(query: string): Promise<TrackingSearchResul
         cargoDescription: booking.cargo_description,
         vesselName: booking.vessel_name,
         voyageNumber: booking.voyage_number,
-      } as unknown as import('@/types/agency').FreightBooking : undefined,
+      } as import('@/types/agency').FreightBooking : undefined,
       bl: bl ? {
         id: bl.id,
         blNumber: bl.bl_number,
         cargoDescription: bl.cargo_description,
         vesselName: bl.vessel_name,
         voyageNumber: bl.voyage_number,
-      } as unknown as import('@/types/agency').BillOfLading : undefined,
+      } as import('@/types/agency').BillOfLading : undefined,
       events: sortTrackingEventsByTimestamp(events),
       vessel: vesselInfo,
     };

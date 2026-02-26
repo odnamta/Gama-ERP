@@ -56,7 +56,7 @@ export default async function PJODetailPage({ params }: PJODetailPageProps) {
       .select('*')
       .eq('user_id', user.id)
       .single()
-    profile = profileData as unknown as UserProfile | null
+    profile = profileData as UserProfile | null
   }
 
   const userRole = getUserRole(profile)

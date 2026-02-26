@@ -53,7 +53,7 @@ async function fetchReportData(): Promise<OnTimeDeliveryReport | null> {
       return {
         joId: jo.id,
         joNumber: jo.jo_number,
-        customerName: (jo as any).proforma_job_orders?.projects?.customers?.name || 'Unknown',
+        customerName: (jo as { proforma_job_orders?: { projects?: { customers?: { name?: string } } } }).proforma_job_orders?.projects?.customers?.name || 'Unknown',
         scheduledDate,
         completedDate,
         ...classification,

@@ -66,7 +66,7 @@ export async function createSession(
     return { token: null, session: null, error: 'IP address and user agent are required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   // Enforce session limit - invalidate oldest sessions if needed
   await enforceSessionLimit(supabase, userId, config.maxSessionsPerUser);
@@ -163,7 +163,7 @@ export async function validateSession(
   // Hash the provided token
   const tokenHash = await hashToken(sessionToken);
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   // Find session by hash
   const { data, error } = await supabase
@@ -288,7 +288,7 @@ export async function updateActivity(
   }
 
   const tokenHash = await hashToken(sessionToken);
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { error } = await supabase
     .from('user_sessions')
@@ -319,7 +319,7 @@ export async function terminateSession(
   }
 
   const tokenHash = await hashToken(sessionToken);
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { error } = await supabase
     .from('user_sessions')
@@ -359,7 +359,7 @@ export async function terminateSessionById(
     return { success: false, error: 'Session ID is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { error } = await supabase
     .from('user_sessions')
@@ -392,7 +392,7 @@ export async function terminateAllUserSessions(
     return { terminatedCount: 0, error: 'User ID is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('user_sessions')
@@ -441,7 +441,7 @@ export async function getUserSessions(
     return { data: [], error: 'User ID is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('user_sessions')
@@ -455,7 +455,7 @@ export async function getUserSessions(
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []) as UserSession[], error: null };
+  return { data: (data ?? []) as UserSession[], error: null };
 }
 
 /**
@@ -467,7 +467,7 @@ export async function getUserSessions(
 export async function getSessionById(
   sessionId: string
 ): Promise<{ data: UserSession | null; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('user_sessions')
@@ -495,7 +495,7 @@ export async function countUserSessions(
     return { count: 0, error: 'User ID is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { count, error } = await supabase
     .from('user_sessions')
@@ -524,7 +524,7 @@ export async function countUserSessions(
 export async function cleanupExpiredSessions(
   deleteExpired: boolean = false
 ): Promise<{ affectedCount: number; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const now = new Date().toISOString();
 
@@ -570,7 +570,7 @@ export async function cleanupExpiredSessions(
 export async function cleanupInactiveSessions(
   inactivityTimeoutSeconds: number = DEFAULT_CONFIG.inactivityTimeoutSeconds
 ): Promise<{ affectedCount: number; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const cutoffTime = new Date(Date.now() - inactivityTimeoutSeconds * 1000).toISOString();
 
@@ -767,7 +767,7 @@ export async function getSessionStatistics(
     return { data: null, error: 'User ID is required' };
   }
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   // Get active sessions
   const { data: activeSessions, error: activeError } = await supabase
@@ -792,7 +792,7 @@ export async function getSessionStatistics(
     return { data: null, error: totalError.message };
   }
 
-  const activeList = (activeSessions || []) as { created_at: string }[];
+  const activeList = (activeSessions ?? []) as { created_at: string }[];
 
   return {
     data: {

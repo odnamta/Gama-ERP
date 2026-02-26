@@ -376,7 +376,7 @@ async function getKPIDefinitionByCode(kpiCode: string): Promise<KPIDefinitionDB 
     return null;
   }
   
-  return data as KPIDefinitionDB;
+  return data as unknown as KPIDefinitionDB;
 }
 
 // Helper to get all KPI definitions
@@ -395,7 +395,7 @@ async function getAllKPIDefinitions(category?: KPICategory): Promise<KPIDefiniti
   }
 
   const { data } = await query;
-  return (data as KPIDefinitionDB[]) || [];
+  return (data as unknown as KPIDefinitionDB[]) || [];
 }
 
 // Helper to get KPI target
@@ -604,7 +604,7 @@ export async function getKPITargets(
   }
 
   const { data } = await query;
-  return (data as KPITargetDB[]) || [];
+  return (data as unknown as KPITargetDB[]) || [];
 }
 
 // =====================================================

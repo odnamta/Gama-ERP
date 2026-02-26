@@ -76,7 +76,7 @@ export async function getChargeTypes(
     if (error) throw error;
 
     const chargeTypes: AgencyChargeType[] = (data || []).map((row) =>
-      transformChargeTypeRow(row as unknown as AgencyChargeTypeRow)
+      transformChargeTypeRow(row as AgencyChargeTypeRow)
     );
 
     return { success: true, data: chargeTypes };
@@ -116,7 +116,7 @@ export async function getAllChargeTypes(
     if (error) throw error;
 
     const chargeTypes: AgencyChargeType[] = (data || []).map((row) =>
-      transformChargeTypeRow(row as unknown as AgencyChargeTypeRow)
+      transformChargeTypeRow(row as AgencyChargeTypeRow)
     );
 
     return { success: true, data: chargeTypes };

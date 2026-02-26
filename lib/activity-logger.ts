@@ -45,7 +45,7 @@ export async function logActivity(
       action_type: actionType,
       resource_type: resourceType ?? null,
       resource_id: resourceId ?? null,
-      metadata: (metadata ?? {}) as Json,
+      metadata: (metadata ?? {}) as unknown as Json,
     });
 
     if (error) {

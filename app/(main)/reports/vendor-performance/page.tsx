@@ -51,7 +51,7 @@ async function fetchReportData(): Promise<VendorPerformanceReport | null> {
       job_orders?: { id: string }[];
     };
   };
-  const costItems = ((costData || []) as unknown as CostJoinedRow[]).map(item => ({
+  const costItems = ((costData ?? []) as unknown as CostJoinedRow[]).map(item => ({
     vendorName: item.category || 'Unknown',
     amount: item.actual_amount ?? item.estimated_amount ?? 0,
     joId: item.proforma_job_orders?.job_orders?.[0]?.id || item.proforma_job_orders?.id || '',

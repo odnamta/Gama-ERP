@@ -75,7 +75,7 @@ export async function getVendorInvoices(
 
     if (error) throw error;
 
-    const rows = (data || []) as unknown as AgencyVendorInvoiceRow[];
+    const rows = (data ?? []) as unknown as AgencyVendorInvoiceRow[];
     const invoices: AgencyVendorInvoice[] = rows.map((row) =>
       transformVendorInvoiceRow(row)
     );
@@ -122,7 +122,7 @@ export async function getVendorInvoicesByBooking(
     if (invoicesError) throw invoicesError;
 
     // Filter invoices that have any of the booking's cost IDs
-    const allRows = (invoices || []) as unknown as AgencyVendorInvoiceRow[];
+    const allRows = (invoices ?? []) as unknown as AgencyVendorInvoiceRow[];
     const filteredInvoices = allRows.filter((invoice) => {
       const invoiceCostIds = invoice.cost_ids || [];
       return invoiceCostIds.some((costId: string) => costIds.includes(costId));
@@ -167,7 +167,7 @@ export async function getVendorInvoiceById(
       return { success: false, error: 'Vendor invoice not found' };
     }
 
-    return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
+    return { success: true, data: transformVendorInvoiceRow(data as unknown as AgencyVendorInvoiceRow) };
   } catch (error) {
     return { success: false, error: 'Failed to fetch vendor invoice' };
   }
@@ -239,7 +239,7 @@ export async function createVendorInvoice(
     // Revalidate relevant paths
     revalidatePath('/agency/reports/payables');
     
-    return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
+    return { success: true, data: transformVendorInvoiceRow(data as unknown as AgencyVendorInvoiceRow) };
   } catch (error) {
     return { success: false, error: 'Failed to create vendor invoice' };
   }
@@ -270,7 +270,7 @@ export async function updateVendorInvoice(
       return { success: false, error: 'Vendor invoice not found' };
     }
 
-    const existingRow = existing as AgencyVendorInvoiceRow;
+    const existingRow = existing as unknown as AgencyVendorInvoiceRow;
 
     // Merge with existing data for validation
     const mergedData: VendorInvoiceFormData = {
@@ -343,7 +343,7 @@ export async function updateVendorInvoice(
     // Revalidate relevant paths
     revalidatePath('/agency/reports/payables');
 
-    return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
+    return { success: true, data: transformVendorInvoiceRow(data as unknown as AgencyVendorInvoiceRow) };
   } catch (error) {
     return { success: false, error: 'Failed to update vendor invoice' };
   }
@@ -411,7 +411,7 @@ export async function updateVendorInvoicePayment(
       return { success: false, error: 'Vendor invoice not found' };
     }
 
-    const existingRow = existing as AgencyVendorInvoiceRow;
+    const existingRow = existing as unknown as AgencyVendorInvoiceRow;
 
     // Validate paid amount doesn't exceed total
     if (paidAmount > existingRow.total_amount) {
@@ -454,7 +454,7 @@ export async function updateVendorInvoicePayment(
     // Revalidate relevant paths
     revalidatePath('/agency/reports/payables');
 
-    return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
+    return { success: true, data: transformVendorInvoiceRow(data as unknown as AgencyVendorInvoiceRow) };
   } catch (error) {
     return { success: false, error: 'Failed to update payment' };
   }
@@ -485,7 +485,7 @@ export async function linkCostsToInvoice(
       return { success: false, error: 'Vendor invoice not found' };
     }
 
-    const existingRow = existing as AgencyVendorInvoiceRow;
+    const existingRow = existing as unknown as AgencyVendorInvoiceRow;
 
     // Verify all cost IDs exist
     if (costIds.length > 0) {
@@ -523,7 +523,7 @@ export async function linkCostsToInvoice(
     // Revalidate relevant paths
     revalidatePath('/agency/reports/payables');
 
-    return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
+    return { success: true, data: transformVendorInvoiceRow(data as unknown as AgencyVendorInvoiceRow) };
   } catch (error) {
     return { success: false, error: 'Failed to link costs to invoice' };
   }
@@ -554,7 +554,7 @@ export async function unlinkCostsFromInvoice(
       return { success: false, error: 'Vendor invoice not found' };
     }
 
-    const existingRow = existing as AgencyVendorInvoiceRow;
+    const existingRow = existing as unknown as AgencyVendorInvoiceRow;
 
     // Remove specified cost IDs
     const existingCostIds = existingRow.cost_ids || [];
@@ -573,7 +573,7 @@ export async function unlinkCostsFromInvoice(
     // Revalidate relevant paths
     revalidatePath('/agency/reports/payables');
 
-    return { success: true, data: transformVendorInvoiceRow(data as AgencyVendorInvoiceRow) };
+    return { success: true, data: transformVendorInvoiceRow(data as unknown as AgencyVendorInvoiceRow) };
   } catch (error) {
     return { success: false, error: 'Failed to unlink costs from invoice' };
   }
@@ -599,7 +599,7 @@ export async function getVendorInvoicesByVendor(
 
     if (error) throw error;
 
-    const rows = (data || []) as unknown as AgencyVendorInvoiceRow[];
+    const rows = (data ?? []) as unknown as AgencyVendorInvoiceRow[];
     const invoices: AgencyVendorInvoice[] = rows.map((row) =>
       transformVendorInvoiceRow(row)
     );
@@ -630,7 +630,7 @@ export async function getOverdueVendorInvoices(): Promise<ActionResult<AgencyVen
 
     if (error) throw error;
 
-    const rows = (data || []) as unknown as AgencyVendorInvoiceRow[];
+    const rows = (data ?? []) as unknown as AgencyVendorInvoiceRow[];
     const invoices: AgencyVendorInvoice[] = rows.map((row) =>
       transformVendorInvoiceRow(row)
     );

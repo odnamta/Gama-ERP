@@ -94,7 +94,7 @@ export async function initializeEngineeringReview(
 
   // Send notification to assigned user
   try {
-    const complexityFactors = pjo.complexity_factors as unknown as ComplexityFactor[] | null
+    const complexityFactors = pjo.complexity_factors as ComplexityFactor[] | null
     const complexityScore = complexityFactors 
       ? complexityFactors.reduce((sum, f) => sum + (f.weight || 0), 0) 
       : undefined
@@ -488,7 +488,7 @@ export async function getEngineeringAssessments(
     return { data: null, error: error.message }
   }
 
-  return { data: data as unknown as EngineeringAssessment[] }
+  return { data: data as EngineeringAssessment[] }
 }
 
 /**

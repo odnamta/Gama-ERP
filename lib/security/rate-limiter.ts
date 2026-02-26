@@ -47,7 +47,7 @@ export async function checkRateLimit(
   const windowStart = getWindowStart(now, effectiveConfig.windowSeconds);
   const resetAt = new Date(windowStart.getTime() + effectiveConfig.windowSeconds * 1000);
 
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   // First, check if the identifier is currently blocked
   const blockCheck = await checkIfBlocked(supabase, identifier, endpoint, now);
@@ -288,7 +288,7 @@ export function validateRateLimitHeaders(
 export async function cleanupOldEntries(
   maxAgeHours: number = 1
 ): Promise<{ deletedCount: number; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const cutoffDate = new Date();
   cutoffDate.setHours(cutoffDate.getHours() - maxAgeHours);
@@ -312,7 +312,7 @@ export async function cleanupOldEntries(
  * @returns Number of cleared blocks
  */
 export async function cleanupExpiredBlocks(): Promise<{ clearedCount: number; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const now = new Date().toISOString();
 
@@ -345,7 +345,7 @@ export async function getRateLimitStatus(
   identifier: string,
   endpoint: string
 ): Promise<{ data: RateLimitLog | null; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const config = getConfigForEndpoint(endpoint);
   const now = new Date();
@@ -379,7 +379,7 @@ export async function getRateLimitHistory(
   identifier: string,
   limit: number = 100
 ): Promise<{ data: RateLimitLog[]; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const { data, error } = await supabase
     .from('rate_limit_log')
@@ -392,7 +392,7 @@ export async function getRateLimitHistory(
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []) as RateLimitLog[], error: null };
+  return { data: (data ?? []) as RateLimitLog[], error: null };
 }
 
 /**
@@ -401,7 +401,7 @@ export async function getRateLimitHistory(
  * @returns Array of blocked rate limit entries
  */
 export async function getBlockedIdentifiers(): Promise<{ data: RateLimitLog[]; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   const now = new Date().toISOString();
 
@@ -415,7 +415,7 @@ export async function getBlockedIdentifiers(): Promise<{ data: RateLimitLog[]; e
     return { data: [], error: error.message };
   }
 
-  return { data: (data || []) as RateLimitLog[], error: null };
+  return { data: (data ?? []) as RateLimitLog[], error: null };
 }
 
 // =============================================================================
@@ -537,7 +537,7 @@ export async function unblockIdentifier(
   identifier: string,
   endpoint?: string
 ): Promise<{ success: boolean; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   let query = supabase
     .from('rate_limit_log')
@@ -568,7 +568,7 @@ export async function resetRateLimit(
   identifier: string,
   endpoint?: string
 ): Promise<{ success: boolean; error: string | null }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   let query = supabase
     .from('rate_limit_log')
@@ -611,7 +611,7 @@ export async function getRateLimitStatistics(
   } | null;
   error: string | null;
 }> {
-  const supabase = await createClient() as unknown as AnySupabaseClient;
+  const supabase = await createClient() as AnySupabaseClient;
 
   let query = supabase.from('rate_limit_log').select('*');
 
@@ -628,7 +628,7 @@ export async function getRateLimitStatistics(
     return { data: null, error: error.message };
   }
 
-  const entries = (data || []) as RateLimitLog[];
+  const entries = (data ?? []) as RateLimitLog[];
   const now = new Date();
 
   // Calculate statistics

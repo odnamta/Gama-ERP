@@ -54,7 +54,7 @@ async function QuotationContent({ id }: { id: string }) {
   
   return (
     <QuotationDetailView 
-      quotation={quotation as unknown as QuotationWithRelations} 
+      quotation={quotation as QuotationWithRelations} 
       userRole={profile?.role}
       userId={user.id}
     />
