@@ -13,7 +13,7 @@ import { formatIDR, formatDate, formatDateTime, COST_CATEGORY_LABELS } from '@/l
 import { markCompleted, submitToFinance, getJORevenueItems, getJOCostItems } from '@/app/(main)/job-orders/actions'
 import { getJobOverheadBreakdown, getJobProfitability } from '@/app/(main)/job-orders/overhead-actions'
 import { useToast } from '@/hooks/use-toast'
-import { CheckCircle, Send, ArrowLeft, Loader2 } from 'lucide-react'
+import { CheckCircle, Send, ArrowLeft, Loader2, Receipt } from 'lucide-react'
 import { AttachmentsSection } from '@/components/attachments'
 import { InvoiceTermsSection } from './invoice-terms-section'
 import { SuratJalanSection } from '@/components/surat-jalan/surat-jalan-section'
@@ -151,9 +151,25 @@ export function JODetailView({ jobOrder, userId, userRole }: JODetailViewProps) 
             </Button>
           )}
           {jobOrder.status === 'completed' && (
-            <Button onClick={handleSubmitToFinance} disabled={isLoading}>
-              <Send className="mr-2 h-4 w-4" />
-              Submit to Finance
+            <>
+              <Button onClick={handleSubmitToFinance} disabled={isLoading}>
+                <Send className="mr-2 h-4 w-4" />
+                Submit to Finance
+              </Button>
+              <Button variant="outline" asChild>
+                <Link href={`/invoices/new?joId=${jobOrder.id}`}>
+                  <Receipt className="mr-2 h-4 w-4" />
+                  Create Invoice
+                </Link>
+              </Button>
+            </>
+          )}
+          {jobOrder.status === 'submitted_to_finance' && (
+            <Button asChild>
+              <Link href={`/invoices/new?joId=${jobOrder.id}`}>
+                <Receipt className="mr-2 h-4 w-4" />
+                Create Invoice
+              </Link>
             </Button>
           )}
         </div>

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { SuratJalanList } from './surat-jalan-list'
 import { getSuratJalanList } from '@/app/(main)/job-orders/surat-jalan-actions'
 import { SuratJalanWithRelations } from '@/types'
-import { FileText, Plus, Loader2 } from 'lucide-react'
+import { FileText, Plus, Loader2, Receipt } from 'lucide-react'
 
 interface SuratJalanSectionProps {
   joId: string
@@ -37,12 +37,22 @@ export function SuratJalanSection({ joId }: SuratJalanSectionProps) {
           <FileText className="h-5 w-5" />
           Surat Jalan
         </CardTitle>
-        <Button asChild>
-          <Link href={`/job-orders/${joId}/surat-jalan/new`}>
-            <Plus className="h-4 w-4 mr-1" />
-            Create Surat Jalan
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          {items.some(sj => sj.status === 'delivered') && (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/invoices/new?joId=${joId}`}>
+                <Receipt className="h-4 w-4 mr-1" />
+                Create Invoice
+              </Link>
+            </Button>
+          )}
+          <Button asChild>
+            <Link href={`/job-orders/${joId}/surat-jalan/new`}>
+              <Plus className="h-4 w-4 mr-1" />
+              Create Surat Jalan
+            </Link>
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (

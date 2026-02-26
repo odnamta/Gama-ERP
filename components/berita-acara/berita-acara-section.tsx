@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { BeritaAcaraList } from './berita-acara-list'
 import { getBeritaAcaraList } from '@/app/(main)/job-orders/berita-acara-actions'
 import { BeritaAcaraWithRelations } from '@/types'
-import { ClipboardCheck, Plus, Loader2 } from 'lucide-react'
+import { ClipboardCheck, Plus, Loader2, Receipt } from 'lucide-react'
 
 interface BeritaAcaraSectionProps {
   joId: string
@@ -48,12 +48,22 @@ export function BeritaAcaraSection({ joId, requiresBeritaAcara = false }: Berita
             </span>
           )}
         </CardTitle>
-        <Button asChild>
-          <Link href={`/job-orders/${joId}/berita-acara/new`}>
-            <Plus className="h-4 w-4 mr-1" />
-            Create Berita Acara
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          {items.some(ba => ba.status === 'signed') && (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/invoices/new?joId=${joId}`}>
+                <Receipt className="h-4 w-4 mr-1" />
+                Create Invoice
+              </Link>
+            </Button>
+          )}
+          <Button asChild>
+            <Link href={`/job-orders/${joId}/berita-acara/new`}>
+              <Plus className="h-4 w-4 mr-1" />
+              Create Berita Acara
+            </Link>
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (

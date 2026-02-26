@@ -90,9 +90,10 @@ export async function getInvoiceDataFromJO(joId: string): Promise<ActionResult<I
     return { success: false, error: 'Job Order not found' }
   }
 
-  // Validate JO status
-  if (jo.status !== 'submitted_to_finance') {
-    return { success: false, error: 'Only Job Orders submitted to finance can be invoiced' }
+  // Validate JO status — accept completed or submitted_to_finance
+  const INVOICEABLE_STATUSES = ['submitted_to_finance', 'completed', 'invoiced']
+  if (!INVOICEABLE_STATUSES.includes(jo.status)) {
+    return { success: false, error: 'Job Order must be completed or submitted to finance before invoicing' }
   }
 
   // Fetch revenue items from the linked PJO
@@ -178,8 +179,10 @@ export async function createInvoice(data: InvoiceFormData): Promise<ActionResult
     return { success: false, error: 'Job Order not found' }
   }
 
-  if (jo.status !== 'submitted_to_finance') {
-    return { success: false, error: 'Only Job Orders submitted to finance can be invoiced' }
+  // Accept completed, submitted_to_finance, or already invoiced (for split invoices)
+  const INVOICEABLE_STATUSES = ['submitted_to_finance', 'completed', 'invoiced']
+  if (!INVOICEABLE_STATUSES.includes(jo.status)) {
+    return { success: false, error: 'Job Order must be completed or submitted to finance before invoicing' }
   }
 
   // Calculate totals

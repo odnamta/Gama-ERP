@@ -12,7 +12,23 @@ export default async function NewInvoicePage({ searchParams }: NewInvoicePagePro
   const { joId } = await searchParams
 
   if (!joId) {
-    redirect('/job-orders')
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Create Invoice</h2>
+          <p className="text-muted-foreground">Select a Job Order to create an invoice</p>
+        </div>
+        <div className="rounded-lg border p-6 text-center space-y-3">
+          <p className="text-muted-foreground">
+            Untuk membuat invoice, pilih Job Order yang sudah selesai dari halaman Job Orders,
+            atau gunakan tombol &quot;Create Invoice&quot; di halaman Berita Acara / Surat Jalan.
+          </p>
+          <a href="/job-orders" className="inline-flex items-center text-primary hover:underline font-medium">
+            Lihat daftar Job Orders &rarr;
+          </a>
+        </div>
+      </div>
+    )
   }
 
   const result = await getInvoiceDataFromJO(joId)
