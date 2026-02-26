@@ -7,6 +7,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   VesselPositionRecord,
   VesselPositionRow,
@@ -410,7 +411,7 @@ export async function searchTracking(query: string): Promise<TrackingSearchResul
       const { data: blData, error: blError } = await (supabase as SupabaseAny)
         .from('bills_of_lading')
         .select('id, bl_number, cargo_description, vessel_name, voyage_number, booking_id')
-        .or(`bl_number.ilike.%${searchQuery}%,carrier_bl_number.ilike.%${searchQuery}%`)
+        .or(`bl_number.ilike.%${sanitizeSearchInput(searchQuery)}%,carrier_bl_number.ilike.%${sanitizeSearchInput(searchQuery)}%`)
         .maybeSingle();
 
       if (!blError && blData) {
@@ -446,7 +447,7 @@ export async function searchTracking(query: string): Promise<TrackingSearchResul
         const { data: bookingData, error: bookingError } = await (supabase as SupabaseAny)
           .from('freight_bookings')
           .select('id, booking_number, cargo_description, vessel_name, voyage_number')
-          .or(`booking_number.ilike.%${searchQuery}%,carrier_booking_number.ilike.%${searchQuery}%`)
+          .or(`booking_number.ilike.%${sanitizeSearchInput(searchQuery)}%,carrier_booking_number.ilike.%${sanitizeSearchInput(searchQuery)}%`)
           .maybeSingle();
 
         if (!bookingError && bookingData) {

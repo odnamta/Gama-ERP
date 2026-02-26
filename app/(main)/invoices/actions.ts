@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { getUserProfile } from '@/lib/permissions-server'
+import { sanitizeSearchInput } from '@/lib/utils/sanitize'
 import {
   InvoiceWithRelations,
   InvoiceFormData,
@@ -297,7 +298,7 @@ export async function getInvoices(filters?: InvoiceFilters): Promise<InvoiceWith
 
   // Apply search filter (invoice number or customer name)
   if (filters?.search) {
-    const searchTerm = `%${filters.search}%`
+    const searchTerm = `%${sanitizeSearchInput(filters.search)}%`
     query = query.or(`invoice_number.ilike.${searchTerm},customers.name.ilike.${searchTerm}`)
   }
 

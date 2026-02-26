@@ -5,6 +5,7 @@ import { getUserProfile, requireFeatureAccess } from '@/lib/permissions-server'
 import { logCreate, logWorkflowTransition } from '@/lib/audit-log'
 import { checkDocument, approveDocument, rejectDocument } from '@/lib/workflow-service'
 import { revalidatePath } from 'next/cache'
+import { sanitizeSearchInput } from '@/lib/utils/sanitize'
 
 export interface BKKFormData {
   jo_id?: string
@@ -300,7 +301,8 @@ export async function getBKKList(filters?: {
       query = query.lte('created_at', filters.endDate)
     }
     if (filters?.search) {
-      query = query.or(`bkk_number.ilike.%${filters.search}%,purpose.ilike.%${filters.search}%,recipient_name.ilike.%${filters.search}%`)
+      const search = sanitizeSearchInput(filters.search)
+      query = query.or(`bkk_number.ilike.%${search}%,purpose.ilike.%${search}%,recipient_name.ilike.%${search}%`)
     }
     
     const { data, error } = await query

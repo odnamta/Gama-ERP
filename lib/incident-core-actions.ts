@@ -7,6 +7,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   Incident,
   IncidentCategory,
@@ -404,7 +405,8 @@ export async function getIncidents(
     }
 
     if (filters.search) {
-      query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,incident_number.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,incident_number.ilike.%${search}%`);
     }
 
     const { data, error } = await query.limit(100);

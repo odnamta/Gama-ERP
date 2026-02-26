@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   PIBDocument,
   PIBDocumentWithRelations,
@@ -306,7 +307,8 @@ export async function getPIBDocuments(
     query = query.lte('eta_date', filters.date_to);
   }
   if (filters?.search) {
-    query = query.or(`internal_ref.ilike.%${filters.search}%,pib_number.ilike.%${filters.search}%,importer_name.ilike.%${filters.search}%`);
+    const search = sanitizeSearchInput(filters.search);
+    query = query.or(`internal_ref.ilike.%${search}%,pib_number.ilike.%${search}%,importer_name.ilike.%${search}%`);
   }
 
   const { data, error } = await query;

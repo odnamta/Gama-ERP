@@ -7,6 +7,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sanitizeSearchInput } from '@/lib/utils/sanitize'
 import type {
   VendorInvoiceWithRelations,
   VendorInvoiceFormData,
@@ -381,7 +382,7 @@ export async function getVendorInvoices(
   }
 
   if (filters?.search) {
-    const searchTerm = `%${filters.search}%`
+    const searchTerm = `%${sanitizeSearchInput(filters.search)}%`
     query = query.or(`invoice_number.ilike.${searchTerm},internal_ref.ilike.${searchTerm},description.ilike.${searchTerm}`)
   }
 

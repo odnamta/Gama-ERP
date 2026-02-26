@@ -14,6 +14,7 @@ import {
   setConfig,
   type AppConfig,
 } from '@/lib/production-readiness-utils';
+import { isValidOrigin } from '@/lib/api-security';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -69,6 +70,11 @@ export async function GET(request: NextRequest): Promise<NextResponse<ConfigResp
  * Update a configuration value (admin only)
  */
 export async function POST(request: NextRequest): Promise<NextResponse<{ success: boolean; error?: string }>> {
+  // CSRF protection
+  if (!isValidOrigin(request)) {
+    return NextResponse.json({ success: false, error: 'Invalid origin' }, { status: 403 });
+  }
+
   try {
     // Check authentication and admin role
     const supabase = await createClient();

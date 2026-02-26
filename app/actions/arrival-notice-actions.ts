@@ -7,6 +7,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   ArrivalNotice,
   ArrivalNoticeRow,
@@ -243,7 +244,8 @@ export async function getArrivalNotices(filters?: {
     }
 
     if (filters?.search) {
-      query = query.or(`notice_number.ilike.%${filters.search}%,vessel_name.ilike.%${filters.search}%,port_of_discharge.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`notice_number.ilike.%${search}%,vessel_name.ilike.%${search}%,port_of_discharge.ilike.%${search}%`);
     }
 
     const { data, error } = await query;

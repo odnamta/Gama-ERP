@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   SafetyPermit,
   PermitStatistics,
@@ -172,7 +173,8 @@ export async function getSafetyPermits(
     }
 
     if (filters.search) {
-      query = query.or(`work_description.ilike.%${filters.search}%,permit_number.ilike.%${filters.search}%,work_location.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`work_description.ilike.%${search}%,permit_number.ilike.%${search}%,work_location.ilike.%${search}%`);
     }
 
     const { data, error } = await query.limit(100);

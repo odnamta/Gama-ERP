@@ -5,6 +5,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   TechnicalAssessment,
   TechnicalAssessmentType,
@@ -277,7 +278,8 @@ export async function getAssessments(
     query = query.lte('created_at', filters.date_to);
   }
   if (filters?.search) {
-    query = query.or(`assessment_number.ilike.%${filters.search}%,title.ilike.%${filters.search}%`);
+    const search = sanitizeSearchInput(filters.search);
+    query = query.or(`assessment_number.ilike.%${search}%,title.ilike.%${search}%`);
   }
 
   const { data, error } = await query;

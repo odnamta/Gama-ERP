@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import type {
   HSChapter,
   HSHeading,
@@ -160,7 +161,7 @@ export async function searchHSCodes(
         chapter:hs_chapters(chapter_name, chapter_name_id)
       )
     `)
-    .or(`description.ilike.%${trimmedQuery}%,description_id.ilike.%${trimmedQuery}%`)
+    .or(`description.ilike.%${sanitizeSearchInput(trimmedQuery)}%,description_id.ilike.%${sanitizeSearchInput(trimmedQuery)}%`)
     .eq('is_active', true)
     .limit(limit * 2); // Get more results for relevance sorting
   

@@ -4,6 +4,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   Drawing,
   DrawingWithDetails,
@@ -83,7 +84,8 @@ export async function getDrawings(filters?: DrawingFilters): Promise<DrawingWith
     query = query.eq('status', filters.status);
   }
   if (filters?.search) {
-    query = query.or(`drawing_number.ilike.%${filters.search}%,title.ilike.%${filters.search}%`);
+    const search = sanitizeSearchInput(filters.search);
+    query = query.or(`drawing_number.ilike.%${search}%,title.ilike.%${search}%`);
   }
 
   const { data, error } = await query.limit(100);

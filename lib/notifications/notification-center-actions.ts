@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sanitizeSearchInput } from '@/lib/utils/sanitize'
 import {
   EnhancedNotification,
   NotificationCenterFilters,
@@ -120,7 +121,7 @@ export async function getNotificationsWithFilters(
 
     // Apply search filter (title or message contains search query)
     if (filters.searchQuery.trim()) {
-      const searchTerm = `%${filters.searchQuery.trim()}%`
+      const searchTerm = `%${sanitizeSearchInput(filters.searchQuery.trim())}%`
       query = query.or(`title.ilike.${searchTerm},message.ilike.${searchTerm}`)
     }
 

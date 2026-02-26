@@ -7,6 +7,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   Vessel,
   VesselRow,
@@ -367,7 +368,8 @@ export async function getVessels(filters?: VesselFilters): Promise<Vessel[]> {
     }
 
     if (filters?.search) {
-      query = query.or(`vessel_name.ilike.%${filters.search}%,imo_number.ilike.%${filters.search}%,mmsi.ilike.%${filters.search}%,call_sign.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`vessel_name.ilike.%${search}%,imo_number.ilike.%${search}%,mmsi.ilike.%${search}%,call_sign.ilike.%${search}%`);
     }
 
     const { data, error } = await query;

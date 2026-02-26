@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   SafetyDocument,
   DocumentCategory,
@@ -273,7 +274,8 @@ export async function getSafetyDocuments(
     }
 
     if (filters.search) {
-      query = query.or(`title.ilike.%${filters.search}%,document_number.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`title.ilike.%${search}%,document_number.ilike.%${search}%`);
     }
 
     if (filters.expiringWithinDays) {

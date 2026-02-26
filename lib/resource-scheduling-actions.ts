@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   EngineeringResource,
   ResourceWithDetails,
@@ -119,7 +120,8 @@ export async function getResources(filters?: ResourceFilters): Promise<Engineeri
   }
 
   if (filters?.search) {
-    query = query.or(`resource_name.ilike.%${filters.search}%,resource_code.ilike.%${filters.search}%`);
+    const search = sanitizeSearchInput(filters.search);
+    query = query.or(`resource_name.ilike.%${search}%,resource_code.ilike.%${search}%`);
   }
 
   const { data, error } = await query;

@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   PEBDocument,
   PEBDocumentWithRelations,
@@ -274,7 +275,8 @@ export async function getPEBDocuments(
     query = query.lte('etd_date', filters.date_to);
   }
   if (filters?.search) {
-    query = query.or(`internal_ref.ilike.%${filters.search}%,peb_number.ilike.%${filters.search}%,exporter_name.ilike.%${filters.search}%`);
+    const search = sanitizeSearchInput(filters.search);
+    query = query.or(`internal_ref.ilike.%${search}%,peb_number.ilike.%${search}%,exporter_name.ilike.%${search}%`);
   }
 
   const { data, error } = await query;

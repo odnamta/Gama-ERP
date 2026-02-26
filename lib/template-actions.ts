@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import type {
   CustomsDocumentTemplate,
   GeneratedCustomsDocument,
@@ -257,7 +258,8 @@ export async function getTemplates(
     }
     
     if (filters?.search) {
-      query = query.or(`template_name.ilike.%${filters.search}%,template_code.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`template_name.ilike.%${search}%,template_code.ilike.%${search}%`);
     }
     
     const { data, error } = await query;

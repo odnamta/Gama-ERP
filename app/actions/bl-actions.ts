@@ -7,6 +7,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   BillOfLading,
   BillOfLadingRow,
@@ -278,7 +279,8 @@ export async function getBillsOfLading(filters?: BLFilters): Promise<BillOfLadin
     }
 
     if (filters?.search) {
-      query = query.or(`bl_number.ilike.%${filters.search}%,shipper_name.ilike.%${filters.search}%,consignee_name.ilike.%${filters.search}%,cargo_description.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`bl_number.ilike.%${search}%,shipper_name.ilike.%${search}%,consignee_name.ilike.%${search}%,cargo_description.ilike.%${search}%`);
     }
 
     const { data, error } = await query;

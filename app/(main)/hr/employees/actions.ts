@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   Employee,
   EmployeeWithRelations,
@@ -45,7 +46,8 @@ export async function getEmployees(
   }
 
   if (filters?.search) {
-    query = query.or(`full_name.ilike.%${filters.search}%,employee_code.ilike.%${filters.search}%`);
+    const search = sanitizeSearchInput(filters.search);
+    query = query.or(`full_name.ilike.%${search}%,employee_code.ilike.%${search}%`);
   }
 
   const { data, error } = await query.limit(1000);

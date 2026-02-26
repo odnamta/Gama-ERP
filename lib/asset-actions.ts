@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getUserProfile } from '@/lib/permissions-server'
 import { revalidatePath } from 'next/cache'
+import { sanitizeSearchInput } from '@/lib/utils/sanitize'
 import {
   Asset,
   AssetWithRelations,
@@ -383,7 +384,7 @@ export async function getAssets(
   
   // Apply search filter
   if (filters.search?.trim()) {
-    const search = filters.search.trim()
+    const search = sanitizeSearchInput(filters.search.trim())
     query = query.or(`asset_code.ilike.%${search}%,asset_name.ilike.%${search}%,registration_number.ilike.%${search}%`)
   }
   

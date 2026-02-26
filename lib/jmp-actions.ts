@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   JourneyManagementPlan,
   JmpWithRelations,
@@ -359,7 +360,8 @@ export async function getJmpList(filters: JmpFilters): Promise<JmpWithRelations[
     }
 
     if (filters.search) {
-      query = query.or(`jmp_number.ilike.%${filters.search}%,journey_title.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`jmp_number.ilike.%${search}%,journey_title.ilike.%${search}%`);
     }
 
     const { data, error } = await query;

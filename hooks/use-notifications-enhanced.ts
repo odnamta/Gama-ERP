@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { sanitizeSearchInput } from '@/lib/utils/sanitize'
 import {
   EnhancedNotification,
   NotificationCenterFilters,
@@ -183,7 +184,7 @@ export function useNotificationsEnhanced(
         }
 
         if (filters.searchQuery.trim()) {
-          const searchTerm = `%${filters.searchQuery.trim()}%`
+          const searchTerm = `%${sanitizeSearchInput(filters.searchQuery.trim())}%`
           query = query.or(`title.ilike.${searchTerm},message.ilike.${searchTerm}`)
         }
 

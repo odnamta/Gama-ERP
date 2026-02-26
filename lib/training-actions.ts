@@ -6,6 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   TrainingCourse,
   TrainingRecord,
@@ -76,7 +77,8 @@ export async function getCourses(filters?: CourseFilters): Promise<TrainingCours
   }
 
   if (filters?.search) {
-    query = query.or(`course_code.ilike.%${filters.search}%,course_name.ilike.%${filters.search}%`);
+    const search = sanitizeSearchInput(filters.search);
+    query = query.or(`course_code.ilike.%${search}%,course_name.ilike.%${search}%`);
   }
 
   const { data, error } = await query;

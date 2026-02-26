@@ -8,6 +8,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   FreightBooking,
   BookingFormData,
@@ -361,7 +362,8 @@ export async function getBookings(filters?: BookingFilters): Promise<FreightBook
     }
 
     if (filters?.search) {
-      query = query.or(`booking_number.ilike.%${filters.search}%,cargo_description.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`booking_number.ilike.%${search}%,cargo_description.ilike.%${search}%`);
     }
 
     const { data, error } = await query;

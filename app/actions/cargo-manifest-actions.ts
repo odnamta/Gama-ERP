@@ -7,6 +7,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   BillOfLading,
   BillOfLadingRow,
@@ -250,7 +251,8 @@ export async function getCargoManifests(filters?: ManifestFilters): Promise<Carg
     }
 
     if (filters?.search) {
-      query = query.or(`manifest_number.ilike.%${filters.search}%,vessel_name.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`manifest_number.ilike.%${search}%,vessel_name.ilike.%${search}%`);
     }
 
     const { data, error } = await query;

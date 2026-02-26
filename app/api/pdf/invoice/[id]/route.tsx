@@ -3,12 +3,24 @@ import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient } from '@/lib/supabase/server'
 import { InvoicePDF, InvoicePDFProps } from '@/lib/pdf/invoice-pdf'
 import { getCompanySettingsForPDF } from '@/lib/pdf/pdf-utils'
+import { checkRateLimit } from '@/lib/security/rate-limiter'
+import { getClientIp } from '@/lib/api-security'
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Rate limiting for expensive PDF generation
+    const clientIp = getClientIp(request)
+    const rateCheck = await checkRateLimit(clientIp, '/api/pdf/invoice')
+    if (!rateCheck.allowed) {
+      return new Response(JSON.stringify({ error: 'Too many requests. Please try again later.' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json', 'Retry-After': String(Math.ceil((rateCheck.resetAt.getTime() - Date.now()) / 1000)) },
+      })
+    }
+
     const { id } = await params
     const { searchParams } = new URL(request.url)
     const download = searchParams.get('download') === 'true'

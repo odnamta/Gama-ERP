@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { isValidOrigin } from '@/lib/api-security';
 
 /**
  * API Route for logging page views (v0.13.1)
@@ -8,6 +9,11 @@ import { createClient } from '@/lib/supabase/server';
  * This is a fire-and-forget endpoint - errors are logged but don't affect the response.
  */
 export async function POST(request: NextRequest) {
+  // CSRF protection
+  if (!isValidOrigin(request)) {
+    return NextResponse.json({ error: 'Invalid origin' }, { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const { pagePath, sessionId, ipAddress, userAgent } = body;

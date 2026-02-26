@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import type {
   FeedbackFormData,
   FeedbackSubmission,
@@ -306,7 +307,8 @@ export async function getAllFeedback(
       query = query.eq('assigned_to', filters.assignedTo);
     }
     if (filters.search) {
-      query = query.or(`title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,ticket_number.ilike.%${filters.search}%`);
+      const search = sanitizeSearchInput(filters.search);
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,ticket_number.ilike.%${search}%`);
     }
     if (filters.dateFrom) {
       query = query.gte('created_at', filters.dateFrom);

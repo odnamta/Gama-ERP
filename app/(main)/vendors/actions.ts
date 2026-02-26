@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
+import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   Vendor,
   VendorWithStats,
@@ -93,7 +94,8 @@ export async function getVendors(filters?: Partial<VendorFilterState>): Promise<
   }
 
   if (filters?.search) {
-    query = query.or(`vendor_name.ilike.%${filters.search}%,vendor_code.ilike.%${filters.search}%`);
+    const search = sanitizeSearchInput(filters.search);
+    query = query.or(`vendor_name.ilike.%${search}%,vendor_code.ilike.%${search}%`);
   }
 
   const { data, error } = await query.limit(1000);
