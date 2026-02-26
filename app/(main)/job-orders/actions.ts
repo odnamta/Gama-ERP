@@ -146,6 +146,7 @@ export async function markCompleted(joId: string): Promise<{ error?: string }> {
       'completed'
     )
   } catch (e) {
+    console.error('markCompleted notification error:', e)
   }
 
   // Invalidate dashboard cache (Requirement 6.6)
@@ -207,6 +208,7 @@ export async function submitToFinance(joId: string): Promise<{ error?: string }>
       'submitted_to_finance'
     )
   } catch (e) {
+    console.error('submitToFinance notification error:', e)
   }
 
   // Check for revenue discrepancy between PJO items and JO final revenue
@@ -237,6 +239,7 @@ export async function submitToFinance(joId: string): Promise<{ error?: string }>
         }
       }
     } catch (e) {
+      console.error('submitToFinance revenue discrepancy check error:', e)
     }
   }
 

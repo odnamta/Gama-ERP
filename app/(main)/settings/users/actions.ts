@@ -189,6 +189,7 @@ export async function approveRoleRequest(
       const { invalidateOwnerDashboardCache } = await import('@/lib/dashboard-cache-actions')
       await invalidateOwnerDashboardCache()
     } catch (e) {
+      console.error('approveRoleRequest cache invalidation error:', e)
     }
     
     // Create notification for the user (Requirement 6.2)
@@ -209,13 +210,15 @@ export async function approveRoleRequest(
         },
       })
     } catch (notificationError) {
+      console.error('approveRoleRequest notification error:', notificationError)
     }
-    
+
     // Revalidate the page to refresh the pending requests list
     revalidatePath('/settings/users')
-    
+
     return { success: true }
   } catch (error) {
+    console.error('approveRoleRequest error:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
 }
@@ -326,13 +329,15 @@ export async function rejectRoleRequest(
         },
       })
     } catch (notificationError) {
+      console.error('rejectRoleRequest notification error:', notificationError)
     }
-    
+
     // Revalidate the page to refresh the pending requests list
     revalidatePath('/settings/users')
-    
+
     return { success: true }
   } catch (error) {
+    console.error('rejectRoleRequest error:', error)
     return { success: false, error: 'An unexpected error occurred' }
   }
 }

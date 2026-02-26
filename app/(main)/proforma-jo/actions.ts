@@ -556,6 +556,7 @@ export async function submitForApproval(id: string): Promise<{ error?: string }>
       created_by: existingPJO.created_by || undefined,
     })
   } catch (e) {
+    console.error('submitForApproval notification error:', e)
   }
 
   revalidatePath('/proforma-jo')
@@ -643,6 +644,7 @@ export async function approvePJO(id: string): Promise<{ error?: string; blocked?
       'approved'
     )
   } catch (e) {
+    console.error('approvePJO notification error:', e)
   }
 
   revalidatePath('/proforma-jo')

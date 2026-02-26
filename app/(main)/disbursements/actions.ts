@@ -94,6 +94,7 @@ export async function createDisbursement(input: CreateDisbursementInput) {
     revalidatePath('/disbursements')
     return { data, error: null }
   } catch (error) {
+    console.error('createDisbursement error:', error)
     return { data: null, error: 'Failed to create disbursement' }
   }
 }
@@ -121,6 +122,7 @@ export async function updateDisbursement(
     revalidatePath(`/disbursements/${id}`)
     return { data, error: null }
   } catch (error) {
+    console.error('updateDisbursement error:', error)
     return { data: null, error: 'Failed to update disbursement' }
   }
 }
@@ -146,6 +148,7 @@ export async function submitForApproval(id: string) {
     revalidatePath(`/disbursements/${id}`)
     return { data, error: null }
   } catch (error) {
+    console.error('submitForApproval error:', error)
     return { data: null, error: 'Failed to submit for approval' }
   }
 }
@@ -185,6 +188,7 @@ export async function approveDisbursement(id: string, _userId?: string) {
     revalidatePath(`/disbursements/${id}`)
     return { data, error: null }
   } catch (error) {
+    console.error('approveDisbursement error:', error)
     return { data: null, error: 'Failed to approve disbursement' }
   }
 }
@@ -217,6 +221,7 @@ export async function rejectDisbursement(id: string, _userId?: string, reason?: 
     revalidatePath(`/disbursements/${id}`)
     return { data, error: null }
   } catch (error) {
+    console.error('rejectDisbursement error:', error)
     return { data: null, error: 'Failed to reject disbursement' }
   }
 }
@@ -256,6 +261,7 @@ export async function releaseDisbursement(id: string, _userId?: string) {
     revalidatePath(`/disbursements/${id}`)
     return { data, error: null }
   } catch (error) {
+    console.error('releaseDisbursement error:', error)
     return { data: null, error: 'Failed to release disbursement' }
   }
 }
@@ -290,6 +296,7 @@ export async function settleDisbursement(id: string, _userId?: string) {
     revalidatePath(`/disbursements/${id}`)
     return { data, error: null }
   } catch (error) {
+    console.error('settleDisbursement error:', error)
     return { data: null, error: 'Failed to settle disbursement' }
   }
 }
@@ -310,6 +317,7 @@ export async function deleteDisbursement(id: string) {
     revalidatePath('/disbursements')
     return { error: null }
   } catch (error) {
+    console.error('deleteDisbursement error:', error)
     return { error: 'Failed to delete disbursement' }
   }
 }

@@ -156,6 +156,7 @@ export async function createQuotation(
     revalidatePath('/quotations')
     return { success: true, data: quotation }
   } catch (err) {
+    console.error('createQuotation error:', err)
     return { success: false, error: 'Failed to create quotation' }
   }
 }
@@ -220,6 +221,7 @@ export async function updateQuotation(
     revalidatePath(`/quotations/${data.id}`)
     return { success: true, data: quotation }
   } catch (err) {
+    console.error('updateQuotation error:', err)
     return { success: false, error: 'Failed to update quotation' }
   }
 }
@@ -243,6 +245,7 @@ export async function deleteQuotation(id: string): Promise<ActionResult> {
     revalidatePath('/quotations')
     return { success: true }
   } catch (err) {
+    console.error('deleteQuotation error:', err)
     return { success: false, error: 'Failed to delete quotation' }
   }
 }
@@ -275,6 +278,7 @@ export async function getQuotation(id: string): Promise<ActionResult<QuotationWi
     
     return { success: true, data: quotation as unknown as QuotationWithRelations }
   } catch (err) {
+    console.error('getQuotation error:', err)
     return { success: false, error: 'Failed to get quotation' }
   }
 }
@@ -327,6 +331,7 @@ export async function listQuotations(filters?: {
 
     return { success: true, data: data as unknown as QuotationWithRelations[] }
   } catch (err) {
+    console.error('listQuotations error:', err)
     return { success: false, error: 'Failed to list quotations' }
   }
 }
@@ -370,6 +375,7 @@ export async function addRevenueItem(
     revalidatePath(`/quotations/${quotationId}`)
     return { success: true, data: item }
   } catch (err) {
+    console.error('addRevenueItem error:', err)
     return { success: false, error: 'Failed to add revenue item' }
   }
 }
@@ -418,6 +424,7 @@ export async function updateRevenueItem(
     
     return { success: true, data: item }
   } catch (err) {
+    console.error('updateRevenueItem error:', err)
     return { success: false, error: 'Failed to update revenue item' }
   }
 }
@@ -453,6 +460,7 @@ export async function deleteRevenueItem(id: string): Promise<ActionResult> {
     
     return { success: true }
   } catch (err) {
+    console.error('deleteRevenueItem error:', err)
     return { success: false, error: 'Failed to delete revenue item' }
   }
 }
@@ -497,6 +505,7 @@ export async function addCostItem(
     revalidatePath(`/quotations/${quotationId}`)
     return { success: true, data: item }
   } catch (err) {
+    console.error('addCostItem error:', err)
     return { success: false, error: 'Failed to add cost item' }
   }
 }
@@ -545,6 +554,7 @@ export async function updateCostItem(
     
     return { success: true, data: item }
   } catch (err) {
+    console.error('updateCostItem error:', err)
     return { success: false, error: 'Failed to update cost item' }
   }
 }
@@ -580,6 +590,7 @@ export async function deleteCostItem(id: string): Promise<ActionResult> {
     
     return { success: true }
   } catch (err) {
+    console.error('deleteCostItem error:', err)
     return { success: false, error: 'Failed to delete cost item' }
   }
 }
@@ -625,6 +636,7 @@ export async function addPursuitCost(
     revalidatePath(`/quotations/${quotationId}`)
     return { success: true, data: item }
   } catch (err) {
+    console.error('addPursuitCost error:', err)
     return { success: false, error: 'Failed to add pursuit cost' }
   }
 }
@@ -675,6 +687,7 @@ export async function updatePursuitCost(
     
     return { success: true, data: item }
   } catch (err) {
+    console.error('updatePursuitCost error:', err)
     return { success: false, error: 'Failed to update pursuit cost' }
   }
 }
@@ -710,6 +723,7 @@ export async function deletePursuitCost(id: string): Promise<ActionResult> {
     
     return { success: true }
   } catch (err) {
+    console.error('deletePursuitCost error:', err)
     return { success: false, error: 'Failed to delete pursuit cost' }
   }
 }
@@ -765,6 +779,7 @@ export async function submitQuotation(
     revalidatePath(`/quotations/${id}`)
     return { success: true, data: updated }
   } catch (err) {
+    console.error('submitQuotation error:', err)
     return { success: false, error: 'Failed to submit quotation' }
   }
 }
@@ -801,6 +816,7 @@ export async function markQuotationWon(
     revalidatePath(`/quotations/${id}`)
     return { success: true, data: updated }
   } catch (err) {
+    console.error('markQuotationWon error:', err)
     return { success: false, error: 'Failed to mark quotation as won' }
   }
 }
@@ -836,6 +852,7 @@ export async function markQuotationLost(
     revalidatePath(`/quotations/${id}`)
     return { success: true, data: updated }
   } catch (err) {
+    console.error('markQuotationLost error:', err)
     return { success: false, error: 'Failed to mark quotation as lost' }
   }
 }
@@ -862,6 +879,7 @@ export async function cancelQuotation(id: string): Promise<ActionResult<Quotatio
     revalidatePath(`/quotations/${id}`)
     return { success: true, data: updated }
   } catch (err) {
+    console.error('cancelQuotation error:', err)
     return { success: false, error: 'Failed to cancel quotation' }
   }
 }
@@ -906,6 +924,7 @@ export async function markQuotationReady(id: string): Promise<ActionResult<Quota
     revalidatePath(`/quotations/${id}`)
     return { success: true, data: updated }
   } catch (err) {
+    console.error('markQuotationReady error:', err)
     return { success: false, error: 'Failed to mark quotation as ready' }
   }
 }
@@ -1064,6 +1083,7 @@ export async function convertToPJO(
     
     return { success: true, data: { pjo_ids: pjoIds } }
   } catch (err) {
+    console.error('convertToPJO error:', err)
     return { success: false, error: 'Failed to convert quotation to PJO' }
   }
 }

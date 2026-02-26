@@ -20,6 +20,17 @@ import {
   validatePayrollPeriod,
   getDefaultAttendanceSummary,
 } from '@/lib/payroll-utils';
+import { getUserProfile } from '@/lib/permissions-server';
+
+const PAYROLL_ALLOWED_ROLES = ['owner', 'director', 'sysadmin', 'hr', 'finance_manager'] as const;
+
+async function requirePayrollAccess(): Promise<{ authorized: true } | { authorized: false }> {
+  const profile = await getUserProfile();
+  if (!profile || !(PAYROLL_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+    return { authorized: false };
+  }
+  return { authorized: true };
+}
 
 // ============================================
 // Payroll Components
@@ -29,8 +40,11 @@ import {
  * Get all active payroll components
  */
 export async function getPayrollComponents(): Promise<PayrollComponent[]> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return [];
+
   const supabase = await createClient();
-  
+
   const { data, error } = await supabase
     .from('payroll_components')
     .select('*')
@@ -54,6 +68,9 @@ export async function getPayrollComponents(): Promise<PayrollComponent[]> {
 export async function getEmployeePayrollSetup(
   employeeId: string
 ): Promise<EmployeePayrollSetup[]> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return [];
+
   const supabase = await createClient();
   
   const { data, error } = await supabase
@@ -80,6 +97,9 @@ export async function updateEmployeePayrollSetup(
   componentId: string,
   data: { custom_amount?: number; custom_rate?: number; effective_from?: string; effective_to?: string }
 ): Promise<{ success: boolean; error?: string }> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return { success: false, error: 'Unauthorized' };
+
   const supabase = await createClient();
   
   const { error } = await supabase
@@ -113,6 +133,9 @@ export async function updateEmployeePayrollSetup(
  * Get all payroll periods
  */
 export async function getPayrollPeriods(): Promise<PayrollPeriod[]> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return [];
+
   const supabase = await createClient();
   
   const { data, error } = await supabase
@@ -132,6 +155,9 @@ export async function getPayrollPeriods(): Promise<PayrollPeriod[]> {
  * Get a single payroll period by ID
  */
 export async function getPayrollPeriod(periodId: string): Promise<PayrollPeriod | null> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return null;
+
   const supabase = await createClient();
   
   const { data, error } = await supabase
@@ -153,6 +179,9 @@ export async function getPayrollPeriod(periodId: string): Promise<PayrollPeriod 
 export async function createPayrollPeriod(
   formData: PayrollPeriodFormData
 ): Promise<{ success: boolean; data?: PayrollPeriod; error?: string }> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return { success: false, error: 'Unauthorized' };
+
   const supabase = await createClient();
   
   // Validate input
@@ -211,6 +240,9 @@ export async function createPayrollPeriod(
  * Get payroll records for a period
  */
 export async function getPayrollRecords(periodId: string): Promise<PayrollRecord[]> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return [];
+
   const supabase = await createClient();
   
   // Use explicit FK hint to avoid PGRST201 ambiguous relationship error
@@ -244,6 +276,9 @@ export async function getPayrollRecords(periodId: string): Promise<PayrollRecord
  * Get a single payroll record
  */
 export async function getPayrollRecord(recordId: string): Promise<PayrollRecord | null> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return null;
+
   const supabase = await createClient();
   
   // Use explicit FK hint to avoid PGRST201 ambiguous relationship error
@@ -281,6 +316,9 @@ export async function calculateEmployeePayroll(
   periodId: string,
   employeeId: string
 ): Promise<{ success: boolean; data?: PayrollRecord; error?: string }> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return { success: false, error: 'Unauthorized' };
+
   const supabase = await createClient();
   
   // Get period
@@ -366,6 +404,9 @@ export async function calculateEmployeePayroll(
 export async function calculateAllPayroll(
   periodId: string
 ): Promise<{ success: boolean; count: number; error?: string }> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return { success: false, count: 0, error: 'Unauthorized' };
+
   const supabase = await createClient();
   
   // Get period
@@ -526,6 +567,9 @@ export async function approvePayrollPeriod(
 export async function generateSalarySlip(
   payrollRecordId: string
 ): Promise<{ success: boolean; data?: SalarySlip; error?: string }> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return { success: false, error: 'Unauthorized' };
+
   const supabase = await createClient();
   
   // Check if slip already exists
@@ -561,6 +605,9 @@ export async function generateSalarySlip(
  * Get salary slip for a payroll record
  */
 export async function getSalarySlip(payrollRecordId: string): Promise<SalarySlip | null> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return null;
+
   const supabase = await createClient();
   
   const { data, error } = await supabase
@@ -587,6 +634,9 @@ export async function getManpowerCostByDepartment(
   year: number,
   month: number
 ): Promise<DepartmentManpowerCost[]> {
+  const auth = await requirePayrollAccess();
+  if (!auth.authorized) return [];
+
   const supabase = await createClient();
   
   // Get period

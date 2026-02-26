@@ -31,10 +31,13 @@
 - Centralized auth helpers (lib/auth-helpers.ts) -- new as of Feb 26
 
 ## Phase 0: Critical Security (Before March 12)
-- [x] Sanitize search inputs in `.or()` / `.ilike()` -- 28 files (commit TBD)
-- [x] Add CSRF origin validation to 3 POST API routes (commit TBD)
-- [x] Wire existing rate limiter to 4 PDF generation endpoints (commit TBD)
-- [ ] Verify auth checks on all 141 server actions (spot-check top 20)
+- [x] Sanitize search inputs in `.or()` / `.ilike()` -- 28 files (commit f395589)
+- [x] Add CSRF origin validation to 3 POST API routes (commit f395589)
+- [x] Wire existing rate limiter to 4 PDF generation endpoints (commit f395589)
+- [x] Spot-check auth on top 20 server actions -- found & fixed payroll (critical gap, no auth)
+- [x] Add auth checks to all 14 payroll action functions (owner/director/sysadmin/hr/finance_manager)
+- [x] Add `.limit()` to remaining unbounded queries (feedback, job-failures, hse-data)
+- [x] Add `console.error` to 40+ silent catch blocks across core business actions
 
 **Estimated effort**: 13 hours
 

@@ -171,7 +171,8 @@ export async function getHseDashboardMetrics(
       supabase
         .from('incidents')
         .select('severity')
-        .gte('incident_date', startOfYear),
+        .gte('incident_date', startOfYear)
+        .limit(10000),
       
       // Recent incidents (last 5)
       supabase

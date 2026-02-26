@@ -701,7 +701,8 @@ export async function getFeedbackComments(
       .from('feedback_comments')
       .select('*')
       .eq('feedback_id', feedbackId)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
+      .limit(500);
 
     // Non-admins can't see internal comments
     if (!isAdmin) {
@@ -789,7 +790,8 @@ export async function getFeedbackHistory(
       .from('feedback_status_history')
       .select('id, old_status, new_status, changed_by_name, changed_at, notes')
       .eq('feedback_id', feedbackId)
-      .order('changed_at', { ascending: true });
+      .order('changed_at', { ascending: true })
+      .limit(1000);
 
     if (error) {
       return { success: false, error: 'Failed to fetch history' };

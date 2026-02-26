@@ -452,6 +452,7 @@ export async function updateInvoiceStatus(
         )
       }
     } catch (e) {
+      console.error('updateInvoiceStatus notification error:', e)
     }
   }
 

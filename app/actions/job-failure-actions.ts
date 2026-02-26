@@ -20,7 +20,8 @@ export async function getJobFailuresAction(filters?: JobFailureFilters) {
   let query = supabase
     .from('job_failures')
     .select('*')
-    .order('failed_at', { ascending: false });
+    .order('failed_at', { ascending: false })
+    .limit(1000);
 
   if (filters?.status) {
     if (Array.isArray(filters.status)) {
@@ -138,7 +139,8 @@ export async function getJobFailureStatsAction() {
 
   const { data, error } = await supabase
     .from('job_failures')
-    .select('status, job_type');
+    .select('status, job_type')
+    .limit(10000);
 
   if (error) {
     return { success: false, error: error.message, data: null };
