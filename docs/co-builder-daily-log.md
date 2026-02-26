@@ -611,6 +611,89 @@ Note: 5 number-generation functions (invoices, disbursements, pjo, bkk, executiv
 ### Commits
 - (pending push — all fixes in working tree)
 
+## Day 14 — Selasa, 25 Februari 2026
+
+**Pelapor aktif:** Kurniashanti, Hutami Widya Arini, Feri Supriono (BARU!), Iqbal Tito
+
+### Peserta Baru
+- **Feri Supriono** (finance_manager) — 3 feedback (2 pertanyaan + 1 saran). Insight penting tentang regulasi invoice dan kebutuhan vendor list di PJO.
+
+### Feedback Diterima (13 item)
+| # | Feedback | Pelapor | Kategori | Penilaian |
+|---|----------|---------|----------|-----------|
+| F1 | Scope of Work di form Quotation | Hutami | Suggestion | Important (x2) |
+| F2 | Penyesuaian Cargo Specification | Hutami | Suggestion | Important (x2) |
+| F3 | Kolom Value pada Cargo Spec | Hutami | Question | Helpful (x1) |
+| F4 | Penambahan tab Price Offer | Hutami | Suggestion | Helpful (x1) |
+| F5 | Penambahan Quotation Number | Hutami | Suggestion | Helpful (x1) |
+| F6 | Usulan Flow yang Lebih Efisien | Hutami | Praise | Helpful (x1) |
+| F7 | Regulasi invoice vs JO Acc | Feri | Question | Important (x2) |
+| F8 | Belum bisa input BKK | Feri | Question | Helpful (x1) |
+| F9 | List vendor di PJO | Feri | Suggestion | Important (x2) |
+| B1 | HSE incident error (explorer) | Kurniashanti | Bug | Fixed — Important (x2) |
+| B2 | Explorer mode general errors | Kurniashanti | Bug | Fixed — Important (x2) |
+| B3 | HSE incident error (ulang) | Kurniashanti | Bug | Duplikat B1 |
+| B4 | Export Documents error (explorer) | Kurniashanti | Bug | Acknowledged |
+
+### Commits
+- (digabung di Day 15)
+
+---
+
+## Day 15 — Rabu, 26 Februari 2026 (WEEK 3 START)
+
+**Pelapor aktif:** Iqbal Tito, Kurniashanti, Navisa Kafka, Feri Supriono
+
+### Bug yang Ditemukan & Diperbaiki
+
+| # | Bug | Pelapor | Severity | Status |
+|---|-----|---------|----------|--------|
+| 84 | Halaman Shipping Rates crash (SelectItem value="") | Navisa | High | Fixed |
+| 85 | Halaman Manage Rates crash (same root cause) | Navisa | High | Fixed |
+| 86 | Leave request submit tidak bekerja (DB trigger + missing Toaster) | Kurniashanti, Iqbal | Critical | Fixed |
+| 87 | Safety permit baru error (missing guardPage + permission keys) | Iqbal, Kurniashanti | High | Fixed |
+| 88 | HSE incident report error (explorer mode) | Kurniashanti | High | Fixed |
+| 89 | Audit type error (role HSE diblokir AUDIT_WRITE_ROLES) | Iqbal | High | Fixed |
+| 90 | Training records tidak tersimpan (Sonner Toaster missing) | Iqbal | Medium | Fixed |
+| 91 | Scenario checkpoint Week 3 tidak tampil (format data berbeda) | Iqbal | Medium | Fixed |
+| 92 | Feedback button tidak bisa diklik di halaman permit | Kurniashanti | Medium | Acknowledged |
+
+### Perbaikan Sistemik
+- **Sonner Toaster ditambahkan di layout.tsx** — selama ini SEMUA toast.error() dan toast.success() dari 57+ komponen tidak pernah tampil karena `<SonnerToaster>` belum dimount. Ini root cause tersembunyi dari banyak "tidak terjadi apa-apa" yang dilaporkan.
+- **25+ SelectItem value="" diperbaiki** di seluruh aplikasi — Radix UI throws error pada empty string value, menyebabkan crash komponen. Semua diubah ke sentinel value `__all__` atau `__none__`.
+- **HSE pages explorer mode** — 6 halaman HSE (main, incidents, incident detail, incident report, permits, permit detail) sekarang mendukung guardPage() dengan mode explorer read-only.
+- **Permission keys baru**: `hse.permits.view`, `hse.permits.create` ditambahkan ke sistem RBAC.
+- **Audit role split**: `AUDIT_WRITE_ROLES` dipisah menjadi `AUDIT_TYPE_MANAGE_ROLES` (admin only) dan `AUDIT_WRITE_ROLES` (termasuk hse, ops_manager).
+- **DB trigger fix**: `generate_leave_request_number()` — sequence `leave_request_seq` harus schema-qualified (`public.leave_request_seq`) karena function menggunakan `SET search_path TO ''`.
+
+### Scoring
+| Pelapor | Review Points | Bug Fixed | Notes |
+|---------|--------------|-----------|-------|
+| Iqbal | +115 | +25 (5 bugs) | 7 feedback, 5 bug termasuk 1 critical |
+| Kurniashanti | +74 | +20 (4 bugs) | 7 feedback, 1 duplikat (-13), 1 critical |
+| Navisa | +25 | +10 (2 bugs) | 3 feedback, shipping rates |
+| Hutami | +30 | — | 6 feedback, 2 important suggestions |
+| Feri | +16 | — | 3 feedback, invoice insight important |
+
+### Leaderboard (per 26 Feb)
+
+| # | Nama | Total | Feedback | Skenario | Bugs Fixed | Perubahan |
+|---|------|-------|----------|----------|------------|-----------|
+| 1 | **Iqbal Tito** | **1712** | 44 | 10 | 27 | +115 review + 25 bug_fixed |
+| 2 | Kurniashanti | **1455** | 43 | 8 | 25 | +74 review + 20 bug_fixed - 13 duplikat |
+| 3 | Luthfi Badarnawa | **728** | 20 | 7 | 16 | — (tidak ada feedback baru) |
+| 4 | Reza Pramana | **539** | 15 | 6 | 14 | — |
+| 5 | Navisa Kafka | **446** | 10 | 10 | 5 | +25 review + 10 bug_fixed |
+| 6 | Choirul Anam | **414** | 10 | 10 | 5 | — |
+| 7 | Hutami Widya Arini | **264** | 10 | 0 | 0 | +30 review |
+| 8 | Chairul Fajri | **88** | 0 | 4 | 0 | — |
+| 9 | **Feri Supriono** | **44** | 3 | 0 | 0 | BARU! finance_manager |
+
+**Notes:** Iqbal mempertahankan posisi #1. Gap semakin lebar (1712 vs 1455). Feri Supriono bergabung — peserta ke-9. Top 5 Priorities sudah dibuka hari ini (Week 3).
+
+### Commits
+- `972cda0` fix: Day 14-15 Co-Builder bugs — HSE explorer mode, leave request, permits, shipping rates
+
 ---
 
 <!-- Template for new days:
