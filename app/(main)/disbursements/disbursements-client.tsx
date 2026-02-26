@@ -24,6 +24,7 @@ import {
 import { formatCurrencyIDR, formatDate } from '@/lib/utils/format'
 import { Plus, Search, Download, Filter, Wallet, Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useIsDesktop } from '@/hooks/use-media-query'
 
 interface BKKRecord {
   id: string
@@ -68,6 +69,7 @@ const categoryLabels: Record<string, string> = {
 
 export function DisbursementsClient({ initialData, userRole }: DisbursementsClientProps) {
   const router = useRouter()
+  const isDesktop = useIsDesktop()
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
@@ -122,18 +124,18 @@ export function DisbursementsClient({ initialData, userRole }: DisbursementsClie
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <h1 className="text-3xl font-bold">Disbursements (BKK)</h1>
-          <p className="text-muted-foreground">Cash disbursement vouchers</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Disbursements (BKK)</h1>
+          <p className="text-muted-foreground text-sm">Cash disbursement vouchers</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExport}>
+          <Button variant="outline" size={isDesktop ? 'default' : 'sm'} onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
-            Export CSV
+            Export
           </Button>
           {canCreate && (
-            <Button onClick={() => router.push('/disbursements/new')}>
+            <Button size={isDesktop ? 'default' : 'sm'} onClick={() => router.push('/disbursements/new')}>
               <Plus className="mr-2 h-4 w-4" />
               New BKK
             </Button>
@@ -142,110 +144,143 @@ export function DisbursementsClient({ initialData, userRole }: DisbursementsClie
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Amount</CardTitle>
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrencyIDR(stats.total)}</div>
+            <div className="text-lg sm:text-2xl font-bold">{formatCurrencyIDR(stats.total)}</div>
             <p className="text-xs text-muted-foreground">{stats.count} records</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Pending</CardTitle>
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+            <div className="text-lg sm:text-2xl font-bold text-yellow-600">{stats.pending}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Approved</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Approved</CardTitle>
             <AlertCircle className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.approved}</div>
+            <div className="text-lg sm:text-2xl font-bold text-blue-600">{stats.approved}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Settled</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Settled</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.settled}</div>
+            <div className="text-lg sm:text-2xl font-bold text-green-600">{stats.settled}</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters */}
-      <div className="flex gap-4 flex-wrap">
-        <div className="relative flex-1 min-w-[200px]">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:flex-wrap">
+        <div className="relative flex-1 min-w-0 sm:min-w-[200px]">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by BKK number, description, JO, or vendor..."
+            placeholder="Search BKK, JO, vendor..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
           />
         </div>
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-[180px]">
-            <Filter className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            <SelectItem value="job_cost">Job Cost</SelectItem>
-            <SelectItem value="vendor_payment">Vendor Payment</SelectItem>
-            <SelectItem value="overhead">Overhead</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="released">Released</SelectItem>
-            <SelectItem value="settled">Settled</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex gap-3">
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="job_cost">Job Cost</SelectItem>
+              <SelectItem value="vendor_payment">Vendor Payment</SelectItem>
+              <SelectItem value="overhead">Overhead</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="released">Released</SelectItem>
+              <SelectItem value="settled">Settled</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
-      {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>BKK Number</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Reference</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Created By</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredData.length === 0 ? (
+      {/* Data */}
+      {filteredData.length === 0 ? (
+        <div className="rounded-md border p-6 text-center text-muted-foreground">
+          No disbursements found
+        </div>
+      ) : !isDesktop ? (
+        /* Mobile card view */
+        <div className="space-y-3">
+          {filteredData.map((bkk) => (
+            <div
+              key={bkk.id}
+              className="rounded-lg border bg-card p-4 space-y-2 active:bg-muted/50 cursor-pointer"
+              onClick={() => router.push(`/disbursements/${bkk.id}`)}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <span className="font-medium text-sm">{bkk.bkk_number}</span>
+                <Badge className={cn('capitalize shrink-0', statusColors[bkk.status])}>
+                  {bkk.status}
+                </Badge>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {bkk.job_orders?.jo_number || bkk.vendors?.name || '-'}
+                {' · '}
+                <Badge variant="outline" className="text-xs py-0">
+                  {categoryLabels[bkk.category] || bkk.category}
+                </Badge>
+              </div>
+              {bkk.description && (
+                <div className="text-xs text-muted-foreground line-clamp-1">{bkk.description}</div>
+              )}
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-semibold">{formatCurrencyIDR(bkk.amount)}</span>
+                <span className="text-xs text-muted-foreground">{formatDate(bkk.date)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* Desktop table view */
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                    No disbursements found
-                  </TableCell>
+                  <TableHead>BKK Number</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Reference</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created By</TableHead>
                 </TableRow>
-              ) : (
-                filteredData.map((bkk) => (
+              </TableHeader>
+              <TableBody>
+                {filteredData.map((bkk) => (
                   <TableRow
                     key={bkk.id}
                     className="cursor-pointer hover:bg-muted/50"
@@ -274,12 +309,12 @@ export function DisbursementsClient({ initialData, userRole }: DisbursementsClie
                     </TableCell>
                     <TableCell>{bkk.created_by_profile?.full_name || '-'}</TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

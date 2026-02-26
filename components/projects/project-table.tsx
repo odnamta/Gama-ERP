@@ -19,8 +19,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { StatusBadge, ProjectStatus } from '@/components/ui/status-badge'
-import { Pencil, Eye, Trash2 } from 'lucide-react'
+import { Pencil, Eye, Trash2, MoreHorizontal } from 'lucide-react'
+import { useIsDesktop } from '@/hooks/use-media-query'
 
 export type ProjectWithCustomer = Project & {
   customers: { name: string } | null
@@ -71,14 +78,15 @@ const statusOptions = [
 export function ProjectTable({ projects, customers, onEdit, onDelete }: ProjectTableProps) {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [customerFilter, setCustomerFilter] = useState<string>('all')
+  const isDesktop = useIsDesktop()
 
   const filteredProjects = filterProjects(projects, statusFilter, customerFilter)
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -91,7 +99,7 @@ export function ProjectTable({ projects, customers, onEdit, onDelete }: ProjectT
         </Select>
 
         <Select value={customerFilter} onValueChange={setCustomerFilter}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by customer" />
           </SelectTrigger>
           <SelectContent>
@@ -105,28 +113,47 @@ export function ProjectTable({ projects, customers, onEdit, onDelete }: ProjectT
         </Select>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Project Name</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Site Address</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredProjects.length === 0 ? (
+      {filteredProjects.length === 0 ? (
+        <div className="rounded-md border p-8 text-center text-muted-foreground">
+          {statusFilter !== 'all' || customerFilter !== 'all'
+            ? 'No projects match your filters.'
+            : 'No projects found. Add your first project to get started.'}
+        </div>
+      ) : !isDesktop ? (
+        <div className="space-y-3">
+          {filteredProjects.map((project) => (
+            <Link key={project.id} href={`/projects/${project.id}`} className="block">
+              <div className="rounded-lg border bg-card p-4 space-y-2 active:bg-muted/50">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="font-medium text-sm">{project.name}</span>
+                  <StatusBadge status={project.status as ProjectStatus} />
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {project.customers?.name || '-'}
+                </div>
+                {project.description && (
+                  <div className="text-xs text-muted-foreground line-clamp-1">
+                    {project.description}
+                  </div>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  {statusFilter !== 'all' || customerFilter !== 'all'
-                    ? 'No projects match your filters.'
-                    : 'No projects found. Add your first project to get started.'}
-                </TableCell>
+                <TableHead>Project Name</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Site Address</TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
-            ) : (
-              filteredProjects.map((project) => (
+            </TableHeader>
+            <TableBody>
+              {filteredProjects.map((project) => (
                 <TableRow key={project.id}>
                   <TableCell className="font-medium">
                     <Link
@@ -180,11 +207,11 @@ export function ProjectTable({ projects, customers, onEdit, onDelete }: ProjectT
                     </div>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   )
 }

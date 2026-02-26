@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useIsDesktop } from '@/hooks/use-media-query';
 import {
   Table,
   TableBody,
@@ -28,6 +29,7 @@ interface EmployeeTableProps {
 
 export function EmployeeTable({ employees, canEdit }: EmployeeTableProps) {
   const router = useRouter();
+  const isDesktop = useIsDesktop();
 
   const handleView = (id: string) => {
     router.push(`/hr/employees/${id}`);
@@ -43,6 +45,39 @@ export function EmployeeTable({ employees, canEdit }: EmployeeTableProps) {
         No employees found. Try adjusting your filters or add a new employee.
       </div>
     );
+  }
+
+  if (!isDesktop) {
+    return (
+      <div className="space-y-3">
+        {employees.map((employee) => (
+          <div
+            key={employee.id}
+            className="rounded-lg border bg-card p-4 space-y-1.5 active:bg-muted/50 cursor-pointer"
+            onClick={() => handleView(employee.id)}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <div className="font-medium text-sm">{employee.full_name}</div>
+                {employee.nickname && (
+                  <div className="text-xs text-muted-foreground">({employee.nickname})</div>
+                )}
+              </div>
+              <EmployeeStatusBadge status={employee.status} />
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="font-mono">{employee.employee_code}</span>
+              <span>·</span>
+              <span>{employee.position?.position_name || '-'}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{employee.department?.department_name || '-'}</span>
+              <span>{formatEmployeeDate(employee.join_date)}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
   }
 
   return (
