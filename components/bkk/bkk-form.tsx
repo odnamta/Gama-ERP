@@ -173,12 +173,12 @@ export function BKKForm({ jobOrderId, joNumber, costItems, generatedBKKNumber, v
             
             <div className="space-y-2">
               <Label htmlFor="cost-item">Select Cost Item (Optional)</Label>
-              <Select value={selectedCostItemId} onValueChange={setSelectedCostItemId}>
+              <Select value={selectedCostItemId || '__none__'} onValueChange={(v) => setSelectedCostItemId(v === '__none__' ? '' : v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a cost item..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No cost item</SelectItem>
+                  <SelectItem value="__none__">No cost item</SelectItem>
                   {availableCostItems.map((item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {item.category} - {item.description}
@@ -222,12 +222,12 @@ export function BKKForm({ jobOrderId, joNumber, costItems, generatedBKKNumber, v
             
             <div className="space-y-2">
               <Label htmlFor="vendor">Select Vendor (Optional)</Label>
-              <Select value={selectedVendorId} onValueChange={setSelectedVendorId}>
+              <Select value={selectedVendorId || '__none__'} onValueChange={(v) => setSelectedVendorId(v === '__none__' ? '' : v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a vendor..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No vendor</SelectItem>
+                  <SelectItem value="__none__">No vendor</SelectItem>
                   {vendors.map((vendor) => (
                     <SelectItem key={vendor.id} value={vendor.id}>
                       {vendor.vendor_name} ({vendor.vendor_code})

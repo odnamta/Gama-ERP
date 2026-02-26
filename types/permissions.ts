@@ -225,6 +225,8 @@ export type FeatureKey =
   | 'hse.incidents.view'
   | 'hse.incidents.create'
   | 'hse.incidents.investigate'
+  | 'hse.permits.view'
+  | 'hse.permits.create'
   | 'hse.training.view'
   | 'hse.training.view_own'
   | 'hse.training.manage'

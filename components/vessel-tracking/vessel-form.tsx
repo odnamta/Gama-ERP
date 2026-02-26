@@ -468,15 +468,15 @@ export function VesselForm({
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="shippingLineId">Linked Shipping Line</Label>
                 <Select
-                  value={watchedShippingLineId || ''}
-                  onValueChange={(value) => setValue('shippingLineId', value)}
+                  value={watchedShippingLineId || '__none__'}
+                  onValueChange={(value) => setValue('shippingLineId', value === '__none__' ? '' : value)}
                   disabled={isLoading}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select shipping line (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {shippingLines.map((line) => (
                       <SelectItem key={line.id} value={line.id}>
                         {line.lineName} ({line.lineCode})

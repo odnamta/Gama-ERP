@@ -213,14 +213,14 @@ export function SessionForm({ session, employees, onSuccess }: SessionFormProps)
               <div className="space-y-2">
                 <Label htmlFor="trainerEmployeeId">Trainer (Karyawan)</Label>
                 <Select
-                  value={formData.trainerEmployeeId}
-                  onValueChange={(value) => setFormData({ ...formData, trainerEmployeeId: value })}
+                  value={formData.trainerEmployeeId || '__none__'}
+                  onValueChange={(value) => setFormData({ ...formData, trainerEmployeeId: value === '__none__' ? '' : value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih trainer dari karyawan" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tidak ada</SelectItem>
+                    <SelectItem value="__none__">Tidak ada</SelectItem>
                     {employees.map((emp) => (
                       <SelectItem key={emp.id} value={emp.id}>
                         {emp.employee_code} - {emp.full_name}

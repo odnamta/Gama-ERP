@@ -2,6 +2,7 @@ import { Sidebar } from '@/components/layout/sidebar'
 import { Header, UserInfo } from '@/components/layout/header'
 import { MobileSidebarProvider } from '@/components/layout/mobile-sidebar-context'
 import { Toaster } from '@/components/ui/toaster'
+import { Toaster as SonnerToaster } from 'sonner'
 import { createClient } from '@/lib/supabase/server'
 import { PermissionProvider } from '@/components/providers/permission-provider'
 import { PreviewProviderWrapper } from '@/components/providers/preview-provider-wrapper'
@@ -82,6 +83,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
                       </main>
                     </div>
                     <Toaster />
+                    <SonnerToaster position="top-right" richColors closeButton />
                     <OnboardingRouteTracker userId={userProfile?.id || null} />
                     {/* Original FeedbackButton hidden during Co-Builder competition (Feb-Mar 2026) to avoid confusion with CompetitionFeedbackButton. Re-enable after March 12. */}
                     {/* <FeedbackButton /> */}

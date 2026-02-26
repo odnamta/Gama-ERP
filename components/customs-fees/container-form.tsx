@@ -187,12 +187,12 @@ export function ContainerForm({ container, defaultDocumentType, defaultDocumentI
           {/* Job Order */}
           <div className="space-y-2">
             <Label>Job Order (Optional)</Label>
-            <Select value={jobOrderId} onValueChange={setJobOrderId}>
+            <Select value={jobOrderId || '__none__'} onValueChange={(v) => setJobOrderId(v === '__none__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select Job Order" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="__none__">None</SelectItem>
                 {jobOrders.map((jo) => (
                   <SelectItem key={jo.id} value={jo.id}>
                     {jo.jo_number}

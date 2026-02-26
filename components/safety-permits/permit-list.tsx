@@ -18,19 +18,20 @@ import Link from 'next/link';
 
 interface PermitListProps {
   permits: SafetyPermit[];
+  readOnly?: boolean;
 }
 
-export function PermitList({ permits }: PermitListProps) {
+export function PermitList({ permits, readOnly }: PermitListProps) {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
   const filteredPermits = permits.filter((permit) => {
-    const matchesSearch = search === '' || 
+    const matchesSearch = search === '' ||
       permit.workDescription.toLowerCase().includes(search.toLowerCase()) ||
       permit.permitNumber.toLowerCase().includes(search.toLowerCase()) ||
       permit.workLocation.toLowerCase().includes(search.toLowerCase());
-    
+
     const matchesType = typeFilter === 'all' || permit.permitType === typeFilter;
     const matchesStatus = statusFilter === 'all' || permit.status === statusFilter;
 
@@ -69,7 +70,7 @@ export function PermitList({ permits }: PermitListProps) {
             className="pl-9"
           />
         </div>
-        
+
         <div className="flex gap-2">
           <Select value={typeFilter} onValueChange={setTypeFilter}>
             <SelectTrigger className="w-[180px]">
@@ -98,12 +99,14 @@ export function PermitList({ permits }: PermitListProps) {
             </SelectContent>
           </Select>
 
-          <Link href="/hse/permits/new">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Buat Izin
-            </Button>
-          </Link>
+          {!readOnly && (
+            <Link href="/hse/permits/new">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Buat Izin
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 

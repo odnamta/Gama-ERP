@@ -27,6 +27,7 @@ export {
 
 export type {
   TestScenario,
+  ScenarioStep,
 } from './scenario-actions'
 
 export {

@@ -180,12 +180,12 @@ export function DocumentGeneratorDialog({
             {pibOptions.length > 0 && (
               <div className="space-y-2">
                 <Label>PIB Source</Label>
-                <Select value={selectedPibId} onValueChange={setSelectedPibId}>
+                <Select value={selectedPibId || '__none__'} onValueChange={(v) => setSelectedPibId(v === '__none__' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select PIB..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {pibOptions.map((pib) => (
                       <SelectItem key={pib.id} value={pib.id}>
                         {pib.label}
@@ -199,12 +199,12 @@ export function DocumentGeneratorDialog({
             {pebOptions.length > 0 && (
               <div className="space-y-2">
                 <Label>PEB Source</Label>
-                <Select value={selectedPebId} onValueChange={setSelectedPebId}>
+                <Select value={selectedPebId || '__none__'} onValueChange={(v) => setSelectedPebId(v === '__none__' ? '' : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select PEB..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {pebOptions.map((peb) => (
                       <SelectItem key={peb.id} value={peb.id}>
                         {peb.label}

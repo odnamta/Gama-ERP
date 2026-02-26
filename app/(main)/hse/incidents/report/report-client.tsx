@@ -58,13 +58,14 @@ interface ReportClientProps {
   employees: Employee[];
   jobOrders: JobOrder[];
   assets: Asset[];
+  readOnly?: boolean;
 }
 
 const severityOptions: IncidentSeverity[] = ['low', 'medium', 'high', 'critical'];
 const incidentTypeOptions: IncidentType[] = ['accident', 'near_miss', 'observation', 'violation'];
 const locationTypeOptions: LocationType[] = ['office', 'warehouse', 'road', 'customer_site', 'port', 'other'];
 
-export function ReportClient({ categories, employees, jobOrders, assets }: ReportClientProps) {
+export function ReportClient({ categories, employees, jobOrders, assets, readOnly }: ReportClientProps) {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -161,12 +162,13 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
                 categories={categories}
                 value={categoryId}
                 onValueChange={setCategoryId}
+                disabled={readOnly}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Severity *</Label>
-                <Select value={severity} onValueChange={(v) => setSeverity(v as IncidentSeverity)}>
+                <Select value={severity} onValueChange={(v) => setSeverity(v as IncidentSeverity)} disabled={readOnly}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -179,7 +181,7 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
               </div>
               <div className="space-y-2">
                 <Label>Jenis Insiden *</Label>
-                <Select value={incidentType} onValueChange={(v) => setIncidentType(v as IncidentType)}>
+                <Select value={incidentType} onValueChange={(v) => setIncidentType(v as IncidentType)} disabled={readOnly}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -208,6 +210,7 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
                   value={incidentDate}
                   onChange={(e) => setIncidentDate(e.target.value)}
                   max={new Date().toISOString().split('T')[0]}
+                  disabled={readOnly}
                 />
               </div>
               <div className="space-y-2">
@@ -216,12 +219,13 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
                   type="time"
                   value={incidentTime}
                   onChange={(e) => setIncidentTime(e.target.value)}
+                  disabled={readOnly}
                 />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Tipe Lokasi *</Label>
-              <Select value={locationType} onValueChange={(v) => setLocationType(v as LocationType)}>
+              <Select value={locationType} onValueChange={(v) => setLocationType(v as LocationType)} disabled={readOnly}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -238,6 +242,7 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
                 value={locationName}
                 onChange={(e) => setLocationName(e.target.value)}
                 placeholder="Contoh: Gudang A, Jalan Tol Jakarta-Cikampek KM 50"
+                disabled={readOnly}
               />
             </div>
           </CardContent>
@@ -256,6 +261,7 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Ringkasan singkat insiden"
                 maxLength={200}
+                disabled={readOnly}
               />
             </div>
             <div className="space-y-2">
@@ -265,6 +271,7 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Jelaskan kronologi kejadian secara detail..."
                 rows={4}
+                disabled={readOnly}
               />
             </div>
             <div className="space-y-2">
@@ -274,6 +281,7 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
                 onChange={(e) => setImmediateActions(e.target.value)}
                 placeholder="Tindakan apa yang sudah dilakukan segera setelah insiden..."
                 rows={2}
+                disabled={readOnly}
               />
             </div>
           </CardContent>
@@ -287,12 +295,12 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label>Job Order</Label>
-              <Select value={jobOrderId} onValueChange={setJobOrderId}>
+              <Select value={jobOrderId || '__none__'} onValueChange={(v) => setJobOrderId(v === '__none__' ? '' : v)} disabled={readOnly}>
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih JO (opsional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tidak ada</SelectItem>
+                  <SelectItem value="__none__">Tidak ada</SelectItem>
                   {jobOrders.map((jo) => (
                     <SelectItem key={jo.id} value={jo.id}>{jo.jo_number}</SelectItem>
                   ))}
@@ -301,12 +309,12 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
             </div>
             <div className="space-y-2">
               <Label>Asset/Equipment</Label>
-              <Select value={assetId} onValueChange={setAssetId}>
+              <Select value={assetId || '__none__'} onValueChange={(v) => setAssetId(v === '__none__' ? '' : v)} disabled={readOnly}>
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih asset (opsional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tidak ada</SelectItem>
+                  <SelectItem value="__none__">Tidak ada</SelectItem>
                   {assets.map((asset) => (
                     <SelectItem key={asset.id} value={asset.id}>
                       {asset.asset_code} - {asset.asset_name}
@@ -317,12 +325,12 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
             </div>
             <div className="space-y-2">
               <Label>Supervisor</Label>
-              <Select value={supervisorId} onValueChange={setSupervisorId}>
+              <Select value={supervisorId || '__none__'} onValueChange={(v) => setSupervisorId(v === '__none__' ? '' : v)} disabled={readOnly}>
                 <SelectTrigger>
                   <SelectValue placeholder="Pilih supervisor (opsional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tidak ada</SelectItem>
+                  <SelectItem value="__none__">Tidak ada</SelectItem>
                   {employees.map((emp) => (
                     <SelectItem key={emp.id} value={emp.id}>{emp.full_name}</SelectItem>
                   ))}
@@ -336,16 +344,19 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base">Orang Terlibat</CardTitle>
-            <Button variant="outline" size="sm" onClick={() => setShowAddPerson(true)}>
-              <Plus className="h-4 w-4 mr-1" />
-              Tambah
-            </Button>
+            {!readOnly && (
+              <Button variant="outline" size="sm" onClick={() => setShowAddPerson(true)}>
+                <Plus className="h-4 w-4 mr-1" />
+                Tambah
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             <PersonsList
               persons={persons}
               employees={employees}
               onRemove={handleRemovePerson}
+              readonly={readOnly}
             />
           </CardContent>
         </Card>
@@ -353,12 +364,14 @@ export function ReportClient({ categories, employees, jobOrders, assets }: Repor
 
       <div className="flex justify-end gap-2">
         <Button variant="outline" asChild>
-          <Link href="/hse/incidents">Batal</Link>
+          <Link href="/hse/incidents">{readOnly ? 'Kembali' : 'Batal'}</Link>
         </Button>
-        <Button onClick={handleSubmit} disabled={!isValid || submitting}>
-          <Save className="h-4 w-4 mr-2" />
-          {submitting ? 'Menyimpan...' : 'Laporkan Insiden'}
-        </Button>
+        {!readOnly && (
+          <Button onClick={handleSubmit} disabled={!isValid || submitting}>
+            <Save className="h-4 w-4 mr-2" />
+            {submitting ? 'Menyimpan...' : 'Laporkan Insiden'}
+          </Button>
+        )}
       </div>
 
       <AddPersonDialog

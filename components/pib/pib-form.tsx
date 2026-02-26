@@ -517,15 +517,15 @@ export function PIBForm({
           <div className="space-y-2">
             <Label htmlFor="job_order_id">Job Order</Label>
             <Select
-              value={watch('job_order_id') || ''}
-              onValueChange={(v) => setValue('job_order_id', v)}
+              value={watch('job_order_id') || '__none__'}
+              onValueChange={(v) => setValue('job_order_id', v === '__none__' ? '' : v)}
               disabled={isLoading}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select job order" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="__none__">None</SelectItem>
                 {jobOrders.map((jo) => (
                   <SelectItem key={jo.id} value={jo.id}>
                     {jo.jo_number}
@@ -537,15 +537,15 @@ export function PIBForm({
           <div className="space-y-2">
             <Label htmlFor="customer_id">Customer</Label>
             <Select
-              value={watch('customer_id') || ''}
-              onValueChange={(v) => setValue('customer_id', v)}
+              value={watch('customer_id') || '__none__'}
+              onValueChange={(v) => setValue('customer_id', v === '__none__' ? '' : v)}
               disabled={isLoading}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select customer" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="__none__">None</SelectItem>
                 {customers.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}

@@ -165,12 +165,12 @@ export function FindingForm({ auditId, finding, onSuccess, onCancel }: FindingFo
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="riskLevel">Risk Level</Label>
-              <Select value={riskLevel} onValueChange={setRiskLevel}>
+              <Select value={riskLevel || '__none__'} onValueChange={(v) => setRiskLevel(v === '__none__' ? '' : v)}>
                 <SelectTrigger id="riskLevel">
                   <SelectValue placeholder="Select risk level" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Not specified</SelectItem>
+                  <SelectItem value="__none__">Not specified</SelectItem>
                   {RISK_LEVELS.map((level) => (
                     <SelectItem key={level} value={level}>
                       {formatRiskLevel(level)}

@@ -326,15 +326,15 @@ export function ScheduleForm({
               <div className="space-y-2">
                 <Label htmlFor="portId">Port (from database)</Label>
                 <Select
-                  value={watchedPortId || ''}
-                  onValueChange={handlePortChange}
+                  value={watchedPortId || '__none__'}
+                  onValueChange={(v) => handlePortChange(v === '__none__' ? '' : v)}
                   disabled={isLoading}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select port (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Manual entry</SelectItem>
+                    <SelectItem value="__none__">Manual entry</SelectItem>
                     {ports.map((port) => (
                       <SelectItem key={port.id} value={port.id}>
                         {port.portName} ({port.portCode})

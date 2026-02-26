@@ -184,12 +184,12 @@ export function FeeForm({
           {/* Job Order */}
           <div className="space-y-2">
             <Label>Job Order (Optional)</Label>
-            <Select value={jobOrderId} onValueChange={setJobOrderId}>
+            <Select value={jobOrderId || '__none__'} onValueChange={(v) => setJobOrderId(v === '__none__' ? '' : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select job order for cost allocation" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">None</SelectItem>
+                <SelectItem value="__none__">None</SelectItem>
                 {jobOrders.map((jo) => (
                   <SelectItem key={jo.id} value={jo.id}>
                     {jo.jo_number}
@@ -247,12 +247,12 @@ export function FeeForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Vendor (Optional)</Label>
-              <Select value={vendorId} onValueChange={setVendorId}>
+              <Select value={vendorId || '__none__'} onValueChange={(v) => setVendorId(v === '__none__' ? '' : v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select vendor" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="__none__">None</SelectItem>
                   {vendors.map((v) => (
                     <SelectItem key={v.id} value={v.id}>
                       {v.vendor_name}

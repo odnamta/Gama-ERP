@@ -157,12 +157,12 @@ export function DailyLogForm({
           {status === 'operating' && jobOrders.length > 0 && (
             <div className="space-y-2 md:col-span-2">
               <Label>Job Order (optional)</Label>
-              <Select value={jobOrderId} onValueChange={setJobOrderId}>
+              <Select value={jobOrderId || '__none__'} onValueChange={(v) => setJobOrderId(v === '__none__' ? '' : v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select job order" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No job order</SelectItem>
+                  <SelectItem value="__none__">No job order</SelectItem>
                   {jobOrders.map((jo) => (
                     <SelectItem key={jo.id} value={jo.id}>
                       {jo.jo_number} {jo.customer_name && `- ${jo.customer_name}`}

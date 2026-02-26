@@ -134,8 +134,8 @@ export function RateCalculator({ className }: RateCalculatorProps) {
               </span>
             </Label>
             <Select
-              value={selectedFta}
-              onValueChange={(value) => setSelectedFta(value as FTACode | '')}
+              value={selectedFta || '__none__'}
+              onValueChange={(value) => setSelectedFta(value === '__none__' ? '' : value as FTACode | '')}
               disabled={availableFtas.length === 0}
             >
               <SelectTrigger>
@@ -146,7 +146,7 @@ export function RateCalculator({ className }: RateCalculatorProps) {
                 } />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Use MFN Rate</SelectItem>
+                <SelectItem value="__none__">Use MFN Rate</SelectItem>
                 {availableFtas.map((rate) => (
                   <SelectItem key={rate.ftaCode} value={rate.ftaCode}>
                     {FTA_NAMES[rate.ftaCode]} ({rate.preferentialRate}%)

@@ -9,9 +9,10 @@ import { Incident } from '@/types/incident';
 
 interface IncidentsClientProps {
   incidents: Incident[];
+  readOnly?: boolean;
 }
 
-export function IncidentsClient({ incidents }: IncidentsClientProps) {
+export function IncidentsClient({ incidents, readOnly }: IncidentsClientProps) {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -28,12 +29,14 @@ export function IncidentsClient({ incidents }: IncidentsClientProps) {
             </p>
           </div>
         </div>
-        <Button asChild>
-          <Link href="/hse/incidents/report">
-            <Plus className="h-4 w-4 mr-2" />
-            Laporkan Insiden
-          </Link>
-        </Button>
+        {!readOnly && (
+          <Button asChild>
+            <Link href="/hse/incidents/report">
+              <Plus className="h-4 w-4 mr-2" />
+              Laporkan Insiden
+            </Link>
+          </Button>
+        )}
       </div>
 
       <Card>

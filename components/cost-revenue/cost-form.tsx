@@ -393,15 +393,15 @@ export function CostForm({
           <div className="space-y-2">
             <Label htmlFor="vendorId">Vendor</Label>
             <Select
-              value={watchedVendorId || ''}
-              onValueChange={(value) => setValue('vendorId', value)}
+              value={watchedVendorId || '__none__'}
+              onValueChange={(value) => setValue('vendorId', value === '__none__' ? '' : value)}
               disabled={isLoading}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select vendor (optional)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No vendor</SelectItem>
+                <SelectItem value="__none__">No vendor</SelectItem>
                 {vendors.map((vendor) => (
                   <SelectItem key={vendor.id} value={vendor.id}>
                     {vendor.providerName} ({vendor.providerCode})

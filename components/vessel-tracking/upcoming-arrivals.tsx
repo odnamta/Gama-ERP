@@ -218,14 +218,14 @@ export function UpcomingArrivals({
               <div className="space-y-2">
                 <Label>Vessel Type</Label>
                 <Select
-                  value={vesselTypeFilter}
-                  onValueChange={setVesselTypeFilter}
+                  value={vesselTypeFilter || '__all__'}
+                  onValueChange={(v) => setVesselTypeFilter(v === '__all__' ? '' : v)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="All types" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All types</SelectItem>
+                    <SelectItem value="__all__">All types</SelectItem>
                     {VESSEL_TYPES.map((type) => (
                       <SelectItem key={type} value={type}>
                         {VESSEL_TYPE_LABELS[type]}

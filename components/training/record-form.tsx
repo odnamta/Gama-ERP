@@ -81,8 +81,8 @@ export function RecordForm({ record, employees, onSuccess }: RecordFormProps) {
     try {
       const data = await getCourses({ isActive: true });
       setCourses(data);
-    } catch (error) {
-      console.error('Error loading courses:', error);
+    } catch {
+      toast.error('Gagal memuat daftar kursus');
     }
   };
 

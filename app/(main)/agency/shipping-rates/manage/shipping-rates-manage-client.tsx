@@ -181,12 +181,12 @@ export function ShippingRatesManageClient() {
           />
         </div>
         
-        <Select value={containerTypeFilter} onValueChange={setContainerTypeFilter}>
+        <Select value={containerTypeFilter || '__all__'} onValueChange={(v) => setContainerTypeFilter(v === '__all__' ? '' : v)}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Container Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Types</SelectItem>
+            <SelectItem value="__all__">All Types</SelectItem>
             {CONTAINER_TYPES.map((type) => (
               <SelectItem key={type} value={type}>
                 {type}
@@ -195,12 +195,12 @@ export function ShippingRatesManageClient() {
           </SelectContent>
         </Select>
 
-        <Select value={shippingLineFilter} onValueChange={setShippingLineFilter}>
+        <Select value={shippingLineFilter || '__all__'} onValueChange={(v) => setShippingLineFilter(v === '__all__' ? '' : v)}>
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Shipping Line" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Lines</SelectItem>
+            <SelectItem value="__all__">All Lines</SelectItem>
             {shippingLines.map((line) => (
               <SelectItem key={line.id} value={line.id}>
                 {line.lineName}

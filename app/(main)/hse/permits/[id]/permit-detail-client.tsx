@@ -7,19 +7,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Play, Loader2, MapPin, Calendar, User, FileText, AlertTriangle, HardHat } from 'lucide-react';
-import { SafetyPermit, PERMIT_TYPE_LABELS } from '@/types/safety-document';
-import { 
-  PermitStatusBadge, 
+import { SafetyPermit } from '@/types/safety-document';
+import {
+  PermitStatusBadge,
   PermitTypeBadge,
   PermitApprovalPanel,
   PermitClosureDialog,
 } from '@/components/safety-permits';
 import { activatePermit } from '@/lib/safety-permit-actions';
-import { formatDate } from '@/lib/pjo-utils';
+import { formatDate } from '@/lib/utils/format';
 import { useToast } from '@/hooks/use-toast';
 
 interface PermitDetailClientProps {
   permit: SafetyPermit;
+  readOnly?: boolean;
 }
 
 const PPE_LABELS: Record<string, string> = {
@@ -35,12 +36,13 @@ const PPE_LABELS: Record<string, string> = {
   fire_blanket: 'Selimut Api',
 };
 
-export function PermitDetailClient({ permit }: PermitDetailClientProps) {
+export function PermitDetailClient({ permit, readOnly }: PermitDetailClientProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleActivate = async () => {
+    if (readOnly) return;
     setLoading('activate');
     const result = await activatePermit(permit.id);
     setLoading(null);
@@ -53,9 +55,8 @@ export function PermitDetailClient({ permit }: PermitDetailClientProps) {
     }
   };
 
-  const canActivate = permit.status === 'approved';
-  const canClose = permit.status === 'active';
-  const isFullyApproved = permit.supervisorApprovedBy && permit.hseApprovedBy;
+  const canActivate = !readOnly && permit.status === 'approved';
+  const canClose = !readOnly && permit.status === 'active';
 
   return (
     <div className="space-y-6">
@@ -193,6 +194,7 @@ export function PermitDetailClient({ permit }: PermitDetailClientProps) {
           <PermitApprovalPanel
             permit={permit}
             onUpdate={() => router.refresh()}
+            readOnly={readOnly}
           />
 
           <Card>

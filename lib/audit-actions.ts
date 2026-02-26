@@ -38,7 +38,8 @@ import {
   calculateAverageScore,
 } from '@/lib/audit-utils';
 
-const AUDIT_WRITE_ROLES = ['owner', 'director', 'sysadmin'] as const;
+const AUDIT_TYPE_MANAGE_ROLES = ['owner', 'director', 'sysadmin'] as const;
+const AUDIT_WRITE_ROLES = ['owner', 'director', 'sysadmin', 'hse', 'operations_manager'] as const;
 const AUDIT_READ_ROLES = ['owner', 'director', 'sysadmin', 'hse', 'operations_manager'] as const;
 
 // =====================================================
@@ -52,8 +53,8 @@ export async function createAuditType(
   input: CreateAuditTypeInput
 ): Promise<{ data: AuditType | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
-    return { data: null, error: 'Unauthorized' };
+  if (!profile || !(AUDIT_TYPE_MANAGE_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized: Hanya owner/director/sysadmin yang dapat mengelola tipe audit' };
   }
 
   const validation = validateAuditType(input);
@@ -94,8 +95,8 @@ export async function updateAuditType(
   input: UpdateAuditTypeInput
 ): Promise<{ data: AuditType | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
-    return { data: null, error: 'Unauthorized' };
+  if (!profile || !(AUDIT_TYPE_MANAGE_ROLES as readonly string[]).includes(profile.role)) {
+    return { data: null, error: 'Unauthorized: Hanya owner/director/sysadmin yang dapat mengelola tipe audit' };
   }
 
   const supabase = await createClient();
@@ -129,8 +130,8 @@ export async function deactivateAuditType(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
-    return { success: false, error: 'Unauthorized' };
+  if (!profile || !(AUDIT_TYPE_MANAGE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized: Hanya owner/director/sysadmin yang dapat mengelola tipe audit' };
   }
 
   const supabase = await createClient();

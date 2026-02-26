@@ -25,11 +25,18 @@ import { getAuditTypes, updateAuditType, deactivateAuditType } from '@/lib/audit
 import { formatCategory } from '@/lib/audit-utils';
 import { AuditTypeForm } from '@/components/hse/audits/audit-type-form';
 import { ChecklistTemplateEditor } from '@/components/hse/audits/checklist-template-editor';
+import { usePermissions } from '@/components/providers/permission-provider';
+import { canAccessFeature } from '@/lib/permissions';
+import { toast } from 'sonner';
 
 export default function AuditTypesPage() {
   const router = useRouter();
+  const { profile } = usePermissions();
+  const canManageTypes = profile ? canAccessFeature(profile, 'audits.manage_types') : false;
+
   const [auditTypes, setAuditTypes] = useState<AuditType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingType, setEditingType] = useState<AuditType | undefined>();
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
@@ -42,8 +49,13 @@ export default function AuditTypesPage() {
 
   async function loadAuditTypes() {
     setLoading(true);
-    const { data } = await getAuditTypes();
-    setAuditTypes(data);
+    setError(null);
+    const result = await getAuditTypes();
+    if (result.error) {
+      setError(result.error);
+      toast.error(result.error);
+    }
+    setAuditTypes(result.data);
     setLoading(false);
   }
 
@@ -66,25 +78,38 @@ export default function AuditTypesPage() {
   async function handleSaveTemplate() {
     if (!editingTemplate) return;
 
-    await updateAuditType(editingTemplate.id, {
+    const result = await updateAuditType(editingTemplate.id, {
       checklist_template: template,
     });
 
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+
+    toast.success('Template checklist berhasil disimpan');
     setShowTemplateEditor(false);
     setEditingTemplate(null);
     loadAuditTypes();
   }
 
   async function handleDeactivate(id: string) {
-    if (!confirm('Are you sure you want to deactivate this audit type?')) return;
+    if (!confirm('Apakah Anda yakin ingin menonaktifkan tipe audit ini?')) return;
 
-    await deactivateAuditType(id);
+    const result = await deactivateAuditType(id);
+    if (result.error) {
+      toast.error(result.error);
+      return;
+    }
+
+    toast.success('Tipe audit berhasil dinonaktifkan');
     loadAuditTypes();
   }
 
   function handleFormSuccess() {
     setShowForm(false);
     setEditingType(undefined);
+    toast.success(editingType ? 'Tipe audit berhasil diupdate' : 'Tipe audit berhasil dibuat');
     loadAuditTypes();
   }
 
@@ -104,38 +129,50 @@ export default function AuditTypesPage() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">Audit Types</h1>
+            <h1 className="text-2xl font-bold">Tipe Audit</h1>
             <p className="text-muted-foreground">
-              Configure audit types and checklist templates
+              {canManageTypes
+                ? 'Konfigurasi tipe audit dan template checklist'
+                : 'Daftar tipe audit dan template checklist'}
             </p>
           </div>
         </div>
-        <Button onClick={handleNew}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Audit Type
-        </Button>
+        {canManageTypes && (
+          <Button onClick={handleNew}>
+            <Plus className="h-4 w-4 mr-2" />
+            Tipe Audit Baru
+          </Button>
+        )}
       </div>
+
+      {error && (
+        <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
+          {error}
+        </div>
+      )}
 
       <Card>
         <CardHeader>
-          <CardTitle>All Audit Types</CardTitle>
+          <CardTitle>Semua Tipe Audit</CardTitle>
         </CardHeader>
         <CardContent>
           {auditTypes.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">
-              No audit types configured yet
+              Belum ada tipe audit yang dikonfigurasi
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Frequency</TableHead>
+                  <TableHead>Kode</TableHead>
+                  <TableHead>Nama</TableHead>
+                  <TableHead>Kategori</TableHead>
+                  <TableHead>Frekuensi</TableHead>
                   <TableHead>Checklist</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  {canManageTypes && (
+                    <TableHead className="text-right">Aksi</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -146,47 +183,49 @@ export default function AuditTypesPage() {
                     <TableCell>{formatCategory(type.category)}</TableCell>
                     <TableCell>
                       {type.frequency_days
-                        ? `Every ${type.frequency_days} days`
+                        ? `Setiap ${type.frequency_days} hari`
                         : 'Ad-hoc'}
                     </TableCell>
                     <TableCell>
-                      {type.checklist_template?.sections?.length || 0} sections
+                      {type.checklist_template?.sections?.length || 0} seksi
                     </TableCell>
                     <TableCell>
                       <Badge variant={type.is_active ? 'default' : 'secondary'}>
-                        {type.is_active ? 'Active' : 'Inactive'}
+                        {type.is_active ? 'Aktif' : 'Nonaktif'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditTemplate(type)}
-                          title="Edit Checklist"
-                        >
-                          <Settings className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(type)}
-                          title="Edit Type"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        {type.is_active && (
+                    {canManageTypes && (
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDeactivate(type.id)}
-                            title="Deactivate"
+                            onClick={() => handleEditTemplate(type)}
+                            title="Edit Checklist"
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Settings className="h-4 w-4" />
                           </Button>
-                        )}
-                      </div>
-                    </TableCell>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(type)}
+                            title="Edit Tipe"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          {type.is_active && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDeactivate(type.id)}
+                              title="Nonaktifkan"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
@@ -200,7 +239,7 @@ export default function AuditTypesPage() {
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>
-              {editingType ? 'Edit Audit Type' : 'New Audit Type'}
+              {editingType ? 'Edit Tipe Audit' : 'Tipe Audit Baru'}
             </DialogTitle>
           </DialogHeader>
           <AuditTypeForm
@@ -216,7 +255,7 @@ export default function AuditTypesPage() {
         <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              Edit Checklist Template - {editingTemplate?.type_name}
+              Edit Template Checklist - {editingTemplate?.type_name}
             </DialogTitle>
           </DialogHeader>
           <ChecklistTemplateEditor

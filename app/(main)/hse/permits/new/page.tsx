@@ -1,6 +1,11 @@
 import { Suspense } from 'react';
 import { NewPermitClient } from './new-permit-client';
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { canAccessFeature } from '@/lib/permissions';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'Buat Izin Kerja Baru - HSE',
@@ -8,8 +13,13 @@ export const metadata = {
 };
 
 export default async function NewPermitPage() {
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(
+    canAccessFeature(profile, 'hse.permits.create')
+  );
+
   const supabase = await createClient();
-  
+
   // Fetch active job orders for linking
   const { data: jobOrders } = await supabase
     .from('job_orders')
@@ -19,7 +29,8 @@ export default async function NewPermitPage() {
 
   return (
     <Suspense fallback={<div className="p-8 text-center">Memuat...</div>}>
-      <NewPermitClient jobOrders={jobOrders || []} />
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
+      <NewPermitClient jobOrders={jobOrders || []} readOnly={explorerReadOnly} />
     </Suspense>
   );
 }

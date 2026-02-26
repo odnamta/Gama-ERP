@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface NewPermitClientProps {
   jobOrders: { id: string; jo_number: string }[];
+  readOnly?: boolean;
 }
 
 const PPE_OPTIONS = [
@@ -32,7 +33,9 @@ const PPE_OPTIONS = [
   { id: 'fire_blanket', label: 'Selimut Api' },
 ];
 
-export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
+const NO_JO_VALUE = '__none__';
+
+export function NewPermitClient({ jobOrders, readOnly }: NewPermitClientProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -58,6 +61,7 @@ export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (readOnly) return;
     setLoading(true);
 
     const result = await createSafetyPermit(formData);
@@ -106,6 +110,7 @@ export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
                 <Select
                   value={formData.permitType}
                   onValueChange={(value) => setFormData({ ...formData, permitType: value as PermitType })}
+                  disabled={readOnly}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih jenis izin" />
@@ -122,14 +127,15 @@ export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
               <div className="space-y-2">
                 <Label htmlFor="jobOrderId">Job Order (Opsional)</Label>
                 <Select
-                  value={formData.jobOrderId || ''}
-                  onValueChange={(value) => setFormData({ ...formData, jobOrderId: value || undefined })}
+                  value={formData.jobOrderId || NO_JO_VALUE}
+                  onValueChange={(value) => setFormData({ ...formData, jobOrderId: value === NO_JO_VALUE ? undefined : value })}
+                  disabled={readOnly}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih job order" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tidak terkait JO</SelectItem>
+                    <SelectItem value={NO_JO_VALUE}>Tidak terkait JO</SelectItem>
                     {jobOrders.map((jo) => (
                       <SelectItem key={jo.id} value={jo.id}>
                         {jo.jo_number}
@@ -149,6 +155,7 @@ export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
                 placeholder="Jelaskan pekerjaan yang akan dilakukan"
                 rows={3}
                 required
+                disabled={readOnly}
               />
             </div>
 
@@ -160,6 +167,7 @@ export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
                 onChange={(e) => setFormData({ ...formData, workLocation: e.target.value })}
                 placeholder="Lokasi spesifik pekerjaan"
                 required
+                disabled={readOnly}
               />
             </div>
 
@@ -172,6 +180,7 @@ export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
                   value={formData.validFrom}
                   onChange={(e) => setFormData({ ...formData, validFrom: e.target.value })}
                   required
+                  disabled={readOnly}
                 />
               </div>
               <div className="space-y-2">
@@ -182,6 +191,7 @@ export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
                   value={formData.validTo}
                   onChange={(e) => setFormData({ ...formData, validTo: e.target.value })}
                   required
+                  disabled={readOnly}
                 />
               </div>
             </div>
@@ -202,6 +212,7 @@ export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
                       id={ppe.id}
                       checked={formData.requiredPPE?.includes(ppe.id)}
                       onCheckedChange={(checked) => handlePPEChange(ppe.id, checked as boolean)}
+                      disabled={readOnly}
                     />
                     <Label htmlFor={ppe.id} className="text-sm font-normal cursor-pointer">
                       {ppe.label}
@@ -219,6 +230,7 @@ export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
                 onChange={(e) => setFormData({ ...formData, specialPrecautions: e.target.value })}
                 placeholder="Tindakan pencegahan khusus yang harus diambil"
                 rows={3}
+                disabled={readOnly}
               />
             </div>
 
@@ -230,22 +242,25 @@ export function NewPermitClient({ jobOrders }: NewPermitClientProps) {
                 onChange={(e) => setFormData({ ...formData, emergencyProcedures: e.target.value })}
                 placeholder="Prosedur yang harus diikuti dalam keadaan darurat"
                 rows={3}
+                disabled={readOnly}
               />
             </div>
           </CardContent>
         </Card>
 
-        <div className="flex justify-end gap-2">
-          <Link href="/hse/permits">
-            <Button type="button" variant="outline">
-              Batal
+        {!readOnly && (
+          <div className="flex justify-end gap-2">
+            <Link href="/hse/permits">
+              <Button type="button" variant="outline">
+                Batal
+              </Button>
+            </Link>
+            <Button type="submit" disabled={loading}>
+              {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Ajukan Izin Kerja
             </Button>
-          </Link>
-          <Button type="submit" disabled={loading}>
-            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Ajukan Izin Kerja
-          </Button>
-        </div>
+          </div>
+        )}
       </form>
     </div>
   );

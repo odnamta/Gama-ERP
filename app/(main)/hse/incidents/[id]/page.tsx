@@ -2,6 +2,9 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getIncident, getIncidentHistory } from '@/lib/incident-actions';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { canAccessFeature } from '@/lib/permissions';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 import { IncidentDetailClient } from './incident-detail-client';
 
 export const dynamic = 'force-dynamic';
@@ -11,6 +14,11 @@ interface PageProps {
 }
 
 export default async function IncidentDetailPage({ params }: PageProps) {
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(
+    canAccessFeature(profile, 'hse.incidents.view')
+  );
+
   const { id } = await params;
   const supabase = await createClient();
 
@@ -26,6 +34,7 @@ export default async function IncidentDetailPage({ params }: PageProps) {
 
   return (
     <Suspense fallback={<div className="p-6">Loading...</div>}>
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
       <IncidentDetailClient
         incident={incidentResult.data}
         history={historyResult.data || []}

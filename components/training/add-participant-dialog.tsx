@@ -95,7 +95,7 @@ export function AddParticipantDialog({
               </SelectTrigger>
               <SelectContent>
                 {availableEmployees.length === 0 ? (
-                  <SelectItem value="" disabled>
+                  <SelectItem value="__none__" disabled>
                     Semua karyawan sudah terdaftar
                   </SelectItem>
                 ) : (

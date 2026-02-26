@@ -6,9 +6,10 @@ import { PermitSummaryCards, PermitList } from '@/components/safety-permits';
 interface PermitsClientProps {
   permits: SafetyPermit[];
   statistics: PermitStatistics;
+  readOnly?: boolean;
 }
 
-export function PermitsClient({ permits, statistics }: PermitsClientProps) {
+export function PermitsClient({ permits, statistics, readOnly }: PermitsClientProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -20,7 +21,7 @@ export function PermitsClient({ permits, statistics }: PermitsClientProps) {
 
       <PermitSummaryCards statistics={statistics} />
 
-      <PermitList permits={permits} />
+      <PermitList permits={permits} readOnly={readOnly} />
     </div>
   );
 }

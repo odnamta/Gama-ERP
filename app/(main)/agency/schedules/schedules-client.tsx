@@ -298,12 +298,12 @@ export function SchedulesClient() {
                 {/* Vessel Filter */}
                 <div className="space-y-2">
                   <Label>Vessel</Label>
-                  <Select value={vesselFilter} onValueChange={setVesselFilter}>
+                  <Select value={vesselFilter || '__all__'} onValueChange={(v) => setVesselFilter(v === '__all__' ? '' : v)}>
                     <SelectTrigger>
                       <SelectValue placeholder="All vessels" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All vessels</SelectItem>
+                      <SelectItem value="__all__">All vessels</SelectItem>
                       {vessels.map((vessel) => (
                         <SelectItem key={vessel.id} value={vessel.id}>
                           {vessel.vesselName}
@@ -316,12 +316,12 @@ export function SchedulesClient() {
                 {/* Status Filter */}
                 <div className="space-y-2">
                   <Label>Status</Label>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <Select value={statusFilter || '__all__'} onValueChange={(v) => setStatusFilter(v === '__all__' ? '' : v)}>
                     <SelectTrigger>
                       <SelectValue placeholder="All statuses" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All statuses</SelectItem>
+                      <SelectItem value="__all__">All statuses</SelectItem>
                       {SCHEDULE_STATUSES.map((status) => (
                         <SelectItem key={status} value={status}>
                           {SCHEDULE_STATUS_LABELS[status]}
@@ -334,12 +334,12 @@ export function SchedulesClient() {
                 {/* Delay Filter */}
                 <div className="space-y-2">
                   <Label>Delay Status</Label>
-                  <Select value={delayFilter} onValueChange={setDelayFilter}>
+                  <Select value={delayFilter || '__all__'} onValueChange={(v) => setDelayFilter(v === '__all__' ? '' : v)}>
                     <SelectTrigger>
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All</SelectItem>
+                      <SelectItem value="__all__">All</SelectItem>
                       <SelectItem value="delayed">Delayed</SelectItem>
                       <SelectItem value="on_time">On Time</SelectItem>
                     </SelectContent>

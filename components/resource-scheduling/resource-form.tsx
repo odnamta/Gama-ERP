@@ -155,14 +155,14 @@ export function ResourceForm({ resource, employees = [], assets = [] }: Resource
             <div className="space-y-2">
               <Label htmlFor="employee_id">Link to Employee</Label>
               <Select
-                value={watch('employee_id') || ''}
-                onValueChange={(v) => setValue('employee_id', v)}
+                value={watch('employee_id') || '__none__'}
+                onValueChange={(v) => setValue('employee_id', v === '__none__' ? '' : v)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select employee (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="__none__">None</SelectItem>
                   {employees.map((emp) => (
                     <SelectItem key={emp.id} value={emp.id}>
                       {emp.full_name}
@@ -178,14 +178,14 @@ export function ResourceForm({ resource, employees = [], assets = [] }: Resource
             <div className="space-y-2">
               <Label htmlFor="asset_id">Link to Asset</Label>
               <Select
-                value={watch('asset_id') || ''}
-                onValueChange={(v) => setValue('asset_id', v)}
+                value={watch('asset_id') || '__none__'}
+                onValueChange={(v) => setValue('asset_id', v === '__none__' ? '' : v)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select asset (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="__none__">None</SelectItem>
                   {assets.map((asset) => (
                     <SelectItem key={asset.id} value={asset.id}>
                       {asset.asset_code} - {asset.asset_name}

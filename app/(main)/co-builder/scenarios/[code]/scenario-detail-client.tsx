@@ -20,7 +20,22 @@ import {
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { completeScenario } from '../../actions'
-import type { TestScenario } from '../../actions'
+import type { TestScenario, ScenarioStep } from '../../actions'
+
+/**
+ * Normalize steps from the database.
+ * Week 1-2 scenarios store steps as objects: { step, instruction, checkpoint }
+ * Week 3 scenarios store steps as plain strings.
+ * This function normalizes both formats into ScenarioStep objects.
+ */
+function normalizeSteps(raw: (ScenarioStep | string)[]): ScenarioStep[] {
+  return raw.map((item, idx) => {
+    if (typeof item === 'string') {
+      return { step: idx + 1, instruction: item, checkpoint: item }
+    }
+    return item
+  })
+}
 
 export function ScenarioDetailClient({ scenario }: { scenario: TestScenario }) {
   const router = useRouter()
@@ -31,7 +46,7 @@ export function ScenarioDetailClient({ scenario }: { scenario: TestScenario }) {
   const [issuesFound, setIssuesFound] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const steps = scenario.steps || []
+  const steps = normalizeSteps(scenario.steps || [])
   const allChecked = steps.every((_, i) => checkpoints[i] !== undefined)
 
   async function handleSubmit() {

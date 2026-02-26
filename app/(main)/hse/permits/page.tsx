@@ -1,6 +1,9 @@
 import { Suspense } from 'react';
 import { PermitsClient } from './permits-client';
 import { getSafetyPermits, getPermitStatistics } from '@/lib/safety-permit-actions';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { canAccessFeature } from '@/lib/permissions';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 import { PermitStatistics, PermitType, PermitStatus } from '@/types/safety-document';
 
 export const dynamic = 'force-dynamic';
@@ -11,6 +14,11 @@ export const metadata = {
 };
 
 export default async function PermitsPage() {
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(
+    canAccessFeature(profile, 'hse.permits.view')
+  );
+
   const [permitsResult, statsResult] = await Promise.all([
     getSafetyPermits(),
     getPermitStatistics(),
@@ -27,9 +35,11 @@ export default async function PermitsPage() {
 
   return (
     <Suspense fallback={<div className="p-8 text-center">Memuat...</div>}>
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
       <PermitsClient
         permits={permitsResult.data || []}
         statistics={statsResult.data || defaultStats}
+        readOnly={explorerReadOnly}
       />
     </Suspense>
   );

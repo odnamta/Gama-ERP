@@ -131,16 +131,16 @@ export function AssetStatusDialog({
             <div className="space-y-2">
               <Label htmlFor="new_location_id">New Location (Optional)</Label>
               <Select
-                value={formData.new_location_id || ''}
+                value={formData.new_location_id || '__none__'}
                 onValueChange={(value) =>
-                  setFormData((prev) => ({ ...prev, new_location_id: value || undefined }))
+                  setFormData((prev) => ({ ...prev, new_location_id: value === '__none__' ? '' : value || undefined }))
                 }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Keep current location" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Keep current location</SelectItem>
+                  <SelectItem value="__none__">Keep current location</SelectItem>
                   {locations.map((loc) => (
                     <SelectItem key={loc.id} value={loc.id}>
                       {loc.location_name}

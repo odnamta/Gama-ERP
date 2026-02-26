@@ -161,7 +161,7 @@ export function AddEquipmentDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {availableAssets.length === 0 ? (
-                    <SelectItem value="" disabled>
+                    <SelectItem value="__none__" disabled>
                       Tidak ada equipment tersedia
                     </SelectItem>
                   ) : (

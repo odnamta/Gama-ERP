@@ -233,12 +233,12 @@ export function ShippingRatesClient() {
             {/* Container Type */}
             <div className="space-y-2">
               <Label>Container Type</Label>
-              <Select value={containerType} onValueChange={setContainerType} disabled={loading}>
+              <Select value={containerType || '__all__'} onValueChange={(v) => setContainerType(v === '__all__' ? '' : v)} disabled={loading}>
                 <SelectTrigger>
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="__all__">All Types</SelectItem>
                   {CONTAINER_TYPES.map((type) => (
                     <SelectItem key={type} value={type}>
                       {type}
@@ -251,12 +251,12 @@ export function ShippingRatesClient() {
             {/* Shipping Line */}
             <div className="space-y-2">
               <Label>Shipping Line</Label>
-              <Select value={shippingLineId} onValueChange={setShippingLineId} disabled={loading}>
+              <Select value={shippingLineId || '__all__'} onValueChange={(v) => setShippingLineId(v === '__all__' ? '' : v)} disabled={loading}>
                 <SelectTrigger>
                   <SelectValue placeholder="All lines" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Lines</SelectItem>
+                  <SelectItem value="__all__">All Lines</SelectItem>
                   {shippingLines.map((line) => (
                     <SelectItem key={line.id} value={line.id}>
                       {line.lineName}

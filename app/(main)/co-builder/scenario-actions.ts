@@ -22,6 +22,12 @@ function isCompetitionOver(): boolean {
 // TYPES
 // ============================================================
 
+export interface ScenarioStep {
+  step: number
+  instruction: string
+  checkpoint: string
+}
+
 export interface TestScenario {
   id: string
   scenario_code: string
@@ -29,7 +35,7 @@ export interface TestScenario {
   description: string
   target_roles: string[]
   week_number: number
-  steps: { step: number; instruction: string; checkpoint: string }[]
+  steps: (ScenarioStep | string)[]
   points_value: number
   estimated_minutes: number
   display_order: number

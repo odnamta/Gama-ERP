@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import { SafetyPermit } from '@/types/safety-document';
 import { approveBySupervisor, approveByHSE, activatePermit, cancelPermit } from '@/lib/safety-permit-actions';
@@ -12,15 +11,16 @@ import { formatDate } from '@/lib/utils/format';
 
 interface PermitApprovalPanelProps {
   permit: SafetyPermit;
-  userRole?: string;
   onUpdate: () => void;
+  readOnly?: boolean;
 }
 
-export function PermitApprovalPanel({ permit, userRole, onUpdate }: PermitApprovalPanelProps) {
+export function PermitApprovalPanel({ permit, onUpdate, readOnly }: PermitApprovalPanelProps) {
   const [loading, setLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSupervisorApprove = async () => {
+    if (readOnly) return;
     setLoading('supervisor');
     const result = await approveBySupervisor(permit.id);
     setLoading(null);
@@ -34,6 +34,7 @@ export function PermitApprovalPanel({ permit, userRole, onUpdate }: PermitApprov
   };
 
   const handleHSEApprove = async () => {
+    if (readOnly) return;
     setLoading('hse');
     const result = await approveByHSE(permit.id);
     setLoading(null);
@@ -47,6 +48,7 @@ export function PermitApprovalPanel({ permit, userRole, onUpdate }: PermitApprov
   };
 
   const handleActivate = async () => {
+    if (readOnly) return;
     setLoading('activate');
     const result = await activatePermit(permit.id);
     setLoading(null);
@@ -60,6 +62,7 @@ export function PermitApprovalPanel({ permit, userRole, onUpdate }: PermitApprov
   };
 
   const handleCancel = async () => {
+    if (readOnly) return;
     const reason = prompt('Alasan pembatalan:');
     if (!reason) return;
 
@@ -75,10 +78,10 @@ export function PermitApprovalPanel({ permit, userRole, onUpdate }: PermitApprov
     }
   };
 
-  const canApproveAsSupervisor = permit.status === 'pending' && !permit.supervisorApprovedBy;
-  const canApproveAsHSE = permit.status === 'pending' && permit.supervisorApprovedBy && !permit.hseApprovedBy;
-  const canActivate = permit.status === 'approved';
-  const canCancel = ['pending', 'approved', 'active'].includes(permit.status);
+  const canApproveAsSupervisor = !readOnly && permit.status === 'pending' && !permit.supervisorApprovedBy;
+  const canApproveAsHSE = !readOnly && permit.status === 'pending' && permit.supervisorApprovedBy && !permit.hseApprovedBy;
+  const canActivate = !readOnly && permit.status === 'approved';
+  const canCancel = !readOnly && ['pending', 'approved', 'active'].includes(permit.status);
 
   return (
     <Card>
@@ -98,7 +101,7 @@ export function PermitApprovalPanel({ permit, userRole, onUpdate }: PermitApprov
               <p className="font-medium">Persetujuan Supervisor</p>
               {permit.supervisorApprovedBy ? (
                 <p className="text-sm text-muted-foreground">
-                  {permit.supervisorApprovedByName} - {formatDate(permit.supervisorApprovedAt!)}
+                  {permit.supervisorApprovedByName} - {permit.supervisorApprovedAt ? formatDate(permit.supervisorApprovedAt) : ''}
                 </p>
               ) : (
                 <p className="text-sm text-muted-foreground">Menunggu persetujuan</p>
@@ -106,8 +109,8 @@ export function PermitApprovalPanel({ permit, userRole, onUpdate }: PermitApprov
             </div>
           </div>
           {canApproveAsSupervisor && (
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={handleSupervisorApprove}
               disabled={loading === 'supervisor'}
             >
@@ -130,7 +133,7 @@ export function PermitApprovalPanel({ permit, userRole, onUpdate }: PermitApprov
               <p className="font-medium">Persetujuan HSE</p>
               {permit.hseApprovedBy ? (
                 <p className="text-sm text-muted-foreground">
-                  {permit.hseApprovedByName} - {formatDate(permit.hseApprovedAt!)}
+                  {permit.hseApprovedByName} - {permit.hseApprovedAt ? formatDate(permit.hseApprovedAt) : ''}
                 </p>
               ) : permit.supervisorApprovedBy ? (
                 <p className="text-sm text-muted-foreground">Menunggu persetujuan HSE</p>
@@ -140,8 +143,8 @@ export function PermitApprovalPanel({ permit, userRole, onUpdate }: PermitApprov
             </div>
           </div>
           {canApproveAsHSE && (
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               onClick={handleHSEApprove}
               disabled={loading === 'hse'}
             >
@@ -151,28 +154,30 @@ export function PermitApprovalPanel({ permit, userRole, onUpdate }: PermitApprov
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
-          {canActivate && (
-            <Button 
-              onClick={handleActivate}
-              disabled={loading === 'activate'}
-              className="flex-1"
-            >
-              {loading === 'activate' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Aktifkan Izin
-            </Button>
-          )}
-          {canCancel && (
-            <Button 
-              variant="destructive"
-              onClick={handleCancel}
-              disabled={loading === 'cancel'}
-            >
-              {loading === 'cancel' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Batalkan
-            </Button>
-          )}
-        </div>
+        {(canActivate || canCancel) && (
+          <div className="flex gap-2 pt-2">
+            {canActivate && (
+              <Button
+                onClick={handleActivate}
+                disabled={loading === 'activate'}
+                className="flex-1"
+              >
+                {loading === 'activate' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Aktifkan Izin
+              </Button>
+            )}
+            {canCancel && (
+              <Button
+                variant="destructive"
+                onClick={handleCancel}
+                disabled={loading === 'cancel'}
+              >
+                {loading === 'cancel' ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                Batalkan
+              </Button>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -15,6 +15,7 @@ import { RecordList } from '@/components/training/record-list';
 import { TrainingRecord, TrainingRecordStatus, RecordFilters } from '@/types/training';
 import { getTrainingRecords } from '@/lib/training-actions';
 import { Plus, Search, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const STATUS_OPTIONS: { value: TrainingRecordStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'Semua Status' },
@@ -44,7 +45,8 @@ export default function RecordsPage() {
       }
       const data = await getTrainingRecords(filters);
       setRecords(data);
-    } catch (error) {
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Gagal memuat data pelatihan');
     } finally {
       setLoading(false);
     }
