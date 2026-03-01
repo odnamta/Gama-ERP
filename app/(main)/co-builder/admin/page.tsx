@@ -1,4 +1,4 @@
-import { getAllCompetitionFeedback, getLeaderboard } from '../actions'
+import { getAllCompetitionFeedback, getCompetitionResults } from '../actions'
 import { AdminClient } from './admin-client'
 import { getUserProfile } from '@/lib/permissions-server'
 import { ADMIN_ROLES } from '@/lib/permissions'
@@ -10,9 +10,9 @@ export default async function AdminPage() {
     notFound()
   }
 
-  const [feedback, leaderboard] = await Promise.all([
+  const [feedback, results] = await Promise.all([
     getAllCompetitionFeedback(),
-    getLeaderboard(),
+    getCompetitionResults(),
   ])
-  return <AdminClient feedback={feedback} leaderboard={leaderboard} />
+  return <AdminClient feedback={feedback} results={results} />
 }

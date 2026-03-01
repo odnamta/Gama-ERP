@@ -40,11 +40,11 @@ export default function AuditsPage() {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'audits' && audits.length === 0) {
+    if (activeTab === 'audits') {
       loadAudits();
-    } else if (activeTab === 'findings' && findings.length === 0) {
+    } else if (activeTab === 'findings') {
       loadFindings();
-    } else if (activeTab === 'schedule' && schedule.length === 0) {
+    } else if (activeTab === 'schedule') {
       loadSchedule();
     }
   }, [activeTab]);
