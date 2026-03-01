@@ -529,3 +529,80 @@ export async function getRecentActivity(): Promise<{ user_name: string; action: 
     time: e.created_at,
   }))
 }
+
+// ============================================================
+// GET COMPETITION RESULTS (for wrap-up page)
+// ============================================================
+
+export interface CompetitionResultEntry extends LeaderboardEntry {
+  meets_requirements: boolean
+  requirements: {
+    activeDays: { value: number; met: boolean }
+    feedbackCount: { value: number; met: boolean }
+    scenariosCompleted: { value: number; met: boolean }
+    hasTop5: boolean
+  }
+  prize_eligible: boolean
+  prize_amount: number
+  participation_bonus: number
+}
+
+export interface CompetitionResults {
+  entries: CompetitionResultEntry[]
+  isCompetitionOver: boolean
+  totalFeedback: number
+  totalScenarios: number
+  totalParticipants: number
+  competitionEnd: string
+}
+
+const PRIZE_TIERS = [3000000, 2000000, 1500000, 1000000, 750000]
+const PARTICIPATION_BONUS = 250000
+
+export async function getCompetitionResults(): Promise<CompetitionResults> {
+  const leaderboard = await getLeaderboard()
+  const over = isCompetitionOver()
+
+  // Build result entries with eligibility
+  let prizeRank = 0
+  const entries: CompetitionResultEntry[] = leaderboard.map((entry) => {
+    const reqs = {
+      activeDays: { value: entry.active_days, met: entry.active_days >= 10 },
+      feedbackCount: { value: entry.feedback_count, met: entry.feedback_count >= 5 },
+      scenariosCompleted: { value: entry.scenarios_completed, met: entry.scenarios_completed >= 2 },
+      hasTop5: entry.has_top5,
+    }
+    const meetsReqs = reqs.activeDays.met && reqs.feedbackCount.met && reqs.scenariosCompleted.met && reqs.hasTop5
+
+    let prizeAmount = 0
+    let participationBonus = 0
+    if (meetsReqs) {
+      if (prizeRank < PRIZE_TIERS.length) {
+        prizeAmount = PRIZE_TIERS[prizeRank]
+      }
+      participationBonus = PARTICIPATION_BONUS
+      prizeRank++
+    }
+
+    return {
+      ...entry,
+      meets_requirements: meetsReqs,
+      requirements: reqs,
+      prize_eligible: meetsReqs,
+      prize_amount: prizeAmount,
+      participation_bonus: participationBonus,
+    }
+  })
+
+  const totalFeedback = entries.reduce((s, e) => s + e.feedback_count, 0)
+  const totalScenarios = entries.reduce((s, e) => s + e.scenarios_completed, 0)
+
+  return {
+    entries,
+    isCompetitionOver: over,
+    totalFeedback,
+    totalScenarios,
+    totalParticipants: entries.length,
+    competitionEnd: COMPETITION_END.toISOString(),
+  }
+}

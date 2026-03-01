@@ -38,10 +38,13 @@ export {
   markPointEventsSeen,
   submitTop5,
   getRecentActivity,
+  getCompetitionResults,
 } from './scoring-actions'
 
 export type {
   LeaderboardEntry,
   PointEvent,
   UserCompetitionStats,
+  CompetitionResultEntry,
+  CompetitionResults,
 } from './scoring-actions'
