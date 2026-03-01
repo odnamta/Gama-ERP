@@ -1,7 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { canAccessFeature } from '@/lib/permissions';
 import { MedicalCheckupForm } from '@/components/medical-checkup/medical-checkup-form';
 
 export default async function NewMedicalCheckupPage() {
+  const profile = await getCurrentUserProfile();
+  await guardPage(canAccessFeature(profile, 'hse.medical_checkups.manage'));
+
   const supabase = await createClient();
 
   const { data: employees } = await supabase

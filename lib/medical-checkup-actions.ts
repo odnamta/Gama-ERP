@@ -78,6 +78,7 @@ export async function getMedicalCheckup(
       employees!inner(employee_code, full_name, departments(department_name))
     `)
     .eq('id', id)
+    .eq('is_active', true)
     .single();
 
   if (error) {

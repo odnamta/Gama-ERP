@@ -80,11 +80,19 @@ export default function AuditsPage() {
   }
 
   function handleViewFinding(id: string) {
-    router.push(`/hse/audits/findings/${id}`);
+    // Find the finding's parent audit to navigate to audit detail
+    const finding = criticalFindings.find(f => f.id === id) || findings.find(f => f.id === id);
+    if (finding?.audit_id) {
+      router.push(`/hse/audits/${finding.audit_id}`);
+    }
   }
 
-  function handleMarkComplete(_id: string) {
-    // TODO: Open closure dialog
+  function handleMarkComplete(id: string) {
+    // Navigate to audit detail where the finding can be closed with evidence
+    const finding = criticalFindings.find(f => f.id === id) || findings.find(f => f.id === id);
+    if (finding?.audit_id) {
+      router.push(`/hse/audits/${finding.audit_id}`);
+    }
   }
 
   function handleViewAudit(id: string) {

@@ -162,6 +162,7 @@ export function SupportThread({
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [userConfirmedResolution, setUserConfirmedResolution] = useState(false)
+  const [isConfirming, setIsConfirming] = useState(false)
 
   // Refs
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -458,26 +459,41 @@ export function SupportThread({
       )}
 
       {/* User satisfaction confirmation */}
-      {!isAdmin && thread && ['resolved', 'in_progress'].includes(thread.status) && !userConfirmedResolution && (
+      {!isAdmin && thread && thread.status === 'resolved' && !userConfirmedResolution && (
         <div className="px-4 py-2 border-t bg-green-50/50">
           <Button
             variant="outline"
             size="sm"
             className="w-full border-green-300 text-green-700 hover:bg-green-100"
+            disabled={isConfirming}
             onClick={async () => {
-              const result = await sendThreadMessage({
-                entityType,
-                entityId,
-                message: 'Masalah saya sudah terselesaikan. Terima kasih!',
-                metadata: { type: 'resolution_confirmed' },
-              })
-              if (result.success && result.message) {
-                setMessages((prev) => [...prev, result.message!])
-                setUserConfirmedResolution(true)
+              if (isConfirming) return
+              setIsConfirming(true)
+              try {
+                const result = await sendThreadMessage({
+                  entityType,
+                  entityId,
+                  message: 'Masalah saya sudah terselesaikan. Terima kasih!',
+                  metadata: { type: 'resolution_confirmed' },
+                })
+                if (result.success && result.message) {
+                  setMessages((prev) => [...prev, result.message!])
+                  setUserConfirmedResolution(true)
+                } else {
+                  setError(result.error || 'Gagal mengirim konfirmasi')
+                }
+              } catch {
+                setError('Gagal mengirim konfirmasi')
+              } finally {
+                setIsConfirming(false)
               }
             }}
           >
-            <CheckCircle className="mr-2 h-4 w-4" />
+            {isConfirming ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle className="mr-2 h-4 w-4" />
+            )}
             Masalah saya terselesaikan
           </Button>
         </div>

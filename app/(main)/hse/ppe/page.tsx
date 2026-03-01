@@ -5,6 +5,9 @@ import {
   getEmployeePPEStatus,
 } from '@/lib/ppe-actions';
 import { getEmployeeComplianceSummary } from '@/lib/ppe-utils';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { canAccessFeature } from '@/lib/permissions';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 import { PPEDashboardCards } from '@/components/ppe/ppe-dashboard-cards';
 import { PPEAlertsList } from '@/components/ppe/ppe-alerts-list';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +16,10 @@ import Link from 'next/link';
 import { HardHat, Package, RefreshCw, Users, Settings } from 'lucide-react';
 
 export default async function PPEDashboardPage() {
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(
+    canAccessFeature(profile, 'hse.ppe.view')
+  );
   const [metrics, replacementDue, lowStockItems, employeeStatuses] = await Promise.all([
     getPPEDashboardMetrics(),
     getReplacementDue(),
@@ -26,6 +33,7 @@ export default async function PPEDashboardPage() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">PPE Management</h1>

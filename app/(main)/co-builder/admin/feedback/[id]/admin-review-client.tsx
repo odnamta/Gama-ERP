@@ -27,6 +27,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import { SupportThread } from '@/components/support/support-thread'
 import { reviewFeedback } from '../../../actions'
 import type { CompetitionFeedback } from '../../../actions'
 
@@ -38,7 +39,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: typeof Bug; color: 
   question: { label: 'Pertanyaan', icon: HelpCircle, color: 'text-purple-500 bg-purple-50' },
 }
 
-export function AdminReviewClient({ feedback }: { feedback: CompetitionFeedback }) {
+export function AdminReviewClient({ feedback, currentUserId }: { feedback: CompetitionFeedback; currentUserId: string }) {
   const router = useRouter()
   const { toast } = useToast()
   const [impactLevel, setImpactLevel] = useState<'helpful' | 'important' | 'critical'>(
@@ -247,6 +248,15 @@ export function AdminReviewClient({ feedback }: { feedback: CompetitionFeedback 
           </div>
         </CardContent>
       </Card>
+
+      {/* Discussion Thread */}
+      <SupportThread
+        entityType="competition_feedback"
+        entityId={feedback.id}
+        currentUserId={currentUserId}
+        isAdmin={true}
+        title="Diskusi dengan Pengirim"
+      />
     </div>
   )
 }

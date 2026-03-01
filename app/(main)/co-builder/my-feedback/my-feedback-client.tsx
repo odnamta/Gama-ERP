@@ -39,12 +39,12 @@ const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secon
   duplicate: { label: 'Duplikat', variant: 'outline', icon: XCircle },
 }
 
-export function MyFeedbackClient({ feedback, currentUserId }: { feedback: CompetitionFeedback[]; currentUserId: string }) {
+export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints }: { feedback: CompetitionFeedback[]; currentUserId: string; actualTotalPoints?: number }) {
   const [filter, setFilter] = useState<string>('all')
 
   const filtered = filter === 'all' ? feedback : feedback.filter(f => f.category === filter)
 
-  const totalPoints = feedback.reduce((sum, f) => sum + f.total_points, 0)
+  const totalPoints = actualTotalPoints ?? feedback.reduce((sum, f) => sum + f.total_points, 0)
   const reviewedCount = feedback.filter(f => f.admin_status !== 'pending_review').length
 
   return (

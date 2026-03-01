@@ -1,6 +1,9 @@
 import { Suspense } from 'react';
 import { DocumentsClient } from './documents-client';
 import { getDocumentCategories, getSafetyDocuments, getDocumentStatistics } from '@/lib/safety-document-actions';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { canAccessFeature } from '@/lib/permissions';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 import { DocumentStatistics } from '@/types/safety-document';
 
 export const dynamic = 'force-dynamic';
@@ -11,6 +14,10 @@ export const metadata = {
 };
 
 export default async function DocumentsPage() {
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(
+    canAccessFeature(profile, 'hse.nav')
+  );
   const [categoriesResult, documentsResult, statsResult] = await Promise.all([
     getDocumentCategories(),
     getSafetyDocuments(),
@@ -28,6 +35,7 @@ export default async function DocumentsPage() {
 
   return (
     <Suspense fallback={<div className="p-8 text-center">Memuat...</div>}>
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
       <DocumentsClient
         categories={categoriesResult.data || []}
         documents={documentsResult.data || []}

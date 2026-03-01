@@ -641,14 +641,10 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     title: 'Help',
-    href: '/help',
+    href: '/help/tours',
     icon: HelpCircle,
     roles: ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'sysadmin', 'administration', 'finance', 'marketing', 'ops', 'engineer', 'hr', 'hse', 'agency', 'customs'],
     children: [
-      {
-        title: 'Help Center',
-        href: '/help',
-      },
       {
         title: 'Guided Tours',
         href: '/help/tours',
