@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Send, Loader2, MessageSquare, Bot, User, Shield } from 'lucide-react'
+import { Send, Loader2, MessageSquare, Bot, User, Shield, CheckCircle } from 'lucide-react'
 import {
   getOrCreateThread,
   getThreadMessages,
@@ -128,6 +128,14 @@ function MessageBubble({
         <p className="text-[10px] text-gray-400 mt-1 text-right">
           {formatRelativeTime(message.created_at)}
         </p>
+
+        {/* Resolution confirmed indicator */}
+        {message.metadata?.type === 'resolution_confirmed' && (
+          <div className="flex items-center gap-1 mt-1 text-green-600">
+            <CheckCircle className="h-3 w-3" />
+            <span className="text-[10px] font-medium">Masalah terselesaikan</span>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -153,6 +161,7 @@ export function SupportThread({
   const [isSending, setIsSending] = useState(false)
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [userConfirmedResolution, setUserConfirmedResolution] = useState(false)
 
   // Refs
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -191,6 +200,12 @@ export function SupportThread({
         const loadedMessages = await getThreadMessages(loadedThread.id)
         if (cancelled) return
         setMessages(loadedMessages)
+
+        // Check if user already confirmed resolution
+        const hasConfirmation = loadedMessages.some(
+          (m) => m.sender_id === currentUserId && m.metadata?.type === 'resolution_confirmed'
+        )
+        if (hasConfirmation) setUserConfirmedResolution(true)
 
         // Mark as read
         await markThreadMessagesRead(loadedThread.id)
@@ -439,6 +454,32 @@ export function SupportThread({
               &times;
             </button>
           </div>
+        </div>
+      )}
+
+      {/* User satisfaction confirmation */}
+      {!isAdmin && thread && ['resolved', 'in_progress'].includes(thread.status) && !userConfirmedResolution && (
+        <div className="px-4 py-2 border-t bg-green-50/50">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full border-green-300 text-green-700 hover:bg-green-100"
+            onClick={async () => {
+              const result = await sendThreadMessage({
+                entityType,
+                entityId,
+                message: 'Masalah saya sudah terselesaikan. Terima kasih!',
+                metadata: { type: 'resolution_confirmed' },
+              })
+              if (result.success && result.message) {
+                setMessages((prev) => [...prev, result.message!])
+                setUserConfirmedResolution(true)
+              }
+            }}
+          >
+            <CheckCircle className="mr-2 h-4 w-4" />
+            Masalah saya terselesaikan
+          </Button>
         </div>
       )}
 

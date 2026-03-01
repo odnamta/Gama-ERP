@@ -26,6 +26,7 @@ import {
   CHECKUP_STATUS_LABELS,
 } from '@/types/medical-checkup';
 import { createMedicalCheckup, updateMedicalCheckup } from '@/lib/medical-checkup-actions';
+import { DocumentUploader } from '@/components/attachments/document-uploader';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -563,6 +564,17 @@ export function MedicalCheckupForm({ record, employees }: MedicalCheckupFormProp
                 rows={3}
               />
             </div>
+
+            {record && (
+              <div className="space-y-2">
+                <Label>Dokumen Sertifikat</Label>
+                <DocumentUploader
+                  entityType="medical_checkup"
+                  entityId={record.id}
+                  maxFiles={3}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
 

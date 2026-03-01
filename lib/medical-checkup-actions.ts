@@ -254,3 +254,61 @@ export async function updateMedicalCheckup(
   revalidatePath('/hse/medical-checkups');
   return data as unknown as MedicalCheckup;
 }
+
+// =====================================================
+// DELETE (SOFT) MEDICAL CHECKUP
+// =====================================================
+
+export async function deleteMedicalCheckup(id: string): Promise<{ error?: string }> {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('employee_medical_checkups' as any)
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) {
+    return { error: 'Gagal menghapus data medical checkup' };
+  }
+
+  revalidatePath('/hse/medical-checkups');
+  return {};
+}
+
+// =====================================================
+// GET MEDICAL CHECKUP STATS
+// =====================================================
+
+export async function getMedicalCheckupStats(): Promise<{
+  total: number;
+  fit: number;
+  conditionalFit: number;
+  expiringSoon: number;
+}> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('employee_medical_checkups' as any)
+    .select('id, medical_status, valid_to')
+    .eq('is_active', true);
+
+  if (error) {
+    return { total: 0, fit: 0, conditionalFit: 0, expiringSoon: 0 };
+  }
+
+  const records = (data || []) as any[];
+  const now = new Date();
+  const thirtyDaysFromNow = new Date();
+  thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+
+  return {
+    total: records.length,
+    fit: records.filter((r) => r.medical_status === 'fit').length,
+    conditionalFit: records.filter((r) => r.medical_status === 'conditional_fit').length,
+    expiringSoon: records.filter((r) => {
+      if (!r.valid_to) return false;
+      const validTo = new Date(r.valid_to);
+      return validTo >= now && validTo <= thirtyDaysFromNow;
+    }).length,
+  };
+}

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { MedicalCheckupForm } from '@/components/medical-checkup/medical-checkup-form';
+import { McuDeleteButton } from '@/components/medical-checkup/mcu-delete-button';
 import { getMedicalCheckup } from '@/lib/medical-checkup-actions';
 
 interface MedicalCheckupDetailPageProps {
@@ -25,11 +26,14 @@ export default async function MedicalCheckupDetailPage({ params }: MedicalChecku
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Edit Medical Checkup</h1>
-        <p className="text-muted-foreground">
-          {record.employee_name} - {record.clinic_name}
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Edit Medical Checkup</h1>
+          <p className="text-muted-foreground">
+            {record.employee_name} - {record.clinic_name}
+          </p>
+        </div>
+        <McuDeleteButton checkupId={record.id} employeeName={record.employee_name || ''} />
       </div>
 
       <MedicalCheckupForm record={record} employees={employees || []} />

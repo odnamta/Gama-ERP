@@ -30,9 +30,10 @@ import {
   CHECKUP_STATUS_LABELS,
   CHECKUP_STATUS_COLORS,
 } from '@/types/medical-checkup';
-import { getMedicalCheckups } from '@/lib/medical-checkup-actions';
+import { Card, CardContent } from '@/components/ui/card';
+import { getMedicalCheckups, getMedicalCheckupStats } from '@/lib/medical-checkup-actions';
 import { formatDate } from '@/lib/utils/format';
-import { Plus, Search, Loader2, Stethoscope } from 'lucide-react';
+import { Plus, Search, Loader2, Stethoscope, Heart, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const MEDICAL_STATUS_OPTIONS: { value: MedicalStatus | 'all'; label: string }[] = [
@@ -58,6 +59,7 @@ export default function MedicalCheckupsPage() {
   const [search, setSearch] = useState('');
   const [medicalStatus, setMedicalStatus] = useState<MedicalStatus | 'all'>('all');
   const [checkupType, setCheckupType] = useState<CheckupType | 'all'>('all');
+  const [stats, setStats] = useState<{ total: number; fit: number; conditionalFit: number; expiringSoon: number } | null>(null);
 
   useEffect(() => {
     loadRecords();
@@ -66,15 +68,15 @@ export default function MedicalCheckupsPage() {
   const loadRecords = async () => {
     setLoading(true);
     try {
-      const filters: Record<string, string> = {};
-      if (medicalStatus !== 'all') {
-        filters.medical_status = medicalStatus;
-      }
-      if (checkupType !== 'all') {
-        filters.checkup_type = checkupType;
-      }
-      const data = await getMedicalCheckups(filters);
+      const [data, statsData] = await Promise.all([
+        getMedicalCheckups({
+          ...(medicalStatus !== 'all' && { medical_status: medicalStatus }),
+          ...(checkupType !== 'all' && { checkup_type: checkupType }),
+        }),
+        getMedicalCheckupStats(),
+      ]);
       setRecords(data);
+      setStats(statsData);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Gagal memuat data MCU');
     } finally {
@@ -109,6 +111,63 @@ export default function MedicalCheckupsPage() {
           </Button>
         </Link>
       </div>
+
+      {stats && (
+        <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
+          <Card>
+            <CardContent className="pt-4 pb-3 px-4">
+              <div className="flex items-center gap-3">
+                <div className="rounded-md bg-blue-50 p-2">
+                  <Stethoscope className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.total}</p>
+                  <p className="text-xs text-muted-foreground">Total MCU</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4 pb-3 px-4">
+              <div className="flex items-center gap-3">
+                <div className="rounded-md bg-green-50 p-2">
+                  <ShieldCheck className="h-4 w-4 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.fit}</p>
+                  <p className="text-xs text-muted-foreground">Layak Kerja</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4 pb-3 px-4">
+              <div className="flex items-center gap-3">
+                <div className="rounded-md bg-yellow-50 p-2">
+                  <Heart className="h-4 w-4 text-yellow-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.conditionalFit}</p>
+                  <p className="text-xs text-muted-foreground">Layak Bersyarat</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4 pb-3 px-4">
+              <div className="flex items-center gap-3">
+                <div className="rounded-md bg-red-50 p-2">
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{stats.expiringSoon}</p>
+                  <p className="text-xs text-muted-foreground">Segera Kedaluwarsa</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center">
         <div className="relative flex-1">
