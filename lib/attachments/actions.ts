@@ -78,10 +78,21 @@ export async function uploadAttachment(
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
       .from(STORAGE_BUCKET)
-      .upload(storagePath, file);
+      .upload(storagePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
 
     if (uploadError) {
-      return { data: null, error: 'Failed to upload file. Please try again.' };
+      console.error('Storage upload failed:', uploadError.message, uploadError);
+      // Provide specific error messages based on common Supabase Storage errors
+      if (uploadError.message?.includes('Payload too large') || uploadError.message?.includes('413') || uploadError.message?.includes('size')) {
+        return { data: null, error: `File terlalu besar. Maksimum ${MAX_FILE_SIZE_BYTES / (1024 * 1024)}MB. Pastikan bucket storage telah dikonfigurasi untuk menerima file besar.` };
+      }
+      if (uploadError.message?.includes('Bucket not found')) {
+        return { data: null, error: 'Storage bucket "documents" belum dibuat. Hubungi admin.' };
+      }
+      return { data: null, error: `Upload gagal: ${uploadError.message}` };
     }
 
     // Create database record
@@ -191,6 +202,136 @@ export async function getAttachments(
     }
 
     // Transform to include uploader_name
+    const attachments: DocumentAttachment[] = (data || []).map((item) => ({
+      id: item.id,
+      entity_type: item.entity_type as AttachmentEntityType,
+      entity_id: item.entity_id,
+      file_name: item.file_name,
+      file_type: item.file_type,
+      file_size: item.file_size,
+      storage_path: item.storage_path,
+      description: item.description,
+      uploaded_by: item.uploaded_by,
+      created_at: item.created_at,
+      uploader_name: item.user_profiles?.full_name || undefined,
+    }));
+
+    return { data: attachments, error: null };
+  } catch (error) {
+    return { data: [], error: 'An unexpected error occurred' };
+  }
+}
+
+/**
+ * Attachment category prefix for SPK/WO documents
+ * Used in the description field to tag documents by category
+ */
+export const ATTACHMENT_CATEGORY_PREFIX = {
+  spk_wo: '[SPK_WO]',
+} as const;
+
+export type AttachmentCategory = keyof typeof ATTACHMENT_CATEGORY_PREFIX;
+
+/**
+ * Upload a file attachment with a category tag
+ * Prepends a category prefix to the description field
+ */
+export async function uploadCategorizedAttachment(
+  entityType: AttachmentEntityType,
+  entityId: string,
+  category: AttachmentCategory,
+  formData: FormData
+): Promise<AttachmentUploadResult> {
+  const prefix = ATTACHMENT_CATEGORY_PREFIX[category];
+  const description = formData.get('description') as string | null;
+  const taggedDescription = description
+    ? `${prefix} ${description}`
+    : prefix;
+  formData.set('description', taggedDescription);
+  return uploadAttachment(entityType, entityId, formData);
+}
+
+/**
+ * Get attachments filtered by category
+ * Filters based on the description prefix convention
+ */
+export async function getAttachmentsByCategory(
+  entityType: AttachmentEntityType,
+  entityId: string,
+  category: AttachmentCategory
+): Promise<AttachmentFetchResult> {
+  try {
+    const supabase = await createClient();
+    const prefix = ATTACHMENT_CATEGORY_PREFIX[category];
+
+    const { data, error } = await supabase
+      .from('document_attachments')
+      .select(`
+        *,
+        user_profiles:uploaded_by (
+          full_name
+        )
+      `)
+      .eq('entity_type', entityType)
+      .eq('entity_id', entityId)
+      .like('description', `${prefix}%`)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return { data: [], error: 'Failed to load attachments' };
+    }
+
+    const attachments: DocumentAttachment[] = (data || []).map((item) => ({
+      id: item.id,
+      entity_type: item.entity_type as AttachmentEntityType,
+      entity_id: item.entity_id,
+      file_name: item.file_name,
+      file_type: item.file_type,
+      file_size: item.file_size,
+      storage_path: item.storage_path,
+      // Strip the category prefix from description for display
+      description: item.description?.replace(`${prefix} `, '').replace(prefix, '') || null,
+      uploaded_by: item.uploaded_by,
+      created_at: item.created_at,
+      uploader_name: item.user_profiles?.full_name || undefined,
+    }));
+
+    return { data: attachments, error: null };
+  } catch (error) {
+    return { data: [], error: 'An unexpected error occurred' };
+  }
+}
+
+/**
+ * Get attachments excluding a specific category
+ * Used to show "general" attachments without categorized ones
+ */
+export async function getAttachmentsExcludingCategory(
+  entityType: AttachmentEntityType,
+  entityId: string,
+  excludeCategory: AttachmentCategory
+): Promise<AttachmentFetchResult> {
+  try {
+    const supabase = await createClient();
+    const prefix = ATTACHMENT_CATEGORY_PREFIX[excludeCategory];
+
+    const { data, error } = await supabase
+      .from('document_attachments')
+      .select(`
+        *,
+        user_profiles:uploaded_by (
+          full_name
+        )
+      `)
+      .eq('entity_type', entityType)
+      .eq('entity_id', entityId)
+      .or(`description.is.null,description.not.like.${prefix}%`)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      return { data: [], error: 'Failed to load attachments' };
+    }
+
     const attachments: DocumentAttachment[] = (data || []).map((item) => ({
       id: item.id,
       entity_type: item.entity_type as AttachmentEntityType,

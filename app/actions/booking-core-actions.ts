@@ -113,6 +113,34 @@ function rowToStatusHistory(row: any): BookingStatusHistory {
 }
 
 // =====================================================
+// BOOKING NUMBER GENERATION
+// =====================================================
+
+async function generateBookingNumber(): Promise<string> {
+  const supabase = await createClient();
+  const currentYear = new Date().getFullYear();
+  const prefix = `BKG-${currentYear}-`;
+
+  // Get the highest booking number for the current year
+  const { data, error } = await supabase
+    .from('freight_bookings')
+    .select('booking_number')
+    .like('booking_number', `${prefix}%`)
+    .order('booking_number', { ascending: false })
+    .limit(1);
+
+  if (error || !data || data.length === 0) {
+    return `${prefix}00001`;
+  }
+
+  const lastNumber = data[0].booking_number;
+  const match = lastNumber.match(/BKG-\d{4}-(\d{5})/);
+  const lastSequence = match ? parseInt(match[1], 10) : 0;
+
+  return `${prefix}${String(lastSequence + 1).padStart(5, '0')}`;
+}
+
+// =====================================================
 // BOOKING CRUD OPERATIONS
 // =====================================================
 
@@ -125,7 +153,12 @@ export async function createBooking(data: BookingFormData): Promise<{ success: b
 
     const supabase = await createClient();
 
+    // Generate booking number
+    const bookingNumber = await generateBookingNumber();
+
     const insertData = {
+      booking_number: bookingNumber,
+      created_by: profile.id,
       job_order_id: data.jobOrderId || null,
       quotation_id: data.quotationId || null,
       customer_id: data.customerId || null,

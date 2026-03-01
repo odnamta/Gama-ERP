@@ -203,8 +203,8 @@ export interface QuotationPDFProps {
     rfq_number: string | null
     rfq_date: string | null
     rfq_deadline: string | null
-    origin: string
-    destination: string
+    origin: string | null
+    destination: string | null
     commodity: string | null
     cargo_weight_kg: number | null
     cargo_length_m: number | null
@@ -273,11 +273,11 @@ export function QuotationPDF({
           </Text>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Asal / Origin:</Text>
-            <Text style={styles.infoValue}>{quotation.origin}</Text>
+            <Text style={styles.infoValue}>{quotation.origin || '-'}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Tujuan / Destination:</Text>
-            <Text style={styles.infoValue}>{quotation.destination}</Text>
+            <Text style={styles.infoValue}>{quotation.destination || '-'}</Text>
           </View>
           {quotation.commodity && (
             <View style={styles.infoRow}>
@@ -285,10 +285,10 @@ export function QuotationPDF({
               <Text style={styles.infoValue}>{quotation.commodity}</Text>
             </View>
           )}
-          {quotation.cargo_weight_kg && (
+          {quotation.cargo_weight_kg != null && (
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Berat / Weight:</Text>
-              <Text style={styles.infoValue}>{quotation.cargo_weight_kg.toLocaleString('id-ID')} kg</Text>
+              <Text style={styles.infoValue}>{Number(quotation.cargo_weight_kg).toLocaleString('id-ID')} kg</Text>
             </View>
           )}
           {(quotation.cargo_length_m || quotation.cargo_width_m || quotation.cargo_height_m) && (

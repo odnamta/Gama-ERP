@@ -39,8 +39,22 @@ import {
 } from '@/lib/audit-utils';
 
 const AUDIT_TYPE_MANAGE_ROLES = ['owner', 'director', 'sysadmin'] as const;
-const AUDIT_WRITE_ROLES = ['owner', 'director', 'sysadmin', 'hse', 'operations_manager'] as const;
-const AUDIT_READ_ROLES = ['owner', 'director', 'sysadmin', 'hse', 'operations_manager'] as const;
+const AUDIT_WRITE_ROLES = ['owner', 'director', 'sysadmin', 'hse', 'operations_manager', 'ops', 'engineer', 'marketing_manager', 'finance_manager'] as const;
+const AUDIT_READ_ROLES = ['owner', 'director', 'sysadmin', 'hse', 'operations_manager', 'ops', 'engineer', 'marketing_manager', 'finance_manager'] as const;
+
+/**
+ * Check if a user profile has any of the specified roles.
+ * Supports multi-role users by checking profile.roles array.
+ */
+function hasAnyRole(profile: { role: string; roles?: string[] }, allowedRoles: readonly string[]): boolean {
+  // Check primary role
+  if (allowedRoles.includes(profile.role)) return true;
+  // Check multi-role array
+  if (profile.roles?.length) {
+    return profile.roles.some(r => allowedRoles.includes(r));
+  }
+  return false;
+}
 
 // =====================================================
 // Audit Type Actions
@@ -53,7 +67,7 @@ export async function createAuditType(
   input: CreateAuditTypeInput
 ): Promise<{ data: AuditType | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_TYPE_MANAGE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_TYPE_MANAGE_ROLES)) {
     return { data: null, error: 'Unauthorized: Hanya owner/director/sysadmin yang dapat mengelola tipe audit' };
   }
 
@@ -95,7 +109,7 @@ export async function updateAuditType(
   input: UpdateAuditTypeInput
 ): Promise<{ data: AuditType | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_TYPE_MANAGE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_TYPE_MANAGE_ROLES)) {
     return { data: null, error: 'Unauthorized: Hanya owner/director/sysadmin yang dapat mengelola tipe audit' };
   }
 
@@ -130,7 +144,7 @@ export async function deactivateAuditType(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_TYPE_MANAGE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_TYPE_MANAGE_ROLES)) {
     return { success: false, error: 'Unauthorized: Hanya owner/director/sysadmin yang dapat mengelola tipe audit' };
   }
 
@@ -156,7 +170,7 @@ export async function getAuditTypes(): Promise<{
   error: string | null;
 }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: [], error: 'Unauthorized' };
   }
 
@@ -182,7 +196,7 @@ export async function getActiveAuditTypes(): Promise<{
   error: string | null;
 }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: [], error: 'Unauthorized' };
   }
 
@@ -208,7 +222,7 @@ export async function getAuditType(
   id: string
 ): Promise<{ data: AuditType | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -239,7 +253,7 @@ export async function createAudit(
   input: CreateAuditInput
 ): Promise<{ data: Audit | null; error: string | null }> {
   const userProfile = await getUserProfile();
-  if (!userProfile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+  if (!userProfile || !hasAnyRole(userProfile, AUDIT_WRITE_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -301,7 +315,7 @@ export async function updateAudit(
   input: UpdateAuditInput
 ): Promise<{ data: Audit | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_WRITE_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -357,7 +371,7 @@ export async function startAudit(
   id: string
 ): Promise<{ data: Audit | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_WRITE_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -389,7 +403,7 @@ export async function completeAudit(
   input: CompleteAuditInput
 ): Promise<{ data: Audit | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_WRITE_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -444,13 +458,54 @@ export async function completeAudit(
 }
 
 /**
+ * Deactivates an audit (soft delete via cancel)
+ * Only allowed for draft or scheduled audits
+ */
+export async function deactivateAudit(
+  id: string
+): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!profile || !hasAnyRole(profile, AUDIT_WRITE_ROLES)) {
+    return { success: false, error: 'Unauthorized' };
+  }
+
+  const supabase = await createClient();
+
+  // Check current status
+  const { data: existing } = await supabase
+    .from('audits')
+    .select('status')
+    .eq('id', id)
+    .single();
+
+  if (!existing) {
+    return { success: false, error: 'Audit not found' };
+  }
+
+  if (existing.status !== 'scheduled') {
+    return { success: false, error: 'Hanya audit dengan status scheduled yang dapat dihapus' };
+  }
+
+  const { error } = await supabase
+    .from('audits')
+    .update({ status: 'cancelled' })
+    .eq('id', id);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, error: null };
+}
+
+/**
  * Cancels an audit
  */
 export async function cancelAudit(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_WRITE_ROLES)) {
     return { success: false, error: 'Unauthorized' };
   }
 
@@ -476,7 +531,7 @@ export async function getAudit(
   id: string
 ): Promise<{ data: Audit | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -505,7 +560,7 @@ export async function getAudits(filters?: {
   date_to?: string;
 }): Promise<{ data: Audit[]; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: [], error: 'Unauthorized' };
   }
 
@@ -545,7 +600,7 @@ export async function getAuditsByType(
   auditTypeId: string
 ): Promise<{ data: Audit[]; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: [], error: 'Unauthorized' };
   }
 
@@ -576,7 +631,7 @@ export async function createFinding(
   input: CreateFindingInput
 ): Promise<{ data: AuditFinding | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_WRITE_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -657,7 +712,7 @@ export async function updateFinding(
   input: UpdateFindingInput
 ): Promise<{ data: AuditFinding | null; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_WRITE_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -698,7 +753,7 @@ export async function closeFinding(
   input: CloseFindingInput
 ): Promise<{ data: AuditFinding | null; error: string | null }> {
   const userProfile = await getUserProfile();
-  if (!userProfile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+  if (!userProfile || !hasAnyRole(userProfile, AUDIT_WRITE_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -756,7 +811,7 @@ export async function verifyFinding(
   id: string
 ): Promise<{ data: AuditFinding | null; error: string | null }> {
   const userProfile = await getUserProfile();
-  if (!userProfile || !(AUDIT_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+  if (!userProfile || !hasAnyRole(userProfile, AUDIT_WRITE_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -817,7 +872,7 @@ export async function getFindingsByAudit(
   auditId: string
 ): Promise<{ data: AuditFinding[]; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: [], error: 'Unauthorized' };
   }
 
@@ -845,7 +900,7 @@ export async function getFindings(filters?: {
   responsible_id?: string;
 }): Promise<{ data: AuditFinding[]; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: [], error: 'Unauthorized' };
   }
 
@@ -888,7 +943,7 @@ export async function getAuditSchedule(): Promise<{
   error: string | null;
 }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: [], error: 'Unauthorized' };
   }
 
@@ -922,7 +977,7 @@ export async function getOpenFindings(): Promise<{
   error: string | null;
 }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: [], error: 'Unauthorized' };
   }
 
@@ -951,7 +1006,7 @@ export async function getAuditDashboardData(): Promise<{
   error: string | null;
 }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: null, error: 'Unauthorized' };
   }
 
@@ -1036,7 +1091,7 @@ export async function getRecentAuditsByType(
   limit: number = 5
 ): Promise<{ data: Audit[]; error: string | null }> {
   const profile = await getUserProfile();
-  if (!profile || !(AUDIT_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !hasAnyRole(profile, AUDIT_READ_ROLES)) {
     return { data: [], error: 'Unauthorized' };
   }
 

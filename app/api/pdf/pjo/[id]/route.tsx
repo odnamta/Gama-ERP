@@ -27,18 +27,43 @@ export async function GET(
 
     const supabase = await createClient()
 
-    // Fetch PJO with relations
+    // Fetch PJO - use simple query to avoid nested join failures
     const { data: pjo, error: pjoError } = await supabase
       .from('proforma_job_orders')
-      .select('*, projects(id, name, customers(id, name))')
+      .select('*')
       .eq('id', id)
+      .eq('is_active', true)
       .single()
 
     if (pjoError || !pjo) {
-      return new Response(JSON.stringify({ error: 'PJO not found' }), {
+      return new Response(JSON.stringify({ error: 'PJO not found', details: pjoError?.message }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       })
+    }
+
+    // Fetch project and customer separately to avoid nested join failures
+    let projectName = 'Unknown Project'
+    let customerName = 'Unknown Customer'
+    if (pjo.project_id) {
+      const { data: project } = await supabase
+        .from('projects')
+        .select('id, name, customer_id')
+        .eq('id', pjo.project_id)
+        .single()
+      if (project) {
+        projectName = project.name || 'Unknown Project'
+        if (project.customer_id) {
+          const { data: customer } = await supabase
+            .from('customers')
+            .select('id, name')
+            .eq('id', project.customer_id)
+            .single()
+          if (customer) {
+            customerName = customer.name || 'Unknown Customer'
+          }
+        }
+      }
     }
 
     // Fetch revenue items
@@ -46,22 +71,22 @@ export async function GET(
       .from('pjo_revenue_items')
       .select('*')
       .eq('pjo_id', id)
-      .order('line_number', { ascending: true })
+      .order('created_at', { ascending: true })
 
     // Fetch cost items
     const { data: costItems } = await supabase
       .from('pjo_cost_items')
       .select('*')
       .eq('pjo_id', id)
-      .order('display_order', { ascending: true })
+      .order('created_at', { ascending: true })
 
     // Fetch company settings
     const company = await getCompanySettingsForPDF()
 
-    // Prepare data for PDF
+    // Prepare data for PDF with null safety
     const pdfProps: PJOPDFProps = {
       pjo: {
-        pjo_number: pjo.pjo_number,
+        pjo_number: pjo.pjo_number || 'DRAFT',
         status: pjo.status || 'draft',
         commodity: pjo.commodity ?? null,
         quantity: pjo.quantity ?? null,
@@ -77,13 +102,13 @@ export async function GET(
         created_at: pjo.created_at ?? null,
       },
       customer: {
-        name: pjo.projects?.customers?.name || 'Unknown Customer',
+        name: customerName,
       },
       project: {
-        name: pjo.projects?.name || 'Unknown Project',
+        name: projectName,
       },
       revenueItems: (revenueItems || []).map(item => ({
-        description: item.description,
+        description: item.description || '-',
         quantity: item.quantity ?? null,
         unit_price: item.unit_price || 0,
         subtotal: item.subtotal ?? null,
@@ -91,7 +116,7 @@ export async function GET(
       })),
       costItems: (costItems || []).map(item => ({
         category: item.category || '-',
-        description: item.description,
+        description: item.description || '-',
         estimated_amount: item.estimated_amount || 0,
       })),
       company,
@@ -111,7 +136,9 @@ export async function GET(
       },
     })
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Failed to generate PDF' }), {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('PJO PDF generation failed:', errorMessage)
+    return new Response(JSON.stringify({ error: 'Failed to generate PDF', details: errorMessage }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     })

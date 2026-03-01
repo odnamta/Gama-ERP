@@ -3,7 +3,15 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { QuotationWithRelations, QuotationStatus, QUOTATION_STATUS_LABELS, QUOTATION_STATUS_COLORS } from '@/types/quotation'
+import {
+  QuotationWithRelations,
+  QuotationStatus,
+  QUOTATION_STATUS_LABELS,
+  QUOTATION_STATUS_COLORS,
+  parseOutcomeReason,
+  LOST_REASON_LABELS,
+  LOST_REASON_COLORS,
+} from '@/types/quotation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -11,7 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { useToast } from '@/hooks/use-toast'
-import { Pencil, Send, Trophy, XCircle, ArrowRight, AlertTriangle } from 'lucide-react'
+import { Pencil, Send, Trophy, XCircle, ArrowRight, AlertTriangle, Trash2 } from 'lucide-react'
 import { MarketTypeBadge } from '@/components/ui/market-type-badge'
 import { MarketType, ComplexityFactor } from '@/types/market-classification'
 import { EngineeringStatusBanner } from '@/components/engineering/engineering-status-banner'
@@ -37,7 +45,18 @@ import {
   markQuotationWon,
   markQuotationLost,
   markQuotationReady,
+  deleteQuotation,
 } from '@/app/(main)/quotations/actions'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { QuotationRevenueItems } from './quotation-revenue-items'
 import { QuotationCostItems } from './quotation-cost-items'
 import { PursuitCostsSection } from './pursuit-costs-section'
@@ -45,6 +64,7 @@ import { ConvertToPJODialog } from './convert-to-pjo-dialog'
 import { SubmitQuotationDialog } from './submit-quotation-dialog'
 import { MarkWonDialog } from './mark-won-dialog'
 import { MarkLostDialog } from './mark-lost-dialog'
+import { AttachmentsSection } from '@/components/attachments'
 
 interface AssessmentWithUser extends EngineeringAssessment {
   assigned_user_name?: string | null
@@ -77,6 +97,8 @@ export function QuotationDetailView({ quotation, userRole, userId }: QuotationDe
   const [wonDialogOpen, setWonDialogOpen] = useState(false)
   const [lostDialogOpen, setLostDialogOpen] = useState(false)
   const [convertDialogOpen, setConvertDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const status = quotation.status as QuotationStatus
   const requiresEngineering = quotation.requires_engineering === true
@@ -202,6 +224,22 @@ export function QuotationDetailView({ quotation, userRole, userId }: QuotationDe
     }
   }
 
+  async function handleDelete() {
+    setIsDeleting(true)
+    try {
+      const result = await deleteQuotation(quotation.id)
+      if (result.error) {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' })
+      } else {
+        toast({ title: 'Success', description: 'Quotation berhasil dihapus' })
+        router.push('/quotations')
+      }
+    } finally {
+      setIsDeleting(false)
+      setDeleteDialogOpen(false)
+    }
+  }
+
   async function handleMarkReady() {
     setIsLoading(true)
     try {
@@ -240,6 +278,12 @@ export function QuotationDetailView({ quotation, userRole, userId }: QuotationDe
             userId={userId || undefined}
             showGenerateButton={!!userId}
           />
+          {status === 'draft' && (
+            <Button variant="destructive" onClick={() => setDeleteDialogOpen(true)}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Hapus Quotation
+            </Button>
+          )}
           {isEditable && (
             <Button variant="outline" asChild>
               <Link href={`/quotations/${quotation.id}/edit`}>
@@ -581,25 +625,49 @@ export function QuotationDetailView({ quotation, userRole, userId }: QuotationDe
         </Card>
       )}
 
+      {/* Document Upload & Attachments */}
+      <AttachmentsSection
+        entityType="quotation"
+        entityId={quotation.id}
+        title="Upload Dokumen"
+      />
+
       {/* Outcome Info (for won/lost) */}
       {(status === 'won' || status === 'lost') && (
         <Card className={status === 'won' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
           <CardHeader>
             <CardTitle className={status === 'won' ? 'text-green-800' : 'text-red-800'}>
-              {status === 'won' ? 'Won' : 'Lost'}
+              {status === 'won' ? 'Won' : 'Evaluasi Kekalahan'}
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="text-muted-foreground">Outcome Date</Label>
+              <Label className="text-muted-foreground">Tanggal</Label>
               <p className="font-medium">{quotation.outcome_date ? formatDate(quotation.outcome_date) : '-'}</p>
             </div>
-            {status === 'lost' && quotation.outcome_reason && (
-              <div>
-                <Label className="text-muted-foreground">Reason</Label>
-                <p className="font-medium">{quotation.outcome_reason}</p>
-              </div>
-            )}
+            {status === 'lost' && quotation.outcome_reason && (() => {
+              const { category, detail } = parseOutcomeReason(quotation.outcome_reason)
+              const categoryLabel = LOST_REASON_LABELS[category] || category
+              const categoryColor = LOST_REASON_COLORS[category] || 'bg-gray-100 text-gray-800'
+              return (
+                <>
+                  <div>
+                    <Label className="text-muted-foreground">Kategori Alasan</Label>
+                    <div className="mt-1">
+                      <Badge variant="outline" className={categoryColor}>
+                        {categoryLabel}
+                      </Badge>
+                    </div>
+                  </div>
+                  {detail && (
+                    <div className="md:col-span-2">
+                      <Label className="text-muted-foreground">Catatan</Label>
+                      <p className="font-medium whitespace-pre-wrap">{detail}</p>
+                    </div>
+                  )}
+                </>
+              )
+            })()}
           </CardContent>
         </Card>
       )}
@@ -672,6 +740,29 @@ export function QuotationDetailView({ quotation, userRole, userId }: QuotationDe
         onOpenChange={setConvertDialogOpen}
         quotation={quotation}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Quotation</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menghapus quotation {quotation.quotation_number}?
+              Quotation akan dinonaktifkan dan tidak akan muncul di daftar.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Menghapus...' : 'Hapus'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

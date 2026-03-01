@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { PJOWithRelations, PJORevenueItem, PJOCostItem } from '@/types'
+import { PJOWithRelations, PJORevenueItem } from '@/types'
+import type { PJOCostItemWithVendor } from '@/app/(main)/proforma-jo/cost-actions'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
@@ -18,6 +19,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { PJOStatusBadge } from '@/components/ui/pjo-status-badge'
 import { RevenueItemsSection } from './revenue-items-section'
 import { CostItemsSection } from './cost-items-section'
@@ -29,7 +40,9 @@ import { submitForApproval, approvePJO, rejectPJO } from '@/app/(main)/proforma-
 import { getRevenueItems } from '@/app/(main)/proforma-jo/revenue-actions'
 import { getCostItems } from '@/app/(main)/proforma-jo/cost-actions'
 import { useToast } from '@/hooks/use-toast'
-import { Pencil, Send, Check, X, DollarSign } from 'lucide-react'
+import { Pencil, Send, Check, X, DollarSign, Receipt, Loader2, ExternalLink } from 'lucide-react'
+import { createDPInvoice, getDPInvoicesForPJO } from '@/app/(main)/invoices/actions'
+import type { InvoiceWithRelations } from '@/types'
 import { AttachmentsSection } from '@/components/attachments'
 import { MarketTypeBadge } from '@/components/ui/market-type-badge'
 import { MarketType, PricingApproach, TerrainType, ComplexityFactor } from '@/types/market-classification'
@@ -38,6 +51,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { AlertTriangle } from 'lucide-react'
 import { FileQuestion } from 'lucide-react'
 import { PDFButtons } from '@/components/pdf/pdf-buttons'
+import { TaxProfitSection } from '@/components/shared/tax-profit-section'
 // Engineering components
 import { EngineeringStatusBanner } from '@/components/engineering/engineering-status-banner'
 import { EngineeringAssessmentsSection } from '@/components/engineering/engineering-assessments-section'
@@ -77,7 +91,7 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
   const [revenueItems, setRevenueItems] = useState<PJORevenueItem[]>([])
-  const [costItems, setCostItems] = useState<PJOCostItem[]>([])
+  const [costItems, setCostItems] = useState<PJOCostItemWithVendor[]>([])
   const [itemsLoading, setItemsLoading] = useState(true)
   
   // Engineering state
@@ -91,8 +105,17 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
   const [selectedAssessmentType, setSelectedAssessmentType] = useState<AssessmentType | null>(null)
   const [approvalBlockedDialogOpen, setApprovalBlockedDialogOpen] = useState(false)
 
+  // DP Invoice state
+  const [dpDialogOpen, setDpDialogOpen] = useState(false)
+  const [dpPercentage, setDpPercentage] = useState(30)
+  const [dpNotes, setDpNotes] = useState('')
+  const [dpLoading, setDpLoading] = useState(false)
+  const [dpInvoices, setDpInvoices] = useState<InvoiceWithRelations[]>([])
+  const [dpInvoicesLoading, setDpInvoicesLoading] = useState(false)
+
   const margin = calculateMargin(pjo.total_revenue ?? 0, pjo.total_expenses ?? 0)
-  
+  const isOps = userRole === 'ops'
+
   // Engineering permissions
   const requiresEngineering = pjo.requires_engineering === true
   const engineeringStatus = (pjo.engineering_status as EngineeringStatus) || 'pending'
@@ -135,9 +158,45 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
     }
   }
 
+  const loadDPInvoices = async () => {
+    if (pjo.status !== 'approved' || isOps) return
+    setDpInvoicesLoading(true)
+    try {
+      const result = await getDPInvoicesForPJO(pjo.id)
+      if (result.success) {
+        setDpInvoices(result.data)
+      }
+    } finally {
+      setDpInvoicesLoading(false)
+    }
+  }
+
+  async function handleCreateDPInvoice() {
+    setDpLoading(true)
+    try {
+      const result = await createDPInvoice(pjo.id, dpPercentage, dpNotes || undefined)
+      if (result.success) {
+        toast({
+          title: 'Invoice DP Dibuat',
+          description: `${result.data.invoice_number} berhasil dibuat`,
+        })
+        setDpDialogOpen(false)
+        setDpPercentage(30)
+        setDpNotes('')
+        loadDPInvoices()
+        router.refresh()
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' })
+      }
+    } finally {
+      setDpLoading(false)
+    }
+  }
+
   useEffect(() => {
     loadItems()
     loadAssessments()
+    loadDPInvoices()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pjo.id])
 
@@ -146,7 +205,10 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
     : (pjo.total_revenue ?? 0)
   const budget = analyzeBudget(costItems)
   const hasItemizedData = revenueItems.length > 0 || costItems.length > 0
-  const isEditable = pjo.status === 'draft'
+  // Allow editing in draft status for anyone, AND in pending_approval for users with check/approve permissions
+  // This lets finance_manager and other managers adjust items during the review process
+  const isEditable = pjo.status === 'draft' ||
+    (pjo.status === 'pending_approval' && ['owner', 'director', 'finance_manager', 'marketing_manager', 'operations_manager', 'administration'].includes(userRole || ''))
   const showCostConfirmation = pjo.status === 'approved' && !pjo.converted_to_jo
 
   async function handleSubmitForApproval() {
@@ -336,19 +398,19 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
             size="sm"
             variant="outline"
           />
+          {isEditable && (
+            <Button variant="outline" asChild>
+              <Link href={`/proforma-jo/${pjo.id}/edit`}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
+          )}
           {pjo.status === 'draft' && (
-            <>
-              <Button variant="outline" asChild>
-                <Link href={`/proforma-jo/${pjo.id}/edit`}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Edit
-                </Link>
-              </Button>
-              <Button onClick={handleSubmitForApproval} disabled={isLoading}>
-                <Send className="mr-2 h-4 w-4" />
-                Submit for Approval
-              </Button>
-            </>
+            <Button onClick={handleSubmitForApproval} disabled={isLoading}>
+              <Send className="mr-2 h-4 w-4" />
+              Submit for Approval
+            </Button>
           )}
           {pjo.status === 'pending_approval' && canApprove && (
             <>
@@ -695,9 +757,10 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
         <CostItemsSection
           pjoId={pjo.id}
           items={costItems}
-          totalRevenue={totalRevenue}
+          totalRevenue={isOps ? 0 : totalRevenue}
           isEditable={isEditable}
           onRefresh={loadItems}
+          hideProfit={isOps}
         />
       )}
 
@@ -716,6 +779,19 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
         <BudgetSummary budget={budget} totalRevenue={totalRevenue} />
       ) : null}
 
+      {/* Tax & Net Profit — hidden from ops role */}
+      {!isOps && !itemsLoading && hasItemizedData && (
+        <TaxProfitSection
+          totalRevenue={totalRevenue}
+          totalCosts={budget.total_estimated ?? budget.totalEstimated ?? 0}
+          grossProfit={totalRevenue - (budget.total_estimated ?? budget.totalEstimated ?? 0)}
+          grossMargin={totalRevenue > 0
+            ? ((totalRevenue - (budget.total_estimated ?? budget.totalEstimated ?? 0)) / totalRevenue) * 100
+            : 0
+          }
+        />
+      )}
+
       {/* Conversion Status - Show when approved */}
       {pjo.status === 'approved' && (
         <ConversionStatus
@@ -724,6 +800,86 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
           isConverted={pjo.converted_to_jo || false}
           jobOrderId={pjo.job_order_id}
         />
+      )}
+
+      {/* DP Invoice Section - Show when approved and not ops */}
+      {pjo.status === 'approved' && !isOps && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <Receipt className="h-5 w-5" />
+                Invoice Down Payment (DP)
+              </span>
+              <Button size="sm" onClick={() => setDpDialogOpen(true)}>
+                <Receipt className="mr-2 h-4 w-4" />
+                Buat Invoice DP
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {dpInvoicesLoading ? (
+              <div className="flex items-center justify-center py-4 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                Memuat invoice DP...
+              </div>
+            ) : dpInvoices.length === 0 ? (
+              <p className="text-muted-foreground text-center py-4">
+                Belum ada invoice DP untuk PJO ini.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {dpInvoices.map((inv) => (
+                  <div
+                    key={inv.id}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <Link
+                          href={`/invoices/${inv.id}`}
+                          className="font-medium text-blue-600 hover:underline flex items-center gap-1"
+                        >
+                          {inv.invoice_number}
+                          <ExternalLink className="h-3 w-3" />
+                        </Link>
+                        <p className="text-sm text-muted-foreground">
+                          {inv.invoice_date ? formatDate(inv.invoice_date) : '-'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-semibold">{formatIDR(inv.total_amount ?? 0)}</span>
+                      <Badge
+                        variant={
+                          inv.status === 'paid' ? 'default' :
+                          inv.status === 'sent' ? 'secondary' :
+                          inv.status === 'cancelled' ? 'destructive' :
+                          'outline'
+                        }
+                      >
+                        {inv.status === 'draft' ? 'Draft' :
+                         inv.status === 'sent' ? 'Terkirim' :
+                         inv.status === 'paid' ? 'Lunas' :
+                         inv.status === 'overdue' ? 'Jatuh Tempo' :
+                         inv.status === 'cancelled' ? 'Dibatalkan' :
+                         inv.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+                <div className="flex justify-between pt-2 border-t text-sm">
+                  <span className="text-muted-foreground">Total DP Invoiced</span>
+                  <span className="font-semibold">
+                    {formatIDR(dpInvoices.reduce((sum, inv) =>
+                      sum + (inv.status !== 'cancelled' ? (inv.total_amount ?? 0) : 0), 0
+                    ))}
+                  </span>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {/* Legacy Financials - Show only if no itemized data */}
@@ -874,6 +1030,72 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
           setWaiveDialogOpen(true)
         }}
       />
+
+      {/* DP Invoice Creation Dialog */}
+      <Dialog open={dpDialogOpen} onOpenChange={setDpDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Buat Invoice Down Payment</DialogTitle>
+            <DialogDescription>
+              Buat invoice DP berdasarkan rate yang sudah disetujui di {pjo.pjo_number}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="dp-percentage">Persentase DP (%)</Label>
+              <Input
+                id="dp-percentage"
+                type="number"
+                min={1}
+                max={100}
+                value={dpPercentage}
+                onChange={(e) => setDpPercentage(Number(e.target.value))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dp-notes">Catatan (opsional)</Label>
+              <Textarea
+                id="dp-notes"
+                value={dpNotes}
+                onChange={(e) => setDpNotes(e.target.value)}
+                placeholder="Catatan untuk invoice DP..."
+                rows={2}
+              />
+            </div>
+            {/* Preview */}
+            <div className="rounded-lg bg-muted p-4 space-y-2">
+              <p className="text-sm font-medium">Preview</p>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <span className="text-muted-foreground">Total Revenue PJO</span>
+                <span className="text-right font-medium">{formatIDR(totalRevenue)}</span>
+                <span className="text-muted-foreground">DP ({dpPercentage}%)</span>
+                <span className="text-right font-medium">{formatIDR(totalRevenue * (dpPercentage / 100))}</span>
+                <span className="text-muted-foreground">PPN 11%</span>
+                <span className="text-right font-medium">{formatIDR(totalRevenue * (dpPercentage / 100) * 0.11)}</span>
+                <span className="text-muted-foreground font-semibold">Total Invoice DP</span>
+                <span className="text-right font-semibold">
+                  {formatIDR(totalRevenue * (dpPercentage / 100) * 1.11)}
+                </span>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDpDialogOpen(false)} disabled={dpLoading}>
+              Batal
+            </Button>
+            <Button onClick={handleCreateDPInvoice} disabled={dpLoading || dpPercentage <= 0 || dpPercentage > 100}>
+              {dpLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Membuat...
+                </>
+              ) : (
+                'Buat Invoice DP'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

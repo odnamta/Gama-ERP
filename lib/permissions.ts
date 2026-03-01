@@ -450,18 +450,18 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'hse.training.manage': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'hr', 'hse'].includes(p.role),
   'hse.ppe.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'hse', 'ops'].includes(p.role),
   'hse.ppe.manage': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'hse'].includes(p.role),
-  'hse.nav': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'hse'].includes(p.role),
+  'hse.nav': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'ops', 'hse', 'engineer'].includes(p.role),
   
-  // Engineering Module
-  'engineering.surveys.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'ops', 'marketing'].includes(p.role),
-  'engineering.surveys.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer'].includes(p.role),
-  'engineering.jmp.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'ops', 'marketing'].includes(p.role),
-  'engineering.jmp.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer'].includes(p.role),
-  'engineering.drawings.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'ops'].includes(p.role),
-  'engineering.drawings.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer'].includes(p.role),
-  'engineering.assessments.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer'].includes(p.role),
-  'engineering.assessments.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer'].includes(p.role),
-  'engineering.nav': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'ops'].includes(p.role),
+  // Engineering Module — hse added because HSE personnel often conduct route surveys
+  'engineering.surveys.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'ops', 'marketing', 'hse'].includes(p.role),
+  'engineering.surveys.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'hse'].includes(p.role),
+  'engineering.jmp.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'ops', 'marketing', 'hse'].includes(p.role),
+  'engineering.jmp.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'hse'].includes(p.role),
+  'engineering.drawings.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'ops', 'hse'].includes(p.role),
+  'engineering.drawings.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'hse'].includes(p.role),
+  'engineering.assessments.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'hse'].includes(p.role),
+  'engineering.assessments.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'hse'].includes(p.role),
+  'engineering.nav': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'ops', 'hse'].includes(p.role),
   
   // System Administration
   'admin.users.view': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),

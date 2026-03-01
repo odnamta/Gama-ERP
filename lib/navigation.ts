@@ -16,6 +16,7 @@ import {
   LucideIcon,
   HelpCircle,
   Truck,
+  Wrench,
   ShieldAlert,
   Package,
   Compass,
@@ -236,6 +237,10 @@ export const NAV_ITEMS: NavItem[] = [
         title: 'Maintenance Schedules',
         href: '/equipment/maintenance/schedules',
       },
+      {
+        title: 'Tools & Spareparts',
+        href: '/equipment/tools',
+      },
     ],
   },
   {
@@ -322,7 +327,7 @@ export const NAV_ITEMS: NavItem[] = [
     title: 'Engineering',
     href: '/engineering/surveys',
     icon: Compass,
-    roles: ['owner', 'director', 'marketing_manager', 'operations_manager', 'ops', 'engineer', 'marketing'],
+    roles: ['owner', 'director', 'marketing_manager', 'operations_manager', 'ops', 'engineer', 'marketing', 'hse'],
     children: [
       {
         title: 'Resources',

@@ -74,6 +74,7 @@ export function EquipmentClient() {
       )
       setStats(calculatedStats)
     } catch (error) {
+      console.error('Failed to load equipment data:', error)
     } finally {
       setLoading(false)
     }

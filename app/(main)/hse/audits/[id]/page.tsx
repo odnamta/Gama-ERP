@@ -6,6 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { Audit, AuditStatus, AuditRating, ChecklistResponse } from '@/types/audit';
+import { AuditDeleteButton } from './audit-delete-button';
+import { AddFindingForm } from './add-finding-form';
+import { PDFButtons } from '@/components/pdf/pdf-buttons';
 
 export const dynamic = 'force-dynamic';
 
@@ -105,6 +108,20 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
               {typedAudit.audit_types.type_name}
             </p>
           )}
+        </div>
+        <div className="flex items-center gap-2">
+          <PDFButtons
+            documentType="audit"
+            documentId={typedAudit.id}
+            documentNumber={typedAudit.audit_number || undefined}
+            size="sm"
+            variant="outline"
+          />
+          <AuditDeleteButton
+            auditId={typedAudit.id}
+            auditNumber={typedAudit.audit_number || 'Audit'}
+            status={typedAudit.status}
+          />
         </div>
       </div>
 
@@ -222,12 +239,21 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
       )}
 
       {/* Findings */}
-      {typedAudit.audit_findings && typedAudit.audit_findings.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Temuan ({typedAudit.audit_findings.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>
+              Temuan {typedAudit.audit_findings && typedAudit.audit_findings.length > 0
+                ? `(${typedAudit.audit_findings.length})`
+                : '(0)'}
+            </CardTitle>
+            {typedAudit.status !== 'cancelled' && (
+              <AddFindingForm auditId={typedAudit.id} />
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {typedAudit.audit_findings && typedAudit.audit_findings.length > 0 ? (
             <div className="space-y-3">
               {typedAudit.audit_findings.map((finding) => (
                 <div key={finding.id} className="border rounded-lg p-3">
@@ -249,9 +275,13 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Belum ada temuan. Klik &quot;Tambah Temuan&quot; untuk menambahkan.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Finding Summary Counts */}
       <Card>

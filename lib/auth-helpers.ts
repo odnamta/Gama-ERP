@@ -22,7 +22,8 @@ export interface CurrentEmployee {
 /**
  * Get the current user's employee record.
  * Combines: auth.getUser() → user_profiles → employees in one call.
- * Returns null if any step fails (not authenticated, no profile, no employee).
+ * If no employee record exists, auto-creates a minimal one so HSE/Engineering
+ * users can submit forms without waiting for HR to manually create the record.
  */
 export async function getCurrentEmployee(): Promise<CurrentEmployee | null> {
   const profile = await getUserProfile()
@@ -35,12 +36,39 @@ export async function getCurrentEmployee(): Promise<CurrentEmployee | null> {
     .eq('user_id', profile.id)
     .single()
 
-  if (!employee) return null
+  if (employee) {
+    return {
+      profileId: profile.id,
+      employeeId: employee.id,
+      fullName: employee.full_name,
+    }
+  }
+
+  // Auto-create minimal employee record for users that have a profile but no employee record.
+  // This is common for HSE/Engineer users who were onboarded via user_profiles but never
+  // had an employee record created by HR.
+  const { data: { user } } = await supabase.auth.getUser()
+  const fullName = profile.full_name || user?.email || 'Unknown'
+  const userId = user?.id || ''
+
+  const { data: newEmployee, error: empError } = await supabase
+    .from('employees')
+    .insert({
+      user_id: profile.id,
+      full_name: fullName,
+      employee_code: `AUTO-${userId.substring(0, 6).toUpperCase()}`,
+      status: 'active',
+      join_date: new Date().toISOString().split('T')[0],
+    })
+    .select('id, full_name')
+    .single()
+
+  if (empError || !newEmployee) return null
 
   return {
     profileId: profile.id,
-    employeeId: employee.id,
-    fullName: employee.full_name,
+    employeeId: newEmployee.id,
+    fullName: newEmployee.full_name,
   }
 }
 

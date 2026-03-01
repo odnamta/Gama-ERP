@@ -32,7 +32,7 @@ export default async function DisbursementsPage() {
   const profile = await getUserProfile()
 
   // Check permissions
-  const allowedRoles = ['owner', 'director', 'finance_manager', 'operations_manager', 'finance', 'administration']
+  const allowedRoles = ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance', 'administration']
   const { explorerReadOnly } = await guardPage(allowedRoles.includes(profile?.role || ''))
 
   const { data: bkks, error } = await fetchBKKRecords()

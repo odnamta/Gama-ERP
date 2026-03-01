@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { GenerateDialog } from '@/components/document-generation/generate-dialog'
 import { useToast } from '@/hooks/use-toast'
 
-export type PDFDocumentType = 'invoice' | 'surat-jalan' | 'berita-acara' | 'quotation' | 'job_order' | 'pjo' | 'bkk' | 'job-order'
+export type PDFDocumentType = 'invoice' | 'surat-jalan' | 'berita-acara' | 'quotation' | 'job_order' | 'pjo' | 'bkk' | 'job-order' | 'jmp' | 'audit' | 'training' | 'safety-document' | 'survey'
 
 interface PDFButtonsProps {
   documentType: PDFDocumentType
@@ -58,20 +58,33 @@ export function PDFButtons({
   const handleView = async () => {
     setIsViewing(true)
     try {
-      const response = await fetch(getPDFUrl(false), { method: 'HEAD' })
+      // Use GET directly - HEAD requests may not be supported by all API routes
+      // and can give misleading results. Open PDF in new tab.
+      const url = getPDFUrl(false)
+      const response = await fetch(url)
       if (!response.ok) {
+        let errorDetail = ''
+        try {
+          const errorBody = await response.json()
+          errorDetail = errorBody.details || errorBody.error || ''
+        } catch {
+          errorDetail = `HTTP ${response.status}`
+        }
         toast({
-          title: 'PDF belum tersedia',
-          description: 'Gunakan tombol "Generate PDF" untuk membuat dokumen terlebih dahulu.',
+          title: 'Gagal membuka PDF',
+          description: errorDetail || 'Terjadi kesalahan saat membuat PDF. Coba lagi.',
           variant: 'destructive',
         })
         return
       }
-      window.open(getPDFUrl(false), '_blank')
+      // Create blob URL and open in new tab
+      const blob = await response.blob()
+      const blobUrl = window.URL.createObjectURL(blob)
+      window.open(blobUrl, '_blank')
     } catch {
       toast({
-        title: 'PDF belum tersedia',
-        description: 'Gunakan tombol "Generate PDF" untuk membuat dokumen terlebih dahulu.',
+        title: 'Gagal membuka PDF',
+        description: 'Terjadi kesalahan jaringan. Coba lagi.',
         variant: 'destructive',
       })
     } finally {

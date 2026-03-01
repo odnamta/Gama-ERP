@@ -351,52 +351,51 @@ export async function getAssets(
   }
 
   const supabase = await createClient()
-  
+
+  // Use a simpler select first; join on category and location only.
+  // assigned_employee and assigned_job joins can fail if FK columns don't exist
+  // on all rows or if the referenced tables have restrictive RLS policies.
   let query = supabase
     .from('assets')
     .select(`
       *,
       category:asset_categories(id, category_code, category_name),
-      location:asset_locations(id, location_code, location_name),
-      assigned_employee:employees(full_name, employee_code),
-      assigned_job:job_orders(jo_number)
+      location:asset_locations(id, location_code, location_name)
     `)
-  
-  // Exclude disposed/sold by default unless explicitly filtered
-  if (filters.status === 'all' as AssetStatus | 'all') {
-    // Show all including disposed/sold
-  } else if (filters.status && filters.status !== ('all' as AssetStatus | 'all')) {
+
+  // Apply status filter
+  if (filters.status && filters.status !== 'all') {
     query = query.eq('status', filters.status)
-  } else {
-    // Default: exclude disposed and sold
-    query = query.not('status', 'in', '(disposed,sold)')
   }
-  
+
   // Apply category filter
   if (filters.categoryId && filters.categoryId !== 'all') {
     query = query.eq('category_id', filters.categoryId)
   }
-  
+
   // Apply location filter
   if (filters.locationId && filters.locationId !== 'all') {
     query = query.eq('current_location_id', filters.locationId)
   }
-  
+
   // Apply search filter
   if (filters.search?.trim()) {
     const search = sanitizeSearchInput(filters.search.trim())
     query = query.or(`asset_code.ilike.%${search}%,asset_name.ilike.%${search}%,registration_number.ilike.%${search}%`)
   }
-  
+
   query = query.order('created_at', { ascending: false })
-  
-  const { data, error } = await query
-  
+
+  const result = await query
+  const data = result.data as unknown as AssetWithRelations[] | null
+  const error = result.error
+
   if (error) {
+    console.error('getAssets query failed:', error.message, error.details, error.hint)
     return []
   }
-  
-  return (data || []) as unknown as AssetWithRelations[]
+
+  return data || []
 }
 
 /**
@@ -409,24 +408,26 @@ export async function getAssetById(id: string): Promise<AssetWithRelations | nul
   }
 
   const supabase = await createClient()
-  
-  const { data, error } = await supabase
+
+  const result = await supabase
     .from('assets')
     .select(`
       *,
       category:asset_categories(id, category_code, category_name, default_useful_life_years, default_depreciation_method),
-      location:asset_locations(id, location_code, location_name, address, city),
-      assigned_employee:employees(full_name, employee_code),
-      assigned_job:job_orders(jo_number)
+      location:asset_locations(id, location_code, location_name, address, city)
     `)
     .eq('id', id)
     .single()
-  
+
+  const data = result.data as unknown as AssetWithRelations | null
+  const error = result.error
+
   if (error) {
+    console.error('getAssetById query failed:', error.message, error.details)
     return null
   }
-  
-  return data as unknown as AssetWithRelations
+
+  return data
 }
 
 // ============================================
@@ -624,4 +625,158 @@ export async function getExpiringDocumentsCount(): Promise<number> {
   }
   
   return count || 0
+}
+
+// ============================================
+// Photo Actions
+// ============================================
+
+/**
+ * Upload a photo for an asset
+ * Uploads to Supabase Storage and updates the photos JSONB array on the asset
+ */
+export async function uploadAssetPhoto(
+  assetId: string,
+  formData: FormData
+): Promise<ActionResult<{ url: string }>> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const file = formData.get('file') as File | null
+  const caption = formData.get('caption') as string | null
+  const isPrimary = formData.get('is_primary') === 'true'
+
+  if (!file) {
+    return { success: false, error: 'No file provided' }
+  }
+
+  // Validate file type
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+  if (!allowedTypes.includes(file.type)) {
+    return { success: false, error: 'Only JPEG, PNG, and WebP images are allowed' }
+  }
+
+  // Validate file size (max 10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    return { success: false, error: 'File size must be under 10MB' }
+  }
+
+  const supabase = await createClient()
+
+  // Upload to storage
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${assetId}/${Date.now()}.${fileExt}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('assets')
+    .upload(fileName, file)
+
+  if (uploadError) {
+    return { success: false, error: uploadError.message }
+  }
+
+  // Get public URL
+  const { data: urlData } = supabase.storage
+    .from('assets')
+    .getPublicUrl(fileName)
+
+  const photoUrl = urlData.publicUrl
+
+  // Get current photos
+  const { data: asset, error: fetchError } = await supabase
+    .from('assets')
+    .select('photos')
+    .eq('id', assetId)
+    .single()
+
+  if (fetchError) {
+    return { success: false, error: fetchError.message }
+  }
+
+  const currentPhotos = (asset?.photos as unknown as Array<{ url: string; caption: string | null; is_primary: boolean }>) || []
+
+  // If setting as primary, unset others
+  const updatedPhotos = isPrimary
+    ? currentPhotos.map(p => ({ ...p, is_primary: false }))
+    : [...currentPhotos]
+
+  updatedPhotos.push({
+    url: photoUrl,
+    caption: caption || null,
+    is_primary: isPrimary || currentPhotos.length === 0,
+  })
+
+  const { error: updateError } = await supabase
+    .from('assets')
+    .update({ photos: updatedPhotos, updated_at: new Date().toISOString() })
+    .eq('id', assetId)
+
+  if (updateError) {
+    return { success: false, error: updateError.message }
+  }
+
+  revalidatePath(`/equipment/${assetId}`)
+  return { success: true, data: { url: photoUrl } }
+}
+
+/**
+ * Delete a photo from an asset
+ */
+export async function deleteAssetPhoto(
+  assetId: string,
+  photoUrl: string
+): Promise<ActionResult<void>> {
+  const profile = await getUserProfile()
+  if (!profile || !(ASSET_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const supabase = await createClient()
+
+  // Get current photos
+  const { data: asset, error: fetchError } = await supabase
+    .from('assets')
+    .select('photos')
+    .eq('id', assetId)
+    .single()
+
+  if (fetchError) {
+    return { success: false, error: fetchError.message }
+  }
+
+  const currentPhotos = (asset?.photos as unknown as Array<{ url: string; caption: string | null; is_primary: boolean }>) || []
+
+  // Remove the photo
+  const updatedPhotos = currentPhotos.filter(p => p.url !== photoUrl)
+
+  // If removed photo was primary and there are still photos, set first as primary
+  const removedPhoto = currentPhotos.find(p => p.url === photoUrl)
+  if (removedPhoto?.is_primary && updatedPhotos.length > 0) {
+    updatedPhotos[0].is_primary = true
+  }
+
+  const { error: updateError } = await supabase
+    .from('assets')
+    .update({ photos: updatedPhotos, updated_at: new Date().toISOString() })
+    .eq('id', assetId)
+
+  if (updateError) {
+    return { success: false, error: updateError.message }
+  }
+
+  // Try to delete from storage (extract path from URL)
+  try {
+    const urlParts = photoUrl.split('/assets/')
+    if (urlParts.length > 1) {
+      const storagePath = urlParts[urlParts.length - 1]
+      await supabase.storage.from('assets').remove([storagePath])
+    }
+  } catch {
+    // Storage delete failure is non-critical
+  }
+
+  revalidatePath(`/equipment/${assetId}`)
+  return { success: true, data: undefined as void }
 }

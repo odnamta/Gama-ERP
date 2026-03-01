@@ -74,7 +74,7 @@ export function DisbursementsClient({ initialData, userRole }: DisbursementsClie
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  const canCreate = ['owner', 'director', 'finance', 'administration'].includes(userRole)
+  const canCreate = ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance', 'administration'].includes(userRole)
 
   const filteredData = useMemo(() => {
     return initialData.filter((bkk) => {
