@@ -251,13 +251,19 @@ export async function deleteQuotation(id: string): Promise<ActionResult> {
       return { success: false, error: 'Only draft quotations can be deleted' }
     }
 
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from('quotations')
       .update({ is_active: false })
       .eq('id', id)
+      .select('id, is_active')
+      .single()
 
     if (error) {
       return { success: false, error: error.message }
+    }
+
+    if (!updated) {
+      return { success: false, error: 'Gagal menghapus quotation. Anda mungkin tidak memiliki izin.' }
     }
 
     revalidatePath('/quotations')

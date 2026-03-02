@@ -21,8 +21,8 @@ import {
 } from '@/types/assets'
 import { ActionResult } from '@/types/actions'
 
-const ASSET_WRITE_ROLES = ['owner', 'director', 'sysadmin', 'operations_manager', 'engineer'] as const
-const ASSET_READ_ROLES = ['owner', 'director', 'sysadmin', 'operations_manager', 'engineer', 'ops', 'hse'] as const
+const ASSET_WRITE_ROLES = ['owner', 'director', 'sysadmin', 'operations_manager', 'engineer', 'administration'] as const
+const ASSET_READ_ROLES = ['owner', 'director', 'sysadmin', 'operations_manager', 'engineer', 'ops', 'hse', 'administration', 'finance', 'finance_manager'] as const
 
 // ============================================
 // Category and Location Actions

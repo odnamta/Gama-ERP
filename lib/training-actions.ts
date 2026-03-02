@@ -373,7 +373,11 @@ export async function createTrainingRecord(input: CreateRecordInput): Promise<Tr
     .single();
 
   if (error) {
-    throw new Error('Gagal membuat catatan pelatihan');
+    console.error('[createTrainingRecord] Supabase error:', error.code, error.message);
+    if (error.code === '42501' || error.message?.includes('policy')) {
+      throw new Error('Tidak memiliki izin untuk membuat catatan pelatihan');
+    }
+    throw new Error(`Gagal membuat catatan pelatihan: ${error.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -412,7 +416,8 @@ export async function updateTrainingRecord(id: string, input: UpdateRecordInput)
     .single();
 
   if (error) {
-    throw new Error('Gagal mengupdate catatan pelatihan');
+    console.error('[updateTrainingRecord] Supabase error:', error.code, error.message);
+    throw new Error(`Gagal mengupdate catatan pelatihan: ${error.message}`);
   }
 
   revalidatePath('/hse/training');

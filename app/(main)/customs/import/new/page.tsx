@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { PIBForm } from '@/components/pib'
 import { getCustomsOffices, getImportTypes } from '@/lib/pib-actions'
 import { createClient } from '@/lib/supabase/server'
-import { getCurrentUserProfile } from '@/lib/auth-utils'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils'
 import { canCreatePIB } from '@/lib/permissions'
 import { FileText } from 'lucide-react'
 
@@ -33,9 +33,10 @@ async function getFormData() {
 }
 
 export default async function NewPIBPage() {
-  // Permission check
+  // Permission check — explorer mode users cannot create, redirect to list
   const profile = await getCurrentUserProfile()
-  if (!canCreatePIB(profile)) {
+  const { explorerReadOnly } = await guardPage(canCreatePIB(profile))
+  if (explorerReadOnly) {
     redirect('/customs/import')
   }
 

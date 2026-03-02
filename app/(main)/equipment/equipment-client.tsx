@@ -51,23 +51,61 @@ export function EquipmentClient() {
     locationId: searchParams.get('location') || 'all',
   })
 
+  // Debounced filters for server queries (prevents firing on every keystroke)
+  const [debouncedFilters, setDebouncedFilters] = useState<AssetFilterState>(filters)
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   // Prevent URL sync from firing on initial mount
   const isInitialMount = useRef(true)
 
+  // Request counter to discard stale responses from out-of-order server calls
+  const requestCounterRef = useRef(0)
+
   const canCreate = canAccess('assets.create')
   const canEdit = canAccess('assets.edit')
+
+  // Debounce filter changes: search gets 300ms delay, other filters apply immediately
+  useEffect(() => {
+    const searchChanged = filters.search !== debouncedFilters.search
+    const otherChanged =
+      filters.categoryId !== debouncedFilters.categoryId ||
+      filters.status !== debouncedFilters.status ||
+      filters.locationId !== debouncedFilters.locationId
+
+    if (otherChanged) {
+      // Non-search filters apply immediately
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+      setDebouncedFilters(filters)
+    } else if (searchChanged) {
+      // Search filter is debounced
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = setTimeout(() => {
+        setDebouncedFilters(filters)
+      }, 300)
+    }
+
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+    }
+  }, [filters]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = useCallback(async () => {
     setLoading(true)
     setError(null)
 
+    // Track this request so we can discard stale responses
+    const thisRequest = ++requestCounterRef.current
+
     // Use Promise.allSettled to prevent one failing request from blocking all data
     const results = await Promise.allSettled([
-      getAssets(filters),
+      getAssets(debouncedFilters),
       getAssetCategories(),
       getAssetLocations(),
       getExpiringDocumentsCount(),
     ])
+
+    // Discard if a newer request has been issued
+    if (thisRequest !== requestCounterRef.current) return
 
     const [assetsResult, categoriesResult, locationsResult, expiringResult] = results
 
@@ -100,7 +138,7 @@ export function EquipmentClient() {
     setStats(calculatedStats)
 
     setLoading(false)
-  }, [filters])
+  }, [debouncedFilters])
 
   useEffect(() => {
     loadData()

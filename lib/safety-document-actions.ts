@@ -182,7 +182,8 @@ export async function createSafetyDocument(
       .single();
 
     if (insertError) {
-      return { success: false, error: 'Gagal membuat dokumen keselamatan' };
+      console.error('[createSafetyDocument] Supabase error:', insertError.code, insertError.message);
+      return { success: false, error: `Gagal membuat dokumen keselamatan: ${insertError.message}` };
     }
 
     revalidatePath('/hse/documents');
@@ -192,7 +193,8 @@ export async function createSafetyDocument(
       data: transformDocumentRow(document as SafetyDocumentRow),
     };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[createSafetyDocument] Unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { PEBForm } from '@/components/peb'
 import { getExportTypes, getCustomsOffices } from '@/lib/peb-actions'
 import { ArrowLeft, FileText } from 'lucide-react'
-import { getCurrentUserProfile } from '@/lib/auth-utils'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils'
 import { canCreatePEB } from '@/lib/permissions'
 import { createClient } from '@/lib/supabase/server'
 
@@ -30,7 +30,9 @@ async function getCustomers() {
 
 export default async function NewPEBPage() {
   const profile = await getCurrentUserProfile()
-  if (!canCreatePEB(profile)) {
+  // Explorer mode users cannot create — redirect to list
+  const { explorerReadOnly } = await guardPage(canCreatePEB(profile))
+  if (explorerReadOnly) {
     redirect('/customs/export')
   }
 

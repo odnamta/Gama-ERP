@@ -1,11 +1,12 @@
-import { redirect, notFound } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { PEBDetailView } from '@/components/peb'
 import { getPEBDocument } from '@/lib/peb-actions'
 import { ArrowLeft, FileText } from 'lucide-react'
-import { getCurrentUserProfile } from '@/lib/auth-utils'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils'
 import { canViewPEB, canEditPEB, canDeletePEB } from '@/lib/permissions'
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -13,9 +14,7 @@ interface PageProps {
 
 export default async function PEBDetailPage({ params }: PageProps) {
   const profile = await getCurrentUserProfile()
-  if (!canViewPEB(profile)) {
-    redirect('/dashboard')
-  }
+  const { explorerReadOnly } = await guardPage(canViewPEB(profile))
 
   const { id } = await params
   const result = await getPEBDocument(id)
@@ -27,13 +26,14 @@ export default async function PEBDetailPage({ params }: PageProps) {
   const peb = result.data
 
   const permissions = {
-    canEdit: canEditPEB(profile),
-    canDelete: canDeletePEB(profile),
-    canUpdateStatus: canEditPEB(profile),
+    canEdit: explorerReadOnly ? false : canEditPEB(profile),
+    canDelete: explorerReadOnly ? false : canDeletePEB(profile),
+    canUpdateStatus: explorerReadOnly ? false : canEditPEB(profile),
   }
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
       {/* Back Button */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>

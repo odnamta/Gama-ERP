@@ -1,8 +1,9 @@
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { PIBDetailView } from '@/components/pib'
 import { getPIBDocument } from '@/lib/pib-actions'
-import { getCurrentUserProfile } from '@/lib/auth-utils'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils'
 import { canViewPIB, canEditPIB, canDeletePIB, canViewPIBDuties, canUpdatePIBStatus } from '@/lib/permissions'
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -11,9 +12,7 @@ interface PageProps {
 export default async function PIBDetailPage({ params }: PageProps) {
   // Permission check
   const profile = await getCurrentUserProfile()
-  if (!canViewPIB(profile)) {
-    redirect('/dashboard')
-  }
+  const { explorerReadOnly } = await guardPage(canViewPIB(profile))
 
   const { id } = await params
   const result = await getPIBDocument(id)
@@ -22,16 +21,17 @@ export default async function PIBDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  // Pass permission flags to the component
+  // Pass permission flags to the component — disable write actions in explorer mode
   const permissions = {
-    canEdit: canEditPIB(profile),
-    canDelete: canDeletePIB(profile),
+    canEdit: explorerReadOnly ? false : canEditPIB(profile),
+    canDelete: explorerReadOnly ? false : canDeletePIB(profile),
     canViewDuties: canViewPIBDuties(profile),
-    canUpdateStatus: canUpdatePIBStatus(profile),
+    canUpdateStatus: explorerReadOnly ? false : canUpdatePIBStatus(profile),
   }
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="container mx-auto py-6 space-y-6">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
       <PIBDetailView pib={result.data} permissions={permissions} />
     </div>
   )

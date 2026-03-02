@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { PEBForm } from '@/components/peb'
 import { getPEBDocument, getExportTypes, getCustomsOffices } from '@/lib/peb-actions'
 import { ArrowLeft, FileText } from 'lucide-react'
-import { getCurrentUserProfile } from '@/lib/auth-utils'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils'
 import { canEditPEB } from '@/lib/permissions'
 import { createClient } from '@/lib/supabase/server'
 
@@ -33,11 +33,13 @@ async function getCustomers() {
 
 export default async function EditPEBPage({ params }: PageProps) {
   const profile = await getCurrentUserProfile()
-  if (!canEditPEB(profile)) {
-    redirect('/customs/export')
+  // Explorer mode users cannot edit — redirect to detail view
+  const { explorerReadOnly } = await guardPage(canEditPEB(profile))
+  const { id } = await params
+  if (explorerReadOnly) {
+    redirect(`/customs/export/${id}`)
   }
 
-  const { id } = await params
   const result = await getPEBDocument(id)
 
   if (result.error || !result.data) {
