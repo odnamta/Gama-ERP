@@ -4,13 +4,22 @@ import { CustomersClient } from './customers-client'
 export default async function CustomersPage() {
   const supabase = await createClient()
 
-  const { data: customers, error } = await supabase
-    .from('customers')
-    .select('*')
-    .eq('is_active', true)
-    .order('name')
+  const [customersResult, projectCountResult, invoiceCountResult] = await Promise.all([
+    supabase
+      .from('customers')
+      .select('*')
+      .eq('is_active', true)
+      .order('name'),
+    supabase
+      .from('projects')
+      .select('customer_id', { count: 'exact', head: true })
+      .eq('is_active', true),
+    supabase
+      .from('invoices')
+      .select('id', { count: 'exact', head: true }),
+  ])
 
-  if (error) {
+  if (customersResult.error) {
     return (
       <div className="space-y-6">
         <div>
@@ -18,11 +27,17 @@ export default async function CustomersPage() {
           <p className="text-muted-foreground">Manage customer accounts and contacts</p>
         </div>
         <div className="rounded-md border border-destructive bg-destructive/10 p-4">
-          <p className="text-sm text-destructive">Failed to load customers: {error.message}</p>
+          <p className="text-sm text-destructive">Failed to load customers: {customersResult.error.message}</p>
         </div>
       </div>
     )
   }
 
-  return <CustomersClient customers={customers || []} />
+  const stats = {
+    totalCustomers: customersResult.data?.length || 0,
+    totalProjects: projectCountResult.count || 0,
+    totalInvoices: invoiceCountResult.count || 0,
+  }
+
+  return <CustomersClient customers={customersResult.data || []} stats={stats} />
 }

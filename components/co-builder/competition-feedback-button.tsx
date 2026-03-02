@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -350,7 +351,9 @@ export function CompetitionFeedbackButton() {
                   />
                   {screenshotPreview ? (
                     <div className="relative rounded-lg border overflow-hidden">
-                      <img src={screenshotPreview} alt="Screenshot" className="w-full h-32 object-cover" />
+                      <div className="relative w-full h-32">
+                        <Image src={screenshotPreview} alt="Screenshot" fill className="object-cover" unoptimized />
+                      </div>
                       <button
                         type="button"
                         onClick={() => { setScreenshotUrl(''); setScreenshotPreview('') }}

@@ -109,7 +109,66 @@ export function MaintenanceClient() {
   }
 
   const handleExport = () => {
-    // TODO: Implement export functionality
+    if (historyRecords.length === 0) {
+      toast({
+        title: 'Tidak ada data',
+        description: 'Tidak ada data untuk diekspor',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    const headers = [
+      'No. Rekam',
+      'Tanggal',
+      'Aset',
+      'Tipe Perawatan',
+      'Deskripsi',
+      'Biaya Tenaga',
+      'Biaya Material',
+      'Biaya Eksternal',
+      'Total Biaya',
+      'Status',
+    ]
+
+    const escapeCSV = (value: string): string => {
+      if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+        return `"${value.replace(/"/g, '""')}"`
+      }
+      return value
+    }
+
+    const rows = historyRecords.map((record) => {
+      const assetLabel = record.asset
+        ? `${record.asset.asset_code} - ${record.asset.asset_name}`
+        : '-'
+      const maintenanceTypeName = record.maintenanceType?.typeName || '-'
+
+      return [
+        escapeCSV(record.recordNumber),
+        escapeCSV(record.maintenanceDate),
+        escapeCSV(assetLabel),
+        escapeCSV(maintenanceTypeName),
+        escapeCSV(record.description || '-'),
+        String(record.laborCost),
+        String(record.partsCost),
+        String(record.externalCost),
+        String(record.totalCost),
+        escapeCSV(record.status),
+      ].join(',')
+    })
+
+    const csvContent = [headers.join(','), ...rows].join('\n')
+    const bom = '\uFEFF'
+    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `maintenance-history-${new Date().toISOString().split('T')[0]}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
   }
 
   const handleEditSchedule = (scheduleId: string) => {

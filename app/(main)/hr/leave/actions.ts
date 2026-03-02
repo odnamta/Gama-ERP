@@ -205,7 +205,7 @@ export async function initializeYearlyBalances(
 /**
  * Get holidays for working days calculation
  */
-async function getHolidays(year: number): Promise<string[]> {
+export async function getHolidays(year: number): Promise<string[]> {
   const supabase = await createClient();
   
   const { data } = await supabase

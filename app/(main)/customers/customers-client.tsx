@@ -10,7 +10,7 @@ import { CustomerDialog } from '@/components/customers/customer-dialog'
 import { CustomerFormData } from '@/components/customers/customer-form'
 import { createCustomer, updateCustomer, deleteCustomer } from './actions'
 import { useToast } from '@/hooks/use-toast'
-import { Plus } from 'lucide-react'
+import { Plus, Users, Briefcase, Receipt } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,11 +22,18 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
-interface CustomersClientProps {
-  customers: Customer[]
+interface CustomerStats {
+  totalCustomers: number
+  totalProjects: number
+  totalInvoices: number
 }
 
-export function CustomersClient({ customers }: CustomersClientProps) {
+interface CustomersClientProps {
+  customers: Customer[]
+  stats?: CustomerStats
+}
+
+export function CustomersClient({ customers, stats }: CustomersClientProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -124,6 +131,38 @@ export function CustomersClient({ customers }: CustomersClientProps) {
           <Plus className="mr-2 h-4 w-4" /> Add Customer
         </Button>
       </div>
+
+      {stats && (
+        <div className="grid grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <Users className="h-8 w-8 text-blue-500" />
+              <div>
+                <div className="text-2xl font-bold">{stats.totalCustomers}</div>
+                <div className="text-xs text-muted-foreground">Customer Aktif</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <Briefcase className="h-8 w-8 text-green-500" />
+              <div>
+                <div className="text-2xl font-bold">{stats.totalProjects}</div>
+                <div className="text-xs text-muted-foreground">Proyek Aktif</div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4 flex items-center gap-3">
+              <Receipt className="h-8 w-8 text-orange-500" />
+              <div>
+                <div className="text-2xl font-bold">{stats.totalInvoices}</div>
+                <div className="text-xs text-muted-foreground">Total Invoice</div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <Card>
         <CardHeader>

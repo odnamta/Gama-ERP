@@ -1,6 +1,7 @@
 'use client';
 
 import { forwardRef } from 'react';
+import Image from 'next/image';
 import { BillOfLading, BL_TYPE_LABELS, FREIGHT_TERMS_LABELS } from '@/types/agency';
 
 interface BLPrintViewProps {
@@ -64,7 +65,7 @@ export const BLPrintView = forwardRef<HTMLDivElement, BLPrintViewProps>(
             </div>
             <div className="p-3">
               {companyLogo && (
-                <img src={companyLogo} alt="Company Logo" className="h-12 mb-2" />
+                <Image src={companyLogo} alt="Company Logo" width={120} height={48} className="h-12 w-auto mb-2" unoptimized />
               )}
               <p className="font-bold">{companyName || 'PT. Gama Intisamudera'}</p>
               <p className="text-xs text-gray-600 whitespace-pre-line">

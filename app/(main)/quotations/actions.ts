@@ -33,6 +33,7 @@ import {
 import { PJOClassificationInput } from '@/types/market-classification'
 import { generatePJONumber } from '@/app/(main)/proforma-jo/actions'
 import { trackQuotationCreation } from '@/lib/onboarding-tracker'
+import { notifyQuotationWon } from '@/lib/notifications/notification-triggers'
 
 // Action result type
 interface ActionResult<T = void> {
@@ -826,8 +827,27 @@ export async function markQuotationWon(
     }
     
     // Notify admin and finance
-    // TODO: Call notifyQuotationWon()
-    
+    try {
+      let customerName: string | undefined
+      if (updated.customer_id) {
+        const { data: customer } = await supabase
+          .from('customers')
+          .select('name')
+          .eq('id', updated.customer_id)
+          .single()
+        customerName = customer?.name ?? undefined
+      }
+      await notifyQuotationWon({
+        id: updated.id,
+        quotation_number: updated.quotation_number,
+        customer_name: customerName,
+        total_revenue: updated.total_revenue ?? undefined,
+        created_by: updated.created_by ?? undefined,
+      })
+    } catch (notifError) {
+      console.error('Failed to send quotation won notification:', notifError)
+    }
+
     revalidatePath('/quotations')
     revalidatePath(`/quotations/${id}`)
     return { success: true, data: updated }

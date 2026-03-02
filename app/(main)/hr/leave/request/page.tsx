@@ -9,6 +9,7 @@ import {
   getEmployeesForSelect,
   getCurrentEmployeeId,
   initializeYearlyBalances,
+  getHolidays,
 } from '../actions';
 import { Loader2 } from 'lucide-react';
 
@@ -35,18 +36,17 @@ export default function LeaveRequestPage() {
         // Initialize balances if needed
         await initializeYearlyBalances(empId, currentYear);
 
-        const [typesData, balancesData, employeesData] = await Promise.all([
+        const [typesData, balancesData, employeesData, holidaysData] = await Promise.all([
           getLeaveTypes(),
           getLeaveBalances(empId, currentYear),
           getEmployeesForSelect(),
+          getHolidays(currentYear),
         ]);
 
         setLeaveTypes(typesData);
         setBalances(balancesData);
         setEmployees(employeesData);
-
-        // TODO: Load holidays from database
-        setHolidays([]);
+        setHolidays(holidaysData);
       } catch (error) {
       } finally {
         setIsLoading(false);

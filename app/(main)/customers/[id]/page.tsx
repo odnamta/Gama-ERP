@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { AttachmentsSection } from '@/components/attachments'
-import { ArrowLeft, Plus, Building2, Mail, Phone, MapPin, Calendar, Cake } from 'lucide-react'
-import { formatDate } from '@/lib/utils/format'
+import { ArrowLeft, Plus, Building2, Mail, Phone, MapPin, Calendar, Cake, FileText, Receipt, Briefcase } from 'lucide-react'
+import { formatDate, formatCurrency } from '@/lib/utils/format'
 
 interface CustomerDetailPageProps {
   params: Promise<{ id: string }>
@@ -27,12 +27,30 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
     notFound()
   }
 
-  const { data: projects } = await supabase
-    .from('projects')
-    .select('*')
-    .eq('customer_id', id)
-    .eq('is_active', true)
-    .order('created_at', { ascending: false })
+  const [projectsResult, invoicesResult, quotationsResult] = await Promise.all([
+    supabase
+      .from('projects')
+      .select('*')
+      .eq('customer_id', id)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('invoices')
+      .select('id, invoice_number, total_amount, status, due_date, created_at')
+      .eq('customer_id', id)
+      .order('created_at', { ascending: false })
+      .limit(10),
+    supabase
+      .from('quotations')
+      .select('id, quotation_number, status, total_revenue, created_at')
+      .eq('customer_id', id)
+      .order('created_at', { ascending: false })
+      .limit(10),
+  ])
+
+  const projects = projectsResult.data
+  const invoices = (invoicesResult.data || []) as unknown as { id: string; invoice_number: string; total_amount: number | null; status: string; due_date: string | null; created_at: string }[]
+  const quotations = (quotationsResult.data || []) as unknown as { id: string; quotation_number: string; status: string; total_revenue: number | null; created_at: string }[]
 
   return (
     <div className="space-y-6">
@@ -170,6 +188,83 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
               <p className="text-sm text-muted-foreground">
                 No projects yet. Create the first project for this customer.
               </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quotations & Invoices */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Quotations
+              </CardTitle>
+              <CardDescription>{quotations.length} quotation{quotations.length !== 1 ? 's' : ''}</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {quotations.length > 0 ? (
+              <div className="space-y-2">
+                {quotations.map((q) => (
+                  <div key={q.id} className="flex items-center justify-between rounded-md border p-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm">{q.quotation_number}</p>
+                        <StatusBadge status={q.status} />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formatDate(q.created_at)}
+                        {q.total_revenue ? ` · ${formatCurrency(q.total_revenue)}` : ''}
+                      </p>
+                    </div>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/quotations/${q.id}`}>View</Link>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Belum ada quotation untuk customer ini.</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Receipt className="h-5 w-5" />
+                Invoices
+              </CardTitle>
+              <CardDescription>{invoices.length} invoice{invoices.length !== 1 ? 's' : ''}</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {invoices.length > 0 ? (
+              <div className="space-y-2">
+                {invoices.map((inv) => (
+                  <div key={inv.id} className="flex items-center justify-between rounded-md border p-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm">{inv.invoice_number}</p>
+                        <StatusBadge status={inv.status} />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formatDate(inv.created_at)}
+                        {inv.total_amount ? ` · ${formatCurrency(inv.total_amount)}` : ''}
+                      </p>
+                    </div>
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/invoices/${inv.id}`}>View</Link>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">Belum ada invoice untuk customer ini.</p>
             )}
           </CardContent>
         </Card>

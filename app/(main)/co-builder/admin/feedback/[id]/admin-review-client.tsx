@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -154,7 +155,9 @@ export function AdminReviewClient({ feedback, currentUserId }: { feedback: Compe
             <div>
               <Label className="text-xs text-muted-foreground">Screenshot</Label>
               <div className="mt-1 rounded-lg border overflow-hidden">
-                <img src={feedback.screenshot_url} alt="Screenshot" className="w-full max-h-64 object-contain bg-muted" />
+                <div className="relative w-full h-64">
+                  <Image src={feedback.screenshot_url} alt="Screenshot" fill className="object-contain bg-muted" unoptimized />
+                </div>
               </div>
             </div>
           )}
