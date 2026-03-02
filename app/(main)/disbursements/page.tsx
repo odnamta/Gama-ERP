@@ -28,6 +28,36 @@ async function fetchBKKRecords() {
   return result
 }
 
+async function fetchBKKStats() {
+  const supabase = await createClient()
+  const { data } = await (supabase
+    .from('bukti_kas_keluar' as any)
+    .select('status, amount_requested') as any)
+
+  const records = (data || []) as { status: string; amount_requested: number }[]
+  const aggregate = (statuses: string[]) => {
+    const filtered = records.filter(r => statuses.includes(r.status))
+    return {
+      count: filtered.length,
+      amount: filtered.reduce((sum, r) => sum + Number(r.amount_requested || 0), 0),
+    }
+  }
+
+  const all = aggregate(['draft', 'pending', 'approved', 'released', 'settled', 'rejected', 'cancelled'])
+  const pending = aggregate(['pending'])
+  const approved = aggregate(['approved'])
+  const released = aggregate(['released'])
+  const settled = aggregate(['settled'])
+
+  return {
+    totalCount: all.count, totalAmount: all.amount,
+    pendingCount: pending.count, pendingAmount: pending.amount,
+    approvedCount: approved.count, approvedAmount: approved.amount,
+    releasedCount: released.count, releasedAmount: released.amount,
+    settledCount: settled.count, settledAmount: settled.amount,
+  }
+}
+
 export default async function DisbursementsPage() {
   const profile = await getUserProfile()
 
@@ -35,7 +65,10 @@ export default async function DisbursementsPage() {
   const allowedRoles = ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance', 'administration']
   const { explorerReadOnly } = await guardPage(allowedRoles.includes(profile?.role || ''))
 
-  const { data: bkks, error } = await fetchBKKRecords()
+  const [{ data: bkks, error }, serverStats] = await Promise.all([
+    fetchBKKRecords(),
+    fetchBKKStats(),
+  ])
 
   if (error) {
   }
@@ -43,7 +76,7 @@ export default async function DisbursementsPage() {
   return (
     <>
       {explorerReadOnly && <ExplorerReadOnlyBanner />}
-      <DisbursementsClient initialData={(bkks ?? []) as unknown as ComponentProps<typeof DisbursementsClient>['initialData']} userRole={profile?.role || 'viewer'} />
+      <DisbursementsClient initialData={(bkks ?? []) as unknown as ComponentProps<typeof DisbursementsClient>['initialData']} userRole={profile?.role || 'viewer'} serverStats={serverStats} />
     </>
   )
 }

@@ -44,9 +44,23 @@ interface BKKRecord {
   approved_by_profile: { full_name: string } | null
 }
 
+interface BKKServerStats {
+  totalCount: number
+  totalAmount: number
+  pendingCount: number
+  pendingAmount: number
+  approvedCount: number
+  approvedAmount: number
+  releasedCount: number
+  releasedAmount: number
+  settledCount: number
+  settledAmount: number
+}
+
 interface DisbursementsClientProps {
   initialData: BKKRecord[]
   userRole: string
+  serverStats?: BKKServerStats
 }
 
 const statusColors: Record<string, string> = {
@@ -69,7 +83,7 @@ const statusLabels: Record<string, string> = {
   cancelled: 'Dibatalkan',
 }
 
-export function DisbursementsClient({ initialData, userRole }: DisbursementsClientProps) {
+export function DisbursementsClient({ initialData, userRole, serverStats }: DisbursementsClientProps) {
   const router = useRouter()
   const isDesktop = useIsDesktop()
   const [searchTerm, setSearchTerm] = useState('')
@@ -145,12 +159,12 @@ export function DisbursementsClient({ initialData, userRole }: DisbursementsClie
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Total Jumlah</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Total BKK</CardTitle>
             <Wallet className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg sm:text-2xl font-bold">{formatCurrency(stats.total)}</div>
-            <p className="text-xs text-muted-foreground">{stats.count} record</p>
+            <div className="text-lg sm:text-2xl font-bold">{formatCurrency(serverStats?.totalAmount ?? stats.total)}</div>
+            <p className="text-xs text-muted-foreground">{serverStats?.totalCount ?? stats.count} record</p>
           </CardContent>
         </Card>
         <Card>
@@ -159,16 +173,18 @@ export function DisbursementsClient({ initialData, userRole }: DisbursementsClie
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg sm:text-2xl font-bold text-yellow-600">{stats.pending}</div>
+            <div className="text-lg sm:text-2xl font-bold text-yellow-600">{serverStats?.pendingCount ?? stats.pending}</div>
+            <p className="text-xs text-muted-foreground">{formatCurrency(serverStats?.pendingAmount ?? 0)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium">Disetujui</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium">Dana Dilepas</CardTitle>
             <AlertCircle className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg sm:text-2xl font-bold text-blue-600">{stats.approved}</div>
+            <div className="text-lg sm:text-2xl font-bold text-blue-600">{serverStats?.releasedCount ?? stats.approved}</div>
+            <p className="text-xs text-muted-foreground">{formatCurrency(serverStats?.releasedAmount ?? 0)}</p>
           </CardContent>
         </Card>
         <Card>
@@ -177,7 +193,8 @@ export function DisbursementsClient({ initialData, userRole }: DisbursementsClie
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-lg sm:text-2xl font-bold text-green-600">{stats.settled}</div>
+            <div className="text-lg sm:text-2xl font-bold text-green-600">{serverStats?.settledCount ?? stats.settled}</div>
+            <p className="text-xs text-muted-foreground">{formatCurrency(serverStats?.settledAmount ?? 0)}</p>
           </CardContent>
         </Card>
       </div>

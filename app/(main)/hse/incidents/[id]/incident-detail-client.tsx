@@ -29,6 +29,7 @@ import {
   AddActionInput,
 } from '@/types/incident';
 import { getLocationTypeLabel, getIncidentTypeLabel, formatIncidentDate } from '@/lib/incident-utils';
+import { AttachmentsSection } from '@/components/attachments';
 
 interface Employee {
   id: string;
@@ -155,6 +156,7 @@ export function IncidentDetailClient({
           <TabsTrigger value="investigation">Investigasi</TabsTrigger>
           <TabsTrigger value="actions">Tindakan</TabsTrigger>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="documents">Dokumen</TabsTrigger>
         </TabsList>
 
         <TabsContent value="details" className="space-y-4">
@@ -259,6 +261,15 @@ export function IncidentDetailClient({
 
         <TabsContent value="timeline">
           <IncidentTimeline history={history} />
+        </TabsContent>
+
+        <TabsContent value="documents">
+          <AttachmentsSection
+            entityType="incident"
+            entityId={incident.id}
+            title="Dokumen Insiden"
+            maxFiles={10}
+          />
         </TabsContent>
       </Tabs>
 
