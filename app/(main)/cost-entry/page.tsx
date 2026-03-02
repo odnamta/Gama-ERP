@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 import { getUserProfile } from '@/lib/permissions-server'
-import { guardPage } from '@/lib/auth-utils'
+import { guardPage, profileHasRole } from '@/lib/auth-utils'
 import { createClient } from '@/lib/supabase/server'
 import { CostEntryClient } from './cost-entry-client'
 import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner'
@@ -58,7 +58,7 @@ export default async function CostEntryPage() {
   const profile = await getUserProfile()
 
   const allowedRoles = ['owner', 'director', 'operations_manager', 'ops']
-  const { explorerReadOnly } = await guardPage(allowedRoles.includes(profile?.role || ''))
+  const { explorerReadOnly } = await guardPage(profileHasRole(profile, allowedRoles))
 
   const { data: pjos, error } = await fetchPJOsForCostEntry()
 

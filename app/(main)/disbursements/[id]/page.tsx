@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import { getUserProfile } from '@/lib/permissions-server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { createClient } from '@/lib/supabase/server'
 import { DisbursementDetail, BKKRecord } from './disbursement-detail'
 
@@ -37,7 +38,7 @@ export default async function DisbursementDetailPage({ params }: PageProps) {
 
   // Check permissions
   const allowedRoles = ['owner', 'director', 'finance_manager', 'operations_manager', 'finance', 'administration']
-  if (!allowedRoles.includes(profile?.role || '')) {
+  if (!profileHasRole(profile, allowedRoles)) {
     redirect('/dashboard')
   }
 

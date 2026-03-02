@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getUserProfile } from '@/lib/permissions-server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { createClient } from '@/lib/supabase/server'
 import { NewDisbursementForm } from './new-disbursement-form'
 
@@ -12,7 +13,7 @@ export default async function NewDisbursementPage() {
   const profile = await getUserProfile()
 
   // Only finance/administration can create
-  const canCreate = ['owner', 'director', 'finance', 'administration'].includes(profile?.role || '')
+  const canCreate = profileHasRole(profile, ['owner', 'director', 'finance', 'administration'])
   if (!canCreate) {
     redirect('/disbursements')
   }

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { getAgencyDashboardMetrics } from '@/lib/dashboard/agency-data'
 import { formatDate, formatNumber } from '@/lib/utils/format'
 import { Ship, FileText, Anchor, Package, Clock, CheckCircle } from 'lucide-react'
@@ -51,7 +52,7 @@ export default async function AgencyDashboardPage() {
 
   // Only agency role (or owner/director) can access
   const allowedRoles = ['agency', 'owner', 'director']
-  if (!allowedRoles.includes(profile.role)) {
+  if (!profileHasRole(profile as any, allowedRoles)) {
     redirect('/dashboard')
   }
 

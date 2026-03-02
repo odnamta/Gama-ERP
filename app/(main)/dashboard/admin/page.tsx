@@ -7,6 +7,7 @@
 
 import { redirect } from 'next/navigation'
 import { getUserProfile } from '@/lib/permissions-server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { AdminDashboard } from '@/components/dashboard/admin/admin-dashboard'
 import { fetchAdminDashboardData } from '../actions'
 
@@ -14,7 +15,7 @@ export default async function AdminDashboardPage() {
   const profile = await getUserProfile()
   
   // Only administration role can access admin dashboard
-  if (!profile || !['owner', 'director', 'administration'].includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, ['owner', 'director', 'administration'])) {
     redirect('/dashboard')
   }
 

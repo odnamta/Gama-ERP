@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { getHseDashboardMetrics } from '@/lib/dashboard/hse-data'
 import { formatDate, formatNumber, formatPercent } from '@/lib/utils/format'
 import { 
@@ -128,7 +129,7 @@ export default async function HseDashboardPage() {
 
   // Check access: hse role or executive roles
   const allowedRoles = ['hse', 'owner', 'director', 'operations_manager']
-  if (!allowedRoles.includes(profile.role)) {
+  if (!profileHasRole(profile as any, allowedRoles)) {
     redirect('/dashboard')
   }
 

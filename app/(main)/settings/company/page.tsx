@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { profileHasRole } from '@/lib/auth-utils';
 import { CompanySettingsForm } from '@/components/settings/company-settings-form';
 import { loadCompanySettings } from './actions';
 import { DEFAULT_SETTINGS } from '@/types/company-settings';
@@ -20,7 +21,7 @@ export default async function CompanySettingsPage() {
     .eq('user_id', user.id)
     .single();
   
-  if (!profile || !['sysadmin', 'director', 'owner'].includes(profile.role)) {
+  if (!profileHasRole(profile as any, ['sysadmin', 'director', 'owner'])) {
     redirect('/dashboard');
   }
   

@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react'
 import { redirect } from 'next/navigation'
 import { getUserProfile } from '@/lib/permissions-server'
-import { guardPage } from '@/lib/auth-utils'
+import { guardPage, profileHasRole } from '@/lib/auth-utils'
 import { createClient } from '@/lib/supabase/server'
 import { DisbursementsClient } from './disbursements-client'
 import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner'
@@ -63,7 +63,7 @@ export default async function DisbursementsPage() {
 
   // Check permissions
   const allowedRoles = ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance', 'administration']
-  const { explorerReadOnly } = await guardPage(allowedRoles.includes(profile?.role || ''))
+  const { explorerReadOnly } = await guardPage(profileHasRole(profile, allowedRoles))
 
   const [{ data: bkks, error }, serverStats] = await Promise.all([
     fetchBKKRecords(),

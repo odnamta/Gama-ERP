@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { getSysadminDashboardMetrics } from '@/lib/dashboard/sysadmin-data'
 import { formatDateTime, formatNumber } from '@/lib/utils/format'
 import { 
@@ -92,7 +93,7 @@ export default async function SysadminDashboardPage() {
 
   // Check access: sysadmin, owner, director roles only
   const allowedRoles = ['sysadmin', 'owner', 'director']
-  if (!allowedRoles.includes(profile.role)) {
+  if (!profileHasRole(profile as any, allowedRoles)) {
     redirect('/dashboard')
   }
 

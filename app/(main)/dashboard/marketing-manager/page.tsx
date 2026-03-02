@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { getMarketingManagerMetrics } from '@/lib/dashboard/marketing-manager-data'
 import { formatCurrencyIDRCompact } from '@/lib/utils/format'
 
@@ -23,8 +24,7 @@ export default async function MarketingManagerDashboardPage() {
   }
 
   // Check access: marketing_manager role or owner/director
-  const hasAccess = profile.role === 'marketing_manager' || 
-    ['owner', 'director'].includes(profile.role)
+  const hasAccess = profileHasRole(profile as any, ['marketing_manager', 'owner', 'director'])
 
   if (!hasAccess) {
     redirect('/dashboard')

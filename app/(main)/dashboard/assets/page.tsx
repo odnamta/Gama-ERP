@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { AssetsDashboardClient } from './assets-dashboard-client'
 import { UserRole } from '@/types/permissions'
 import { getAssetsDashboardMetrics } from '@/lib/dashboard/assets-data'
@@ -23,7 +24,7 @@ export default async function AssetsDashboardPage() {
   }
 
   // Check if user has access to assets dashboard
-  const hasAccess = ['owner', 'director', 'operations_manager', 'ops'].includes(profile.role) ||
+  const hasAccess = profileHasRole(profile as any, ['owner', 'director', 'operations_manager', 'ops']) ||
     (profile.role === 'operations_manager' && profile.department_scope?.includes('operations'))
 
   if (!hasAccess) {

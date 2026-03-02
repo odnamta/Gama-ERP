@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { getSystemLogs, getSystemLogFilterOptions } from '@/app/actions/system-log-actions'
 import { SystemLogsClient } from './system-logs-client'
 
@@ -31,7 +32,7 @@ export default async function SystemLogsPage() {
     .single()
   
   // Only admin and owner can access system logs
-  const isAuthorized = profile && ['sysadmin', 'director', 'owner', 'marketing_manager', 'finance_manager', 'operations_manager'].includes(profile.role)
+  const isAuthorized = profile && profileHasRole(profile as any, ['sysadmin', 'director', 'owner', 'marketing_manager', 'finance_manager', 'operations_manager'])
   if (!isAuthorized) {
     redirect('/dashboard')
   }

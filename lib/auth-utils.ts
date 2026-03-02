@@ -1,13 +1,14 @@
-'use server';
-
 /**
  * Auth Utilities
  * Server-side utilities for getting current user profile
+ *
+ * Note: No 'use server' directive — these are server-only utilities
+ * imported by server components, not server actions called from client.
  */
 
 import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
-import { UserProfile } from '@/types/permissions';
+import { UserProfile, UserRole } from '@/types/permissions';
 
 /**
  * Get current user profile with role and permissions
@@ -54,6 +55,16 @@ export async function getCurrentUserId(): Promise<string | null> {
 export async function isExplorerMode(): Promise<boolean> {
   const cookieStore = await cookies();
   return cookieStore.get('gama-explorer-mode')?.value === 'true';
+}
+
+/**
+ * Multi-role aware role check. Use this instead of allowedRoles.includes(profile.role).
+ * Returns true if ANY of the user's roles matches ANY of the allowed roles.
+ */
+export function profileHasRole(profile: UserProfile | null, allowedRoles: string[]): boolean {
+  if (!profile) return false;
+  const userRoles: string[] = (profile.roles?.length ? profile.roles : [profile.role]).filter(Boolean);
+  return userRoles.some(r => allowedRoles.includes(r));
 }
 
 /**

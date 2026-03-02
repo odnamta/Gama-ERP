@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { getFinanceManagerMetrics } from '@/lib/dashboard/finance-manager-data'
 import { formatCurrencyIDRCompact } from '@/lib/utils/format'
 import { format } from 'date-fns'
@@ -23,8 +24,7 @@ export default async function FinanceManagerDashboardPage() {
   }
 
   // Check access: finance_manager role or owner/director
-  const hasAccess = profile.role === 'finance_manager' || 
-    ['owner', 'director'].includes(profile.role)
+  const hasAccess = profileHasRole(profile as any, ['finance_manager', 'owner', 'director'])
 
   if (!hasAccess) {
     redirect('/dashboard')

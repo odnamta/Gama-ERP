@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { getOperationsManagerDashboardData } from '@/lib/operations-manager-dashboard-utils'
 import { formatCurrencyIDR } from '@/lib/utils/format'
 import { format } from 'date-fns'
@@ -23,8 +24,7 @@ export default async function OperationsManagerDashboardPage() {
   }
 
   // Check access: operations_manager role or owner/director
-  const hasAccess = profile.role === 'operations_manager' || 
-    ['owner', 'director'].includes(profile.role)
+  const hasAccess = profileHasRole(profile as any, ['operations_manager', 'owner', 'director'])
 
   if (!hasAccess) {
     redirect('/dashboard')

@@ -7,6 +7,7 @@
 
 import { redirect } from 'next/navigation'
 import { getUserProfile } from '@/lib/permissions-server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { FinanceDashboard } from '@/components/dashboard/finance/finance-dashboard'
 import { fetchFinanceDashboardData } from '../actions'
 
@@ -14,7 +15,7 @@ export default async function FinanceDashboardPage() {
   const profile = await getUserProfile()
   
   // Finance role and above can access finance dashboard
-  if (!profile || !['owner', 'director', 'administration', 'manager', 'finance'].includes(profile.role)) {
+  if (!profileHasRole(profile, ['owner', 'director', 'administration', 'manager', 'finance'])) {
     redirect('/dashboard')
   }
 

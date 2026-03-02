@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { getCustomsDashboardMetrics } from '@/lib/dashboard/customs-data'
 import { formatCurrency, formatNumber } from '@/lib/utils/format'
 import { 
@@ -109,7 +110,7 @@ export default async function CustomsDashboardPage() {
 
   // Check access: customs role or executive roles
   const allowedRoles = ['customs', 'owner', 'director', 'finance_manager']
-  if (!allowedRoles.includes(profile.role)) {
+  if (!profileHasRole(profile as any, allowedRoles)) {
     redirect('/dashboard')
   }
 

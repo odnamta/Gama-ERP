@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { getAuditLogs, getAuditLogFilterOptions } from '@/app/actions/audit-actions'
 import { AuditLogsClient } from './audit-logs-client'
 import { PaginatedAuditLogs } from '@/types/audit'
@@ -32,7 +33,7 @@ export default async function AuditLogsPage() {
     .single()
   
   // Only admin and owner can access audit logs
-  const isAuthorized = profile && ['admin', 'owner', 'manager'].includes(profile.role)
+  const isAuthorized = profile && profileHasRole(profile as any, ['admin', 'owner', 'manager'])
   if (!isAuthorized) {
     redirect('/dashboard')
   }

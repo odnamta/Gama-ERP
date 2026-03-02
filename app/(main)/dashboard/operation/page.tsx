@@ -8,6 +8,7 @@
 
 import { redirect } from 'next/navigation'
 import { getUserProfile } from '@/lib/permissions-server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { EnhancedOpsDashboard } from '@/components/dashboard/ops'
 import { getEnhancedOpsDashboardData } from '@/lib/ops-dashboard-enhanced-utils'
 
@@ -15,7 +16,7 @@ export default async function OperationsDashboardPage() {
   const profile = await getUserProfile()
   
   // Operations role and above can access operations dashboard
-  if (!profile || !['owner', 'director', 'operations_manager', 'administration', 'ops'].includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, ['owner', 'director', 'operations_manager', 'administration', 'ops'])) {
     redirect('/dashboard')
   }
 

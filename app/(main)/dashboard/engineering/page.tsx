@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { guardPage } from '@/lib/auth-utils'
+import { guardPage, profileHasRole } from '@/lib/auth-utils'
 import { getEngineeringDashboardMetrics } from '@/lib/dashboard/engineering-data'
 import { formatDate, formatNumber, formatPercent } from '@/lib/utils/format'
 import {
@@ -96,7 +96,7 @@ export default async function EngineeringDashboardPage() {
   }
 
   // Check access: engineer, hse, or manager with engineering scope
-  const hasAccess = ['engineer', 'hse', 'owner', 'director', 'marketing_manager', 'marketing', 'operations_manager'].includes(profile.role)
+  const hasAccess = profileHasRole(profile as any, ['engineer', 'hse', 'owner', 'director', 'marketing_manager', 'marketing', 'operations_manager'])
 
   // guardPage: allows native permission or explorer mode bypass
   await guardPage(hasAccess, '/dashboard')

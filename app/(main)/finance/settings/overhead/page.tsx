@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { profileHasRole } from '@/lib/auth-utils';
 import { OverheadSettingsForm } from '@/components/overhead/overhead-settings-form';
 import { getOverheadCategories, getTotalOverheadRate } from './actions';
 import type { OverheadCategory } from '@/types/overhead';
@@ -28,7 +29,7 @@ export default async function OverheadSettingsPage() {
     .single();
 
   const allowedRoles = ['owner', 'admin', 'manager', 'finance'];
-  if (!profile || !allowedRoles.includes(profile.role)) {
+  if (!profileHasRole(profile as any, allowedRoles)) {
     redirect('/dashboard?error=unauthorized');
   }
 
