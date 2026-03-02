@@ -1,14 +1,15 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { guardPage } from '@/lib/auth-utils'
 import { getEngineeringDashboardMetrics } from '@/lib/dashboard/engineering-data'
 import { formatDate, formatNumber, formatPercent } from '@/lib/utils/format'
-import { 
-  MapPin, 
-  FileText, 
-  ClipboardCheck, 
-  Clock, 
-  CheckCircle, 
+import {
+  MapPin,
+  FileText,
+  ClipboardCheck,
+  Clock,
+  CheckCircle,
   AlertTriangle,
   Plus,
   ArrowRight,
@@ -94,13 +95,11 @@ export default async function EngineeringDashboardPage() {
     redirect('/login')
   }
 
-  // Check access: engineer role or manager with engineering scope
-  const hasAccess = profile.role === 'engineer' ||
-    ['owner', 'director', 'marketing_manager', 'marketing', 'operations_manager'].includes(profile.role)
+  // Check access: engineer, hse, or manager with engineering scope
+  const hasAccess = ['engineer', 'hse', 'owner', 'director', 'marketing_manager', 'marketing', 'operations_manager'].includes(profile.role)
 
-  if (!hasAccess) {
-    redirect('/dashboard')
-  }
+  // guardPage: allows native permission or explorer mode bypass
+  await guardPage(hasAccess, '/dashboard')
 
   // Fetch real metrics with user ID for "My Assignments"
   const metrics = await getEngineeringDashboardMetrics(user.id)

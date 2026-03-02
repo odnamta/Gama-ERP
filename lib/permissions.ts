@@ -340,7 +340,7 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'dashboard.finance': (p) => ['owner', 'director', 'finance_manager', 'finance', 'administration'].includes(p.role),
   'dashboard.hr': (p) => ['owner', 'director', 'hr'].includes(p.role),
   'dashboard.hse': (p) => ['owner', 'director', 'hse'].includes(p.role),
-  'dashboard.engineering': (p) => ['owner', 'director', 'marketing_manager', 'engineer'].includes(p.role),
+  'dashboard.engineering': (p) => ['owner', 'director', 'marketing_manager', 'engineer', 'hse'].includes(p.role),
   'dashboard.full': (p) => p.role === 'owner' || p.role === 'director' || (p.can_see_revenue && p.can_see_profit),
   'dashboard.ops': (p) => p.can_fill_costs,
   

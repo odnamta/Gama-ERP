@@ -96,24 +96,9 @@ export async function getEngineeringDashboardMetrics(
     
     // Consolidated queries: fetch status+date data for counting in JS,
     // plus recent rows and user assignments — down from 15 to 8 queries
-    const [
-      // Surveys: all statuses + completed_at for counting, plus recent 5
-      surveyStatusesResult,
-      recentSurveysResult,
-
-      // JMPs: all statuses + planned_departure for counting, plus recent 5
-      jmpStatusesResult,
-      recentJmpsResult,
-
-      // Assessments: all statuses + completed_at for counting, plus recent 5
-      assessmentStatusesResult,
-      recentAssessmentsResult,
-
-      // My assignments (if userId provided)
-      mySurveysResult,
-      myAssessmentsResult,
-      myJmpsResult,
-    ] = await Promise.all([
+    // Use Promise.allSettled for resilience — individual query failures
+    // won't crash the entire dashboard
+    const results = await Promise.allSettled([
       // All survey statuses + completed_at — one query replaces 3 count queries
       supabase
         .from('route_surveys')
@@ -162,7 +147,7 @@ export async function getEngineeringDashboardMetrics(
             .in('status', PENDING_SURVEY_STATUSES)
             .order('survey_date', { ascending: true })
             .limit(10)
-        : Promise.resolve({ data: [], count: 0 }),
+        : Promise.resolve({ data: [] as never[], count: 0 }),
 
       // My assessments (if userId provided)
       userId
@@ -173,7 +158,7 @@ export async function getEngineeringDashboardMetrics(
             .in('status', PENDING_ASSESSMENT_STATUSES)
             .order('created_at', { ascending: false })
             .limit(10)
-        : Promise.resolve({ data: [], count: 0 }),
+        : Promise.resolve({ data: [] as never[], count: 0 }),
 
       // My JMPs (if userId provided)
       userId
@@ -184,8 +169,23 @@ export async function getEngineeringDashboardMetrics(
             .in('status', ['draft', 'pending_review', 'active'])
             .order('planned_departure', { ascending: true })
             .limit(10)
-        : Promise.resolve({ data: [], count: 0 }),
+        : Promise.resolve({ data: [] as never[], count: 0 }),
     ])
+
+    // Helper to safely extract data from settled results
+    const settled = <T>(r: PromiseSettledResult<{ data: T | null; [key: string]: unknown }>): T | null =>
+      r.status === 'fulfilled' ? r.value?.data ?? null : null
+
+    // Extract results safely — failed queries return null/empty arrays
+    const surveyStatusesResult = { data: settled(results[0] as PromiseSettledResult<{ data: { status: string | null; completed_at: string | null }[] | null }>) }
+    const recentSurveysResult = { data: settled(results[1] as PromiseSettledResult<{ data: { id: string; survey_number: string | null; origin_location: string | null; destination_location: string | null; status: string | null; created_at: string | null }[] | null }>) }
+    const jmpStatusesResult = { data: settled(results[2] as PromiseSettledResult<{ data: { status: string | null; planned_departure: string | null }[] | null }>) }
+    const recentJmpsResult = { data: settled(results[3] as PromiseSettledResult<{ data: { id: string; jmp_number: string | null; journey_title: string | null; status: string | null; planned_departure: string | null; created_at: string | null }[] | null }>) }
+    const assessmentStatusesResult = { data: settled(results[4] as PromiseSettledResult<{ data: { status: string | null; completed_at: string | null }[] | null }>) }
+    const recentAssessmentsResult = { data: settled(results[5] as PromiseSettledResult<{ data: { id: string; assessment_type: string | null; status: string | null; risk_level: string | null; created_at: string | null; pjo_id: string | null; proforma_job_orders: unknown }[] | null }>) }
+    const mySurveysResult = { data: settled(results[6] as PromiseSettledResult<{ data: { id: string; survey_number: string | null; origin_location: string | null; destination_location: string | null; status: string | null; created_at: string | null; survey_date: string | null }[] | null }>) }
+    const myAssessmentsResult = { data: settled(results[7] as PromiseSettledResult<{ data: { id: string; assessment_type: string | null; status: string | null; risk_level: string | null; created_at: string | null; pjo_id: string | null; proforma_job_orders: unknown }[] | null }>) }
+    const myJmpsResult = { data: settled(results[8] as PromiseSettledResult<{ data: { id: string; jmp_number: string | null; journey_title: string | null; status: string | null; planned_departure: string | null; created_at: string | null }[] | null }>) }
 
     // Compute survey counts from the single statuses query
     const surveyRows = surveyStatusesResult.data || []
