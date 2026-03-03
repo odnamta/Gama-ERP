@@ -50,7 +50,8 @@ export async function getMedicalCheckups(
   const { data, error } = await query;
 
   if (error) {
-    throw new Error('Gagal mengambil data medical checkup');
+    console.error('[MCU] getMedicalCheckups failed:', error.code, error.message);
+    throw new Error(`Gagal mengambil data medical checkup: ${error.message}`);
   }
 
   return ((data || []) as any[]).map((row) => ({
@@ -83,7 +84,8 @@ export async function getMedicalCheckup(
 
   if (error) {
     if (error.code === 'PGRST116') return null;
-    throw new Error('Gagal mengambil data medical checkup');
+    console.error('[MCU] getMedicalCheckup failed:', error.code, error.message);
+    throw new Error(`Gagal mengambil data medical checkup: ${error.message}`);
   }
 
   const row = data as any;
@@ -187,7 +189,11 @@ export async function createMedicalCheckup(
     .single();
 
   if (error) {
-    throw new Error('Gagal membuat data medical checkup');
+    console.error('[MCU] createMedicalCheckup failed:', error.code, error.message);
+    if (error.code === '42501' || error.message?.includes('policy')) {
+      throw new Error('Tidak memiliki izin untuk membuat data medical checkup (RLS policy)');
+    }
+    throw new Error(`Gagal membuat data medical checkup: ${error.message}`);
   }
 
   revalidatePath('/hse/medical-checkups');
@@ -249,7 +255,11 @@ export async function updateMedicalCheckup(
     .single();
 
   if (error) {
-    throw new Error('Gagal mengupdate data medical checkup');
+    console.error('[MCU] updateMedicalCheckup failed:', error.code, error.message);
+    if (error.code === '42501' || error.message?.includes('policy')) {
+      throw new Error('Tidak memiliki izin untuk mengupdate data medical checkup (RLS policy)');
+    }
+    throw new Error(`Gagal mengupdate data medical checkup: ${error.message}`);
   }
 
   revalidatePath('/hse/medical-checkups');
@@ -269,7 +279,8 @@ export async function deleteMedicalCheckup(id: string): Promise<{ error?: string
     .eq('id', id);
 
   if (error) {
-    return { error: 'Gagal menghapus data medical checkup' };
+    console.error('[MCU] deleteMedicalCheckup failed:', error.code, error.message);
+    return { error: `Gagal menghapus data medical checkup: ${error.message}` };
   }
 
   revalidatePath('/hse/medical-checkups');
@@ -294,6 +305,7 @@ export async function getMedicalCheckupStats(): Promise<{
     .eq('is_active', true);
 
   if (error) {
+    console.error('[MCU] getMedicalCheckupStats failed:', error.code, error.message);
     return { total: 0, fit: 0, conditionalFit: 0, expiringSoon: 0 };
   }
 

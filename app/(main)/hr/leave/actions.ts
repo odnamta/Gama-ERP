@@ -33,7 +33,8 @@ export async function getLeaveTypes(): Promise<LeaveType[]> {
     .order('type_name');
   
   if (error) {
-    throw new Error('Failed to fetch leave types');
+    console.error('[Leave] getLeaveTypes failed:', error);
+    throw new Error(error.message || 'Failed to fetch leave types');
   }
   
   return (data ?? []) as LeaveType[];
@@ -50,8 +51,9 @@ export async function getLeaveType(id: string): Promise<LeaveType | null> {
     .select('*')
     .eq('id', id)
     .single();
-  
+
   if (error) {
+    console.error('[Leave] getLeaveType failed:', error);
     return null;
   }
   
@@ -82,7 +84,8 @@ export async function getLeaveBalances(
     .eq('year', targetYear);
   
   if (error) {
-    throw new Error('Failed to fetch leave balances');
+    console.error('[Leave] getLeaveBalances failed:', error);
+    throw new Error(error.message || 'Failed to fetch leave balances');
   }
   
   return (data ?? []) as LeaveBalance[];
@@ -111,6 +114,7 @@ export async function getLeaveBalance(
     .single();
   
   if (error && error.code !== 'PGRST116') {
+    console.error('[Leave] getLeaveBalance failed:', error);
     return null;
   }
   
@@ -193,8 +197,9 @@ export async function initializeYearlyBalances(
     
     return { success: true };
   } catch (error) {
-    console.error('initializeYearlyBalances error:', error);
-    return { success: false, error: 'Gagal inisialisasi saldo cuti' };
+    console.error('[Leave] initializeYearlyBalances error:', error);
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: `Gagal inisialisasi saldo cuti: ${msg}` };
   }
 }
 
@@ -321,7 +326,7 @@ export async function submitLeaveRequest(
     
     return { success: true, data: request as LeaveRequest };
   } catch (error) {
-    console.error('submitLeaveRequest error:', error);
+    console.error('[Leave] submitLeaveRequest error:', error);
     const msg = error instanceof Error ? error.message : 'Unknown error';
     return { success: false, error: `Gagal mengajukan cuti: ${msg}` };
   }
@@ -417,7 +422,7 @@ export async function approveLeaveRequest(
     
     return { success: true };
   } catch (error) {
-    console.error('approveLeaveRequest error:', error);
+    console.error('[Leave] approveLeaveRequest error:', error);
     const msg = error instanceof Error ? error.message : 'Unknown error';
     return { success: false, error: `Gagal menyetujui cuti: ${msg}` };
   }
@@ -510,7 +515,7 @@ export async function rejectLeaveRequest(
     
     return { success: true };
   } catch (error) {
-    console.error('rejectLeaveRequest error:', error);
+    console.error('[Leave] rejectLeaveRequest error:', error);
     const msg = error instanceof Error ? error.message : 'Unknown error';
     return { success: false, error: `Gagal menolak cuti: ${msg}` };
   }
@@ -574,7 +579,7 @@ export async function cancelLeaveRequest(
     
     return { success: true };
   } catch (error) {
-    console.error('cancelLeaveRequest error:', error);
+    console.error('[Leave] cancelLeaveRequest error:', error);
     const msg = error instanceof Error ? error.message : 'Unknown error';
     return { success: false, error: `Gagal membatalkan cuti: ${msg}` };
   }
@@ -610,7 +615,7 @@ async function markAttendanceAsLeave(
       const dateStr = current.toISOString().split('T')[0];
       
       // Upsert attendance record
-      await supabase
+      const { error: upsertError } = await supabase
         .from('attendance_records')
         .upsert({
           employee_id: employeeId,
@@ -620,6 +625,10 @@ async function markAttendanceAsLeave(
         }, {
           onConflict: 'employee_id,attendance_date',
         });
+
+      if (upsertError) {
+        console.error('[Leave] markAttendanceAsLeave upsert failed for date', dateStr, ':', upsertError);
+      }
     }
     current.setDate(current.getDate() + 1);
   }
@@ -670,7 +679,8 @@ export async function getLeaveRequests(
   const { data, error } = await query.limit(1000);
 
   if (error) {
-    throw new Error('Failed to fetch leave requests');
+    console.error('[Leave] getLeaveRequests failed:', error);
+    throw new Error(error.message || 'Failed to fetch leave requests');
   }
 
   return (data ?? []) as unknown as LeaveRequest[];
@@ -697,9 +707,10 @@ export async function getPendingRequestsCount(): Promise<number> {
     .eq('status', 'pending');
   
   if (error) {
+    console.error('[Leave] getPendingRequestsCount failed:', error);
     return 0;
   }
-  
+
   return count || 0;
 }
 
@@ -719,11 +730,12 @@ export async function getLeaveRequest(id: string): Promise<LeaveRequest | null> 
     `)
     .eq('id', id)
     .single();
-  
+
   if (error) {
+    console.error('[Leave] getLeaveRequest failed:', error);
     return null;
   }
-  
+
   return data as unknown as LeaveRequest;
 }
 
@@ -740,9 +752,10 @@ export async function getEmployeesForSelect(): Promise<{ id: string; full_name: 
     .order('full_name');
   
   if (error) {
+    console.error('[Leave] getEmployeesForSelect failed:', error);
     return [];
   }
-  
+
   return (data || []).map(e => ({
     id: e.id,
     full_name: e.full_name,

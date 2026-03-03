@@ -60,7 +60,8 @@ export async function getIncidentStatistics(
       .neq('status', 'rejected');
 
     if (error) {
-      return { success: false, error: 'Failed to fetch statistics' };
+      console.error('[Incident] getIncidentStatistics failed:', error.code, error.message);
+      return { success: false, error: `Failed to fetch statistics: ${error.message}` };
     }
 
     // Transform incidents
@@ -117,7 +118,8 @@ export async function getIncidentStatistics(
       },
     };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] getIncidentStatistics unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -199,6 +201,7 @@ export async function getIncidentDashboardSummary(): Promise<{
       },
     };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] getIncidentDashboardSummary unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }

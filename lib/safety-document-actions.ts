@@ -63,7 +63,8 @@ export async function getDocumentCategories(): Promise<{
       .order('display_order', { ascending: true });
 
     if (error) {
-      return { success: false, error: 'Gagal mengambil kategori dokumen' };
+      console.error('[SafetyDoc] getDocumentCategories failed:', error.code, error.message);
+      return { success: false, error: `Gagal mengambil kategori dokumen: ${error.message}` };
     }
 
     return {
@@ -71,7 +72,8 @@ export async function getDocumentCategories(): Promise<{
       data: (data as DocumentCategoryRow[]).map(transformCategoryRow),
     };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] getDocumentCategories unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -93,7 +95,8 @@ export async function getDocumentCategory(id: string): Promise<{
       .single();
 
     if (error) {
-      return { success: false, error: 'Kategori dokumen tidak ditemukan' };
+      console.error('[SafetyDoc] getDocumentCategory failed:', error.code, error.message);
+      return { success: false, error: `Kategori dokumen tidak ditemukan: ${error.message}` };
     }
 
     return {
@@ -101,7 +104,8 @@ export async function getDocumentCategory(id: string): Promise<{
       data: transformCategoryRow(data as DocumentCategoryRow),
     };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] getDocumentCategory unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -219,7 +223,8 @@ export async function getSafetyDocument(
       .single();
 
     if (error) {
-      return { success: false, error: 'Dokumen tidak ditemukan' };
+      console.error('[SafetyDoc] getSafetyDocument failed:', error.code, error.message);
+      return { success: false, error: `Dokumen tidak ditemukan: ${error.message}` };
     }
 
     // Transform the data
@@ -241,7 +246,8 @@ export async function getSafetyDocument(
 
     return { success: true, data: document };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] getSafetyDocument unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -292,7 +298,8 @@ export async function getSafetyDocuments(
     const { data, error } = await query;
 
     if (error) {
-      return { success: false, error: 'Gagal mengambil daftar dokumen' };
+      console.error('[SafetyDoc] getSafetyDocuments failed:', error.code, error.message);
+      return { success: false, error: `Gagal mengambil daftar dokumen: ${error.message}` };
     }
 
     // Transform the data
@@ -315,7 +322,8 @@ export async function getSafetyDocuments(
 
     return { success: true, data: documents };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] getSafetyDocuments unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -353,7 +361,8 @@ export async function updateSafetyDocument(
       .eq('id', id);
 
     if (error) {
-      return { success: false, error: 'Gagal memperbarui dokumen' };
+      console.error('[SafetyDoc] updateSafetyDocument failed:', error.code, error.message);
+      return { success: false, error: `Gagal memperbarui dokumen: ${error.message}` };
     }
 
     revalidatePath('/hse/documents');
@@ -361,7 +370,8 @@ export async function updateSafetyDocument(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] updateSafetyDocument unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -443,7 +453,8 @@ export async function createNewVersion(
       .single();
 
     if (insertError) {
-      return { success: false, error: 'Gagal membuat versi baru' };
+      console.error('[SafetyDoc] createNewVersion failed:', insertError.code, insertError.message);
+      return { success: false, error: `Gagal membuat versi baru: ${insertError.message}` };
     }
 
     // Mark old version as superseded
@@ -461,7 +472,8 @@ export async function createNewVersion(
       data: transformDocumentRow(newDoc as SafetyDocumentRow),
     };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] createNewVersion unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -487,7 +499,8 @@ export async function submitForReview(
       .eq('status', 'draft');
 
     if (error) {
-      return { success: false, error: 'Gagal mengirim untuk review' };
+      console.error('[SafetyDoc] submitForReview failed:', error.code, error.message);
+      return { success: false, error: `Gagal mengirim untuk review: ${error.message}` };
     }
 
     revalidatePath('/hse/documents');
@@ -495,7 +508,8 @@ export async function submitForReview(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] submitForReview unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -539,7 +553,8 @@ export async function approveDocument(
       .eq('status', 'pending_review');
 
     if (error) {
-      return { success: false, error: 'Gagal menyetujui dokumen' };
+      console.error('[SafetyDoc] approveDocument failed:', error.code, error.message);
+      return { success: false, error: `Gagal menyetujui dokumen: ${error.message}` };
     }
 
     revalidatePath('/hse/documents');
@@ -547,7 +562,8 @@ export async function approveDocument(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] approveDocument unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -593,7 +609,8 @@ export async function rejectDocument(
       .eq('status', 'pending_review');
 
     if (error) {
-      return { success: false, error: 'Gagal menolak dokumen' };
+      console.error('[SafetyDoc] rejectDocument failed:', error.code, error.message);
+      return { success: false, error: `Gagal menolak dokumen: ${error.message}` };
     }
 
     revalidatePath('/hse/documents');
@@ -601,7 +618,8 @@ export async function rejectDocument(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] rejectDocument unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -670,14 +688,16 @@ export async function acknowledgeDocument(
       });
 
     if (error) {
-      return { success: false, error: 'Gagal mengakui dokumen' };
+      console.error('[SafetyDoc] acknowledgeDocument failed:', error.code, error.message);
+      return { success: false, error: `Gagal mengakui dokumen: ${error.message}` };
     }
 
     revalidatePath(`/hse/documents/${documentId}`);
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] acknowledgeDocument unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -699,7 +719,8 @@ export async function getDocumentAcknowledgments(
       .order('acknowledged_at', { ascending: false });
 
     if (error) {
-      return { success: false, error: 'Gagal mengambil daftar pengakuan' };
+      console.error('[SafetyDoc] getDocumentAcknowledgments failed:', error.code, error.message);
+      return { success: false, error: `Gagal mengambil daftar pengakuan: ${error.message}` };
     }
 
     const acknowledgments = (data || []).map((row: DocumentAcknowledgmentRow & { employees: { full_name: string } | null }) => {
@@ -710,7 +731,8 @@ export async function getDocumentAcknowledgments(
 
     return { success: true, data: acknowledgments };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] getDocumentAcknowledgments unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -747,7 +769,8 @@ export async function getAcknowledgmentStats(
       },
     };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] getAcknowledgmentStats unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -787,7 +810,8 @@ export async function addJSAHazard(
       .single();
 
     if (error) {
-      return { success: false, error: 'Gagal menambahkan bahaya JSA' };
+      console.error('[SafetyDoc] addJSAHazard failed:', error.code, error.message);
+      return { success: false, error: `Gagal menambahkan bahaya JSA: ${error.message}` };
     }
 
     revalidatePath(`/hse/documents/${documentId}`);
@@ -797,7 +821,8 @@ export async function addJSAHazard(
       data: transformHazardRow(data as JSAHazardRow),
     };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] addJSAHazard unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -831,14 +856,16 @@ export async function updateJSAHazard(
       .eq('id', hazardId);
 
     if (error) {
-      return { success: false, error: 'Gagal memperbarui bahaya JSA' };
+      console.error('[SafetyDoc] updateJSAHazard failed:', error.code, error.message);
+      return { success: false, error: `Gagal memperbarui bahaya JSA: ${error.message}` };
     }
 
     revalidatePath('/hse/documents');
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] updateJSAHazard unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -856,14 +883,16 @@ export async function deleteJSAHazard(
       .eq('id', hazardId);
 
     if (error) {
-      return { success: false, error: 'Gagal menghapus bahaya JSA' };
+      console.error('[SafetyDoc] deleteJSAHazard failed:', error.code, error.message);
+      return { success: false, error: `Gagal menghapus bahaya JSA: ${error.message}` };
     }
 
     revalidatePath('/hse/documents');
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] deleteJSAHazard unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -882,7 +911,8 @@ export async function getJSAHazards(
       .order('step_number', { ascending: true });
 
     if (error) {
-      return { success: false, error: 'Gagal mengambil daftar bahaya JSA' };
+      console.error('[SafetyDoc] getJSAHazards failed:', error.code, error.message);
+      return { success: false, error: `Gagal mengambil daftar bahaya JSA: ${error.message}` };
     }
 
     return {
@@ -890,7 +920,8 @@ export async function getJSAHazards(
       data: (data as JSAHazardRow[]).map(transformHazardRow),
     };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] getJSAHazards unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -921,7 +952,8 @@ export async function getDocumentStatistics(): Promise<{
       `);
 
     if (error) {
-      return { success: false, error: 'Gagal mengambil statistik dokumen' };
+      console.error('[SafetyDoc] getDocumentStatistics failed:', error.code, error.message);
+      return { success: false, error: `Gagal mengambil statistik dokumen: ${error.message}` };
     }
 
     // Calculate statistics
@@ -972,7 +1004,8 @@ export async function getDocumentStatistics(): Promise<{
       },
     };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] getDocumentStatistics unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -1000,7 +1033,8 @@ export async function getExpiringDocuments(
       .order('expiry_date', { ascending: true });
 
     if (error) {
-      return { success: false, error: 'Gagal mengambil dokumen yang akan kadaluarsa' };
+      console.error('[SafetyDoc] getExpiringDocuments failed:', error.code, error.message);
+      return { success: false, error: `Gagal mengambil dokumen yang akan kadaluarsa: ${error.message}` };
     }
 
     const documents = (data || []).map((row: SafetyDocumentRow & { 
@@ -1022,6 +1056,7 @@ export async function getExpiringDocuments(
 
     return { success: true, data: documents };
   } catch (error) {
-    return { success: false, error: 'Terjadi kesalahan' };
+    console.error('[SafetyDoc] getExpiringDocuments unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }

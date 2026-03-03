@@ -684,8 +684,8 @@ export async function createFinding(
         .update({ [countField]: currentCount + 1 })
         .eq('id', input.audit_id);
     }
-  } catch {
-    // Ignore errors in count update
+  } catch (countError) {
+    console.error('[Audit] createFinding - count update failed (non-critical):', countError);
   }
 
   return { data: data as unknown as AuditFinding, error: null };

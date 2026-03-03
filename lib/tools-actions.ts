@@ -65,6 +65,7 @@ export async function getTools(filters?: ToolFilters): Promise<{ data: Equipment
   const { data, error } = await query
 
   if (error) {
+    console.error('[Equipment Tools] getTools failed:', error)
     return { data: [], error: error.message }
   }
 
@@ -85,6 +86,7 @@ export async function getToolById(id: string): Promise<{ data: EquipmentTool | n
     .single()
 
   if (error) {
+    console.error('[Equipment Tools] getToolById failed:', error)
     return { data: null, error: error.message }
   }
 
@@ -128,6 +130,7 @@ export async function createTool(formData: ToolFormData): Promise<{ error?: stri
     .single()
 
   if (error) {
+    console.error('[Equipment Tools] createTool failed:', error)
     return { error: error.message }
   }
 
@@ -171,6 +174,7 @@ export async function updateTool(id: string, formData: ToolFormData): Promise<{ 
     .eq('id', id)
 
   if (error) {
+    console.error('[Equipment Tools] updateTool failed:', error)
     return { error: error.message }
   }
 
@@ -191,6 +195,7 @@ export async function deactivateTool(id: string): Promise<{ error?: string }> {
     .eq('id', id)
 
   if (error) {
+    console.error('[Equipment Tools] deactivateTool failed:', error)
     return { error: error.message }
   }
 

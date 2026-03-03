@@ -84,7 +84,8 @@ export async function getCourses(filters?: CourseFilters): Promise<TrainingCours
   const { data, error } = await query;
 
   if (error) {
-    throw new Error('Gagal mengambil data kursus');
+    console.error('[Training] getCourses failed:', error.code, error.message);
+    throw new Error(`Gagal mengambil data kursus: ${error.message}`);
   }
 
   return (data as TrainingCourseRow[]).map(transformCourseRow);
@@ -104,7 +105,8 @@ export async function getCourseById(id: string): Promise<TrainingCourse | null> 
 
   if (error) {
     if (error.code === 'PGRST116') return null;
-    throw new Error('Gagal mengambil data kursus');
+    console.error('[Training] getCourseById failed:', error.code, error.message);
+    throw new Error(`Gagal mengambil data kursus: ${error.message}`);
   }
 
   return transformCourseRow(data as TrainingCourseRow);
@@ -144,10 +146,11 @@ export async function createCourse(input: CreateCourseInput): Promise<TrainingCo
     .single();
 
   if (error) {
+    console.error('[Training] createCourse failed:', error.code, error.message);
     if (error.code === '23505') {
       throw new Error('Kode kursus sudah digunakan');
     }
-    throw new Error('Gagal membuat kursus');
+    throw new Error(`Gagal membuat kursus: ${error.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -185,7 +188,8 @@ export async function updateCourse(id: string, input: UpdateCourseInput): Promis
     .single();
 
   if (error) {
-    throw new Error('Gagal mengupdate kursus');
+    console.error('[Training] updateCourse failed:', error.code, error.message);
+    throw new Error(`Gagal mengupdate kursus: ${error.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -206,7 +210,8 @@ export async function toggleCourseActive(id: string): Promise<TrainingCourse> {
     .single();
 
   if (fetchError) {
-    throw new Error('Gagal mengambil data kursus');
+    console.error('[Training] toggleCourseActive fetch failed:', fetchError.code, fetchError.message);
+    throw new Error(`Gagal mengambil data kursus: ${fetchError.message}`);
   }
 
   // Toggle status
@@ -218,7 +223,8 @@ export async function toggleCourseActive(id: string): Promise<TrainingCourse> {
     .single();
 
   if (error) {
-    throw new Error('Gagal mengubah status kursus');
+    console.error('[Training] toggleCourseActive update failed:', error.code, error.message);
+    throw new Error(`Gagal mengubah status kursus: ${error.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -263,7 +269,8 @@ export async function getTrainingRecords(filters?: RecordFilters): Promise<Train
   const { data, error } = await query;
 
   if (error) {
-    throw new Error('Gagal mengambil data pelatihan');
+    console.error('[Training] getTrainingRecords failed:', error.code, error.message);
+    throw new Error(`Gagal mengambil data pelatihan: ${error.message}`);
   }
 
   return ((data || []) as unknown as (TrainingRecordRow & { 
@@ -488,7 +495,8 @@ export async function completeTrainingRecord(
     .single();
 
   if (error) {
-    throw new Error('Gagal menyelesaikan catatan pelatihan');
+    console.error('[Training] completeTrainingRecord failed:', error.code, error.message);
+    throw new Error(`Gagal menyelesaikan catatan pelatihan: ${error.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -538,7 +546,8 @@ export async function getSessions(filters?: SessionFilters): Promise<TrainingSes
   const { data, error } = await query;
 
   if (error) {
-    throw new Error('Gagal mengambil data sesi');
+    console.error('[Training] getSessions failed:', error.code, error.message);
+    throw new Error(`Gagal mengambil data sesi: ${error.message}`);
   }
 
   // Get participant counts
@@ -594,7 +603,8 @@ export async function getSessionById(id: string): Promise<TrainingSession | null
 
   if (error) {
     if (error.code === 'PGRST116') return null;
-    throw new Error('Gagal mengambil data sesi');
+    console.error('[Training] getSessionById failed:', error.code, error.message);
+    throw new Error(`Gagal mengambil data sesi: ${error.message}`);
   }
 
   // Get participant count
@@ -675,7 +685,8 @@ export async function createSession(input: CreateSessionInput): Promise<Training
     .single();
 
   if (error) {
-    throw new Error('Gagal membuat sesi pelatihan');
+    console.error('[Training] createSession failed:', error.code, error.message);
+    throw new Error(`Gagal membuat sesi pelatihan: ${error.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -708,7 +719,8 @@ export async function updateSession(id: string, input: UpdateSessionInput): Prom
     .single();
 
   if (error) {
-    throw new Error('Gagal mengupdate sesi pelatihan');
+    console.error('[Training] updateSession failed:', error.code, error.message);
+    throw new Error(`Gagal mengupdate sesi pelatihan: ${error.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -745,7 +757,8 @@ export async function completeSession(id: string): Promise<{ session: TrainingSe
     .eq('attendance_status', 'attended');
 
   if (participantsError) {
-    throw new Error('Gagal mengambil data peserta');
+    console.error('[Training] completeSession - get participants failed:', participantsError.code, participantsError.message);
+    throw new Error(`Gagal mengambil data peserta: ${participantsError.message}`);
   }
 
   const course = session.safety_training_courses;
@@ -811,7 +824,8 @@ export async function completeSession(id: string): Promise<{ session: TrainingSe
     .single();
 
   if (updateError) {
-    throw new Error('Gagal menyelesaikan sesi');
+    console.error('[Training] completeSession - update status failed:', updateError.code, updateError.message);
+    throw new Error(`Gagal menyelesaikan sesi: ${updateError.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -835,7 +849,8 @@ export async function cancelSession(id: string): Promise<TrainingSession> {
     .single();
 
   if (error) {
-    throw new Error('Gagal membatalkan sesi');
+    console.error('[Training] cancelSession failed:', error.code, error.message);
+    throw new Error(`Gagal membatalkan sesi: ${error.message}`);
   }
 
   // Cancel all participant registrations
@@ -867,7 +882,8 @@ export async function getSessionParticipants(sessionId: string): Promise<Session
     .eq('session_id', sessionId);
 
   if (error) {
-    throw new Error('Gagal mengambil data peserta');
+    console.error('[Training] getSessionParticipants failed:', error.code, error.message);
+    throw new Error(`Gagal mengambil data peserta: ${error.message}`);
   }
 
   return ((data || []) as unknown as (SessionParticipantRow & {
@@ -911,10 +927,11 @@ export async function addParticipant(input: AddParticipantInput): Promise<Sessio
     .single();
 
   if (error) {
+    console.error('[Training] addParticipant failed:', error.code, error.message);
     if (error.code === '23505') {
       throw new Error('Karyawan sudah terdaftar di sesi ini');
     }
-    throw new Error('Gagal menambah peserta');
+    throw new Error(`Gagal menambah peserta: ${error.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -934,7 +951,8 @@ export async function removeParticipant(sessionId: string, employeeId: string): 
     .eq('employee_id', employeeId);
 
   if (error) {
-    throw new Error('Gagal menghapus peserta');
+    console.error('[Training] removeParticipant failed:', error.code, error.message);
+    throw new Error(`Gagal menghapus peserta: ${error.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -957,7 +975,8 @@ export async function updateAttendance(
     .single();
 
   if (error) {
-    throw new Error('Gagal mengupdate kehadiran');
+    console.error('[Training] updateAttendance failed:', error.code, error.message);
+    throw new Error(`Gagal mengupdate kehadiran: ${error.message}`);
   }
 
   revalidatePath('/hse/training');
@@ -990,7 +1009,8 @@ export async function getComplianceMatrix(filters?: ComplianceFilters): Promise<
   const { data, error } = await query;
 
   if (error) {
-    throw new Error('Gagal mengambil data kepatuhan');
+    console.error('[Training] getComplianceMatrix failed:', error.code, error.message);
+    throw new Error(`Gagal mengambil data kepatuhan: ${error.message}`);
   }
 
   return (data as ComplianceRow[] || []).map(transformComplianceRow);
@@ -1010,7 +1030,8 @@ export async function getExpiringTraining(withinDays: number = 60): Promise<Expi
     .order('valid_to', { ascending: true });
 
   if (error) {
-    throw new Error('Gagal mengambil data pelatihan yang akan kadaluarsa');
+    console.error('[Training] getExpiringTraining failed:', error.code, error.message);
+    throw new Error(`Gagal mengambil data pelatihan yang akan kadaluarsa: ${error.message}`);
   }
 
   return (data as ExpiringTrainingRow[] || []).map(transformExpiringTrainingRow);
@@ -1028,7 +1049,8 @@ export async function getTrainingStatistics(): Promise<TrainingStatistics> {
     .select('*');
 
   if (complianceError) {
-    throw new Error('Gagal mengambil data statistik');
+    console.error('[Training] getTrainingStatistics failed:', complianceError.code, complianceError.message);
+    throw new Error(`Gagal mengambil data statistik: ${complianceError.message}`);
   }
 
   const entries = (complianceData as ComplianceRow[] || []).map(transformComplianceRow);

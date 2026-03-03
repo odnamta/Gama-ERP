@@ -85,7 +85,9 @@ export async function GET(
       },
     })
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Failed to generate PDF' }), {
+    const details = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[PDF Surat Jalan] Generation failed:', error)
+    return new Response(JSON.stringify({ error: 'Failed to generate PDF', details }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     })

@@ -1,7 +1,11 @@
 import { Suspense } from 'react';
 import { VendorsClient } from './vendors-client';
+import { guardPage } from '@/lib/auth-utils';
+import { getUserProfile } from '@/lib/permissions-server';
 
-export default function VendorsPage() {
+export default async function VendorsPage() {
+  const profile = await getUserProfile();
+  await guardPage(!!profile);
   return (
     <Suspense fallback={<VendorsPageSkeleton />}>
       <VendorsClient />

@@ -167,7 +167,8 @@ export async function getAuditLogs(
     
     return { success: true, data: result };
   } catch (error) {
-    return { success: false, error: 'Failed to fetch audit logs' };
+    console.error('[AuditLog] getAuditLogs failed:', error);
+    return { success: false, error: `Failed to fetch audit logs: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -212,7 +213,8 @@ export async function getEntityHistory(
     
     return { success: true, data: (data || []) as AuditLogEntry[] };
   } catch (error) {
-    return { success: false, error: 'Failed to fetch entity history' };
+    console.error('[AuditLog] getEntityHistory failed:', error);
+    return { success: false, error: `Failed to fetch entity history: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -309,7 +311,8 @@ export async function createManualAuditEntry(
     
     return { success: true, data: data as AuditLogEntry };
   } catch (error) {
-    return { success: false, error: 'Failed to create audit entry' };
+    console.error('[AuditLog] createManualAuditEntry failed:', error);
+    return { success: false, error: `Failed to create audit entry: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -416,7 +419,8 @@ export async function getAuditLogStats(
     
     return { success: true, data: stats };
   } catch (error) {
-    return { success: false, error: 'Failed to fetch audit log statistics' };
+    console.error('[AuditLog] getAuditLogStats failed:', error);
+    return { success: false, error: `Failed to fetch audit log statistics: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -523,7 +527,8 @@ export async function exportAuditLogs(
     
     return { success: true, data: csv };
   } catch (error) {
-    return { success: false, error: 'Failed to export audit logs' };
+    console.error('[AuditLog] exportAuditLogs failed:', error);
+    return { success: false, error: `Failed to export audit logs: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -580,6 +585,7 @@ export async function getAuditLogFilterOptions(): Promise<ActionResult<{
       },
     };
   } catch (error) {
-    return { success: false, error: 'Failed to fetch filter options' };
+    console.error('[AuditLog] getAuditLogFilterOptions failed:', error);
+    return { success: false, error: `Failed to fetch filter options: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }

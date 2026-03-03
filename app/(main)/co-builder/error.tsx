@@ -12,6 +12,7 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
+    console.error('[Co-Builder] Page error:', error)
   }, [error])
 
   return (

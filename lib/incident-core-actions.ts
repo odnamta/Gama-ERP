@@ -68,6 +68,7 @@ async function logIncidentHistory(
       performed_by: performedBy || null,
     });
   } catch (error) {
+    console.error('[Incident] logIncidentHistory failed for incident', incidentId, ':', error instanceof Error ? error.message : error);
   }
 }
 
@@ -92,7 +93,8 @@ export async function getIncidentCategories(): Promise<{
       .order('display_order', { ascending: true });
 
     if (error) {
-      return { success: false, error: 'Failed to fetch incident categories' };
+      console.error('[Incident] getIncidentCategories failed:', error.code, error.message);
+      return { success: false, error: `Failed to fetch incident categories: ${error.message}` };
     }
 
     return {
@@ -100,7 +102,8 @@ export async function getIncidentCategories(): Promise<{
       data: (data as IncidentCategoryRow[]).map(transformCategoryRow),
     };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] getIncidentCategories unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -225,7 +228,16 @@ export async function reportIncident(
         statement: p.statement || null,
       }));
 
-      await fromIncidentTable(supabase, 'incident_persons').insert(personRecords);
+      const { error: personsError } = await fromIncidentTable(supabase, 'incident_persons').insert(personRecords);
+      if (personsError) {
+        console.error('[Incident] incident_persons insert failed for incident', incident.id, ':', personsError.code, personsError.message);
+        // Incident was created but persons failed - report partial failure
+        return {
+          success: true,
+          data: transformIncidentRow(incident as IncidentRow),
+          error: `Insiden berhasil dibuat tetapi gagal menambahkan ${persons.length} orang terlibat: ${personsError.message}`,
+        };
+      }
     }
 
     // Log history (use profile.id, not auth UUID — FK references user_profiles.id)
@@ -290,7 +302,8 @@ export async function getIncident(
       .single();
 
     if (error) {
-      return { success: false, error: 'Incident not found' };
+      console.error('[Incident] getIncident failed:', error.code, error.message);
+      return { success: false, error: `Incident not found: ${error.message}` };
     }
 
     // Get persons involved
@@ -333,7 +346,8 @@ export async function getIncident(
 
     return { success: true, data: incident };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] getIncident unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -412,7 +426,8 @@ export async function getIncidents(
     const { data, error } = await query.limit(100);
 
     if (error) {
-      return { success: false, error: 'Failed to fetch incidents' };
+      console.error('[Incident] getIncidents failed:', error.code, error.message);
+      return { success: false, error: `Failed to fetch incidents: ${error.message}` };
     }
 
     // Transform the data
@@ -432,7 +447,8 @@ export async function getIncidents(
 
     return { success: true, data: incidents };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] getIncidents unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -469,7 +485,8 @@ export async function startInvestigation(
       .eq('status', 'reported');
 
     if (error) {
-      return { success: false, error: 'Failed to start investigation' };
+      console.error('[Incident] startInvestigation failed:', error.code, error.message);
+      return { success: false, error: `Failed to start investigation: ${error.message}` };
     }
 
     // Log history
@@ -498,7 +515,8 @@ export async function startInvestigation(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] startInvestigation unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -522,7 +540,8 @@ export async function updateRootCause(
       .eq('id', incidentId);
 
     if (error) {
-      return { success: false, error: 'Failed to update root cause' };
+      console.error('[Incident] updateRootCause failed:', error.code, error.message);
+      return { success: false, error: `Failed to update root cause: ${error.message}` };
     }
 
     // Log history
@@ -539,7 +558,8 @@ export async function updateRootCause(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] updateRootCause unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -573,7 +593,8 @@ export async function completeInvestigation(
       .eq('status', 'under_investigation');
 
     if (error) {
-      return { success: false, error: 'Failed to complete investigation' };
+      console.error('[Incident] completeInvestigation failed:', error.code, error.message);
+      return { success: false, error: `Failed to complete investigation: ${error.message}` };
     }
 
     // Log history
@@ -592,7 +613,8 @@ export async function completeInvestigation(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] completeInvestigation unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -648,7 +670,8 @@ export async function addCorrectiveAction(
       .eq('id', incidentId);
 
     if (error) {
-      return { success: false, error: 'Failed to add corrective action' };
+      console.error('[Incident] addCorrectiveAction failed:', error.code, error.message);
+      return { success: false, error: `Failed to add corrective action: ${error.message}` };
     }
 
     // Log history
@@ -675,7 +698,8 @@ export async function addCorrectiveAction(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] addCorrectiveAction unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -727,7 +751,8 @@ export async function addPreventiveAction(
       .eq('id', incidentId);
 
     if (error) {
-      return { success: false, error: 'Failed to add preventive action' };
+      console.error('[Incident] addPreventiveAction failed:', error.code, error.message);
+      return { success: false, error: `Failed to add preventive action: ${error.message}` };
     }
 
     // Log history
@@ -754,7 +779,8 @@ export async function addPreventiveAction(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] addPreventiveAction unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -804,7 +830,8 @@ export async function completeAction(
       .eq('id', incidentId);
 
     if (error) {
-      return { success: false, error: 'Failed to complete action' };
+      console.error('[Incident] completeAction failed:', error.code, error.message);
+      return { success: false, error: `Failed to complete action: ${error.message}` };
     }
 
     // Log history
@@ -821,7 +848,8 @@ export async function completeAction(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] completeAction unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -880,7 +908,8 @@ export async function closeIncident(
       .eq('id', incidentId);
 
     if (error) {
-      return { success: false, error: 'Failed to close incident' };
+      console.error('[Incident] closeIncident failed:', error.code, error.message);
+      return { success: false, error: `Failed to close incident: ${error.message}` };
     }
 
     // Log history
@@ -907,7 +936,8 @@ export async function closeIncident(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] closeIncident unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -946,7 +976,8 @@ export async function rejectIncident(
       .eq('id', incidentId);
 
     if (error) {
-      return { success: false, error: 'Failed to reject incident' };
+      console.error('[Incident] rejectIncident failed:', error.code, error.message);
+      return { success: false, error: `Failed to reject incident: ${error.message}` };
     }
 
     // Log history
@@ -965,7 +996,8 @@ export async function rejectIncident(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] rejectIncident unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -1002,7 +1034,8 @@ export async function addPersonToIncident(
       .single();
 
     if (error) {
-      return { success: false, error: 'Failed to add person' };
+      console.error('[Incident] addPersonToIncident failed:', error.code, error.message);
+      return { success: false, error: `Failed to add person: ${error.message}` };
     }
 
     revalidatePath(`/hse/incidents/${incidentId}`);
@@ -1012,7 +1045,8 @@ export async function addPersonToIncident(
       data: transformPersonRow(data as IncidentPersonRow),
     };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] addPersonToIncident unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -1040,14 +1074,16 @@ export async function removePersonFromIncident(
       .eq('id', personId);
 
     if (error) {
-      return { success: false, error: 'Failed to remove person' };
+      console.error('[Incident] removePersonFromIncident failed:', error.code, error.message);
+      return { success: false, error: `Failed to remove person: ${error.message}` };
     }
 
     revalidatePath(`/hse/incidents/${person.incident_id}`);
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] removePersonFromIncident unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
 
@@ -1073,7 +1109,8 @@ export async function getIncidentHistory(
       .order('performed_at', { ascending: false });
 
     if (error) {
-      return { success: false, error: 'Failed to fetch history' };
+      console.error('[Incident] getIncidentHistory failed:', error.code, error.message);
+      return { success: false, error: `Failed to fetch history: ${error.message}` };
     }
 
     const history = (data || []).map((row: IncidentHistoryRow & { user_profiles?: { full_name: string } | null }) => {
@@ -1085,6 +1122,7 @@ export async function getIncidentHistory(
 
     return { success: true, data: history };
   } catch (error) {
-    return { success: false, error: 'An unexpected error occurred' };
+    console.error('[Incident] getIncidentHistory unexpected error:', error);
+    return { success: false, error: `Terjadi kesalahan: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }
