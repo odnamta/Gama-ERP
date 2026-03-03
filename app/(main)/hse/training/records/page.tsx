@@ -17,6 +17,8 @@ import { getTrainingRecords } from '@/lib/training-actions';
 import { Plus, Search, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+const EXPLORER_COOKIE = 'gama-explorer-mode';
+
 const STATUS_OPTIONS: { value: TrainingRecordStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'Semua Status' },
   { value: 'scheduled', label: 'Terjadwal' },
@@ -31,6 +33,11 @@ export default function RecordsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<TrainingRecordStatus | 'all'>('all');
+  const [isExplorer, setIsExplorer] = useState(false);
+
+  useEffect(() => {
+    setIsExplorer(document.cookie.includes(`${EXPLORER_COOKIE}=true`));
+  }, []);
 
   useEffect(() => {
     loadRecords();
@@ -72,12 +79,14 @@ export default function RecordsPage() {
             Kelola catatan pelatihan karyawan
           </p>
         </div>
-        <Link href="/hse/training/records/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Tambah Catatan
-          </Button>
-        </Link>
+        {!isExplorer && (
+          <Link href="/hse/training/records/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Tambah Catatan
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center">

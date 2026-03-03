@@ -1,7 +1,19 @@
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { canAccessFeature } from '@/lib/permissions';
 import { RecordForm } from '@/components/training/record-form';
 
 export default async function NewRecordPage() {
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(
+    canAccessFeature(profile, 'hse.training.view')
+  );
+
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/hse/training/records');
+  }
+
   const supabase = await createClient();
 
   const { data: employees } = await supabase

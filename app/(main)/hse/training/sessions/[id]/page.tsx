@@ -50,6 +50,8 @@ const STATUS_COLORS: Record<SessionStatus, string> = {
   cancelled: 'border-gray-500 text-gray-700 bg-gray-50',
 };
 
+const EXPLORER_COOKIE = 'gama-explorer-mode';
+
 export default function SessionDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -58,6 +60,11 @@ export default function SessionDetailPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [isExplorer, setIsExplorer] = useState(false);
+
+  useEffect(() => {
+    setIsExplorer(document.cookie.includes(`${EXPLORER_COOKIE}=true`));
+  }, []);
 
   const loadData = useCallback(async () => {
     try {
@@ -144,7 +151,7 @@ export default function SessionDetailPage() {
     return timeStr.substring(0, 5);
   };
 
-  const canEdit = session.status === 'scheduled' || session.status === 'in_progress';
+  const canEdit = !isExplorer && (session.status === 'scheduled' || session.status === 'in_progress');
   const existingParticipantIds = participants.map((p) => p.employeeId);
 
   return (

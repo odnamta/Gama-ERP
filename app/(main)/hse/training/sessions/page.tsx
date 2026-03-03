@@ -15,6 +15,9 @@ import { SessionList } from '@/components/training/session-list';
 import { TrainingSession, SessionStatus, SessionFilters } from '@/types/training';
 import { getSessions } from '@/lib/training-actions';
 import { Plus, Search, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+
+const EXPLORER_COOKIE = 'gama-explorer-mode';
 
 const STATUS_OPTIONS: { value: SessionStatus | 'all'; label: string }[] = [
   { value: 'all', label: 'Semua Status' },
@@ -29,6 +32,11 @@ export default function SessionsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<SessionStatus | 'all'>('all');
+  const [isExplorer, setIsExplorer] = useState(false);
+
+  useEffect(() => {
+    setIsExplorer(document.cookie.includes(`${EXPLORER_COOKIE}=true`));
+  }, []);
 
   useEffect(() => {
     loadSessions();
@@ -43,7 +51,8 @@ export default function SessionsPage() {
       }
       const data = await getSessions(filters);
       setSessions(data);
-    } catch (error) {
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Gagal memuat data sesi pelatihan');
     } finally {
       setLoading(false);
     }
@@ -68,12 +77,14 @@ export default function SessionsPage() {
             Kelola jadwal sesi pelatihan
           </p>
         </div>
-        <Link href="/hse/training/sessions/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Jadwalkan Sesi
-          </Button>
-        </Link>
+        {!isExplorer && (
+          <Link href="/hse/training/sessions/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Jadwalkan Sesi
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center">

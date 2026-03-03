@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getUserProfile } from '@/lib/permissions-server'
 import { revalidatePath } from 'next/cache'
 import { sanitizeSearchInput } from '@/lib/utils/sanitize'
-import { profileHasRole } from '@/lib/auth-utils'
+import { profileHasRole, isExplorerMode } from '@/lib/auth-utils'
 import {
   Asset,
   AssetWithRelations,
@@ -35,7 +35,8 @@ const ASSET_READ_ROLES = ['owner', 'director', 'sysadmin', 'operations_manager',
 export async function getAssetCategories(): Promise<AssetCategory[]> {
   const profile = await getUserProfile()
   if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
-    return []
+    const explorer = await isExplorerMode()
+    if (!explorer || !profile) return []
   }
 
   const supabase = await createClient()
@@ -59,7 +60,8 @@ export async function getAssetCategories(): Promise<AssetCategory[]> {
 export async function getAssetLocations(): Promise<AssetLocation[]> {
   const profile = await getUserProfile()
   if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
-    return []
+    const explorer = await isExplorerMode()
+    if (!explorer || !profile) return []
   }
 
   const supabase = await createClient()
@@ -348,7 +350,9 @@ export async function getAssets(
 ): Promise<AssetWithRelations[]> {
   const profile = await getUserProfile()
   if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
-    return []
+    // Allow explorer mode users to read assets
+    const explorer = await isExplorerMode()
+    if (!explorer || !profile) return []
   }
 
   const supabase = await createClient()
@@ -611,7 +615,8 @@ export async function getAssetStatusHistory(assetId: string): Promise<AssetStatu
 export async function getExpiringDocumentsCount(): Promise<number> {
   const profile = await getUserProfile()
   if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
-    return 0
+    const explorer = await isExplorerMode()
+    if (!explorer || !profile) return 0
   }
 
   const supabase = await createClient()

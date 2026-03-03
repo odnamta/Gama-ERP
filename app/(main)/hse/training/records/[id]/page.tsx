@@ -1,5 +1,8 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { canAccessFeature } from '@/lib/permissions';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 import { RecordForm } from '@/components/training/record-form';
 import { TrainingRecordRow, transformRecordRow } from '@/types/training';
 import { PDFButtons } from '@/components/pdf/pdf-buttons';
@@ -10,6 +13,10 @@ interface RecordDetailPageProps {
 
 export default async function RecordDetailPage({ params }: RecordDetailPageProps) {
   const { id } = await params;
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(
+    canAccessFeature(profile, 'hse.training.view')
+  );
   const supabase = await createClient();
 
   const { data: recordData, error } = await supabase
@@ -43,9 +50,12 @@ export default async function RecordDetailPage({ params }: RecordDetailPageProps
 
   return (
     <div className="space-y-6">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Edit Catatan Pelatihan</h1>
+          <h1 className="text-2xl font-bold">
+            {explorerReadOnly ? 'Detail' : 'Edit'} Catatan Pelatihan
+          </h1>
           <p className="text-muted-foreground">
             {record.employeeName} - {record.courseName}
           </p>
@@ -59,7 +69,9 @@ export default async function RecordDetailPage({ params }: RecordDetailPageProps
         />
       </div>
 
-      <RecordForm record={record} employees={employees || []} />
+      {!explorerReadOnly && (
+        <RecordForm record={record} employees={employees || []} />
+      )}
     </div>
   );
 }
