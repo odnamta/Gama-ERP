@@ -21,12 +21,13 @@ import {
   getDefaultAttendanceSummary,
 } from '@/lib/payroll-utils';
 import { getUserProfile } from '@/lib/permissions-server';
+import { profileHasRole } from '@/lib/auth-utils';
 
 const PAYROLL_ALLOWED_ROLES = ['owner', 'director', 'sysadmin', 'hr', 'finance_manager'] as const;
 
 async function requirePayrollAccess(): Promise<{ authorized: true } | { authorized: false }> {
   const profile = await getUserProfile();
-  if (!profile || !(PAYROLL_ALLOWED_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...PAYROLL_ALLOWED_ROLES])) {
     return { authorized: false };
   }
   return { authorized: true };

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { InvoicesClient } from './invoices-client'
+import { getInvoiceStats } from './actions'
 import { getUserProfile } from '@/lib/permissions-server'
 import { canAccessFeature } from '@/lib/permissions'
 import { buttonVariants } from '@/components/ui/button'
@@ -8,6 +9,7 @@ import { Plus } from 'lucide-react'
 export default async function InvoicesPage() {
   const profile = await getUserProfile()
   const canCreate = canAccessFeature(profile, 'invoices.create')
+  const stats = await getInvoiceStats()
 
   return (
     <div className="space-y-6">
@@ -24,7 +26,7 @@ export default async function InvoicesPage() {
         )}
       </div>
 
-      <InvoicesClient />
+      <InvoicesClient serverStats={stats} />
     </div>
   )
 }

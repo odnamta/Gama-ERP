@@ -21,6 +21,7 @@ import {
   calculateBKKSummary
 } from '@/lib/bkk-utils'
 import { trackBKKCreation } from '@/lib/onboarding-tracker'
+import { profileHasRole } from '@/lib/auth-utils'
 
 /**
  * Generate a unique BKK number for the current year
@@ -249,7 +250,7 @@ export async function approveBKK(bkkId: string): Promise<{ error?: string }> {
     .single()
   
   // Check permission
-  if (!profile || !['sysadmin', 'director', 'owner', 'finance', 'finance_manager', 'marketing_manager', 'operations_manager'].includes(profile.role)) {
+  if (!profile || !profileHasRole(profile as any, ['sysadmin', 'director', 'owner', 'finance', 'finance_manager', 'marketing_manager', 'operations_manager'])) {
     return { error: 'You don\'t have permission to approve BKK requests' }
   }
   
@@ -322,7 +323,7 @@ export async function rejectBKK(
     .single()
   
   // Check permission
-  if (!profile || !['sysadmin', 'director', 'owner', 'finance', 'finance_manager', 'marketing_manager', 'operations_manager'].includes(profile.role)) {
+  if (!profile || !profileHasRole(profile as any, ['sysadmin', 'director', 'owner', 'finance', 'finance_manager', 'marketing_manager', 'operations_manager'])) {
     return { error: 'You don\'t have permission to reject BKK requests' }
   }
   
@@ -454,7 +455,7 @@ export async function releaseBKK(
     .single()
   
   // Check permission
-  if (!profile || !['sysadmin', 'director', 'owner', 'finance', 'finance_manager'].includes(profile.role)) {
+  if (!profile || !profileHasRole(profile as any, ['sysadmin', 'director', 'owner', 'finance', 'finance_manager'])) {
     return { error: 'You don\'t have permission to release cash' }
   }
   

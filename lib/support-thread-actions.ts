@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { getUserProfile } from '@/lib/permissions-server'
 import { ADMIN_ROLES } from '@/lib/permissions'
+import { profileHasRole } from '@/lib/auth-utils'
 import type {
   SupportThread,
   SupportMessage,
@@ -155,7 +156,7 @@ export async function sendThreadMessage(data: {
   if (senderType === 'user') {
     // Check if sender is admin
     const profile = await getUserProfile()
-    if (profile && (ADMIN_ROLES as readonly string[]).includes(profile.role)) {
+    if (profile && profileHasRole(profile, [...ADMIN_ROLES])) {
       senderType = 'admin'
     }
   }
@@ -228,7 +229,7 @@ export async function updateThreadStatus(
   status: ThreadStatus
 ): Promise<{ success: boolean; error?: string }> {
   const profile = await getUserProfile()
-  if (!profile || !(ADMIN_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ADMIN_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 

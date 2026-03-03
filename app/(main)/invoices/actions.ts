@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { getUserProfile } from '@/lib/permissions-server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { sanitizeSearchInput } from '@/lib/utils/sanitize'
 import {
   InvoiceWithRelations,
@@ -30,7 +31,7 @@ const INVOICE_ALLOWED_ROLES = ['owner', 'director', 'sysadmin', 'finance_manager
  */
 export async function generateInvoiceNumber(): Promise<string> {
   const profile = await getUserProfile()
-  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
     throw new Error('Unauthorized')
   }
 
@@ -69,7 +70,7 @@ export async function generateInvoiceNumber(): Promise<string> {
  */
 export async function getInvoiceDataFromJO(joId: string): Promise<ActionResult<InvoiceFormData & { invoiceNumber: string; customerName: string; joNumber: string }>> {
   const profile = await getUserProfile()
-  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -162,7 +163,7 @@ export async function getInvoiceDataFromJO(joId: string): Promise<ActionResult<I
  */
 export async function createInvoice(data: InvoiceFormData): Promise<ActionResult<{ id: string; invoice_number: string }>> {
   const profile = await getUserProfile()
-  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -282,7 +283,7 @@ export interface InvoiceFilters {
  */
 export async function getInvoices(filters?: InvoiceFilters): Promise<InvoiceWithRelations[]> {
   const profile = await getUserProfile()
-  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
     return []
   }
 
@@ -344,7 +345,7 @@ export async function getInvoices(filters?: InvoiceFilters): Promise<InvoiceWith
  */
 export async function getInvoice(id: string): Promise<InvoiceWithRelations | null> {
   const profile = await getUserProfile()
-  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
     return null
   }
 
@@ -389,7 +390,7 @@ export async function updateInvoiceStatus(
   targetStatus: InvoiceStatus
 ): Promise<ActionResult<void>> {
   const profile = await getUserProfile()
-  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -570,7 +571,7 @@ export async function generateSplitInvoice(
   termIndex: number
 ): Promise<ActionResult<{ id: string; invoice_number: string }>> {
   const profile = await getUserProfile()
-  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -728,7 +729,7 @@ export async function createDPInvoice(
   notes?: string
 ): Promise<ActionResult<{ id: string; invoice_number: string }>> {
   const profile = await getUserProfile()
-  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -882,7 +883,7 @@ export async function getDPInvoicesForPJO(
   pjoId: string
 ): Promise<ActionResult<InvoiceWithRelations[]>> {
   const profile = await getUserProfile()
-  if (!profile || !INVOICE_ALLOWED_ROLES.includes(profile.role as typeof INVOICE_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -903,4 +904,57 @@ export async function getDPInvoicesForPJO(
   }
 
   return { success: true, data: (data || []) as InvoiceWithRelations[] }
+}
+
+/**
+ * Invoice stats for dashboard cards on invoice list page
+ */
+export interface InvoiceStats {
+  totalCount: number
+  totalAmount: number
+  outstandingCount: number
+  outstandingAmount: number
+  overdueCount: number
+  overdueAmount: number
+  paidCount: number
+  paidAmount: number
+}
+
+export async function getInvoiceStats(): Promise<InvoiceStats> {
+  const supabase = await createClient()
+  const { data } = await supabase
+    .from('invoices')
+    .select('status, total_amount, due_date')
+    .eq('is_active', true)
+
+  const records = (data || []) as { status: string; total_amount: number; due_date: string | null }[]
+  const today = new Date().toISOString().split('T')[0]
+
+  const stats: InvoiceStats = {
+    totalCount: records.length,
+    totalAmount: records.reduce((s, r) => s + Number(r.total_amount || 0), 0),
+    outstandingCount: 0,
+    outstandingAmount: 0,
+    overdueCount: 0,
+    overdueAmount: 0,
+    paidCount: 0,
+    paidAmount: 0,
+  }
+
+  for (const r of records) {
+    const amt = Number(r.total_amount || 0)
+    if (r.status === 'paid') {
+      stats.paidCount++
+      stats.paidAmount += amt
+    } else if (['draft', 'sent', 'partial'].includes(r.status)) {
+      stats.outstandingCount++
+      stats.outstandingAmount += amt
+      if (r.due_date && r.due_date < today) {
+        stats.overdueCount++
+        stats.overdueAmount += amt
+      }
+    }
+  }
+
+  return stats
 }

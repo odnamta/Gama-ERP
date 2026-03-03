@@ -131,6 +131,7 @@ export function PJOForm({ projects, pjo, existingRevenueItems = [], existingCost
   const [costItems, setCostItems] = useState<CostItemRow[]>(initialCostItems)
   const [revenueItemErrors, setRevenueItemErrors] = useState<Record<number, { description?: string; unit_price?: string }>>({})
   const [costItemErrors, setCostItemErrors] = useState<Record<number, { category?: string; description?: string; estimated_amount?: string }>>({})
+  const [serviceScope, setServiceScope] = useState((pjo as any)?.service_scope || '')
   const today = new Date().toISOString().split('T')[0]
   const calculatedTotalRevenue = revenueItems.reduce((sum, item) => sum + item.subtotal, 0)
   const calculatedTotalCost = costItems.reduce((sum, item) => sum + item.estimated_amount, 0)
@@ -352,6 +353,7 @@ export function PJOForm({ projects, pjo, existingRevenueItems = [], existingCost
         complexity_factors: classification?.complexity_factors ?? null,
         pricing_approach: pricingApproach,
         pricing_notes: pricingNotes || null,
+        service_scope: (serviceScope || null) as any,
       }
 
       if (mode === 'create') {
@@ -407,6 +409,20 @@ export function PJOForm({ projects, pjo, existingRevenueItems = [], existingCost
             </Select>
             {errors.project_id && <p className="text-sm text-destructive">{errors.project_id.message}</p>}
             {selectedProject && <p className="text-sm text-muted-foreground">Customer: {selectedProject.customers?.name}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="service_scope">Lingkup Layanan</Label>
+            <Select value={serviceScope} onValueChange={(v) => setServiceScope(v)} disabled={isLoading}>
+              <SelectTrigger><SelectValue placeholder="Pilih lingkup layanan" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cargo">Cargo / Heavy-Haul</SelectItem>
+                <SelectItem value="customs">Customs / Kepabeanan</SelectItem>
+                <SelectItem value="agency">Agency / Keagenan</SelectItem>
+                <SelectItem value="cargo_customs">Cargo + Customs</SelectItem>
+                <SelectItem value="full_service">Full Service</SelectItem>
+                <SelectItem value="other">Lainnya</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="commodity">Commodity</Label>

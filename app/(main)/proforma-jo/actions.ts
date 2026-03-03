@@ -69,6 +69,7 @@ const pjoSchema = z.object({
   })).optional().nullable(),
   pricing_approach: z.enum(['standard', 'premium', 'negotiated', 'cost_plus']).optional().nullable(),
   pricing_notes: z.string().optional().nullable(),
+  service_scope: z.enum(['cargo', 'customs', 'agency', 'cargo_customs', 'full_service', 'other']).optional().nullable(),
 })
 
 export type PJOFormData = z.infer<typeof pjoSchema>
@@ -185,6 +186,7 @@ export async function createPJO(data: PJOFormData): Promise<{ error?: string; id
       complexity_factors: data.complexity_factors ?? null,
       pricing_approach: data.pricing_approach ?? null,
       pricing_notes: data.pricing_notes ?? null,
+      service_scope: data.service_scope ?? null,
       // Engineering flag fields
       requires_engineering: requiresEngineering,
       engineering_status: requiresEngineering ? 'pending' : null,
@@ -351,6 +353,7 @@ export async function updatePJO(
       complexity_factors: data.complexity_factors ?? null,
       pricing_approach: data.pricing_approach ?? null,
       pricing_notes: data.pricing_notes ?? null,
+      service_scope: data.service_scope ?? null,
       ...engineeringUpdate,
       updated_at: new Date().toISOString(),
     })

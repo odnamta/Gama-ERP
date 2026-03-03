@@ -72,6 +72,15 @@ import {
 import { canWaiveEngineeringReview, canCompleteAssessment } from '@/lib/engineering-utils'
 import { EngineeringStatus, EngineeringAssessment, AssessmentType } from '@/types/engineering'
 
+const SERVICE_SCOPE_LABELS: Record<string, string> = {
+  cargo: 'Cargo / Heavy-Haul',
+  customs: 'Customs / Kepabeanan',
+  agency: 'Agency / Keagenan',
+  cargo_customs: 'Cargo + Customs',
+  full_service: 'Full Service',
+  other: 'Lainnya',
+}
+
 interface AssessmentWithUser extends EngineeringAssessment {
   assigned_user_name?: string | null
   completed_by_name?: string | null
@@ -502,6 +511,10 @@ export function PJODetailView({ pjo, canApprove = true, userRole, userId }: PJOD
                 '-'
               )}
             </p>
+          </div>
+          <div>
+            <Label className="text-muted-foreground">Lingkup Layanan</Label>
+            <p className="font-medium">{SERVICE_SCOPE_LABELS[(pjo as any).service_scope] || '-'}</p>
           </div>
           <div>
             <Label className="text-muted-foreground">Commodity</Label>

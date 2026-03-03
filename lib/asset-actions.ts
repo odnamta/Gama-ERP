@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getUserProfile } from '@/lib/permissions-server'
 import { revalidatePath } from 'next/cache'
 import { sanitizeSearchInput } from '@/lib/utils/sanitize'
+import { profileHasRole } from '@/lib/auth-utils'
 import {
   Asset,
   AssetWithRelations,
@@ -33,7 +34,7 @@ const ASSET_READ_ROLES = ['owner', 'director', 'sysadmin', 'operations_manager',
  */
 export async function getAssetCategories(): Promise<AssetCategory[]> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
     return []
   }
 
@@ -57,7 +58,7 @@ export async function getAssetCategories(): Promise<AssetCategory[]> {
  */
 export async function getAssetLocations(): Promise<AssetLocation[]> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
     return []
   }
 
@@ -87,7 +88,7 @@ export async function createAsset(
   data: AssetFormData
 ): Promise<ActionResult<Asset>> {
   const userProfile = await getUserProfile()
-  if (!userProfile || !(ASSET_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+  if (!userProfile || !profileHasRole(userProfile, [...ASSET_WRITE_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -189,7 +190,7 @@ export async function updateAsset(
   data: Partial<AssetFormData>
 ): Promise<ActionResult<void>> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_WRITE_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -268,7 +269,7 @@ export async function changeAssetStatus(
   data: StatusChangeFormData
 ): Promise<ActionResult<void>> {
   const userProfile = await getUserProfile()
-  if (!userProfile || !(ASSET_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+  if (!userProfile || !profileHasRole(userProfile, [...ASSET_WRITE_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -346,7 +347,7 @@ export async function getAssets(
   filters: AssetFilterState
 ): Promise<AssetWithRelations[]> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
     return []
   }
 
@@ -403,7 +404,7 @@ export async function getAssets(
  */
 export async function getAssetById(id: string): Promise<AssetWithRelations | null> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
     return null
   }
 
@@ -439,7 +440,7 @@ export async function getAssetById(id: string): Promise<AssetWithRelations | nul
  */
 export async function getAssetDocuments(assetId: string): Promise<AssetDocument[]> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
     return []
   }
 
@@ -467,7 +468,7 @@ export async function createAssetDocument(
   documentUrl?: string
 ): Promise<ActionResult<AssetDocument>> {
   const userProfile = await getUserProfile()
-  if (!userProfile || !(ASSET_WRITE_ROLES as readonly string[]).includes(userProfile.role)) {
+  if (!userProfile || !profileHasRole(userProfile, [...ASSET_WRITE_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -511,7 +512,7 @@ export async function deleteAssetDocument(
   documentId: string
 ): Promise<ActionResult<void>> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_WRITE_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -539,7 +540,7 @@ export async function deleteAssetDocument(
  */
 export async function getExpiringDocuments(daysAhead: number = 30): Promise<ExpiringDocument[]> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
     return []
   }
 
@@ -563,7 +564,7 @@ export async function getExpiringDocuments(daysAhead: number = 30): Promise<Expi
  */
 export async function getAssetCategorySummary(): Promise<AssetCategorySummary[]> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
     return []
   }
 
@@ -585,7 +586,7 @@ export async function getAssetCategorySummary(): Promise<AssetCategorySummary[]>
  */
 export async function getAssetStatusHistory(assetId: string): Promise<AssetStatusHistory[]> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
     return []
   }
 
@@ -609,7 +610,7 @@ export async function getAssetStatusHistory(assetId: string): Promise<AssetStatu
  */
 export async function getExpiringDocumentsCount(): Promise<number> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_READ_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
     return 0
   }
 
@@ -640,7 +641,7 @@ export async function uploadAssetPhoto(
   formData: FormData
 ): Promise<ActionResult<{ url: string }>> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_WRITE_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -729,7 +730,7 @@ export async function deleteAssetPhoto(
   photoUrl: string
 ): Promise<ActionResult<void>> {
   const profile = await getUserProfile()
-  if (!profile || !(ASSET_WRITE_ROLES as readonly string[]).includes(profile.role)) {
+  if (!profile || !profileHasRole(profile, [...ASSET_WRITE_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 

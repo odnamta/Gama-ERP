@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { getUserProfile } from '@/lib/permissions-server'
+import { profileHasRole } from '@/lib/auth-utils'
 import { z } from 'zod'
 import { ActionResult } from '@/types/actions'
 
@@ -43,7 +44,7 @@ export type CreateBGInput = z.infer<typeof createBGSchema>
  */
 export async function getBGsForInvoice(invoiceId: string): Promise<BilyetGiro[]> {
   const profile = await getUserProfile()
-  if (!profile || !BG_ALLOWED_ROLES.includes(profile.role as typeof BG_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...BG_ALLOWED_ROLES])) {
     return []
   }
 
@@ -68,7 +69,7 @@ export async function getBGsForInvoice(invoiceId: string): Promise<BilyetGiro[]>
  */
 export async function createBG(input: CreateBGInput): Promise<ActionResult<BilyetGiro>> {
   const profile = await getUserProfile()
-  if (!profile || !BG_ALLOWED_ROLES.includes(profile.role as typeof BG_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...BG_ALLOWED_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -125,7 +126,7 @@ export async function updateBGStatus(
   clearedDate?: string
 ): Promise<ActionResult<void>> {
   const profile = await getUserProfile()
-  if (!profile || !BG_ALLOWED_ROLES.includes(profile.role as typeof BG_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...BG_ALLOWED_ROLES])) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -177,7 +178,7 @@ export async function updateBGStatus(
  */
 export async function getBGsPendingClearing(): Promise<BilyetGiro[]> {
   const profile = await getUserProfile()
-  if (!profile || !BG_ALLOWED_ROLES.includes(profile.role as typeof BG_ALLOWED_ROLES[number])) {
+  if (!profile || !profileHasRole(profile, [...BG_ALLOWED_ROLES])) {
     return []
   }
 

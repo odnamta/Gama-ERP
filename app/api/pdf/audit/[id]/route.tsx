@@ -76,7 +76,7 @@ export async function GET(
             category: audit.audit_types.category,
           }
         : null,
-      checklistResponses: (audit.checklist_responses || []) as unknown as AuditPDFProps['checklistResponses'],
+      checklistResponses: (Array.isArray(audit.checklist_responses) ? audit.checklist_responses : []) as unknown as AuditPDFProps['checklistResponses'],
       findings: (findings || []).map((f: Record<string, unknown>) => ({
         finding_number: f.finding_number as number,
         severity: f.severity as string,
@@ -100,8 +100,10 @@ export async function GET(
         'Content-Disposition': disposition,
       },
     })
-  } catch {
-    return new Response(JSON.stringify({ error: 'Failed to generate PDF' }), {
+  } catch (error) {
+    const details = error instanceof Error ? error.message : 'Unknown error'
+    console.error('[PDF Audit] Generation failed:', error)
+    return new Response(JSON.stringify({ error: 'Failed to generate PDF', details }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     })
