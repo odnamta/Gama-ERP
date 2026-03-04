@@ -39,6 +39,7 @@ export default async function IncidentDetailPage({ params }: PageProps) {
         incident={incidentResult.data}
         history={historyResult.data || []}
         employees={employeesResult.data || []}
+        explorerReadOnly={explorerReadOnly}
       />
     </Suspense>
   );

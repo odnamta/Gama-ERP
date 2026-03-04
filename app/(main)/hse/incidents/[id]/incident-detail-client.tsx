@@ -40,12 +40,14 @@ interface IncidentDetailClientProps {
   incident: Incident;
   history: IncidentHistoryEntry[];
   employees: Employee[];
+  explorerReadOnly?: boolean;
 }
 
 export function IncidentDetailClient({
   incident: initialIncident,
   history,
   employees,
+  explorerReadOnly,
 }: IncidentDetailClientProps) {
   const router = useRouter();
   const { toast } = useToast();

@@ -6,6 +6,7 @@ import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-b
 import { MedicalCheckupForm } from '@/components/medical-checkup/medical-checkup-form';
 import { McuDeleteButton } from '@/components/medical-checkup/mcu-delete-button';
 import { getMedicalCheckup } from '@/lib/medical-checkup-actions';
+import { AttachmentsSection } from '@/components/attachments';
 
 interface MedicalCheckupDetailPageProps {
   params: Promise<{ id: string }>;
@@ -48,6 +49,14 @@ export default async function MedicalCheckupDetailPage({ params }: MedicalChecku
       </div>
 
       <MedicalCheckupForm record={record} employees={employees || []} />
+
+      {/* Dokumen Pendukung */}
+      <AttachmentsSection
+        entityType="medical_checkup"
+        entityId={id}
+        title="Dokumen Pendukung"
+        maxFiles={5}
+      />
     </div>
   );
 }

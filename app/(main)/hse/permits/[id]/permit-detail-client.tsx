@@ -17,6 +17,7 @@ import {
 import { activatePermit } from '@/lib/safety-permit-actions';
 import { formatDate } from '@/lib/utils/format';
 import { useToast } from '@/hooks/use-toast';
+import { AttachmentsSection } from '@/components/attachments';
 
 interface PermitDetailClientProps {
   permit: SafetyPermit;
@@ -234,6 +235,14 @@ export function PermitDetailClient({ permit, readOnly }: PermitDetailClientProps
           </Card>
         </div>
       </div>
+
+      {/* Dokumen Pendukung */}
+      <AttachmentsSection
+        entityType="safety_permit"
+        entityId={permit.id}
+        title="Dokumen Pendukung"
+        maxFiles={5}
+      />
     </div>
   );
 }

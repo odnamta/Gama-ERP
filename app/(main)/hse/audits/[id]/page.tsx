@@ -2,6 +2,9 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { getAudit } from '@/lib/audit-actions';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { canAccessFeature } from '@/lib/permissions';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +12,7 @@ import type { Audit, AuditStatus, AuditRating, ChecklistResponse } from '@/types
 import { AuditDeleteButton } from './audit-delete-button';
 import { AddFindingForm } from './add-finding-form';
 import { PDFButtons } from '@/components/pdf/pdf-buttons';
+import { AttachmentsSection } from '@/components/attachments';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,6 +75,11 @@ function getRatingLabel(rating: AuditRating) {
 }
 
 export default async function AuditDetailPage({ params }: AuditDetailPageProps) {
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(
+    canAccessFeature(profile, 'hse.nav')
+  );
+
   const { id } = await params;
   const { data: audit, error } = await getAudit(id);
 
@@ -82,6 +91,7 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
@@ -309,6 +319,14 @@ export default async function AuditDetailPage({ params }: AuditDetailPageProps) 
           </div>
         </CardContent>
       </Card>
+
+      {/* Dokumen Pendukung */}
+      <AttachmentsSection
+        entityType="audit"
+        entityId={typedAudit.id}
+        title="Dokumen Pendukung"
+        maxFiles={5}
+      />
     </div>
   );
 }
