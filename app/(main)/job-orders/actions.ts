@@ -6,8 +6,15 @@ import { JobOrderWithRelations, InvoiceTerm, parseInvoiceTerms } from '@/types'
 import { validateTermsTotal } from '@/lib/invoice-terms-utils'
 import { invalidateDashboardCache } from '@/lib/cached-queries'
 import { logActivity } from '@/lib/activity-logger'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 
 export async function getJobOrders(): Promise<JobOrderWithRelations[]> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'jo.view')) {
+    return []
+  }
+
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -40,6 +47,11 @@ export async function getJobOrders(): Promise<JobOrderWithRelations[]> {
 }
 
 export async function getJobOrder(id: string): Promise<JobOrderWithRelations | null> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'jo.view')) {
+    return null
+  }
+
   const supabase = await createClient()
 
   const { data, error } = await supabase

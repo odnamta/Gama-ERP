@@ -2,12 +2,17 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getServiceProviderById } from '@/app/actions/service-provider-actions';
 import { ServiceProviderDetail } from './service-provider-detail';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 interface ServiceProviderDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function ServiceProviderDetailPage({ params }: ServiceProviderDetailPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const { id } = await params;
   const result = await getServiceProviderById(id);
 

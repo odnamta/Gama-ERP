@@ -9,6 +9,8 @@ import {
   getCustomersForSelection,
   getEmployeesForSelection,
 } from '@/lib/jmp-actions';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +19,13 @@ interface PageProps {
 }
 
 export default async function EditJmpPage({ params }: PageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/engineering/jmp');
+  }
   const { id } = await params;
   const [jmp, surveys, customers, employees] = await Promise.all([
     getJmpById(id),

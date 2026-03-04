@@ -2,6 +2,8 @@ import { Suspense } from 'react';
 import { NewSIClient } from './new-si-client';
 import { getBookings, getBooking } from '@/app/actions/booking-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +12,13 @@ interface NewSIPageProps {
 }
 
 export default async function NewSIPage({ searchParams }: NewSIPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/agency/si');
+  }
   const params = await searchParams;
   const bookingId = params.bookingId;
 

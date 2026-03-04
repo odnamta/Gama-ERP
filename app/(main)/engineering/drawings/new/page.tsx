@@ -4,8 +4,17 @@ import { isExplorerMode } from '@/lib/auth-utils'
 import { DrawingForm } from '@/components/drawings/drawing-form'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export default async function NewDrawingPage() {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/engineering/drawings');
+  }
   // Explorer mode users should not create drawings
   const explorer = await isExplorerMode()
   if (explorer) {

@@ -2,10 +2,15 @@ import { Suspense } from 'react';
 import { ArrivalsListClient } from './arrivals-list-client';
 import { getPendingArrivals, getArrivalNotices } from '@/app/actions/arrival-notice-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ArrivalsPage() {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   // Fetch both pending arrivals (for priority display) and all arrivals
   const [pendingArrivals, allArrivals] = await Promise.all([
     getPendingArrivals(),
@@ -25,6 +30,7 @@ export default async function ArrivalsPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-64">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       }

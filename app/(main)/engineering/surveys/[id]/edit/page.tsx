@@ -4,12 +4,21 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getSurvey, getCustomers, getQuotations, getProjects, getEmployees } from '@/lib/survey-actions';
 import { SurveyForm } from '@/components/surveys/survey-form';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 interface EditSurveyPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function EditSurveyPage({ params }: EditSurveyPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/engineering/surveys');
+  }
   const { id } = await params;
   
   const [surveyResult, customersResult, quotationsResult, projectsResult, employeesResult] = await Promise.all([

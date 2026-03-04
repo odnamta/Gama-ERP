@@ -4,6 +4,8 @@ import { EditSIClient } from './edit-si-client';
 import { getShippingInstruction } from '@/app/actions/shipping-instruction-actions';
 import { getBookings } from '@/app/actions/booking-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +14,13 @@ interface EditSIPageProps {
 }
 
 export default async function EditSIPage({ params }: EditSIPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/agency/si');
+  }
   const { id } = await params;
   
   const si = await getShippingInstruction(id);

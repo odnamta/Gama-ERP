@@ -7,6 +7,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { sanitizeSearchInput } from '@/lib/utils/sanitize';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   PIBDocument,
   PIBDocumentWithRelations,
@@ -43,6 +45,11 @@ import {
 export async function createPIBDocument(
   input: PIBFormData
 ): Promise<{ data: PIBDocument | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'pib.create')) {
+    return { data: null, error: 'Tidak memiliki akses untuk membuat dokumen PIB' };
+  }
+
   const validation = validatePIBDocument(input);
   if (!validation.valid) {
     return { data: null, error: validation.errors[0].message };
@@ -50,9 +57,9 @@ export async function createPIBDocument(
 
   const supabase = await createClient();
 
-  // Get current user and profile
+  // Get current user and profile for created_by
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
+  const { data: userProfile } = await supabase
     .from('user_profiles')
     .select('id')
     .eq('user_id', user?.id || '')
@@ -100,7 +107,7 @@ export async function createPIBDocument(
       exchange_rate: input.exchange_rate || null,
       cif_value_idr: cifValueIDR,
       notes: input.notes || null,
-      created_by: profile?.id || null,
+      created_by: userProfile?.id || null,
       status: 'draft', // Property 7: Initial status is always 'draft'
     } as never)
     .select()
@@ -121,6 +128,11 @@ export async function updatePIBDocument(
   id: string,
   input: Partial<PIBFormData>
 ): Promise<{ data: PIBDocument | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'pib.edit')) {
+    return { data: null, error: 'Tidak memiliki akses untuk mengedit dokumen PIB' };
+  }
+
   const supabase = await createClient();
 
   // Check if PIB can be modified (only in draft status)
@@ -206,6 +218,11 @@ export async function updatePIBDocument(
 export async function deletePIBDocument(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'pib.delete')) {
+    return { success: false, error: 'Tidak memiliki akses untuk menghapus dokumen PIB' };
+  }
+
   const supabase = await createClient();
 
   // Check if PIB can be deleted (only in draft status)
@@ -341,6 +358,11 @@ export async function addPIBItem(
   pibId: string,
   input: PIBItemFormData
 ): Promise<{ data: PIBItem | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'pib.edit')) {
+    return { data: null, error: 'Tidak memiliki akses untuk mengedit item PIB' };
+  }
+
   const validation = validatePIBItem(input);
   if (!validation.valid) {
     return { data: null, error: validation.errors[0].message };
@@ -430,6 +452,11 @@ export async function updatePIBItem(
   id: string,
   input: Partial<PIBItemFormData>
 ): Promise<{ data: PIBItem | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'pib.edit')) {
+    return { data: null, error: 'Tidak memiliki akses untuk mengedit item PIB' };
+  }
+
   const supabase = await createClient();
 
   // Get the item and check if PIB is in draft status
@@ -517,6 +544,11 @@ export async function updatePIBItem(
 export async function deletePIBItem(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'pib.edit')) {
+    return { success: false, error: 'Tidak memiliki akses untuk mengedit item PIB' };
+  }
+
   const supabase = await createClient();
 
   // Get the item and check if PIB is in draft status
@@ -618,6 +650,11 @@ export async function updatePIBStatus(
   newStatus: PIBStatus,
   data?: StatusUpdateData
 ): Promise<{ data: PIBDocument | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'pib.update_status')) {
+    return { data: null, error: 'Tidak memiliki akses untuk mengubah status PIB' };
+  }
+
   const supabase = await createClient();
 
   // Get current PIB
@@ -842,6 +879,11 @@ export async function linkPIBToJobOrder(
   pibId: string,
   jobOrderId: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'pib.edit')) {
+    return { success: false, error: 'Tidak memiliki akses untuk mengedit dokumen PIB' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase

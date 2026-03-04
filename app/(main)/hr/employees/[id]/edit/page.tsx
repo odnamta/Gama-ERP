@@ -12,12 +12,20 @@ import {
 import { createClient } from '@/lib/supabase/server';
 import { canEditEmployee, canEditEmployeeSalary } from '@/lib/permissions';
 import { UserProfile } from '@/types/permissions';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function EditEmployeePage({ params }: PageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/hr/employees');
+  }
   const { id } = await params;
 
   // Get current user profile for permissions

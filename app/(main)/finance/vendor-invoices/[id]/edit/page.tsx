@@ -4,6 +4,7 @@ import { redirect, notFound } from 'next/navigation'
 import { VendorInvoiceForm } from '@/components/vendor-invoices'
 import { canEditVendorInvoices } from '@/lib/vendor-invoice-utils'
 import { getVendorInvoiceById } from '@/app/(main)/finance/vendor-invoices/actions'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 export const metadata: Metadata = {
   title: 'Edit Vendor Invoice | Gama ERP',
@@ -15,22 +16,19 @@ interface PageProps {
 }
 
 export default async function EditVendorInvoicePage({ params }: PageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/finance/vendor-invoices');
+  }
   const { id } = await params
   const supabase = await createClient()
-  
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     redirect('/login')
-  }
-
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role')
-    .eq('user_id', user.id)
-    .single()
-
-  if (!profile || !canEditVendorInvoices(profile.role)) {
-    redirect('/finance/vendor-invoices')
   }
 
   const invoice = await getVendorInvoiceById(id)

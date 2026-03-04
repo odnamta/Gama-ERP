@@ -5,6 +5,8 @@ import { getBillOfLading } from '@/app/actions/bl-actions';
 import { getShippingLines } from '@/app/actions/shipping-line-actions';
 import { getBookings } from '@/app/actions/booking-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +15,13 @@ interface EditBLPageProps {
 }
 
 export default async function EditBLPage({ params }: EditBLPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/agency/bl');
+  }
   const { id } = await params;
   
   const [bl, shippingLinesResult, confirmedBookings, shippedBookings, completedBookings] = await Promise.all([

@@ -3,10 +3,19 @@ import { Button } from '@/components/ui/button'
 import { ResourceForm } from '@/components/resource-scheduling/resource-form'
 import { createClient } from '@/lib/supabase/server'
 import { ChevronLeft } from 'lucide-react'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic'
 
 export default async function NewResourcePage() {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/engineering/resources');
+  }
   const supabase = await createClient()
 
   // Fetch employees for linking

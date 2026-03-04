@@ -4,6 +4,8 @@ import { EditManifestClient } from './edit-manifest-client';
 import { getCargoManifest } from '@/app/actions/cargo-manifest-actions';
 import { getBillsOfLading } from '@/app/actions/bl-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +14,13 @@ interface EditManifestPageProps {
 }
 
 export default async function EditManifestPage({ params }: EditManifestPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/agency/manifests');
+  }
   const { id } = await params;
   
   const manifest = await getCargoManifest(id);

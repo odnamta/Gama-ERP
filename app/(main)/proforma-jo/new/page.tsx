@@ -3,12 +3,20 @@ import { PJOForm } from '@/components/pjo/pjo-form'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 interface NewPJOPageProps {
   searchParams: Promise<{ project_id?: string }>
 }
 
 export default async function NewPJOPage({ searchParams }: NewPJOPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/proforma-jo');
+  }
   const params = await searchParams
   const supabase = await createClient()
 

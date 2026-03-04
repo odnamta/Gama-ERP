@@ -2,12 +2,17 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getVessel, getSchedules, getPositionHistory } from '@/app/actions/vessel-tracking-actions';
 import { VesselDetail } from './vessel-detail';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 interface VesselDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function VesselDetailPage({ params }: VesselDetailPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const { id } = await params;
   
   const [vessel, schedules, positionHistory] = await Promise.all([

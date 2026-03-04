@@ -7,6 +7,8 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { sanitizeSearchInput } from '@/lib/utils/sanitize';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   PEBDocument,
   PEBDocumentWithRelations,
@@ -39,6 +41,11 @@ import {
 export async function createPEBDocument(
   input: PEBFormData
 ): Promise<{ data: PEBDocument | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'peb.create')) {
+    return { data: null, error: 'Tidak memiliki akses untuk membuat dokumen PEB' };
+  }
+
   const validation = validatePEBDocument(input);
   if (!validation.valid) {
     return { data: null, error: validation.errors[0].message };
@@ -46,9 +53,9 @@ export async function createPEBDocument(
 
   const supabase = await createClient();
 
-  // Get current user and profile
+  // Get current user and profile for created_by
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
+  const { data: userProfile } = await supabase
     .from('user_profiles')
     .select('id')
     .eq('user_id', user?.id || '')
@@ -91,7 +98,7 @@ export async function createPEBDocument(
       currency: input.currency,
       fob_value: input.fob_value,
       notes: input.notes || null,
-      created_by: profile?.id || null,
+      created_by: userProfile?.id || null,
       status: 'draft', // Property 6: Initial status is always 'draft'
     })
     .select()
@@ -112,6 +119,11 @@ export async function updatePEBDocument(
   id: string,
   input: Partial<PEBFormData>
 ): Promise<{ data: PEBDocument | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'peb.edit')) {
+    return { data: null, error: 'Tidak memiliki akses untuk mengedit dokumen PEB' };
+  }
+
   const supabase = await createClient();
 
   // Check if PEB can be modified (only in draft status)
@@ -175,6 +187,11 @@ export async function updatePEBDocument(
 export async function deletePEBDocument(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'peb.delete')) {
+    return { success: false, error: 'Tidak memiliki akses untuk menghapus dokumen PEB' };
+  }
+
   const supabase = await createClient();
 
   // Check if PEB can be deleted (only in draft status)
@@ -310,6 +327,11 @@ export async function addPEBItem(
   pebId: string,
   input: PEBItemFormData
 ): Promise<{ data: PEBItem | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'peb.edit')) {
+    return { data: null, error: 'Tidak memiliki akses untuk mengedit item PEB' };
+  }
+
   const validation = validatePEBItem(input);
   if (!validation.valid) {
     return { data: null, error: validation.errors[0].message };
@@ -378,6 +400,11 @@ export async function updatePEBItem(
   id: string,
   input: Partial<PEBItemFormData>
 ): Promise<{ data: PEBItem | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'peb.edit')) {
+    return { data: null, error: 'Tidak memiliki akses untuk mengedit item PEB' };
+  }
+
   const supabase = await createClient();
 
   // Get the item and check if PEB is in draft status
@@ -442,6 +469,11 @@ export async function updatePEBItem(
 export async function deletePEBItem(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'peb.edit')) {
+    return { success: false, error: 'Tidak memiliki akses untuk mengedit item PEB' };
+  }
+
   const supabase = await createClient();
 
   // Get the item and check if PEB is in draft status
@@ -511,6 +543,11 @@ export async function updatePEBStatus(
   newStatus: PEBStatus,
   data?: PEBStatusUpdateData
 ): Promise<{ data: PEBDocument | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'peb.update_status')) {
+    return { data: null, error: 'Tidak memiliki akses untuk mengubah status PEB' };
+  }
+
   const supabase = await createClient();
 
   // Get current PEB
@@ -737,6 +774,11 @@ export async function linkPEBToJobOrder(
   pebId: string,
   jobOrderId: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'peb.edit')) {
+    return { success: false, error: 'Tidak memiliki akses untuk mengedit dokumen PEB' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase

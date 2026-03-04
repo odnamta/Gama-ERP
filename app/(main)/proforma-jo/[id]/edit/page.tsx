@@ -5,12 +5,20 @@ import { Button } from '@/components/ui/button'
 import { PJOForm } from '@/components/pjo/pjo-form'
 import { ArrowLeft } from 'lucide-react'
 import { PJORevenueItem, PJOCostItem } from '@/types'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 interface EditPJOPageProps {
   params: Promise<{ id: string }>
 }
 
 export default async function EditPJOPage({ params }: EditPJOPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/proforma-jo');
+  }
   const { id } = await params
   const supabase = await createClient()
 

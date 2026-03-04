@@ -2,12 +2,17 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getShippingLineById } from '@/app/actions/shipping-line-actions';
 import { ShippingLineDetail } from './shipping-line-detail';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 interface ShippingLineDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function ShippingLineDetailPage({ params }: ShippingLineDetailPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const { id } = await params;
   const result = await getShippingLineById(id);
 

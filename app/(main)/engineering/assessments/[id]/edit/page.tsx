@@ -7,12 +7,21 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AssessmentForm } from '@/components/assessments/assessment-form';
 import { getAssessment, getAssessmentTypes } from '@/lib/assessment-actions';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 interface EditAssessmentPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function EditAssessmentPage({ params }: EditAssessmentPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/engineering/assessments');
+  }
   const { id } = await params;
   const [assessment, assessmentTypes] = await Promise.all([
     getAssessment(id),

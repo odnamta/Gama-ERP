@@ -13,8 +13,16 @@ import { createClient } from '@/lib/supabase/server';
 import { canCreateEmployee, canEditEmployeeSalary } from '@/lib/permissions';
 import { generateEmployeeCode } from '@/lib/employee-utils';
 import { UserProfile } from '@/types/permissions';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 export default async function NewEmployeePage() {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/hr/employees');
+  }
   // Get current user profile for permissions
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

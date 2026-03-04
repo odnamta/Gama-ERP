@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { VendorInvoiceForm } from '@/components/vendor-invoices'
 import { canEditVendorInvoices } from '@/lib/vendor-invoice-utils'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 export const metadata: Metadata = {
   title: 'New Vendor Invoice | Gama ERP',
@@ -10,21 +11,18 @@ export const metadata: Metadata = {
 }
 
 export default async function NewVendorInvoicePage() {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/finance/vendor-invoices');
+  }
   const supabase = await createClient()
-  
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     redirect('/login')
-  }
-
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role')
-    .eq('user_id', user.id)
-    .single()
-
-  if (!profile || !canEditVendorInvoices(profile.role)) {
-    redirect('/finance/vendor-invoices')
   }
 
   return (

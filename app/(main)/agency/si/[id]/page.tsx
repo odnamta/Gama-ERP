@@ -4,6 +4,8 @@ import { SIDetail } from './si-detail';
 import { getShippingInstruction } from '@/app/actions/shipping-instruction-actions';
 import { getBillsOfLading } from '@/app/actions/bl-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +14,9 @@ interface SIDetailPageProps {
 }
 
 export default async function SIDetailPage({ params }: SIDetailPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const { id } = await params;
   
   const [si, availableBLs] = await Promise.all([
@@ -27,6 +32,7 @@ export default async function SIDetailPage({ params }: SIDetailPageProps) {
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-64">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       }

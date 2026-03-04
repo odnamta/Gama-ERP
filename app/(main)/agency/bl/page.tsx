@@ -3,10 +3,15 @@ import { BLListClient } from './bl-list-client';
 import { getBillsOfLading, getBLStats } from '@/app/actions/bl-actions';
 import { getShippingLines } from '@/app/actions/shipping-line-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
 export default async function BillsOfLadingPage() {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const [bls, stats, shippingLinesResult] = await Promise.all([
     getBillsOfLading({}),
     getBLStats(),
@@ -20,6 +25,7 @@ export default async function BillsOfLadingPage() {
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-64">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       }

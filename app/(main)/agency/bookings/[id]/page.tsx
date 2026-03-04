@@ -9,6 +9,8 @@ import {
 } from '@/app/actions/booking-actions';
 import { getBookingFinancialSummary } from '@/app/actions/profitability-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +19,9 @@ interface BookingDetailPageProps {
 }
 
 export default async function BookingDetailPage({ params }: BookingDetailPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const { id } = await params;
   
   const [booking, containers, amendments, statusHistory, financialSummaryResult] = await Promise.all([
@@ -37,6 +42,7 @@ export default async function BookingDetailPage({ params }: BookingDetailPagePro
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-64">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       }

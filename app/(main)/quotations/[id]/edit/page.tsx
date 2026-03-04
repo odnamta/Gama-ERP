@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { QuotationForm } from '@/components/quotations/quotation-form'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 export const metadata = {
   title: 'Edit Quotation | Gama ERP',
@@ -72,6 +73,13 @@ async function EditQuotationContent({ id }: { id: string }) {
 }
 
 export default async function EditQuotationPage({ params }: PageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/quotations');
+  }
   const { id } = await params
   
   return (

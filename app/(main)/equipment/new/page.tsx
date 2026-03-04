@@ -4,26 +4,18 @@ import { AssetForm } from '@/components/equipment/asset-form'
 import { createClient } from '@/lib/supabase/server'
 import { canCreateAsset } from '@/lib/permissions'
 import { UserProfile } from '@/types/permissions'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 export default async function NewAssetPage() {
-  const supabase = await createClient()
-  
-  // Check authentication
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect('/login')
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/equipment');
   }
 
-  // Get user profile for permission check
-  const { data: profileData } = await supabase
-    .from('user_profiles')
-    .select('*')
-    .eq('user_id', user.id)
-    .single()
-
-  const profile = profileData as UserProfile | null
-
-  if (!profile || !canCreateAsset(profile)) {
+  if (!profile || !canCreateAsset(profile as import('@/types/permissions').UserProfile)) {
     redirect('/equipment')
   }
 

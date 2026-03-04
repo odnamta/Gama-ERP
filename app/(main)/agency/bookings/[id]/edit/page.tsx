@@ -6,6 +6,8 @@ import { getShippingLines } from '@/app/actions/shipping-line-actions';
 import { getPorts } from '@/app/actions/port-actions';
 import { createClient } from '@/lib/supabase/server';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +35,13 @@ interface EditBookingPageProps {
 }
 
 export default async function EditBookingPage({ params }: EditBookingPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/agency/bookings');
+  }
   const { id } = await params;
   
   const [booking, containers, shippingLinesResult, portsResult, customers, jobOrders] = await Promise.all([

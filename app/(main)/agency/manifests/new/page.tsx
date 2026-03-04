@@ -2,10 +2,19 @@ import { Suspense } from 'react';
 import { NewManifestClient } from './new-manifest-client';
 import { getBillsOfLading } from '@/app/actions/bl-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
 export default async function NewManifestPage() {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/agency/manifests');
+  }
   // Get all B/Ls that can be linked to a manifest
   // Typically issued, released, or surrendered B/Ls
   const [issuedBLs, releasedBLs, surrenderedBLs] = await Promise.all([

@@ -2,6 +2,8 @@ import { Suspense } from 'react';
 import { NewArrivalNoticeClient } from './new-arrival-notice-client';
 import { getBillsOfLading, getBillOfLading } from '@/app/actions/bl-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +12,13 @@ interface NewArrivalNoticePageProps {
 }
 
 export default async function NewArrivalNoticePage({ searchParams }: NewArrivalNoticePageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/agency/arrivals');
+  }
   const params = await searchParams;
   const blId = params.blId;
 

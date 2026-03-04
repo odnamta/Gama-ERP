@@ -5,6 +5,8 @@ import { getCargoManifest } from '@/app/actions/cargo-manifest-actions';
 import { getBillsOfLading } from '@/app/actions/bl-actions';
 import { BillOfLading } from '@/types/agency';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +15,9 @@ interface ManifestDetailPageProps {
 }
 
 export default async function ManifestDetailPage({ params }: ManifestDetailPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const { id } = await params;
   
   const manifest = await getCargoManifest(id);
@@ -32,6 +37,7 @@ export default async function ManifestDetailPage({ params }: ManifestDetailPageP
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-64">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       }

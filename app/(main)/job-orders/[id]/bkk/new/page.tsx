@@ -5,12 +5,20 @@ import { generateBKKNumberAction, getCostItemsForBKK } from '@/app/(main)/job-or
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
 
 export default async function NewBKKPage({ params }: PageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/job-orders/[id]/bkk');
+  }
   const { id: jobOrderId } = await params
   const supabase = await createClient()
 

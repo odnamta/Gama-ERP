@@ -8,10 +8,15 @@ import { ResourceCalendar } from '@/components/resource-scheduling/resource-cale
 import { UtilizationReport } from '@/components/resource-scheduling/utilization-report'
 import { getResources } from '@/lib/resource-scheduling-actions'
 import { Plus, Calendar, Users, Wrench, BarChart3 } from 'lucide-react'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic'
 
 export default async function ResourcesPage() {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const resources = await getResources()
   
   const personnelResources = resources.filter(r => r.resource_type === 'personnel')
@@ -21,6 +26,7 @@ export default async function ResourcesPage() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Engineering Resources</h1>

@@ -4,6 +4,8 @@ import { EditArrivalNoticeClient } from './edit-arrival-notice-client';
 import { getArrivalNotice } from '@/app/actions/arrival-notice-actions';
 import { getBillsOfLading } from '@/app/actions/bl-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +14,13 @@ interface EditArrivalNoticePageProps {
 }
 
 export default async function EditArrivalNoticePage({ params }: EditArrivalNoticePageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/agency/arrivals');
+  }
   const { id } = await params;
   
   const [notice, issuedBLs, releasedBLs, surrenderedBLs] = await Promise.all([

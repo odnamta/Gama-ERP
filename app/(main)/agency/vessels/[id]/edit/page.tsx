@@ -2,12 +2,21 @@ import { notFound } from 'next/navigation';
 import { getVessel } from '@/app/actions/vessel-tracking-actions';
 import { getShippingLines } from '@/app/actions/shipping-line-actions';
 import { EditVesselClient } from './edit-vessel-client';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 interface EditVesselPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function EditVesselPage({ params }: EditVesselPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/agency/vessels');
+  }
   const { id } = await params;
   
   const [vessel, shippingLinesResult] = await Promise.all([

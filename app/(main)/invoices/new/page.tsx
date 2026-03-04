@@ -4,12 +4,20 @@ import { getInvoiceDataFromJO } from '../actions'
 import { InvoiceForm } from '@/components/invoices/invoice-form'
 import { getCompanySetting } from '@/app/(main)/settings/company/actions'
 import { DEFAULT_SETTINGS } from '@/types/company-settings'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 interface NewInvoicePageProps {
   searchParams: Promise<{ joId?: string }>
 }
 
 export default async function NewInvoicePage({ searchParams }: NewInvoicePageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/invoices');
+  }
   const { joId } = await searchParams
 
   if (!joId) {

@@ -3,10 +3,19 @@ import { SurveyForm } from '@/components/surveys/survey-form';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
 export default async function NewSurveyPage() {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/engineering/surveys');
+  }
   const [customersResult, quotationsResult, projectsResult, employeesResult] = await Promise.all([
     getCustomers(),
     getQuotations(),

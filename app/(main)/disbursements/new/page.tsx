@@ -3,6 +3,7 @@ import { getUserProfile } from '@/lib/permissions-server'
 import { profileHasRole } from '@/lib/auth-utils'
 import { createClient } from '@/lib/supabase/server'
 import { NewDisbursementForm } from './new-disbursement-form'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 export const metadata = {
   title: 'New Disbursement | Gama ERP',
@@ -10,7 +11,13 @@ export const metadata = {
 }
 
 export default async function NewDisbursementPage() {
-  const profile = await getUserProfile()
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/disbursements');
+  }
 
   // Only finance/administration can create
   const canCreate = profileHasRole(profile, ['owner', 'director', 'finance', 'administration'])

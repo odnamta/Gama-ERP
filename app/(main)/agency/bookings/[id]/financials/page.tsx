@@ -8,6 +8,8 @@ import { getShipmentRevenue } from '@/app/actions/shipment-revenue-actions';
 import { getVendorInvoicesByBooking } from '@/app/actions/vendor-invoice-actions';
 import { getChargeTypes } from '@/app/actions/charge-type-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +18,9 @@ interface FinancialsPageProps {
 }
 
 export default async function FinancialsPage({ params }: FinancialsPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const { id } = await params;
 
   // Fetch all data in parallel
@@ -50,6 +55,7 @@ export default async function FinancialsPage({ params }: FinancialsPageProps) {
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-64">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       }

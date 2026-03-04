@@ -4,12 +4,20 @@ import { getBeritaAcara } from '@/app/(main)/job-orders/berita-acara-actions'
 import { BeritaAcaraForm } from '@/components/berita-acara/berita-acara-form'
 import { canEditBA } from '@/lib/ba-utils'
 import { BAStatus } from '@/types'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 
 interface EditBeritaAcaraPageProps {
   params: Promise<{ id: string; baId: string }>
 }
 
 export default async function EditBeritaAcaraPage({ params }: EditBeritaAcaraPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/job-orders/[id]/berita-acara');
+  }
   const { id, baId } = await params
   
   const [jobOrder, beritaAcara] = await Promise.all([

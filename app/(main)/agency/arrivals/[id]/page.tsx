@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { ArrivalNoticeDetail } from './arrival-notice-detail';
 import { getArrivalNotice } from '@/app/actions/arrival-notice-actions';
 import { Loader2 } from 'lucide-react';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +13,9 @@ interface ArrivalNoticeDetailPageProps {
 }
 
 export default async function ArrivalNoticeDetailPage({ params }: ArrivalNoticeDetailPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const { id } = await params;
   
   const notice = await getArrivalNotice(id);
@@ -23,6 +28,7 @@ export default async function ArrivalNoticeDetailPage({ params }: ArrivalNoticeD
     <Suspense
       fallback={
         <div className="flex items-center justify-center h-64">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       }

@@ -2,12 +2,17 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { getPortAgentById } from '@/app/actions/port-agent-actions';
 import { PortAgentDetail } from './port-agent-detail';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 interface PortAgentDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function PortAgentDetailPage({ params }: PortAgentDetailPageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const { id } = await params;
   const result = await getPortAgentById(id);
 

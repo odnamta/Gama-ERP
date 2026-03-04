@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation';
 import { getJmpById } from '@/lib/jmp-actions';
 import { JmpDetailView } from '@/components/jmp/jmp-detail-view';
 import { createClient } from '@/lib/supabase/server';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +12,9 @@ interface PageProps {
 }
 
 export default async function JmpDetailPage({ params }: PageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
   const { id } = await params;
   const jmp = await getJmpById(id);
 
@@ -24,6 +29,7 @@ export default async function JmpDetailPage({ params }: PageProps) {
 
   return (
     <div className="container mx-auto py-6">
+      {explorerReadOnly && <ExplorerReadOnlyBanner />}
       <JmpDetailView jmp={jmp} currentUserId={currentUserId} />
     </div>
   );

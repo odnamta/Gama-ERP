@@ -7,10 +7,19 @@ import {
   getCustomersForSelection,
   getEmployeesForSelection,
 } from '@/lib/jmp-actions';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 export const dynamic = 'force-dynamic';
 
 export default async function NewJmpPage() {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/engineering/jmp');
+  }
   const [surveys, customers, employees] = await Promise.all([
     getCompletedSurveys(),
     getCustomersForSelection(),

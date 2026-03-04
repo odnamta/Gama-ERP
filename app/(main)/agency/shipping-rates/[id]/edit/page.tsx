@@ -1,11 +1,20 @@
 import { Suspense } from 'react';
 import { EditShippingRateClient } from './edit-shipping-rate-client';
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import { ExplorerReadOnlyBanner } from '@/components/layout/explorer-read-only-banner';
 
 interface EditShippingRatePageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function EditShippingRatePage({ params }: EditShippingRatePageProps) {
+
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/agency/shipping-rates');
+  }
   const { id } = await params;
   
   return (
