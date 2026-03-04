@@ -119,11 +119,11 @@ export async function createTool(formData: ToolFormData): Promise<{ error?: stri
 
   const insertData = {
     name: formData.name.trim(),
-    category: formData.category || null,
+    category: formData.category || 'uncategorized',
     description: formData.description || null,
     quantity: formData.quantity,
     minimum_stock: formData.minimum_stock,
-    unit: formData.unit || null,
+    unit: formData.unit || 'pcs',
     location: formData.location || null,
     condition: formData.condition || null,
     notes: formData.notes || null,
@@ -169,11 +169,11 @@ export async function updateTool(id: string, formData: ToolFormData): Promise<{ 
 
   const updateData = {
     name: formData.name.trim(),
-    category: formData.category || null,
+    category: formData.category || 'uncategorized',
     description: formData.description || null,
     quantity: formData.quantity,
     minimum_stock: formData.minimum_stock,
-    unit: formData.unit || null,
+    unit: formData.unit || 'pcs',
     location: formData.location || null,
     condition: formData.condition || null,
     notes: formData.notes || null,

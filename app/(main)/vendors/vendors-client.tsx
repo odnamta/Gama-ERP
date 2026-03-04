@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, AlertCircle } from 'lucide-react';
 import { VendorFilters } from '@/components/vendors/vendor-filters';
 import { VendorVirtualTable } from '@/components/vendors/vendor-virtual-table';
 import { VendorSummaryCards } from '@/components/vendors/vendor-summary-cards';
@@ -25,6 +25,7 @@ export function VendorsClient() {
     pendingVerification: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
   const [selectedVendorForRating, setSelectedVendorForRating] = useState<VendorWithStats | null>(null);
   const [filters, setFilters] = useState<VendorFilterState>({
@@ -40,19 +41,24 @@ export function VendorsClient() {
 
   const loadData = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const [vendorsResult, statsResult] = await Promise.all([
         getVendors(filters),
         getVendorSummaryStats(),
       ]);
 
+      if (vendorsResult.error) {
+        setError(vendorsResult.error);
+      }
       if (vendorsResult.data) {
         setVendors(vendorsResult.data);
       }
       if (statsResult.data) {
         setStats(statsResult.data);
       }
-    } catch (error) {
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Gagal memuat data vendor');
     } finally {
       setLoading(false);
     }
@@ -116,6 +122,12 @@ export function VendorsClient() {
       <VendorFilters filters={filters} onFilterChange={handleFilterChange} />
 
       {/* Table */}
+      {error && (
+        <div className="flex items-center gap-2 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>Gagal memuat vendor: {error}</span>
+        </div>
+      )}
       {loading ? (
         <div className="text-center py-12 text-muted-foreground">
           Loading vendors...

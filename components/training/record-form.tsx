@@ -89,6 +89,22 @@ export function RecordForm({ record, employees, onSuccess }: RecordFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!record) {
+      if (!formData.employeeId) {
+        toast.error('Karyawan wajib dipilih');
+        return;
+      }
+      if (!formData.courseId) {
+        toast.error('Kursus wajib dipilih');
+        return;
+      }
+    }
+    if (!formData.trainingDate) {
+      toast.error('Tanggal pelatihan wajib diisi');
+      return;
+    }
+
     setLoading(true);
 
     try {
