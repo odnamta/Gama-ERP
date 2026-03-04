@@ -25,6 +25,12 @@ export default function NewSchedulePage() {
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/agency/schedules');
+    }
+  }, [router]);
+
+  useEffect(() => {
     async function loadData() {
       try {
         const [vesselsData, portsResult] = await Promise.all([

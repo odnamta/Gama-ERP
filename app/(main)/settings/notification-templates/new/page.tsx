@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   NotificationTemplateInsert,
@@ -40,6 +40,12 @@ import {
 export default function NewNotificationTemplatePage() {
   const router = useRouter()
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/settings/notification-templates')
+    }
+  }, [router])
 
   const [isSaving, setIsSaving] = useState(false)
 

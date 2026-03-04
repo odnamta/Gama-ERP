@@ -14,6 +14,12 @@ export default function NewMappingPage() {
   const { toast } = useToast()
   const connectionId = params.id as string
 
+  useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/settings/integrations')
+    }
+  }, [router])
+
   const [connection, setConnection] = useState<IntegrationConnection | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 

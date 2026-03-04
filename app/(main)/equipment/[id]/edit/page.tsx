@@ -33,6 +33,12 @@ export default function EditAssetPage() {
   const canEdit = canAccess('assets.edit')
 
   useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/equipment')
+    }
+  }, [router])
+
+  useEffect(() => {
     const loadData = async () => {
       setIsLoading(true)
       try {

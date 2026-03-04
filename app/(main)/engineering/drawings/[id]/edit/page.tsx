@@ -20,6 +20,12 @@ export default function EditDrawingPage({ params }: EditDrawingPageProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/engineering/drawings');
+    }
+  }, [router]);
+
+  useEffect(() => {
     loadDrawing();
   }, [id]);
 

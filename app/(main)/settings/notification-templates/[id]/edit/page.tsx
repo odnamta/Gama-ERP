@@ -59,6 +59,12 @@ export default function EditNotificationTemplatePage({ params }: PageProps) {
   const [placeholders, setPlaceholders] = useState<PlaceholderDefinition[]>([])
 
   useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/settings/notification-templates')
+    }
+  }, [router])
+
+  useEffect(() => {
     loadTemplate()
   }, [id])
 

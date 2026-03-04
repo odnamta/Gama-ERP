@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   DocumentType,
@@ -56,6 +56,12 @@ const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
 export default function NewDocumentTemplatePage() {
   const router = useRouter()
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/settings/document-templates')
+    }
+  }, [router])
 
   const [isSaving, setIsSaving] = useState(false)
   const [showPreview, setShowPreview] = useState(false)

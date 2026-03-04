@@ -18,6 +18,12 @@ export default function NewPortAgentPage() {
   const [loadingPorts, setLoadingPorts] = useState(true);
 
   useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/agency/port-agents');
+    }
+  }, [router]);
+
+  useEffect(() => {
     async function loadPorts() {
       const result = await getPorts();
       if (result.success && result.data) {

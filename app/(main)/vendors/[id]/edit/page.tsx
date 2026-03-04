@@ -20,6 +20,12 @@ export default function EditVendorPage() {
   const vendorId = params.id as string;
 
   useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/vendors');
+    }
+  }, [router]);
+
+  useEffect(() => {
     async function loadVendor() {
       const result = await getVendorById(vendorId);
       if (result.error) {

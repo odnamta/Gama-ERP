@@ -1,8 +1,18 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ConnectionForm } from '@/components/integrations/connection-form'
 
 export default function NewConnectionPage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/settings/integrations')
+    }
+  }, [router])
+
   return (
     <div className="container mx-auto py-6 max-w-3xl">
       <div className="mb-6">

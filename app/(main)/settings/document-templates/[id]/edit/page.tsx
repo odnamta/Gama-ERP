@@ -86,6 +86,12 @@ export default function EditDocumentTemplatePage({ params }: PageProps) {
   const extractedVariables = extractAvailableVariables(formData.html_template || '')
 
   useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/settings/document-templates')
+    }
+  }, [router])
+
+  useEffect(() => {
     loadTemplate()
   }, [id])
 

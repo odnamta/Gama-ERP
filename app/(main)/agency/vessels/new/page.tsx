@@ -24,6 +24,12 @@ export default function NewVesselPage() {
   const [loadingShippingLines, setLoadingShippingLines] = useState(true);
 
   useEffect(() => {
+    if (document.cookie.includes('gama-explorer-mode=true')) {
+      router.replace('/agency/vessels');
+    }
+  }, [router]);
+
+  useEffect(() => {
     async function loadShippingLines() {
       try {
         const result = await getShippingLines();
