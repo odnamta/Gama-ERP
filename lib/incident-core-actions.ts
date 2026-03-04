@@ -152,6 +152,7 @@ export async function reportIncident(
     }
 
     // Get employee ID for the user
+    // Try by profile PK first (employees.user_id may reference user_profiles.id)
     let employeeId: string | null = null;
     const { data: employee } = await supabase
       .from('employees')
@@ -162,24 +163,35 @@ export async function reportIncident(
     if (employee) {
       employeeId = employee.id;
     } else {
-      // Fallback: auto-create minimal employee record from user_profiles
-      const { data: newEmployee, error: empError } = await supabase
+      // Fallback: try by auth UUID (some records may use auth.uid() directly)
+      const { data: employeeByAuth } = await supabase
         .from('employees')
-        .insert({
-          user_id: userProfile.id,
-          full_name: userProfile.full_name || user.email || 'Unknown',
-          employee_code: `AUTO-${user.id.substring(0, 6).toUpperCase()}`,
-          status: 'active',
-          join_date: new Date().toISOString().split('T')[0],
-        })
         .select('id')
+        .eq('user_id', user.id)
         .single();
 
-      if (empError || !newEmployee) {
-        return { success: false, error: 'Unable to create employee profile for incident reporting. Please contact HR or administrator.' };
-      }
+      if (employeeByAuth) {
+        employeeId = employeeByAuth.id;
+      } else {
+        // Auto-create minimal employee record from user_profiles
+        const { data: newEmployee, error: empError } = await supabase
+          .from('employees')
+          .insert({
+            user_id: userProfile.id,
+            full_name: userProfile.full_name || user.email || 'Unknown',
+            employee_code: `AUTO-${user.id.substring(0, 6).toUpperCase()}`,
+            status: 'active',
+            join_date: new Date().toISOString().split('T')[0],
+          })
+          .select('id')
+          .single();
 
-      employeeId = newEmployee.id;
+        if (empError || !newEmployee) {
+          return { success: false, error: 'Unable to create employee profile for incident reporting. Please contact HR or administrator.' };
+        }
+
+        employeeId = newEmployee.id;
+      }
     }
 
     // Get category to check if investigation is required

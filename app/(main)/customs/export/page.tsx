@@ -36,20 +36,28 @@ function LoadingSkeleton() {
 }
 
 async function PEBContent({ filters }: { filters: PEBFilters }) {
-  const [documentsResult, statisticsResult, officesResult] = await Promise.all([
-    getPEBDocuments(filters),
-    getPEBStatistics(),
-    getCustomsOffices(),
-  ])
-
-  const documents = documentsResult.data || []
-  const statistics = statisticsResult.data || {
+  let documents: any[] = []
+  let statistics: any = {
     active_pebs: 0,
     pending_approval: 0,
     loaded: 0,
     departed_mtd: 0,
   }
-  const customsOffices = officesResult.data || []
+  let customsOffices: any[] = []
+
+  try {
+    const [documentsResult, statisticsResult, officesResult] = await Promise.all([
+      getPEBDocuments(filters).catch(e => ({ data: [], error: e.message })),
+      getPEBStatistics().catch(e => ({ data: null, error: e.message })),
+      getCustomsOffices().catch(e => ({ data: [], error: e.message })),
+    ])
+
+    documents = documentsResult.data || []
+    statistics = statisticsResult.data || statistics
+    customsOffices = officesResult.data || []
+  } catch (error) {
+    console.error('[PEBContent] Failed to load data:', error)
+  }
 
   return (
     <div className="space-y-6">

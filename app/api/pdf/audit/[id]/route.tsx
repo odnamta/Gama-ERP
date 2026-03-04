@@ -58,11 +58,11 @@ export async function GET(
         status: audit.status || 'scheduled',
         scheduled_date: audit.scheduled_date,
         conducted_date: audit.conducted_date,
-        location: audit.location,
-        auditor_name: audit.auditor_name,
-        overall_score: audit.overall_score,
-        overall_rating: audit.overall_rating,
-        summary: audit.summary,
+        location: audit.location || '',
+        auditor_name: audit.auditor_name || '',
+        overall_score: audit.overall_score || 0,
+        overall_rating: audit.overall_rating || '',
+        summary: audit.summary || '',
         critical_findings: audit.critical_findings || 0,
         major_findings: audit.major_findings || 0,
         minor_findings: audit.minor_findings || 0,
@@ -78,18 +78,28 @@ export async function GET(
         : null,
       checklistResponses: (Array.isArray(audit.checklist_responses) ? audit.checklist_responses : []) as unknown as AuditPDFProps['checklistResponses'],
       findings: (findings || []).map((f: Record<string, unknown>) => ({
-        finding_number: f.finding_number as number,
-        severity: f.severity as string,
-        finding_description: f.finding_description as string,
-        corrective_action: f.corrective_action as string | null,
-        status: f.status as string,
-        category: f.category as string | null,
-        location_detail: f.location_detail as string | null,
+        finding_number: (f.finding_number as number) || 0,
+        severity: (f.severity as string) || '',
+        finding_description: (f.finding_description as string) || '',
+        corrective_action: (f.corrective_action as string | null) || null,
+        status: (f.status as string) || '',
+        category: (f.category as string | null) || null,
+        location_detail: (f.location_detail as string | null) || null,
       })),
       company,
     }
 
-    const buffer = await renderToBuffer(<AuditPDF {...pdfProps} />)
+    let buffer: Buffer
+    try {
+      buffer = await renderToBuffer(<AuditPDF {...pdfProps} />)
+    } catch (renderError) {
+      console.error('[PDF Audit] renderToBuffer failed:', renderError)
+      const msg = renderError instanceof Error ? renderError.message : 'Unknown render error'
+      return new Response(JSON.stringify({ error: 'PDF rendering failed', details: msg }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
 
     const filename = `${audit.audit_number || `audit-${id.slice(0, 8)}`}.pdf`
     const disposition = download ? `attachment; filename="${filename}"` : `inline; filename="${filename}"`

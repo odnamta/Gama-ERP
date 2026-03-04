@@ -397,7 +397,7 @@ export async function getAssets(
 
   if (error) {
     console.error('getAssets query failed:', error.message, error.details, error.hint)
-    return []
+    throw new Error(`Failed to load assets: ${error.message}`)
   }
 
   return data || []

@@ -1,12 +1,14 @@
 'use client'
 
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { JOStatusBadge } from '@/components/ui/jo-status-badge'
 import { JobOrderWithRelations } from '@/types'
-import { formatIDR, formatDate } from '@/lib/pjo-utils'
-import { Eye } from 'lucide-react'
+import { formatCurrency as formatIDR, formatDate } from '@/lib/utils/format'
+import { Eye, Search } from 'lucide-react'
 import { VirtualDataTable, VirtualColumn } from '@/components/tables/virtual-data-table'
 
 interface JOVirtualTableProps {
@@ -17,6 +19,18 @@ interface JOVirtualTableProps {
 export function JOVirtualTable({ jobOrders, userRole }: JOVirtualTableProps) {
   const router = useRouter()
   const isOps = userRole === 'ops'
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const filteredJobOrders = useMemo(() => {
+    if (!searchTerm.trim()) return jobOrders
+    const term = searchTerm.toLowerCase()
+    return jobOrders.filter(jo =>
+      jo.jo_number?.toLowerCase().includes(term) ||
+      jo.customers?.name?.toLowerCase().includes(term) ||
+      jo.customers?.company_name?.toLowerCase().includes(term) ||
+      jo.projects?.name?.toLowerCase().includes(term)
+    )
+  }, [jobOrders, searchTerm])
 
   const allColumns: VirtualColumn<JobOrderWithRelations>[] = [
     {
@@ -131,14 +145,24 @@ export function JOVirtualTable({ jobOrders, userRole }: JOVirtualTableProps) {
   const columns = isOps ? allColumns.filter(c => !hiddenForOps.includes(c.key)) : allColumns
 
   return (
-    <VirtualDataTable
-      columns={columns}
-      data={jobOrders}
-      getRowKey={(jo) => jo.id}
-      onRowClick={(jo) => router.push(`/job-orders/${jo.id}`)}
-      emptyMessage="No job orders found."
-      maxHeight={600}
-      mobileCardRender={(jo) => {
+    <div className="space-y-4">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input
+          placeholder="Search by JO number, customer, or project..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-9"
+        />
+      </div>
+      <VirtualDataTable
+        columns={columns}
+        data={filteredJobOrders}
+        getRowKey={(jo) => jo.id}
+        onRowClick={(jo) => router.push(`/job-orders/${jo.id}`)}
+        emptyMessage={searchTerm ? "No job orders match your search." : "No job orders found."}
+        maxHeight={600}
+        mobileCardRender={(jo) => {
         const revenue = jo.final_revenue ?? jo.amount ?? 0
         const profit = revenue - (jo.final_cost ?? 0)
         const date = jo.converted_from_pjo_at
@@ -178,6 +202,7 @@ export function JOVirtualTable({ jobOrders, userRole }: JOVirtualTableProps) {
           </div>
         )
       }}
-    />
+      />
+    </div>
   )
 }

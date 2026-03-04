@@ -12,6 +12,7 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
+    console.error('Customs page error:', error)
   }, [error])
 
   return (
