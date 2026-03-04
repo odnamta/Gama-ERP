@@ -31,6 +31,8 @@ import {
   transformMaintenanceCostSummaryRow,
 } from '@/types/maintenance';
 import { calculatePartsCost, validateMaintenanceRecordInput, validateMaintenanceScheduleInput } from './maintenance-utils';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // =====================================================
 // MAINTENANCE TYPES
@@ -104,6 +106,11 @@ export async function getMaintenanceSchedules(assetId?: string): Promise<Mainten
 export async function createMaintenanceSchedule(
   input: MaintenanceScheduleInput
 ): Promise<{ success: boolean; error?: string; schedule?: MaintenanceSchedule }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'maintenance.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const validation = validateMaintenanceScheduleInput(input);
   if (!validation.valid) {
     return { success: false, error: validation.errors.join(', ') };
@@ -139,6 +146,11 @@ export async function updateMaintenanceSchedule(
   id: string,
   input: Partial<MaintenanceScheduleInput>
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'maintenance.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {};
@@ -164,6 +176,11 @@ export async function updateMaintenanceSchedule(
 }
 
 export async function deleteMaintenanceSchedule(id: string): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'maintenance.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -220,6 +237,11 @@ export async function getAllUpcomingMaintenance(): Promise<UpcomingMaintenance[]
 export async function createMaintenanceRecord(
   input: MaintenanceRecordInput
 ): Promise<{ success: boolean; error?: string; record?: MaintenanceRecord }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'maintenance.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const validation = validateMaintenanceRecordInput(input);
   if (!validation.valid) {
     return { success: false, error: validation.errors.join(', ') };
@@ -401,6 +423,11 @@ export async function updateMaintenanceRecord(
   id: string,
   input: Partial<MaintenanceRecordInput>
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'maintenance.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {

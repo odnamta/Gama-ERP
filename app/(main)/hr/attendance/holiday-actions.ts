@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { Holiday, HolidayInput } from '@/types/attendance';
 import { validateHoliday } from '@/lib/holiday-utils';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 /**
  * Get holidays for a date range
@@ -84,6 +86,11 @@ export async function isHolidayDate(date: string): Promise<boolean> {
 export async function createHoliday(
   data: HolidayInput
 ): Promise<{ success: boolean; holiday?: Holiday; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'attendance.manage_holidays')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Validate holiday data
@@ -134,6 +141,11 @@ export async function updateHoliday(
   id: string,
   data: HolidayInput
 ): Promise<{ success: boolean; holiday?: Holiday; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'attendance.manage_holidays')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Validate holiday data
@@ -185,6 +197,11 @@ export async function updateHoliday(
 export async function deleteHoliday(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'attendance.manage_holidays')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase

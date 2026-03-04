@@ -12,6 +12,8 @@ import {
   canRecordPayment,
 } from '@/lib/payment-utils'
 import { trackPaymentCreation } from '@/lib/onboarding-tracker'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 
 /**
  * Record a new payment against an invoice
@@ -20,6 +22,11 @@ export async function recordPayment(data: PaymentFormData): Promise<{
   data?: Payment
   error?: string
 }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'payments.create')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user
@@ -229,6 +236,11 @@ export async function getPayments(invoiceId: string): Promise<PaymentWithRecorde
  * Delete a payment and recalculate invoice status
  */
 export async function deletePayment(paymentId: string): Promise<{ error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'payments.create')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user

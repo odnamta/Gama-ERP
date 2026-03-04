@@ -4,6 +4,8 @@
 // Server actions for AI Predictive Analytics
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   RevenueForecast,
   CustomerChurnRisk,
@@ -30,6 +32,11 @@ export async function generateRevenueForecast(
   targetMonth: Date
 ): Promise<{ success: boolean; data?: RevenueForecast; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Get pipeline data from quotations
@@ -289,6 +296,11 @@ export async function assessCustomerChurnRisk(): Promise<{
   error?: string;
 }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     const today = format(new Date(), 'yyyy-MM-dd');
 
@@ -522,6 +534,11 @@ export async function recordChurnAction(
   action: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     const today = format(new Date(), 'yyyy-MM-dd');
 
@@ -549,6 +566,11 @@ export async function generatePaymentPrediction(
   invoiceId: string
 ): Promise<{ success: boolean; data?: PaymentPrediction; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     const today = format(new Date(), 'yyyy-MM-dd');
 
@@ -680,6 +702,11 @@ export async function updatePredictionActual(
   actualValue: number
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get the prediction
@@ -721,6 +748,11 @@ export async function updateForecastActual(
   actualRevenue: number
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const { error } = await supabase
@@ -744,6 +776,11 @@ export async function updatePaymentActual(
   actualPaymentDate: Date
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get the prediction

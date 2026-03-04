@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Customer } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -33,10 +33,17 @@ interface CustomersClientProps {
   stats?: CustomerStats
 }
 
+const EXPLORER_COOKIE = 'gama-explorer-mode';
+
 export function CustomersClient({ customers, stats }: CustomersClientProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [isExplorer, setIsExplorer] = useState(false)
+
+  useEffect(() => {
+    setIsExplorer(document.cookie.includes(`${EXPLORER_COOKIE}=true`));
+  }, []);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deletingCustomer, setDeletingCustomer] = useState<Customer | null>(null)
@@ -127,9 +134,11 @@ export function CustomersClient({ customers, stats }: CustomersClientProps) {
           <h2 className="text-3xl font-bold tracking-tight">Customers</h2>
           <p className="text-muted-foreground">Manage customer accounts and contacts</p>
         </div>
-        <Button onClick={handleAddClick}>
-          <Plus className="mr-2 h-4 w-4" /> Add Customer
-        </Button>
+        {!isExplorer && (
+          <Button onClick={handleAddClick}>
+            <Plus className="mr-2 h-4 w-4" /> Add Customer
+          </Button>
+        )}
       </div>
 
       {stats && (
@@ -170,7 +179,7 @@ export function CustomersClient({ customers, stats }: CustomersClientProps) {
           <CardDescription>View and manage all customers</CardDescription>
         </CardHeader>
         <CardContent>
-          <CustomerTable customers={customers} onEdit={handleEditClick} onDelete={handleDeleteClick} />
+          <CustomerTable customers={customers} onEdit={isExplorer ? undefined : handleEditClick} onDelete={isExplorer ? undefined : handleDeleteClick} />
         </CardContent>
       </Card>
 

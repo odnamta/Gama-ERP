@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { WorkSchedule, WorkScheduleInput } from '@/types/attendance';
 import { validateSchedule } from '@/lib/schedule-utils';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 /**
  * Get all work schedules
@@ -95,6 +97,11 @@ export async function upsertWorkSchedule(
   data: WorkScheduleInput,
   id?: string
 ): Promise<{ success: boolean; schedule?: WorkSchedule; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'attendance.manage_schedules')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Validate schedule data
@@ -156,6 +163,11 @@ export async function upsertWorkSchedule(
 export async function setDefaultSchedule(
   scheduleId: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'attendance.manage_schedules')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Unset all defaults
@@ -185,6 +197,11 @@ export async function setDefaultSchedule(
 export async function deleteWorkSchedule(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'attendance.manage_schedules')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Check if schedule is in use
@@ -235,6 +252,11 @@ export async function assignScheduleToEmployee(
   employeeId: string,
   scheduleId: string | null
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'attendance.manage_schedules')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase

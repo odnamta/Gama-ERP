@@ -15,6 +15,8 @@ import {
 import { isValidEmployeeStatus, isValidEmploymentType, hasCircularReporting, generateEmployeeCode } from '@/lib/employee-utils';
 import { invalidateEmployeeCache } from '@/lib/cached-queries';
 import { logActivity } from '@/lib/activity-logger';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 /**
  * Get all employees with optional filters
@@ -93,6 +95,11 @@ export async function getEmployee(
 export async function createEmployee(
   formData: EmployeeFormData
 ): Promise<{ success: boolean; employee?: Employee; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.employees.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Validate required fields
@@ -115,12 +122,12 @@ export async function createEmployee(
   // Get user profile ID
   let createdBy = null;
   if (user) {
-    const { data: profile } = await supabase
+    const { data: userProfile } = await supabase
       .from('user_profiles')
       .select('id')
       .eq('user_id', user.id)
       .single();
-    createdBy = profile?.id;
+    createdBy = userProfile?.id;
   }
 
   // Check for circular reporting if reporting_to is set
@@ -213,6 +220,11 @@ export async function updateEmployee(
   id: string,
   formData: Partial<EmployeeFormData>
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.employees.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Validate required fields if provided
@@ -299,6 +311,11 @@ export async function updateEmployeeStatus(
   status: EmployeeStatus,
   reason?: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.employees.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   if (!isValidEmployeeStatus(status)) {
@@ -339,6 +356,11 @@ export async function linkEmployeeToUser(
   employeeId: string,
   userId: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.employees.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Verify user exists

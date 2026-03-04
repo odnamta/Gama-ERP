@@ -38,6 +38,8 @@ import {
   notifyIncidentClosed,
 } from './notifications/incident-notifications';
 import { getCurrentProfileId } from '@/lib/auth-helpers';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // Type helper for tables not yet in database.types.ts
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -119,6 +121,11 @@ export async function reportIncident(
   persons: AddPersonInput[] = []
 ): Promise<{ success: boolean; data?: Incident; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     // Validate input
     const validation = validateIncidentInput(input);
     if (!validation.valid) {
@@ -134,13 +141,13 @@ export async function reportIncident(
     }
 
     // Get user profile (employees.user_id references user_profiles.id)
-    const { data: profile } = await supabase
+    const { data: userProfile } = await supabase
       .from('user_profiles')
       .select('id, full_name')
       .eq('user_id', user.id)
       .single();
 
-    if (!profile) {
+    if (!userProfile) {
       return { success: false, error: 'User profile not found. Please contact administrator.' };
     }
 
@@ -149,7 +156,7 @@ export async function reportIncident(
     const { data: employee } = await supabase
       .from('employees')
       .select('id')
-      .eq('user_id', profile.id)
+      .eq('user_id', userProfile.id)
       .single();
 
     if (employee) {
@@ -159,8 +166,8 @@ export async function reportIncident(
       const { data: newEmployee, error: empError } = await supabase
         .from('employees')
         .insert({
-          user_id: profile.id,
-          full_name: profile.full_name || user.email || 'Unknown',
+          user_id: userProfile.id,
+          full_name: userProfile.full_name || user.email || 'Unknown',
           employee_code: `AUTO-${user.id.substring(0, 6).toUpperCase()}`,
           status: 'active',
           join_date: new Date().toISOString().split('T')[0],
@@ -240,14 +247,14 @@ export async function reportIncident(
       }
     }
 
-    // Log history (use profile.id, not auth UUID — FK references user_profiles.id)
+    // Log history (use userProfile.id, not auth UUID — FK references user_profiles.id)
     await logIncidentHistory(
       incident.id,
       'created',
       'Insiden dilaporkan',
       null,
       'reported',
-      profile?.id
+      userProfile?.id
     );
 
     // Notify supervisor if assigned
@@ -464,6 +471,11 @@ export async function startInvestigation(
   investigatorId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const profileId = await getCurrentProfileId();
     const supabase = await createClient();
 
@@ -528,6 +540,11 @@ export async function updateRootCause(
   input: { rootCause: string; contributingFactors?: unknown }
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const profileId = await getCurrentProfileId();
     const supabase = await createClient();
 
@@ -570,6 +587,11 @@ export async function completeInvestigation(
   incidentId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const profileId = await getCurrentProfileId();
     const supabase = await createClient();
 
@@ -630,6 +652,11 @@ export async function addCorrectiveAction(
   action: AddActionInput
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const profileId = await getCurrentProfileId();
     const supabase = await createClient();
 
@@ -711,6 +738,11 @@ export async function addPreventiveAction(
   action: AddActionInput
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const profileId = await getCurrentProfileId();
     const supabase = await createClient();
 
@@ -793,6 +825,11 @@ export async function completeAction(
   actionType: 'corrective' | 'preventive'
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const profileId = await getCurrentProfileId();
     const supabase = await createClient();
 
@@ -865,6 +902,11 @@ export async function closeIncident(
   input: CloseIncidentInput
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const profileId = await getCurrentProfileId();
     const supabase = await createClient();
 
@@ -949,6 +991,11 @@ export async function rejectIncident(
   reason: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const profileId = await getCurrentProfileId();
     const supabase = await createClient();
 
@@ -1013,6 +1060,11 @@ export async function addPersonToIncident(
   person: AddPersonInput
 ): Promise<{ success: boolean; data?: IncidentPerson; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const { data, error } = await fromIncidentTable(supabase, 'incident_persons')
@@ -1057,6 +1109,11 @@ export async function removePersonFromIncident(
   personId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.incidents.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get incident ID first

@@ -28,6 +28,8 @@ import {
 } from '@/lib/drawing-utils';
 import { Json } from '@/types/database';
 import { getCurrentProfileId, getCurrentEmployeeId } from '@/lib/auth-helpers';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // Action result type
 interface ActionResult<T> {
@@ -123,6 +125,11 @@ export async function getDrawingById(id: string): Promise<DrawingWithDetails | n
 }
 
 export async function createDrawing(input: DrawingFormInput): Promise<ActionResult<Drawing>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const validation = validateDrawingInput(input);
   if (!validation.valid) {
     return { success: false, error: validation.errors.join(', ') };
@@ -202,6 +209,11 @@ export async function updateDrawing(
   id: string,
   input: Partial<DrawingFormInput>
 ): Promise<ActionResult<Drawing>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {};
@@ -230,6 +242,11 @@ export async function updateDrawing(
 }
 
 export async function deleteDrawing(id: string): Promise<ActionResult<void>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -273,6 +290,11 @@ export async function createRevision(
   drawingId: string,
   input: RevisionFormInput
 ): Promise<ActionResult<DrawingRevision>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const validation = validateRevisionInput(input);
   if (!validation.valid) {
     return { success: false, error: validation.errors.join(', ') };
@@ -335,18 +357,38 @@ export async function createRevision(
 // ============ Workflow Actions ============
 
 export async function submitForReview(drawingId: string): Promise<ActionResult<Drawing>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   return updateDrawingStatus(drawingId, 'for_review', 'drafted');
 }
 
 export async function submitForApproval(drawingId: string): Promise<ActionResult<Drawing>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   return updateDrawingStatus(drawingId, 'for_approval', 'checked');
 }
 
 export async function approveDrawing(drawingId: string): Promise<ActionResult<Drawing>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   return updateDrawingStatus(drawingId, 'approved', 'approved');
 }
 
 export async function issueDrawing(drawingId: string): Promise<ActionResult<Drawing>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Check if drawing has file
@@ -364,6 +406,11 @@ export async function issueDrawing(drawingId: string): Promise<ActionResult<Draw
 }
 
 export async function supersedeDrawing(drawingId: string): Promise<ActionResult<Drawing>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   return updateDrawingStatus(drawingId, 'superseded', null);
 }
 
@@ -470,6 +517,11 @@ export async function getTransmittalById(id: string): Promise<DrawingTransmittal
 export async function createTransmittal(
   input: TransmittalFormInput
 ): Promise<ActionResult<DrawingTransmittal>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const validation = validateTransmittalInput(input);
   if (!validation.valid) {
     return { success: false, error: validation.errors.join(', ') };
@@ -509,6 +561,11 @@ export async function createTransmittal(
 }
 
 export async function sendTransmittal(id: string): Promise<ActionResult<DrawingTransmittal>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const profileId = await getCurrentProfileId();
   const supabase = await createClient();
 
@@ -534,6 +591,11 @@ export async function sendTransmittal(id: string): Promise<ActionResult<DrawingT
 }
 
 export async function acknowledgeTransmittal(id: string): Promise<ActionResult<DrawingTransmittal>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.drawings.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase

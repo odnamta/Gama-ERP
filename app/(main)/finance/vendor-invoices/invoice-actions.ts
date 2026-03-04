@@ -26,6 +26,8 @@ import type { VerificationResult } from '@/types/vendor-invoices'
 import {
   calculateVariance,
 } from '@/lib/vendor-invoice-utils'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 
 /**
  * Get current user profile with role (private helper)
@@ -51,6 +53,11 @@ async function getCurrentUserProfile() {
 export async function createVendorInvoice(
   data: VendorInvoiceFormData
 ): Promise<{ id?: string; error?: string }> {
+  const permProfile = await getUserProfile()
+  if (!canAccessFeature(permProfile, 'vendor_invoices.create')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user
@@ -140,6 +147,11 @@ export async function updateVendorInvoice(
   id: string,
   data: Partial<VendorInvoiceFormData>
 ): Promise<{ error?: string }> {
+  const permProfile = await getUserProfile()
+  if (!canAccessFeature(permProfile, 'vendor_invoices.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user
@@ -243,6 +255,11 @@ export async function updateVendorInvoice(
  * Delete a vendor invoice (only if status is 'received')
  */
 export async function deleteVendorInvoice(id: string): Promise<{ error?: string }> {
+  const permProfile = await getUserProfile()
+  if (!canAccessFeature(permProfile, 'vendor_invoices.delete')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user
@@ -576,6 +593,11 @@ export async function verifyVendorInvoice(
   id: string,
   notes?: string
 ): Promise<{ result?: VerificationResult; error?: string }> {
+  const permProfile = await getUserProfile()
+  if (!canAccessFeature(permProfile, 'vendor_invoices.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user
@@ -657,6 +679,11 @@ export async function verifyVendorInvoice(
 export async function approveVendorInvoice(
   id: string
 ): Promise<{ error?: string }> {
+  const permProfile = await getUserProfile()
+  if (!canAccessFeature(permProfile, 'vendor_invoices.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user
@@ -714,6 +741,11 @@ export async function disputeVendorInvoice(
   id: string,
   reason: string
 ): Promise<{ error?: string }> {
+  const permProfile = await getUserProfile()
+  if (!canAccessFeature(permProfile, 'vendor_invoices.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user

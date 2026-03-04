@@ -21,6 +21,8 @@ import {
   PPEDashboardMetrics,
 } from '@/types/ppe';
 import { isValidPPECategory, isValidPPECondition, isValidInspectionAction, isReusableCondition } from './ppe-utils';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // ============================================
 // PPE Types Actions
@@ -62,6 +64,11 @@ export async function getPPETypeById(id: string): Promise<PPEType | null> {
 }
 
 export async function createPPEType(input: CreatePPETypeInput): Promise<PPEType> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   // Validate category
@@ -97,6 +104,11 @@ export async function createPPEType(input: CreatePPETypeInput): Promise<PPEType>
 }
 
 export async function updatePPEType(id: string, input: UpdatePPETypeInput): Promise<PPEType> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   // Validate category if provided
@@ -123,6 +135,11 @@ export async function updatePPEType(id: string, input: UpdatePPETypeInput): Prom
 }
 
 export async function deletePPEType(id: string): Promise<void> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   // Check for active issuances
@@ -194,6 +211,11 @@ export async function getInventoryByTypeAndSize(
 }
 
 export async function updateInventory(id: string, input: UpdateInventoryInput): Promise<PPEInventory> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   const { data, error } = await supabase
@@ -218,6 +240,11 @@ export async function adjustStock(
   adjustment: number,
   _reason: string
 ): Promise<PPEInventory> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   // Get or create inventory record
@@ -262,6 +289,11 @@ export async function adjustStock(
 }
 
 export async function recordPurchase(input: RecordPurchaseInput): Promise<PPEInventory> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   // Get or create inventory record
@@ -312,6 +344,11 @@ export async function recordPurchase(input: RecordPurchaseInput): Promise<PPEInv
 }
 
 export async function deleteInventoryItem(id: string): Promise<void> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
 
   // Verify the inventory item exists
@@ -434,6 +471,11 @@ export async function getPPEIssuanceById(id: string): Promise<PPEIssuance | null
 }
 
 export async function issuePPE(input: IssuePPEInput): Promise<PPEIssuance> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   // Validate employee is active
@@ -511,6 +553,11 @@ export async function issuePPE(input: IssuePPEInput): Promise<PPEIssuance> {
 }
 
 export async function returnPPE(id: string, input: ReturnPPEInput): Promise<PPEIssuance> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   // Get current issuance
@@ -560,6 +607,11 @@ export async function returnPPE(id: string, input: ReturnPPEInput): Promise<PPEI
 }
 
 export async function replacePPE(id: string, input: ReplacePPEInput): Promise<PPEIssuance> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   // Get current issuance
@@ -616,6 +668,11 @@ export async function replacePPE(id: string, input: ReplacePPEInput): Promise<PP
 }
 
 export async function markPPELost(id: string, notes: string): Promise<PPEIssuance> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   const { data: issuance, error: fetchError } = await supabase
@@ -650,6 +707,11 @@ export async function markPPELost(id: string, notes: string): Promise<PPEIssuanc
 }
 
 export async function markPPEDamaged(id: string, notes: string): Promise<PPEIssuance> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   const { data: issuance, error: fetchError } = await supabase
@@ -705,6 +767,11 @@ export async function getInspectionsByIssuance(issuanceId: string): Promise<PPEI
 }
 
 export async function recordInspection(input: RecordInspectionInput): Promise<PPEInspection> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   // Validate condition
@@ -755,6 +822,11 @@ export async function updateInspectionAction(
   id: string,
   actionTaken: string
 ): Promise<PPEInspection> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.ppe.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
   
   const { data, error } = await supabase

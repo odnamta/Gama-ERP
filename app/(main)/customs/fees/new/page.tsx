@@ -1,6 +1,14 @@
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 import { FeeForm } from '@/components/customs-fees/fee-form';
 
-export default function NewFeePage() {
+export default async function NewFeePage() {
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/customs/fees');
+  }
+
   return (
     <div className="space-y-6">
       <div>

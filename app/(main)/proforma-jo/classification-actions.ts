@@ -3,6 +3,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { Json } from '@/types/database'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 import {
   ComplexityCriteria,
   MarketClassification,
@@ -41,6 +43,11 @@ export async function updatePJOClassification(
   pricingApproach: PricingApproach | null,
   pricingNotes: string | null
 ): Promise<{ error: string | null }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { error } = await supabase

@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import type {
   HSCode,
   HSCodeInput,
@@ -26,6 +28,11 @@ export async function logHSCodeSearch(
   selectedHSCode: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     const userId = await getCurrentUserId();
     
@@ -54,6 +61,11 @@ export async function createHSCode(
   data: HSCodeInput
 ): Promise<{ success: boolean; data?: HSCode; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { data: result, error } = await supabase
@@ -100,6 +112,11 @@ export async function updateHSCode(
   data: Partial<HSCodeInput>
 ): Promise<{ success: boolean; data?: HSCode; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const updateData: Record<string, unknown> = {
@@ -149,6 +166,11 @@ export async function deactivateHSCode(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { error } = await supabase
@@ -174,6 +196,11 @@ export async function reactivateHSCode(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { error } = await supabase
@@ -200,6 +227,11 @@ export async function upsertPreferentialRate(
   data: PreferentialRateInput
 ): Promise<{ success: boolean; data?: HSPreferentialRate; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     if (!isValidFTACode(data.ftaCode)) {
@@ -237,6 +269,11 @@ export async function deletePreferentialRate(
   ftaCode: FTACode
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { error } = await supabase
@@ -333,6 +370,11 @@ export async function getFrequentHSCodesAction(
 // Clear search history for current user
 export async function clearSearchHistory(): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     const userId = await getCurrentUserId();
     

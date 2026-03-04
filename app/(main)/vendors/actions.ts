@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { sanitizeSearchInput } from '@/lib/utils/sanitize';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   Vendor,
   VendorWithStats,
@@ -242,6 +244,11 @@ export async function createVendor(input: VendorFormInput): Promise<{
   data?: Vendor;
   error?: string;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.create')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const validation = vendorSchema.safeParse(input);
   if (!validation.success) {
     return { error: validation.error.issues[0].message };
@@ -304,6 +311,11 @@ export async function updateVendor(
   id: string,
   input: VendorFormInput
 ): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.edit')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const validation = vendorSchema.safeParse(input);
   if (!validation.success) {
     return { error: validation.error.issues[0].message };
@@ -354,6 +366,11 @@ export async function updateVendor(
  * Delete (deactivate) a vendor
  */
 export async function deleteVendor(id: string): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.delete')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Soft delete - set is_active to false
@@ -470,6 +487,11 @@ export async function togglePreferredVendor(
  * Update vendor metrics (called after BKK settlement or rating)
  */
 export async function updateVendorMetrics(vendorId: string): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.edit')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get all ratings for this vendor

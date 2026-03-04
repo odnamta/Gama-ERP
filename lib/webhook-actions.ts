@@ -5,6 +5,8 @@
 // =====================================================
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   WebhookEndpoint,
   CreateWebhookEndpointInput,
@@ -26,6 +28,11 @@ export async function registerWebhookEndpoint(
   input: CreateWebhookEndpointInput
 ): Promise<{ data: WebhookEndpoint | null; error: string | null }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { data: null, error: 'Tidak memiliki akses' };
+    }
+
     // Validate trigger type
     if (!isValidTriggerType(input.triggerType)) {
       return { data: null, error: 'Invalid trigger type. Must be one of: database_event, scheduled, manual, external' };
@@ -182,6 +189,11 @@ export async function updateWebhookEndpoint(
   updates: UpdateWebhookEndpointInput
 ): Promise<{ data: WebhookEndpoint | null; error: string | null }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { data: null, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const updateData: Record<string, unknown> = {};
@@ -231,6 +243,11 @@ export async function deleteWebhookEndpoint(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const { error } = await supabase
@@ -255,6 +272,11 @@ export async function regenerateWebhookSecret(
   id: string
 ): Promise<{ data: WebhookEndpoint | null; error: string | null }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { data: null, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     const newSecret = generateWebhookSecret();
 

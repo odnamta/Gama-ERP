@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 import type { VendorRate, VendorRateFormData } from '@/types/vendor-rate'
 
 /**
@@ -97,6 +99,11 @@ export async function createVendorRate(
   data?: VendorRate
   error?: string
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.edit')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient()
 
   // Get current user
@@ -140,6 +147,11 @@ export async function updateVendorRate(
 ): Promise<{
   error?: string
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.edit')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient()
 
   const updateData: Record<string, unknown> = {
@@ -179,6 +191,11 @@ export async function deactivateVendorRate(
 ): Promise<{
   error?: string
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.edit')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient()
 
   const { error } = await supabase

@@ -12,6 +12,8 @@ import {
   UpdateMedicalCheckupInput,
   MedicalCheckupFilters,
 } from '@/types/medical-checkup';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // =====================================================
 // GET MEDICAL CHECKUPS (LIST)
@@ -105,6 +107,11 @@ export async function getMedicalCheckup(
 export async function createMedicalCheckup(
   input: CreateMedicalCheckupInput
 ): Promise<MedicalCheckup> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.medical_checkups.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
 
   // Auto-calculate valid_from and valid_to
@@ -141,7 +148,7 @@ export async function createMedicalCheckup(
 
   // Get current user profile for recorded_by
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
+  const { data: userProfile } = await supabase
     .from('user_profiles')
     .select('id')
     .eq('user_id', user?.id || '')
@@ -183,7 +190,7 @@ export async function createMedicalCheckup(
       certificate_number: input.certificate_number || null,
       certificate_url: input.certificate_url || null,
       notes: input.notes || null,
-      recorded_by: profile?.id || null,
+      recorded_by: userProfile?.id || null,
     })
     .select()
     .single();
@@ -208,6 +215,11 @@ export async function updateMedicalCheckup(
   id: string,
   input: UpdateMedicalCheckupInput
 ): Promise<MedicalCheckup> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.medical_checkups.manage')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {
@@ -271,6 +283,11 @@ export async function updateMedicalCheckup(
 // =====================================================
 
 export async function deleteMedicalCheckup(id: string): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.medical_checkups.manage')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase

@@ -15,6 +15,8 @@ import {
 } from '@/types/leave';
 import { calculateWorkingDays, validateLeaveRequest, calculateCarryOver } from '@/lib/leave-utils';
 import { getCurrentEmployeeId as getEmployeeId, getCurrentProfileId } from '@/lib/auth-helpers';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // =====================================================
 // Leave Types
@@ -128,6 +130,11 @@ export async function initializeYearlyBalances(
   employeeId: string,
   year: number
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.leave.approve')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
   
   try {
@@ -229,6 +236,11 @@ export async function submitLeaveRequest(
   employeeId: string,
   data: LeaveRequestFormData
 ): Promise<{ success: boolean; data?: LeaveRequest; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.leave.approve')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
   
   try {
@@ -338,6 +350,11 @@ export async function submitLeaveRequest(
 export async function approveLeaveRequest(
   requestId: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.leave.approve')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
   
   try {
@@ -435,6 +452,11 @@ export async function rejectLeaveRequest(
   requestId: string,
   reason: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.leave.approve')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
   
   if (!reason || reason.trim() === '') {
@@ -527,6 +549,11 @@ export async function rejectLeaveRequest(
 export async function cancelLeaveRequest(
   requestId: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.leave.approve')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
   
   try {

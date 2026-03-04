@@ -10,6 +10,8 @@ import {
   AttendanceFilters,
   AttendanceStatus,
 } from '@/types/attendance';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 /**
  * Get attendance records with filters
@@ -146,6 +148,11 @@ export async function getAttendanceSummary(
 export async function upsertAttendanceRecord(
   data: AttendanceRecordInput
 ): Promise<{ success: boolean; record?: AttendanceRecord; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'attendance.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Validate required fields
@@ -169,12 +176,12 @@ export async function upsertAttendanceRecord(
   const { data: { user } } = await supabase.auth.getUser();
   let correctedBy = null;
   if (user) {
-    const { data: profile } = await supabase
+    const { data: userProfile } = await supabase
       .from('user_profiles')
       .select('id')
       .eq('user_id', user.id)
       .single();
-    correctedBy = profile?.id;
+    correctedBy = userProfile?.id;
   }
 
   // Check if record exists
@@ -226,6 +233,11 @@ export async function markAbsent(
   date: string,
   notes?: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'attendance.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -411,6 +423,11 @@ export async function getEmployeesWithAttendance(
 export async function deleteAttendanceRecord(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'attendance.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase

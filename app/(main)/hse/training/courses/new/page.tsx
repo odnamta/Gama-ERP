@@ -1,6 +1,14 @@
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 import { CourseForm } from '@/components/training/course-form';
 
-export default function NewCoursePage() {
+export default async function NewCoursePage() {
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/hse/training/courses');
+  }
+
   return (
     <div className="space-y-6">
       <div>

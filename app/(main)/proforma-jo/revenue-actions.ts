@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { PJORevenueItem } from '@/types'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 
 const revenueItemSchema = z.object({
   description: z.string().min(1, 'Description is required'),
@@ -36,6 +38,11 @@ export async function createRevenueItem(
   pjoId: string,
   data: RevenueItemFormData
 ): Promise<{ error?: string; item?: PJORevenueItem }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const validation = revenueItemSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.issues[0].message }
@@ -88,6 +95,11 @@ export async function updateRevenueItem(
   id: string,
   data: Partial<RevenueItemFormData>
 ): Promise<{ error?: string; item?: PJORevenueItem }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get the item to find pjo_id
@@ -138,6 +150,11 @@ export async function updateRevenueItem(
 }
 
 export async function deleteRevenueItem(id: string): Promise<{ error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get the item to find pjo_id

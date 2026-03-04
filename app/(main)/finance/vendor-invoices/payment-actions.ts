@@ -22,6 +22,8 @@ import {
   isValidPaymentMethod,
   determineVendorInvoiceStatus,
 } from '@/lib/vendor-invoice-utils'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 
 /**
  * Get current user profile with role (private helper)
@@ -47,6 +49,11 @@ async function getCurrentUserProfile() {
 export async function recordVendorPayment(
   data: VendorPaymentFormData
 ): Promise<{ id?: string; error?: string }> {
+  const permProfile = await getUserProfile()
+  if (!canAccessFeature(permProfile, 'vendor_invoices.record_payment')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user
@@ -181,6 +188,11 @@ export async function getVendorPayments(
 export async function deleteVendorPayment(
   paymentId: string
 ): Promise<{ error?: string }> {
+  const permProfile = await getUserProfile()
+  if (!canAccessFeature(permProfile, 'vendor_invoices.record_payment')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user
@@ -443,6 +455,11 @@ export async function updateVendorInvoiceJOReference(
   pjoId: string,
   joId: string
 ): Promise<{ error?: string; updatedCount?: number }> {
+  const permProfile = await getUserProfile()
+  if (!canAccessFeature(permProfile, 'vendor_invoices.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get current user

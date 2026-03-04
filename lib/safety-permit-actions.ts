@@ -17,6 +17,8 @@ import {
 } from '@/types/safety-document';
 import { validatePermitInput } from './safety-document-utils';
 import { getCurrentEmployee } from '@/lib/auth-helpers';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // Type helper for tables not yet in database.types.ts
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,6 +39,11 @@ export async function createSafetyPermit(
   input: CreatePermitInput
 ): Promise<{ success: boolean; data?: SafetyPermit; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.permits.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     // Validate input
     const validation = validatePermitInput(input);
     if (!validation.valid) {
@@ -211,6 +218,11 @@ export async function approveBySupervisor(
   permitId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.permits.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const emp = await getCurrentEmployee();
     if (!emp) {
       return { success: false, error: 'Data karyawan tidak ditemukan. Hubungi HR atau administrator.' };
@@ -250,6 +262,11 @@ export async function approveByHSE(
   permitId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.permits.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const emp = await getCurrentEmployee();
     if (!emp) {
       return { success: false, error: 'Data karyawan tidak ditemukan. Hubungi HR atau administrator.' };
@@ -299,6 +316,11 @@ export async function activatePermit(
   permitId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.permits.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const { error } = await fromSafetyTable(supabase, 'safety_permits')
@@ -335,6 +357,11 @@ export async function closePermit(
   notes: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.permits.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const emp = await getCurrentEmployee();
     if (!emp) {
       return { success: false, error: 'Data karyawan tidak ditemukan. Hubungi HR atau administrator.' };
@@ -376,6 +403,11 @@ export async function cancelPermit(
   reason: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.permits.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const emp = await getCurrentEmployee();
     if (!emp) {
       return { success: false, error: 'Data karyawan tidak ditemukan. Hubungi HR atau administrator.' };
@@ -414,6 +446,11 @@ export async function cancelPermit(
  */
 export async function expireOverduePermits(): Promise<{ success: boolean; count?: number; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'hse.permits.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const now = new Date().toISOString();

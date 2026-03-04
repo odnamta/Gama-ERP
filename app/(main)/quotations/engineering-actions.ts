@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 import {
   determineRequiredAssessments,
   calculateEngineeringStatus,
@@ -28,6 +30,11 @@ export async function initializeQuotationEngineeringReview(
   quotationId: string,
   assignedTo: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'quotations.engineering_review')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -119,6 +126,11 @@ export async function initializeQuotationEngineeringReview(
 export async function startQuotationAssessment(
   assessmentId: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'quotations.engineering_review')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -176,6 +188,11 @@ export async function completeQuotationAssessment(
     cost_justification?: string
   }
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'quotations.engineering_review')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -183,7 +200,7 @@ export async function completeQuotationAssessment(
     return { success: false, error: 'You must be logged in' }
   }
 
-  const { data: profile } = await supabase
+  const { data: userProfile } = await supabase
     .from('user_profiles')
     .select('id')
     .eq('user_id', user.id)
@@ -228,7 +245,7 @@ export async function completeQuotationAssessment(
       cost_justification: data.cost_justification?.trim() || null,
       status: 'completed',
       completed_at: now,
-      completed_by: profile?.id || null,
+      completed_by: userProfile?.id || null,
       updated_at: now,
     })
     .eq('id', assessmentId)
@@ -257,6 +274,11 @@ export async function completeQuotationEngineeringReview(
     engineering_notes: string
   }
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'quotations.engineering_review')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -264,7 +286,7 @@ export async function completeQuotationEngineeringReview(
     return { success: false, error: 'You must be logged in' }
   }
 
-  const { data: profile } = await supabase
+  const { data: userProfile } = await supabase
     .from('user_profiles')
     .select('id')
     .eq('user_id', user.id)
@@ -304,7 +326,7 @@ export async function completeQuotationEngineeringReview(
     .update({
       engineering_status: 'completed',
       engineering_completed_at: now,
-      engineering_completed_by: profile?.id || null,
+      engineering_completed_by: userProfile?.id || null,
       engineering_notes: data.engineering_notes.trim(),
       // Transition to ready status if currently in engineering_review
       status: quotation.status === 'engineering_review' ? 'ready' : quotation.status,
@@ -343,6 +365,11 @@ export async function waiveQuotationEngineeringReview(
   quotationId: string,
   reason: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'quotations.engineering_review')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -449,6 +476,11 @@ export async function getQuotationEngineeringAssessments(
 export async function cancelQuotationAssessment(
   assessmentId: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'quotations.engineering_review')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()

@@ -6,6 +6,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import type { Json } from '@/types/database';
 import {
   ScheduledReport,
@@ -98,6 +100,11 @@ export async function createScheduledReport(
   data: ScheduledReport | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { data: null, error: 'Tidak memiliki akses' };
+  }
+
   const validation = validateScheduledReport(formData);
   if (!validation.valid) {
     return { data: null, error: validation.errors.join(', ') };
@@ -155,6 +162,11 @@ export async function updateScheduledReport(
   data: ScheduledReport | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { data: null, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {};
@@ -218,6 +230,11 @@ export async function deleteScheduledReport(id: string): Promise<{
   success: boolean;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -239,6 +256,11 @@ export async function toggleScheduledReportStatus(id: string): Promise<{
   data: ScheduledReport | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { data: null, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -338,6 +360,11 @@ export async function createReportHistory(
   data: ReportHistory | null;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { data: null, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -382,6 +409,11 @@ export async function updateReportHistory(
   success: boolean;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const updateData: Record<string, unknown> = {};
@@ -413,6 +445,11 @@ export async function updateReportRunTime(id: string): Promise<{
   success: boolean;
   error: string | null;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get current schedule settings

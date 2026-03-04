@@ -1,6 +1,8 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 
 export interface SystemOption {
   id: string
@@ -37,6 +39,11 @@ export async function addSystemOption(input: {
   value: string
   label: string
 }): Promise<{ success: boolean; data?: SystemOption; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -78,6 +85,11 @@ export async function addSystemOption(input: {
  * Only owner/sysadmin/director can do this (enforced by RLS)
  */
 export async function deactivateSystemOption(id: string): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient()
 
   const result = await supabase.from('system_options' as any)

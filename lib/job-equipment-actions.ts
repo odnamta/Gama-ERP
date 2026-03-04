@@ -6,6 +6,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   JobEquipmentUsage,
   EquipmentRate,
@@ -40,6 +42,11 @@ export async function addEquipmentToJob(
   input: AddEquipmentInput
 ): Promise<{ success: boolean; data?: JobEquipmentUsage; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'jo.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     // Validate input
     const validation = validateEquipmentUsageInput(input);
     if (!validation.valid) {
@@ -174,6 +181,11 @@ export async function completeEquipmentUsage(
   input: CompleteEquipmentUsageInput
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'jo.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get the usage record
@@ -367,6 +379,11 @@ export async function updateJobEquipmentCost(
   jobOrderId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'jo.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get total equipment cost for the job
@@ -521,6 +538,11 @@ export async function upsertEquipmentRate(
   rate: Omit<EquipmentRate, 'id' | 'createdAt'>
 ): Promise<{ success: boolean; data?: EquipmentRate; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'jo.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const { data, error } = await supabase
@@ -658,6 +680,11 @@ export async function deleteEquipmentUsage(
   usageId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'jo.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get the usage record first

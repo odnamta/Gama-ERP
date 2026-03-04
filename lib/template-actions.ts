@@ -6,6 +6,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import type {
   CustomsDocumentTemplate,
@@ -40,6 +42,11 @@ export async function createTemplate(
   data: TemplateFormData
 ): Promise<{ success: boolean; template?: CustomsDocumentTemplate; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Validate form data
@@ -115,6 +122,11 @@ export async function updateTemplate(
   data: Partial<TemplateFormData>
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Check template exists
@@ -192,8 +204,13 @@ export async function deactivateTemplate(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
-    
+
     const { error } = await supabase
       .from('customs_document_templates')
       .update({ is_active: false, updated_at: new Date().toISOString() })
@@ -217,8 +234,13 @@ export async function activateTemplate(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
-    
+
     const { error } = await supabase
       .from('customs_document_templates')
       .update({ is_active: true, updated_at: new Date().toISOString() })
@@ -320,6 +342,11 @@ export async function generateDocument(
   data: GenerateDocumentFormData
 ): Promise<{ success: boolean; document?: GeneratedCustomsDocument; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Get template
@@ -384,6 +411,11 @@ export async function updateDocumentStatus(
   status: GeneratedDocumentStatus
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Validate status
@@ -439,6 +471,11 @@ export async function updateDocumentData(
   documentData: Record<string, unknown>
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Get current document
@@ -679,6 +716,11 @@ export async function updateDocumentPdfUrl(
   pdfUrl: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { error } = await supabase

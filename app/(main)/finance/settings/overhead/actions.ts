@@ -14,6 +14,8 @@ import {
   validateCategoryCode,
   validateCategoryName,
 } from '@/lib/overhead-utils';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 /**
  * Get all overhead categories ordered by display_order
@@ -47,6 +49,11 @@ export async function updateOverheadCategoryRate(
   categoryId: string,
   rate: number
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   try {
     const supabase = await createClient();
 
@@ -79,6 +86,11 @@ export async function toggleOverheadCategoryActive(
   categoryId: string,
   isActive: boolean
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   try {
     const supabase = await createClient();
 
@@ -104,6 +116,11 @@ export async function toggleOverheadCategoryActive(
 export async function createOverheadCategory(
   input: CreateOverheadCategoryInput
 ): Promise<{ data: OverheadCategory | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { data: null, error: 'Tidak memiliki akses' };
+  }
+
   try {
     const supabase = await createClient();
 
@@ -170,6 +187,11 @@ export async function updateOverheadCategory(
   categoryId: string,
   input: UpdateOverheadCategoryInput
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   try {
     const supabase = await createClient();
 
@@ -211,6 +233,11 @@ export async function updateOverheadCategory(
 export async function deleteOverheadCategory(
   categoryId: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   try {
     const supabase = await createClient();
 

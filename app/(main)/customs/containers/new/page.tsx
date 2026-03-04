@@ -1,6 +1,14 @@
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
 import { ContainerForm } from '@/components/customs-fees/container-form';
 
-export default function NewContainerPage() {
+export default async function NewContainerPage() {
+  const profile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!profile);
+  if (explorerReadOnly) {
+    const { redirect } = await import('next/navigation');
+    redirect('/customs/containers');
+  }
+
   return (
     <div className="space-y-6">
       <div>

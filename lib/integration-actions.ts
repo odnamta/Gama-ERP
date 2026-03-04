@@ -6,6 +6,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   type IntegrationConnection,
   type CreateConnectionInput,
@@ -20,6 +22,11 @@ import { validateConnectionInput } from '@/lib/integration-utils';
  */
 export async function createConnection(input: CreateConnectionInput): Promise<{ success: boolean; data?: IntegrationConnection; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const validation = validateConnectionInput(input);
     if (!validation.valid) return { success: false, error: validation.errors.join(', ') };
 
@@ -49,6 +56,11 @@ export async function createConnection(input: CreateConnectionInput): Promise<{ 
  */
 export async function updateConnection(id: string, input: UpdateConnectionInput): Promise<{ success: boolean; data?: IntegrationConnection; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     if (!id) return { success: false, error: 'Connection ID is required' };
     const supabase = await createClient();
 
@@ -79,6 +91,11 @@ export async function updateConnection(id: string, input: UpdateConnectionInput)
 /** Deletes an integration connection */
 export async function deleteConnection(id: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     if (!id) return { success: false, error: 'Connection ID is required' };
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -141,6 +158,11 @@ export async function listConnections(filters?: ConnectionFilters): Promise<{ su
 /** Tests an integration connection by validating credentials */
 export async function testConnection(id: string): Promise<{ success: boolean; data?: ConnectionTestResult; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     if (!id) return { success: false, error: 'Connection ID is required' };
     const supabase = await createClient();
     const startTime = Date.now();
@@ -166,12 +188,17 @@ export async function testConnection(id: string): Promise<{ success: boolean; da
 }
 
 /** Updates connection sync status */
-export async function updateConnectionSyncStatus(id: string, success: boolean, errorMsg?: string): Promise<{ success: boolean; error?: string }> {
+export async function updateConnectionSyncStatus(id: string, syncSuccess: boolean, errorMsg?: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     if (!id) return { success: false, error: 'Connection ID is required' };
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await supabase.from('integration_connections').update({ last_sync_at: new Date().toISOString(), last_error: success ? null : (errorMsg || 'Sync failed') }).eq('id', id);
+    const { error } = await supabase.from('integration_connections').update({ last_sync_at: new Date().toISOString(), last_error: syncSuccess ? null : (errorMsg || 'Sync failed') }).eq('id', id);
     if (error) return { success: false, error: error.message };
     return { success: true };
   } catch (err) {
@@ -182,6 +209,11 @@ export async function updateConnectionSyncStatus(id: string, success: boolean, e
 /** Updates OAuth tokens for a connection */
 export async function updateConnectionTokens(id: string, accessToken: string, refreshToken?: string, expiresAt?: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     if (!id) return { success: false, error: 'Connection ID is required' };
     const supabase = await createClient();
     const updateData: Record<string, unknown> = { access_token: accessToken };
@@ -199,6 +231,11 @@ export async function updateConnectionTokens(id: string, accessToken: string, re
 /** Toggles the active status of a connection */
 export async function toggleConnectionActive(id: string): Promise<{ success: boolean; data?: IntegrationConnection; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     if (!id) return { success: false, error: 'Connection ID is required' };
     const supabase = await createClient();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

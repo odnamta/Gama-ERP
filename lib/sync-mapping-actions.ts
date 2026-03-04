@@ -6,6 +6,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   type SyncMapping,
   type CreateSyncMappingInput,
@@ -19,6 +21,11 @@ import { prepareSyncMappingForCreate, prepareSyncMappingForUpdate } from '@/lib/
  */
 export async function createSyncMapping(input: CreateSyncMappingInput): Promise<{ success: boolean; data?: SyncMapping; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const validation = validateSyncMappingInput(input);
     if (!validation.valid) return { success: false, error: validation.errors.join(', ') };
 
@@ -41,6 +48,11 @@ export async function createSyncMapping(input: CreateSyncMappingInput): Promise<
  */
 export async function updateSyncMapping(id: string, input: UpdateSyncMappingInput): Promise<{ success: boolean; data?: SyncMapping; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     if (!id) return { success: false, error: 'Mapping ID is required' };
 
     const updateData = prepareSyncMappingForUpdate(input);
@@ -63,6 +75,11 @@ export async function updateSyncMapping(id: string, input: UpdateSyncMappingInpu
  */
 export async function deleteSyncMapping(id: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     if (!id) return { success: false, error: 'Mapping ID is required' };
 
     const supabase = await createClient();
@@ -122,6 +139,11 @@ export async function listSyncMappings(connectionId: string): Promise<{ success:
  */
 export async function toggleSyncMappingActive(id: string): Promise<{ success: boolean; data?: SyncMapping; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     if (!id) return { success: false, error: 'Mapping ID is required' };
 
     const supabase = await createClient();

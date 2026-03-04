@@ -8,6 +8,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 import type {
   DocumentTemplate,
   DocumentType,
@@ -45,6 +47,11 @@ export async function createTemplate(
   input: CreateTemplateInput
 ): Promise<ActionResult<DocumentTemplate>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient() as SupabaseClientAny
 
     // Apply defaults and validate
@@ -119,6 +126,11 @@ export async function updateTemplate(
   input: UpdateTemplateInput
 ): Promise<ActionResult<DocumentTemplate>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient() as SupabaseClientAny
 
     // Check template exists
@@ -338,6 +350,11 @@ export async function deleteTemplate(
   id: string
 ): Promise<ActionResult> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient() as SupabaseClientAny
 
     // Check if template exists
@@ -394,6 +411,11 @@ export async function deactivateTemplate(
   id: string
 ): Promise<ActionResult> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient() as SupabaseClientAny
 
     const { error } = await supabase
@@ -423,6 +445,11 @@ export async function activateTemplate(
   id: string
 ): Promise<ActionResult> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient() as SupabaseClientAny
 
     const { error } = await supabase

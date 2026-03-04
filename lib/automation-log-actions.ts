@@ -5,6 +5,8 @@
 // =====================================================
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import { AutomationLog, AutomationLogFilters, AutomationStatus } from '@/types/automation';
 import { calculateExecutionTime, isValidAutomationStatus } from '@/lib/automation-utils';
 import { Json } from '@/types/database';
@@ -19,6 +21,11 @@ export async function createAutomationLog(
   triggerData: Record<string, unknown>
 ): Promise<{ data: AutomationLog | null; error: string | null }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { data: null, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const { data, error } = await supabase
@@ -58,6 +65,11 @@ export async function updateAutomationLog(
   }
 ): Promise<{ data: AutomationLog | null; error: string | null }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { data: null, error: 'Tidak memiliki akses' };
+    }
+
     // Validate status if provided
     if (updates.status && !isValidAutomationStatus(updates.status)) {
       return { data: null, error: 'Invalid automation status' };
@@ -247,6 +259,11 @@ export async function cleanupOldLogs(
   olderThanDays: number = 90
 ): Promise<{ count: number; error: string | null }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { count: 0, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);

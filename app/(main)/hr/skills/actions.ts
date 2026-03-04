@@ -11,6 +11,8 @@ import {
   EmployeeSkillFormData,
   BulkSkillAssignment,
 } from '@/types/skills';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // ============================================
 // SKILL CATEGORIES
@@ -103,6 +105,11 @@ export async function getEmployeeSkills(employeeId: string): Promise<EmployeeSki
 export async function addEmployeeSkill(
   formData: EmployeeSkillFormData
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.employees.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
   
   const { error } = await supabase
@@ -134,6 +141,11 @@ export async function updateEmployeeSkill(
   id: string,
   formData: Partial<EmployeeSkillFormData>
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.employees.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
   
   const { error } = await supabase
@@ -160,6 +172,11 @@ export async function updateEmployeeSkill(
 export async function deleteEmployeeSkill(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.employees.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
   
   const { error } = await supabase
@@ -178,6 +195,11 @@ export async function deleteEmployeeSkill(
 export async function bulkAssignSkill(
   data: BulkSkillAssignment
 ): Promise<{ success: boolean; error?: string; assigned: number }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.employees.edit')) {
+    return { success: false, error: 'Tidak memiliki akses', assigned: 0 };
+  }
+
   const supabase = await createClient();
   
   const records = data.employee_ids.map(employeeId => ({

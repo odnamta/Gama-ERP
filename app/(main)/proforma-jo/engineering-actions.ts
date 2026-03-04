@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 import {
   determineRequiredAssessments,
   calculateEngineeringStatus,
@@ -30,6 +32,11 @@ export async function initializeEngineeringReview(
   pjoId: string,
   assignedTo: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -120,6 +127,11 @@ export async function initializeEngineeringReview(
 export async function startAssessment(
   assessmentId: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -178,6 +190,11 @@ export async function completeAssessment(
     cost_justification?: string
   }
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -185,7 +202,7 @@ export async function completeAssessment(
     return { success: false, error: 'You must be logged in' }
   }
 
-  const { data: profile } = await supabase
+  const { data: userProfile } = await supabase
     .from('user_profiles')
     .select('id')
     .eq('user_id', user.id)
@@ -230,7 +247,7 @@ export async function completeAssessment(
       cost_justification: data.cost_justification?.trim() || null,
       status: 'completed',
       completed_at: now,
-      completed_by: profile?.id || null,
+      completed_by: userProfile?.id || null,
       updated_at: now,
     })
     .eq('id', assessmentId)
@@ -261,6 +278,11 @@ export async function completeEngineeringReview(
     apply_additional_costs: boolean
   }
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -268,7 +290,7 @@ export async function completeEngineeringReview(
     return { success: false, error: 'You must be logged in' }
   }
 
-  const { data: profile } = await supabase
+  const { data: userProfile } = await supabase
     .from('user_profiles')
     .select('id')
     .eq('user_id', user.id)
@@ -308,7 +330,7 @@ export async function completeEngineeringReview(
     .update({
       engineering_status: 'completed',
       engineering_completed_at: now,
-      engineering_completed_by: profile?.id || null,
+      engineering_completed_by: userProfile?.id || null,
       engineering_notes: data.engineering_notes.trim(),
       updated_at: now,
     })
@@ -382,6 +404,11 @@ export async function waiveEngineeringReview(
   pjoId: string,
   reason: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -499,6 +526,11 @@ export async function addAssessment(
   assessmentType: AssessmentType,
   assignedTo: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -556,6 +588,11 @@ export async function addAssessment(
 export async function cancelAssessment(
   assessmentId: string
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { success: false, error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()

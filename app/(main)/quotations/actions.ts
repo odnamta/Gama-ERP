@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { Json } from '@/types/database'
 import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 import {
   QuotationCreateInput,
   QuotationUpdateInput,
@@ -64,6 +65,9 @@ export async function createQuotation(
 
     // Get user profile to determine entity_type
     const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.create')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
     const entityType = profile?.role === 'agency' ? 'gama_agency' : 'gama_main'
 
     // Get count of quotations this year for number generation
@@ -172,6 +176,11 @@ export async function updateQuotation(
   data: QuotationUpdateInput
 ): Promise<ActionResult<Quotation>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     // Get complexity criteria for classification
@@ -234,6 +243,11 @@ export async function updateQuotation(
  */
 export async function deleteQuotation(id: string): Promise<ActionResult> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.create')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
 
     // Verify quotation is in draft status before allowing deletion
@@ -371,6 +385,11 @@ export async function addRevenueItem(
   data: RevenueItemInput
 ): Promise<ActionResult<QuotationRevenueItem>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     const { data: item, error } = await supabase
@@ -411,6 +430,11 @@ export async function updateRevenueItem(
   data: RevenueItemInput
 ): Promise<ActionResult<QuotationRevenueItem>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     // Get quotation_id first
@@ -457,6 +481,11 @@ export async function updateRevenueItem(
  */
 export async function deleteRevenueItem(id: string): Promise<ActionResult> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     // Get quotation_id first
@@ -501,6 +530,11 @@ export async function addCostItem(
   data: CostItemInput
 ): Promise<ActionResult<QuotationCostItem>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     const { data: item, error } = await supabase
@@ -541,6 +575,11 @@ export async function updateCostItem(
   data: CostItemInput
 ): Promise<ActionResult<QuotationCostItem>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     // Get quotation_id first
@@ -587,6 +626,11 @@ export async function updateCostItem(
  */
 export async function deleteCostItem(id: string): Promise<ActionResult> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     // Get quotation_id first
@@ -630,6 +674,11 @@ export async function addPursuitCost(
   data: PursuitCostInput
 ): Promise<ActionResult<PursuitCost>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     const { data: item, error } = await supabase
@@ -672,6 +721,11 @@ export async function updatePursuitCost(
   data: PursuitCostInput
 ): Promise<ActionResult<PursuitCost>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     // Get quotation_id first
@@ -720,6 +774,11 @@ export async function updatePursuitCost(
  */
 export async function deletePursuitCost(id: string): Promise<ActionResult> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     // Get quotation_id first
@@ -764,6 +823,11 @@ export async function submitQuotation(
   submittedTo: string
 ): Promise<ActionResult<Quotation>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.approve')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     // Get current quotation
@@ -815,6 +879,11 @@ export async function markQuotationWon(
   outcomeDate: string
 ): Promise<ActionResult<Quotation>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.approve')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     const { data: updated, error } = await supabase
@@ -872,6 +941,11 @@ export async function markQuotationLost(
   outcomeReason: string
 ): Promise<ActionResult<Quotation>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.approve')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     const { data: updated, error } = await supabase
@@ -904,6 +978,11 @@ export async function markQuotationLost(
  */
 export async function cancelQuotation(id: string): Promise<ActionResult<Quotation>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.approve')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     const { data: updated, error } = await supabase
@@ -931,6 +1010,11 @@ export async function cancelQuotation(id: string): Promise<ActionResult<Quotatio
  */
 export async function markQuotationReady(id: string): Promise<ActionResult<Quotation>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.approve')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
     
     // Get current quotation
@@ -984,8 +1068,13 @@ export async function convertToPJO(
   options: ConvertToPJOOptions
 ): Promise<ActionResult<{ pjo_ids: string[] }>> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'quotations.approve')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     const supabase = await createClient()
-    
+
     // Get current user
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
@@ -993,7 +1082,7 @@ export async function convertToPJO(
     }
 
     // Get user profile (for FK references to user_profiles)
-    const { data: profile } = await supabase
+    const { data: userProfile } = await supabase
       .from('user_profiles')
       .select('id, role')
       .eq('user_id', user.id)
@@ -1079,8 +1168,8 @@ export async function convertToPJO(
           total_revenue: revenueTotal,
           total_cost_estimated: costTotal,
           status: 'draft',
-          created_by: profile?.id || null,
-          entity_type: profile?.role === 'agency' ? 'gama_agency' : 'gama_main',
+          created_by: userProfile?.id || null,
+          entity_type: userProfile?.role === 'agency' ? 'gama_agency' : 'gama_main',
         })
         .select()
         .single()

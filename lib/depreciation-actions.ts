@@ -6,6 +6,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   AssetDepreciation,
   AssetCostTracking,
@@ -45,6 +47,11 @@ export async function recordDepreciation(
   periodEnd: string
 ): Promise<{ success: boolean; data?: AssetDepreciation; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'assets.view_financials')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get current user
@@ -207,6 +214,11 @@ export async function runMonthlyDepreciation(
   month: number
 ): Promise<{ success: boolean; data?: BatchDepreciationResult; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'assets.view_financials')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     const { start: periodStart, end: periodEnd } = getMonthPeriod(year, month);
     const processingDate = new Date(year, month - 1, 1);
@@ -289,6 +301,11 @@ export async function recordCost(
   input: CostTrackingInput
 ): Promise<{ success: boolean; data?: AssetCostTracking; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'assets.view_financials')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get current user
@@ -527,6 +544,11 @@ export async function refreshTCOView(): Promise<{
   error?: string;
 }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'assets.view_financials')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const { error } = await supabase.rpc('refresh_asset_tco_summary');
@@ -549,6 +571,11 @@ export async function deleteCost(
   costId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'assets.view_financials')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const { error } = await supabase

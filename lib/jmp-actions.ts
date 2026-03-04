@@ -34,6 +34,8 @@ import {
   calculateRiskLevel,
   isValidStatusTransition,
 } from '@/lib/jmp-utils';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 interface ActionResult<T> {
   success: boolean;
@@ -46,6 +48,11 @@ interface ActionResult<T> {
  */
 export async function createJmp(data: JmpFormData): Promise<ActionResult<JourneyManagementPlan>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Generate JMP number: JMP-YYYYMM-XXXX
@@ -118,6 +125,11 @@ export async function updateJmp(
   data: Partial<JmpFormData>
 ): Promise<ActionResult<JourneyManagementPlan>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const updateData: Record<string, unknown> = {
@@ -178,6 +190,11 @@ export async function updateJmp(
  */
 export async function deleteJmp(id: string): Promise<ActionResult<void>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Check status first
@@ -211,6 +228,11 @@ export async function deleteJmp(id: string): Promise<ActionResult<void>> {
  */
 export async function createJmpFromSurvey(surveyId: string): Promise<ActionResult<JourneyManagementPlan>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Fetch survey data
@@ -469,21 +491,26 @@ export async function submitJmpForReview(
   preparedBy: string
 ): Promise<ActionResult<JourneyManagementPlan>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Resolve auth UUID → user_profiles.id → employees.id
-    const { data: profile } = await supabase
+    const { data: userProfile } = await supabase
       .from('user_profiles')
       .select('id')
       .eq('user_id', preparedBy)
       .single();
 
     let employeeId: string | null = null;
-    if (profile) {
+    if (userProfile) {
       const { data: employee } = await supabase
         .from('employees')
         .select('id')
-        .eq('user_id', profile.id)
+        .eq('user_id', userProfile.id)
         .single();
       employeeId = employee?.id || null;
     }
@@ -531,21 +558,26 @@ export async function approveJmp(
   approvedBy: string
 ): Promise<ActionResult<JourneyManagementPlan>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Resolve auth UUID → user_profiles.id → employees.id
-    const { data: profile } = await supabase
+    const { data: userProfile } = await supabase
       .from('user_profiles')
       .select('id')
       .eq('user_id', approvedBy)
       .single();
 
     let employeeId: string | null = null;
-    if (profile) {
+    if (userProfile) {
       const { data: employee } = await supabase
         .from('employees')
         .select('id')
-        .eq('user_id', profile.id)
+        .eq('user_id', userProfile.id)
         .single();
       employeeId = employee?.id || null;
     }
@@ -597,6 +629,11 @@ export async function rejectJmp(
   reason: string
 ): Promise<ActionResult<JourneyManagementPlan>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Check current status
@@ -638,6 +675,11 @@ export async function rejectJmp(
  */
 export async function startJourney(id: string): Promise<ActionResult<JourneyManagementPlan>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Check current status
@@ -683,6 +725,11 @@ export async function completeJourney(
   data: PostJourneyData
 ): Promise<ActionResult<JourneyManagementPlan>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Check current status
@@ -737,6 +784,11 @@ export async function cancelJourney(
   reason: string
 ): Promise<ActionResult<JourneyManagementPlan>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Check current status
@@ -787,6 +839,11 @@ export async function addCheckpoint(
   data: CheckpointFormData
 ): Promise<ActionResult<JmpCheckpoint>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Get next checkpoint order
@@ -838,6 +895,11 @@ export async function updateCheckpoint(
   data: Partial<CheckpointFormData>
 ): Promise<ActionResult<JmpCheckpoint>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const updateData: Record<string, unknown> = {};
@@ -874,6 +936,11 @@ export async function updateCheckpoint(
  */
 export async function deleteCheckpoint(id: string): Promise<ActionResult<void>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { error } = await supabase
@@ -898,6 +965,11 @@ export async function markCheckpointArrival(
   actualTime?: string
 ): Promise<ActionResult<JmpCheckpoint>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { data: result, error } = await supabase
@@ -928,6 +1000,11 @@ export async function markCheckpointDeparture(
   actualTime?: string
 ): Promise<ActionResult<JmpCheckpoint>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { data: result, error } = await supabase
@@ -963,6 +1040,11 @@ export async function addRisk(
   data: RiskFormData
 ): Promise<ActionResult<JmpRiskAssessment>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Calculate risk level
@@ -1018,6 +1100,11 @@ export async function updateRisk(
   data: Partial<RiskFormData>
 ): Promise<ActionResult<JmpRiskAssessment>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const updateData: Record<string, unknown> = {};
@@ -1081,6 +1168,11 @@ export async function updateRisk(
  */
 export async function deleteRisk(id: string): Promise<ActionResult<void>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { error } = await supabase
@@ -1105,6 +1197,11 @@ export async function uploadJmpDocument(
   formData: FormData
 ): Promise<ActionResult<{ url: string }>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const file = formData.get('file') as File | null;
@@ -1199,6 +1296,11 @@ export async function deleteJmpDocument(
   documentUrl: string
 ): Promise<ActionResult<void>> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.jmp.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get current documents

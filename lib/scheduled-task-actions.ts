@@ -6,6 +6,8 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   ScheduledTask,
   TaskExecution,
@@ -207,6 +209,11 @@ export async function validateManualTrigger(
 export async function triggerTaskManually(
   taskCode: string
 ): Promise<{ executionId: string | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { executionId: null, error: 'Tidak memiliki akses' };
+  }
+
   // Validate the task can be triggered
   const validation = await validateManualTrigger(taskCode);
   if (!validation.valid || !validation.task) {
@@ -263,6 +270,11 @@ export async function triggerTaskManually(
 export async function enableTask(
   taskId: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get the task first to get cron expression
@@ -311,6 +323,11 @@ export async function enableTask(
 export async function disableTask(
   taskId: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -361,6 +378,11 @@ export async function createTaskExecution(
   taskId: string,
   triggeredBy: TriggerType
 ): Promise<{ data: TaskExecution | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { data: null, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
   const executionData = createExecutionRecord(taskId, triggeredBy);
 
@@ -403,6 +425,11 @@ export async function updateTaskExecution(
     errorMessage?: string;
   }
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get current execution to validate status transition
@@ -602,6 +629,11 @@ export async function getTaskNextRunAt(
 export async function updateScheduledNextRun(
   taskId: string
 ): Promise<{ success: boolean; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get task to calculate next run
@@ -741,6 +773,11 @@ export async function handleTaskFailure(
 export async function retryFailedTask(
   taskCode: string
 ): Promise<{ executionId: string | null; error: string | null }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    return { executionId: null, error: 'Tidak memiliki akses' };
+  }
+
   // Validate the task can be triggered (same as manual trigger)
   const validation = await validateManualTrigger(taskCode);
   if (!validation.valid || !validation.task) {

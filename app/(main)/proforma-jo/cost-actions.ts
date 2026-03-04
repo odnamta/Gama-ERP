@@ -5,6 +5,8 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { PJOCostItem } from '@/types'
 import { determineCostStatus } from '@/lib/pjo-utils'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 
 const costItemSchema = z.object({
   category: z.enum([
@@ -60,6 +62,11 @@ export async function createCostItem(
   pjoId: string,
   data: CostItemFormData
 ): Promise<{ error?: string; item?: PJOCostItem }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const validation = costItemSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.issues[0].message }
@@ -116,6 +123,11 @@ export async function updateCostEstimate(
   id: string,
   data: Partial<CostItemFormData>
 ): Promise<{ error?: string; item?: PJOCostItem }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get the item to find pjo_id
@@ -174,6 +186,11 @@ export async function confirmActualCost(
   id: string,
   data: CostConfirmationData
 ): Promise<{ error?: string; item?: PJOCostItem }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const validation = costConfirmationSchema.safeParse(data)
   if (!validation.success) {
     return { error: validation.error.issues[0].message }
@@ -243,6 +260,11 @@ export async function confirmActualCost(
 }
 
 export async function deleteCostItem(id: string): Promise<{ error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get the item to find pjo_id
@@ -320,6 +342,11 @@ async function updatePJOCostTotals(pjoId: string): Promise<void> {
  * Called after cost confirmation to flag PJOs with overruns
  */
 export async function updatePJOOverrunStatus(pjoId: string): Promise<{ error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Get all cost items for this PJO

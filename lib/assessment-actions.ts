@@ -37,6 +37,8 @@ import {
   canTransitionTo,
   isValidConclusion,
 } from '@/lib/assessment-utils';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // ============================================
 // Assessment Type Actions
@@ -82,6 +84,11 @@ export async function getAssessmentType(id: string): Promise<TechnicalAssessment
 export async function createAssessment(
   input: CreateAssessmentInput
 ): Promise<ActionResult<TechnicalAssessment>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const validation = validateAssessmentData(input);
   if (!validation.valid) {
     return {
@@ -132,6 +139,11 @@ export async function updateAssessment(
   id: string,
   input: UpdateAssessmentInput
 ): Promise<ActionResult<TechnicalAssessment>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Check if assessment exists and can be edited
@@ -195,6 +207,11 @@ export async function updateAssessment(
 }
 
 export async function deleteAssessment(id: string): Promise<ActionResult<void>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -300,6 +317,11 @@ export async function submitForReview(
   id: string,
   preparedBy: string
 ): Promise<ActionResult<TechnicalAssessment>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Check current status
@@ -345,6 +367,11 @@ export async function reviewAssessment(
   id: string,
   reviewedBy: string
 ): Promise<ActionResult<TechnicalAssessment>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -376,6 +403,11 @@ export async function approveAssessment(
   conclusion: ConclusionType,
   conclusionNotes?: string
 ): Promise<ActionResult<TechnicalAssessment>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Validate conclusion
@@ -428,6 +460,11 @@ export async function rejectAssessment(
   id: string,
   notes: string
 ): Promise<ActionResult<TechnicalAssessment>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Check current status
@@ -472,6 +509,11 @@ export async function createRevision(
   id: string,
   revisionNotes: string
 ): Promise<ActionResult<TechnicalAssessment>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   if (!revisionNotes || revisionNotes.trim() === '') {
     return { success: false, error: 'Revision notes are required' };
   }
@@ -549,6 +591,11 @@ export async function createRevision(
 export async function createLiftingPlan(
   input: CreateLiftingPlanInput
 ): Promise<ActionResult<LiftingPlan>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const validation = validateLiftingPlan(input);
   if (!validation.valid) {
     return {
@@ -630,6 +677,11 @@ export async function updateLiftingPlan(
   id: string,
   input: UpdateLiftingPlanInput
 ): Promise<ActionResult<LiftingPlan>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get existing plan to calculate derived values
@@ -702,6 +754,11 @@ export async function updateLiftingPlan(
 }
 
 export async function deleteLiftingPlan(id: string): Promise<ActionResult<void>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get assessment_id for revalidation
@@ -750,6 +807,11 @@ export async function getLiftingPlans(assessmentId: string): Promise<LiftingPlan
 export async function createAxleCalculation(
   input: CreateAxleCalcInput
 ): Promise<ActionResult<AxleLoadCalculation>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const validation = validateAxleCalculation(input);
   if (!validation.valid) {
     return {
@@ -828,6 +890,11 @@ export async function updateAxleCalculation(
   id: string,
   input: UpdateAxleCalcInput
 ): Promise<ActionResult<AxleLoadCalculation>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get existing calculation
@@ -911,6 +978,11 @@ export async function updateAxleCalculation(
 }
 
 export async function deleteAxleCalculation(id: string): Promise<ActionResult<void>> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'engineering.assessments.create')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get assessment_id for revalidation

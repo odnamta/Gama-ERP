@@ -2,6 +2,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 
 // ============================================================
 // TYPES
@@ -98,6 +100,11 @@ export async function getToolById(id: string): Promise<{ data: EquipmentTool | n
 // ============================================================
 
 export async function createTool(formData: ToolFormData): Promise<{ error?: string; id?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'assets.edit')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   if (!formData.name?.trim()) {
     return { error: 'Nama alat wajib diisi' }
   }
@@ -143,6 +150,11 @@ export async function createTool(formData: ToolFormData): Promise<{ error?: stri
 // ============================================================
 
 export async function updateTool(id: string, formData: ToolFormData): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'assets.edit')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   if (!formData.name?.trim()) {
     return { error: 'Nama alat wajib diisi' }
   }
@@ -187,6 +199,11 @@ export async function updateTool(id: string, formData: ToolFormData): Promise<{ 
 // ============================================================
 
 export async function deactivateTool(id: string): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'assets.edit')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -5,6 +5,8 @@
 // =====================================================
 
 import { createClient } from '@/lib/supabase/server';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   AutomationTemplate,
   CreateAutomationTemplateInput,
@@ -107,6 +109,11 @@ export async function createAutomationTemplate(
   input: CreateAutomationTemplateInput
 ): Promise<{ data: AutomationTemplate | null; error: string | null }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { data: null, error: 'Tidak memiliki akses' };
+    }
+
     // Validate category
     if (!isValidTemplateCategory(input.category)) {
       return {
@@ -149,6 +156,11 @@ export async function updateAutomationTemplate(
   updates: Partial<Omit<CreateAutomationTemplateInput, 'templateCode'>> & { isActive?: boolean }
 ): Promise<{ data: AutomationTemplate | null; error: string | null }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { data: null, error: 'Tidak memiliki akses' };
+    }
+
     // Validate category if provided
     if (updates.category && !isValidTemplateCategory(updates.category)) {
       return {
@@ -192,6 +204,11 @@ export async function deleteAutomationTemplate(
   id: string
 ): Promise<{ success: boolean; error: string | null }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const { error } = await supabase

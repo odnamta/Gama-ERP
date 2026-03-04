@@ -6,6 +6,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import {
   AssetAssignment,
   AssetDailyLog,
@@ -38,6 +40,11 @@ export async function assignAsset(
   input: AssignmentInput
 ): Promise<{ success: boolean; data?: AssetAssignment; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get current user
@@ -123,6 +130,11 @@ export async function completeAssignment(
   input: CompleteAssignmentInput
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get the assignment
@@ -256,6 +268,11 @@ export async function logDailyUtilization(
   input: DailyLogInput
 ): Promise<{ success: boolean; data?: AssetDailyLog; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     // Get current user
@@ -551,6 +568,11 @@ export async function refreshUtilizationView(): Promise<{
   error?: string;
 }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
 
     const { error } = await supabase.rpc('refresh_asset_utilization');

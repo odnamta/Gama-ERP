@@ -212,6 +212,11 @@ export async function updateCourse(id: string, input: UpdateCourseInput): Promis
  * Toggle course active status
  */
 export async function toggleCourseActive(id: string): Promise<TrainingCourse> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.training.manage')) {
+    throw new Error('Tidak memiliki akses untuk mengubah status kursus');
+  }
+
   const supabase = await createClient();
 
   // Get current status
@@ -465,6 +470,11 @@ export async function completeTrainingRecord(
     certificateUrl?: string;
   }
 ): Promise<TrainingRecord> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hse.training.manage')) {
+    throw new Error('Tidak memiliki akses untuk menyelesaikan catatan pelatihan');
+  }
+
   const supabase = await createClient();
 
   // Get current record and course

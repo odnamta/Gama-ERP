@@ -25,8 +25,8 @@ import { useIsDesktop } from '@/hooks/use-media-query'
 
 interface CustomerTableProps {
   customers: Customer[]
-  onEdit: (customer: Customer) => void
-  onDelete: (customer: Customer) => void
+  onEdit?: (customer: Customer) => void
+  onDelete?: (customer: Customer) => void
 }
 
 export function filterCustomersByName(customers: Customer[], searchTerm: string): Customer[] {
@@ -117,17 +117,21 @@ export function CustomerTable({ customers, onEdit, onDelete }: CustomerTableProp
                         View
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onEdit(customer)}>
-                      <Pencil className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => onDelete(customer)}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
+                    {onEdit && (
+                      <DropdownMenuItem onClick={() => onEdit(customer)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
+                    )}
+                    {onDelete && (
+                      <DropdownMenuItem
+                        onClick={() => onDelete(customer)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -170,14 +174,16 @@ export function CustomerTable({ customers, onEdit, onDelete }: CustomerTableProp
                   <TableCell>{customer.phone || '-'}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onEdit(customer)}
-                        title="Edit customer"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
+                      {onEdit && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onEdit(customer)}
+                          title="Edit customer"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
@@ -188,15 +194,17 @@ export function CustomerTable({ customers, onEdit, onDelete }: CustomerTableProp
                           <Eye className="h-4 w-4" />
                         </Link>
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDelete(customer)}
-                        title="Delete customer"
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {onDelete && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onDelete(customer)}
+                          title="Delete customer"
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>

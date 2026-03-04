@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils'
 import { QuotationForm } from '@/components/quotations/quotation-form'
 
 export const metadata = {
@@ -9,20 +10,27 @@ export const metadata = {
 
 async function NewQuotationContent() {
   const supabase = await createClient()
-  
+
   // Check auth
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     redirect('/login')
   }
-  
+
+  // Explorer guard - redirect read-only explorers
+  const guardProfile = await getCurrentUserProfile();
+  const { explorerReadOnly } = await guardPage(!!guardProfile);
+  if (explorerReadOnly) {
+    redirect('/quotations');
+  }
+
   // Check user role - ops cannot access quotations
   const { data: profile } = await supabase
     .from('user_profiles')
     .select('role')
     .eq('user_id', user.id)
     .single()
-  
+
   if (profile?.role === 'ops') {
     redirect('/dashboard')
   }

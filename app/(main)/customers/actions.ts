@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { trackCustomerCreation } from '@/lib/onboarding-tracker'
 import { invalidateCustomerCache } from '@/lib/cached-queries'
 import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 import { logActivity } from '@/lib/activity-logger'
 
 const customerSchema = z.object({
@@ -28,6 +29,9 @@ export async function createCustomer(data: CustomerFormData): Promise<{ error?: 
   const supabase = await createClient()
 
   const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'customers.create')) {
+    return { error: 'Tidak memiliki akses' }
+  }
 
   const insertData = {
     name: data.name,
@@ -72,6 +76,9 @@ export async function updateCustomer(
 
   const supabase = await createClient()
   const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'customers.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
 
   const updateData = {
     name: data.name,
@@ -107,6 +114,9 @@ export async function updateCustomer(
 export async function deleteCustomer(id: string): Promise<{ error?: string }> {
   const supabase = await createClient()
   const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'customers.delete')) {
+    return { error: 'Tidak memiliki akses' }
+  }
 
   // Check if customer has active projects
   const { data: activeProjects, error: projectsError } = await supabase
@@ -147,6 +157,11 @@ export async function deleteCustomer(id: string): Promise<{ error?: string }> {
 }
 
 export async function restoreCustomer(id: string): Promise<{ error?: string }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'customers.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   const { error } = await supabase

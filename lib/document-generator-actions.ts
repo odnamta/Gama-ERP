@@ -8,6 +8,8 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 import type {
   DocumentType,
   GeneratedDocument,
@@ -57,6 +59,11 @@ export async function generateDocument(
   request: GenerationRequest
 ): Promise<GenerationResult> {
   try {
+    const profile = await getUserProfile()
+    if (!canAccessFeature(profile, 'admin.settings')) {
+      return { success: false, error: 'Tidak memiliki akses' }
+    }
+
     // 1. Fetch the template by code
     const templateResult = await getTemplateByCode(request.template_code)
     if (!templateResult.success || !templateResult.data) {

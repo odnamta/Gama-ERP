@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { VendorDocument, DocumentType } from '@/types/vendors';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // Storage bucket for vendor documents
 const VENDOR_DOCUMENTS_BUCKET = 'vendor-documents';
@@ -97,6 +99,11 @@ export async function uploadVendorDocument(
   data?: VendorDocument;
   error?: string;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.edit')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get current user
@@ -106,7 +113,7 @@ export async function uploadVendorDocument(
   }
 
   // Get user profile
-  const { data: profile } = await supabase
+  const { data: userProfile } = await supabase
     .from('user_profiles')
     .select('id')
     .eq('user_id', user.id)
@@ -173,7 +180,7 @@ export async function uploadVendorDocument(
       document_name: documentName || file.name,
       file_url: urlData.publicUrl,
       expiry_date: expiryDate || null,
-      uploaded_by: profile?.id || null,
+      uploaded_by: userProfile?.id || null,
     })
     .select()
     .single();
@@ -195,6 +202,11 @@ export async function deleteVendorDocument(
   id: string,
   vendorId: string
 ): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.edit')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   // Get the document to find the file URL

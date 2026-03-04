@@ -16,6 +16,8 @@ import {
   validatePeriod,
   generateExportFilename,
 } from '@/lib/manpower-cost-utils';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // Database row types for new tables (not yet in generated types)
 interface ManpowerCostSummaryRow {
@@ -59,6 +61,11 @@ export async function refreshManpowerCostSummary(
   year: number,
   month: number
 ): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.employees.salary')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
   if (!validatePeriod(year, month)) {
     return { success: false, error: 'Invalid year or month' };
   }

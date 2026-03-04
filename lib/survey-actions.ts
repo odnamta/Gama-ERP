@@ -29,6 +29,8 @@ import {
   validateFeasibilityData,
 } from '@/lib/survey-utils';
 import { getCurrentProfileId } from '@/lib/auth-helpers';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // =====================================================
 // SURVEY CRUD OPERATIONS
@@ -36,6 +38,11 @@ import { getCurrentProfileId } from '@/lib/auth-helpers';
 
 export async function createSurvey(data: SurveyFormData): Promise<{ success: boolean; data?: RouteSurvey; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const validation = validateSurveyData(data);
     if (!validation.valid) {
       return { success: false, error: validation.errors.join(', ') };
@@ -197,6 +204,11 @@ export async function updateSurvey(
   data: Partial<SurveyFormData>
 ): Promise<{ success: boolean; data?: RouteSurvey; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const updateData: Record<string, unknown> = {
@@ -250,6 +262,11 @@ export async function updateSurvey(
 
 export async function deleteSurvey(id: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { error } = await supabase
@@ -278,6 +295,11 @@ export async function scheduleSurvey(
   surveyDate: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Get surveyor name
@@ -312,6 +334,11 @@ export async function scheduleSurvey(
 
 export async function startSurvey(id: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { error } = await supabase
@@ -339,6 +366,11 @@ export async function completeSurvey(
   assessment: FeasibilityAssessment
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const validation = validateFeasibilityData(assessment);
     if (!validation.valid) {
       return { success: false, error: validation.errors.join(', ') };
@@ -383,6 +415,11 @@ export async function completeSurvey(
 
 export async function cancelSurvey(id: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const { error } = await supabase
@@ -410,6 +447,11 @@ export async function updateSurveyStatus(
   status: SurveyStatus
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const updateData: Record<string, unknown> = {
@@ -448,6 +490,11 @@ export async function createWaypoint(
   data: WaypointFormData
 ): Promise<{ success: boolean; data?: RouteWaypoint; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const validation = validateWaypointData(data);
     if (!validation.valid) {
       return { success: false, error: validation.errors.join(', ') };
@@ -513,6 +560,11 @@ export async function updateWaypoint(
   data: Partial<WaypointFormData>
 ): Promise<{ success: boolean; data?: RouteWaypoint; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     const updateData: Record<string, unknown> = {};
@@ -560,6 +612,11 @@ export async function updateWaypoint(
 
 export async function deleteWaypoint(id: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Get survey_id before deleting
@@ -633,6 +690,11 @@ export async function getWaypoints(surveyId: string): Promise<{ success: boolean
 
 export async function initializeSurveyChecklist(surveyId: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Get template items
@@ -678,6 +740,11 @@ export async function updateChecklistItem(
   notes?: string
 ): Promise<{ success: boolean; data?: SurveyChecklistItem; error?: string }> {
   try {
+    const profile = await getUserProfile();
+    if (!canAccessFeature(profile, 'engineering.surveys.create')) {
+      return { success: false, error: 'Tidak memiliki akses' };
+    }
+
     const supabase = await createClient();
     
     // Get current user

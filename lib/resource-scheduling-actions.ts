@@ -6,6 +6,8 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 import { sanitizeSearchInput } from '@/lib/utils/sanitize';
 import {
   EngineeringResource,
@@ -193,6 +195,11 @@ export async function getResourceById(id: string): Promise<ResourceWithDetails |
 
 
 export async function createResource(input: ResourceInput): Promise<EngineeringResource> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const validation = validateResourceInput(input);
   if (!validation.isValid) {
     throw new Error(validation.errors.map(e => e.message).join(', '));
@@ -252,6 +259,11 @@ export async function createResource(input: ResourceInput): Promise<EngineeringR
 }
 
 export async function updateResource(id: string, input: ResourceInput): Promise<EngineeringResource> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const validation = validateResourceInput(input);
   if (!validation.isValid) {
     throw new Error(validation.errors.map(e => e.message).join(', '));
@@ -293,6 +305,11 @@ export async function updateResource(id: string, input: ResourceInput): Promise<
 }
 
 export async function deleteResource(id: string): Promise<void> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -434,6 +451,11 @@ export async function createAssignment(
   input: AssignmentInput,
   forceCreate: boolean = false
 ): Promise<{ assignment: ResourceAssignment; conflicts?: ConflictResult }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const validation = validateAssignmentInput(input);
   if (!validation.isValid) {
     throw new Error(validation.errors.map(e => e.message).join(', '));
@@ -516,6 +538,11 @@ export async function createAssignment(
 }
 
 export async function updateAssignment(id: string, input: AssignmentInput): Promise<ResourceAssignment> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const validation = validateAssignmentInput(input);
   if (!validation.isValid) {
     throw new Error(validation.errors.map(e => e.message).join(', '));
@@ -564,6 +591,11 @@ export async function updateAssignment(id: string, input: AssignmentInput): Prom
 }
 
 export async function deleteAssignment(id: string): Promise<void> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -579,9 +611,14 @@ export async function deleteAssignment(id: string): Promise<void> {
 }
 
 export async function updateAssignmentStatus(
-  id: string, 
+  id: string,
   status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
 ): Promise<ResourceAssignment> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -600,6 +637,11 @@ export async function updateAssignmentStatus(
 }
 
 export async function recordActualHours(id: string, actualHours: number): Promise<ResourceAssignment> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -643,10 +685,15 @@ export async function getAvailability(
   return (data ?? []) as unknown as ResourceAvailability[];
 }
 
-export async function setUnavailability(input: UnavailabilityInput): Promise<{ 
-  created: number; 
-  conflicts: ResourceAssignment[] 
+export async function setUnavailability(input: UnavailabilityInput): Promise<{
+  created: number;
+  conflicts: ResourceAssignment[]
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const validation = validateUnavailabilityInput(input);
   if (!validation.isValid) {
     throw new Error(validation.errors.map(e => e.message).join(', '));
@@ -693,6 +740,11 @@ export async function setUnavailability(input: UnavailabilityInput): Promise<{
 }
 
 export async function removeUnavailability(resourceId: string, date: string): Promise<void> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -729,11 +781,16 @@ export async function getSkills(): Promise<ResourceSkill[]> {
   return (data ?? []) as unknown as ResourceSkill[];
 }
 
-export async function createSkill(input: { 
-  skill_code: string; 
-  skill_name: string; 
-  skill_category?: string 
+export async function createSkill(input: {
+  skill_code: string;
+  skill_name: string;
+  skill_category?: string
 }): Promise<ResourceSkill> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'admin.settings')) {
+    throw new Error('Tidak memiliki akses');
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase

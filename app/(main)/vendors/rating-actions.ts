@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { VendorRating } from '@/types/vendors';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // Validation schema
 const ratingSchema = z.object({
@@ -69,6 +71,11 @@ export async function rateVendor(
   data?: VendorRating;
   error?: string;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.rate')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const validation = ratingSchema.safeParse(input);
   if (!validation.success) {
     return { error: validation.error.issues[0].message };
@@ -149,6 +156,11 @@ export async function deleteRating(
   ratingId: string,
   vendorId: string
 ): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.rate')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase

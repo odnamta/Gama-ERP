@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { ConversionReadiness, JobOrderExtended } from '@/types'
 import { generateJONumber, calculateProfit, calculateMargin } from '@/lib/pjo-utils'
+import { getUserProfile } from '@/lib/permissions-server'
+import { canAccessFeature } from '@/lib/permissions'
 
 export async function checkConversionReadiness(pjoId: string): Promise<ConversionReadiness> {
   const supabase = await createClient()
@@ -107,6 +109,11 @@ export async function checkConversionReadiness(pjoId: string): Promise<Conversio
 }
 
 export async function convertToJobOrder(pjoId: string): Promise<{ error?: string; jobOrder?: JobOrderExtended }> {
+  const profile = await getUserProfile()
+  if (!canAccessFeature(profile, 'pjo.edit')) {
+    return { error: 'Tidak memiliki akses' }
+  }
+
   const supabase = await createClient()
 
   // Check readiness first

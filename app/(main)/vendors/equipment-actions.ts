@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { VendorEquipment, EquipmentType, EquipmentCondition } from '@/types/vendors';
+import { getUserProfile } from '@/lib/permissions-server';
+import { canAccessFeature } from '@/lib/permissions';
 
 // Validation schema
 const equipmentSchema = z.object({
@@ -126,6 +128,11 @@ export async function createEquipment(
   data?: VendorEquipment;
   error?: string;
 }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.add_equipment')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const validation = equipmentSchema.safeParse(input);
   if (!validation.success) {
     return { error: validation.error.issues[0].message };
@@ -176,6 +183,11 @@ export async function updateEquipment(
   vendorId: string,
   input: EquipmentFormInput
 ): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.add_equipment')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const validation = equipmentSchema.safeParse(input);
   if (!validation.success) {
     return { error: validation.error.issues[0].message };
@@ -224,6 +236,11 @@ export async function deleteEquipment(
   id: string,
   vendorId: string
 ): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.add_equipment')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -247,6 +264,11 @@ export async function toggleEquipmentAvailability(
   vendorId: string,
   isAvailable: boolean
 ): Promise<{ error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'vendors.add_equipment')) {
+    return { error: 'Tidak memiliki akses' };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase
