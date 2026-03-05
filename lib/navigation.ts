@@ -135,6 +135,17 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/vendors',
     icon: Building2,
     roles: ['owner', 'director', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops'],
+    children: [
+      {
+        title: 'Daftar Vendor',
+        href: '/vendors',
+      },
+      {
+        title: 'Purchase Orders',
+        href: '/vendors/purchase-orders',
+        roles: ['owner', 'director', 'finance_manager', 'operations_manager', 'administration', 'finance'],
+      },
+    ],
   },
   {
     title: 'Agency',
@@ -241,6 +252,16 @@ export const NAV_ITEMS: NavItem[] = [
         title: 'Tools & Spareparts',
         href: '/equipment/tools',
       },
+      {
+        title: 'Sertifikasi',
+        href: '/equipment/certifications',
+        roles: ['owner', 'director', 'operations_manager', 'ops', 'hse', 'administration', 'finance'],
+      },
+      {
+        title: 'Dokumen Aset',
+        href: '/equipment/documents',
+        roles: ['owner', 'director', 'operations_manager', 'ops', 'hse', 'administration', 'finance'],
+      },
     ],
   },
   {
@@ -296,6 +317,10 @@ export const NAV_ITEMS: NavItem[] = [
       {
         title: 'Training Sessions',
         href: '/hse/training/sessions',
+      },
+      {
+        title: 'Permintaan Training',
+        href: '/hse/training/requests',
       },
       {
         title: 'Medical Checkup',
@@ -461,6 +486,10 @@ export const NAV_ITEMS: NavItem[] = [
         title: 'Holidays',
         href: '/hr/attendance/holidays',
         roles: ['owner', 'director', 'hr'],
+      },
+      {
+        title: 'Reimbursement',
+        href: '/hr/reimbursements',
       },
       {
         title: 'Slip Gaji',

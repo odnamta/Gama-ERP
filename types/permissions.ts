@@ -339,6 +339,20 @@ export type FeatureKey =
   | 'peb.delete'
   | 'peb.update_status'
   | 'peb.nav'
+  // Asset certifications
+  | 'assets.certifications.view'
+  // Training requests
+  | 'hse.training.request'
+  // Reimbursement
+  | 'hr.reimbursement.view'
+  | 'hr.reimbursement.create'
+  | 'hr.reimbursement.approve'
+  | 'finance.reimbursement.pay'
+  // Purchase Orders
+  | 'vendors.po.view'
+  | 'vendors.po.create'
+  | 'vendors.po.approve'
+  | 'vendors.po.receive'
 
 export interface PermissionContextType {
   profile: UserProfile | null

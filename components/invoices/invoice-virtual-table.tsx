@@ -11,6 +11,12 @@ interface InvoiceVirtualTableProps {
   invoices: InvoiceWithRelations[]
 }
 
+function isOverdue(invoice: InvoiceWithRelations): boolean {
+  if (!invoice.due_date) return false
+  if (['paid', 'cancelled'].includes(invoice.status)) return false
+  return invoice.due_date < new Date().toISOString().split('T')[0]
+}
+
 export function InvoiceVirtualTable({ invoices }: InvoiceVirtualTableProps) {
   const router = useRouter()
 
@@ -67,8 +73,17 @@ export function InvoiceVirtualTable({ invoices }: InvoiceVirtualTableProps) {
     {
       key: 'due_date',
       header: 'Due Date',
-      width: '100px',
-      render: (invoice) => formatDate(invoice.due_date),
+      width: '140px',
+      render: (invoice) => (
+        <div className="flex items-center gap-1">
+          <span className={isOverdue(invoice) ? 'text-red-600 font-medium' : ''}>{formatDate(invoice.due_date)}</span>
+          {isOverdue(invoice) && (
+            <Badge variant="outline" className="bg-red-100 text-red-800 hover:bg-red-100 text-[10px] px-1 py-0">
+              OVERDUE
+            </Badge>
+          )}
+        </div>
+      ),
     },
     {
       key: 'status',
@@ -117,7 +132,10 @@ export function InvoiceVirtualTable({ invoices }: InvoiceVirtualTableProps) {
           <div className="text-xs text-muted-foreground">JO: {invoice.job_orders?.jo_number || '-'}</div>
           <div className="flex items-center justify-between text-sm">
             <span className="font-semibold">{formatIDR(invoice.total_amount)}</span>
-            <span className="text-xs text-muted-foreground">Due: {formatDate(invoice.due_date)}</span>
+            <span className={`text-xs ${isOverdue(invoice) ? 'text-red-600 font-medium' : 'text-muted-foreground'}`}>
+              Due: {formatDate(invoice.due_date)}
+              {isOverdue(invoice) && ' (OVERDUE)'}
+            </span>
           </div>
         </div>
       )}

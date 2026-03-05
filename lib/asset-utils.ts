@@ -33,6 +33,8 @@ export const ASSET_DOCUMENT_TYPES: { value: AssetDocumentType; label: string }[]
   { value: 'purchase', label: 'Purchase Document' },
   { value: 'manual', label: 'Manual' },
   { value: 'photo', label: 'Photo' },
+  { value: 'certification', label: 'Sertifikasi' },
+  { value: 'silo', label: 'SILO' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -43,7 +45,7 @@ const VALID_STATUSES: AssetStatus[] = ['active', 'maintenance', 'repair', 'idle'
 const VALID_DEPRECIATION_METHODS: DepreciationMethod[] = ['straight_line', 'declining_balance', 'units_of_production'];
 
 // Valid document types
-const VALID_DOCUMENT_TYPES: AssetDocumentType[] = ['registration', 'insurance', 'kir', 'permit', 'purchase', 'manual', 'photo', 'other'];
+const VALID_DOCUMENT_TYPES: AssetDocumentType[] = ['registration', 'insurance', 'kir', 'permit', 'purchase', 'manual', 'photo', 'certification', 'silo', 'other'];
 
 /**
  * Get status label

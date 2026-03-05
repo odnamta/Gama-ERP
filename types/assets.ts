@@ -15,6 +15,8 @@ export type AssetDocumentType =
   | 'purchase'
   | 'manual'
   | 'photo'
+  | 'certification'
+  | 'silo'
   | 'other';
 
 // Document expiry status

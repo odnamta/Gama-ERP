@@ -569,6 +569,24 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'peb.delete': (p) => ['owner', 'director', 'sysadmin'].includes(p.role),
   'peb.update_status': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'customs'].includes(p.role),
   'peb.nav': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'finance', 'administration', 'customs'].includes(p.role),
+
+  // Asset certifications
+  'assets.certifications.view': (p) => ['owner', 'director', 'operations_manager', 'ops', 'hse', 'administration', 'finance'].includes(p.role),
+
+  // Training requests
+  'hse.training.request': () => true,
+
+  // Reimbursement
+  'hr.reimbursement.view': () => true,
+  'hr.reimbursement.create': () => true,
+  'hr.reimbursement.approve': (p) => ['owner', 'director', 'operations_manager', 'finance_manager', 'hr'].includes(p.role),
+  'finance.reimbursement.pay': (p) => ['owner', 'director', 'finance_manager', 'finance'].includes(p.role),
+
+  // Purchase Orders
+  'vendors.po.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'administration', 'finance', 'ops'].includes(p.role),
+  'vendors.po.create': (p) => ['owner', 'director', 'operations_manager', 'administration', 'finance'].includes(p.role),
+  'vendors.po.approve': (p) => ['owner', 'director', 'finance_manager'].includes(p.role),
+  'vendors.po.receive': (p) => ['owner', 'director', 'operations_manager', 'ops', 'administration'].includes(p.role),
 }
 
 /**
