@@ -237,7 +237,7 @@ export async function submitLeaveRequest(
   data: LeaveRequestFormData
 ): Promise<{ success: boolean; data?: LeaveRequest; error?: string }> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'hr.leave.approve')) {
+  if (!profile) {
     return { success: false, error: 'Tidak memiliki akses' };
   }
 
@@ -550,7 +550,7 @@ export async function cancelLeaveRequest(
   requestId: string
 ): Promise<{ success: boolean; error?: string }> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'hr.leave.approve')) {
+  if (!profile) {
     return { success: false, error: 'Tidak memiliki akses' };
   }
 
