@@ -145,7 +145,7 @@ export async function getInvoiceDataFromJO(joId: string): Promise<ActionResult<I
         .map(i => (i as Record<string, unknown>).source_id as string | null)
         .filter((id): id is string => !!id)
 
-      let contractRatesMap: Record<string, { route_pattern: string | null; description: string }> = {}
+      const contractRatesMap: Record<string, { route_pattern: string | null; description: string }> = {}
       if (contractSourceIds.length > 0) {
         const { data: rates } = await supabase
           .from('customer_contract_rates' as any)

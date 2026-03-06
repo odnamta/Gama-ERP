@@ -66,7 +66,7 @@ export async function checkPJODuplicates(
     const podKey = extractLocationKey(pod)
 
     // Query PJOs for this customer's projects with similar routes
-    let query = supabase
+    const query = supabase
       .from('proforma_job_orders')
       .select('id, pjo_number, pol, pod, etd, eta, total_revenue, status, created_at')
       .in('project_id', projectIds)

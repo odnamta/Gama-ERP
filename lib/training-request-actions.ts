@@ -69,7 +69,7 @@ export async function getTrainingRequests(
 
   // Fetch course info
   const courseIds = (data as any[]).map((d: any) => d.course_id).filter(Boolean);
-  let courseMap = new Map<string, any>();
+  const courseMap = new Map<string, any>();
   if (courseIds.length > 0) {
     const { data: courses } = await supabase
       .from('safety_training_courses')

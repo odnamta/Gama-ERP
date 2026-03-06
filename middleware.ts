@@ -89,6 +89,11 @@ export async function middleware(request: NextRequest) {
 
   const isPublicRoute = PUBLIC_ROUTES.some(route => pathname.startsWith(route))
 
+  // Skip auth for API routes — they handle their own authentication
+  if (pathname.startsWith('/api/')) {
+    return applySecurityHeaders(supabaseResponse)
+  }
+
   // Redirect unauthenticated users to login (except for public routes)
   if (!user && !isPublicRoute) {
     const loginUrl = new URL('/login', request.url)
