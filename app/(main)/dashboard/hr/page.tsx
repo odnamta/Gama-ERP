@@ -194,6 +194,31 @@ export default async function HRDashboardPage() {
         </div>
       </div>
 
+      {/* Currently On Leave Today */}
+      {metrics.currentlyOnLeave.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Sedang Cuti Hari Ini</h2>
+          <div className="rounded-lg border">
+            <div className="divide-y">
+              {metrics.currentlyOnLeave.map((emp) => (
+                <div key={emp.id} className="p-3 flex items-center justify-between min-h-[44px]">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-sm">{emp.employeeName}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {emp.leaveTypeName} • {emp.totalDays} hari
+                    </p>
+                  </div>
+                  <div className="text-right ml-4">
+                    <p className="text-xs text-muted-foreground">Kembali</p>
+                    <p className="text-sm font-medium">{emp.endDate}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Payroll Overview Section */}
       <div>
         <h2 className="text-lg font-semibold mb-3">Payroll Overview</h2>

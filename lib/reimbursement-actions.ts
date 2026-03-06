@@ -107,6 +107,17 @@ export async function getReimbursementById(id: string): Promise<ReimbursementReq
     .eq('id', req.employee_id)
     .single();
 
+  // Fetch checker
+  let checker = null;
+  if (req.checked_by) {
+    const { data: c } = await supabase
+      .from('user_profiles')
+      .select('id, full_name')
+      .eq('id', req.checked_by)
+      .single();
+    checker = c;
+  }
+
   // Fetch approver
   let approver = null;
   if (req.approved_by) {
@@ -121,6 +132,7 @@ export async function getReimbursementById(id: string): Promise<ReimbursementReq
   return {
     ...req,
     employee: emp || null,
+    checker,
     approver,
   } as ReimbursementRequest;
 }
@@ -166,7 +178,7 @@ export async function submitReimbursement(
   return { success: true, data: data as unknown as ReimbursementRequest };
 }
 
-export async function approveReimbursement(
+export async function checkReimbursement(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   const profile = await getUserProfile();
@@ -185,6 +197,47 @@ export async function approveReimbursement(
 
   if (!req || (req as any).status !== 'pending') {
     return { success: false, error: 'Permintaan tidak dalam status pending' };
+  }
+
+  const { error } = await supabase
+    .from('reimbursement_requests' as any)
+    .update({
+      status: 'checked',
+      checked_by: profileId,
+      checked_at: new Date().toISOString(),
+    })
+    .eq('id', id);
+
+  if (error) {
+    console.error('[Reimbursement] check failed:', error);
+    return { success: false, error: 'Gagal memverifikasi reimbursement' };
+  }
+
+  revalidatePath('/hr/reimbursements');
+  revalidatePath(`/hr/reimbursements/${id}`);
+  return { success: true };
+}
+
+export async function approveReimbursement(
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!canAccessFeature(profile, 'hr.reimbursement.approve')) {
+    return { success: false, error: 'Tidak memiliki akses' };
+  }
+
+  const supabase = await createClient();
+  const profileId = await getCurrentProfileId();
+
+  const { data: req } = await supabase
+    .from('reimbursement_requests' as any)
+    .select('status')
+    .eq('id', id)
+    .single();
+
+  // Accept both 'checked' (new flow) and 'pending' (backward compat for items without check step)
+  if (!req || !['pending', 'checked'].includes((req as any).status)) {
+    return { success: false, error: 'Permintaan harus dalam status pending atau sudah diperiksa' };
   }
 
   const { error } = await supabase
@@ -226,8 +279,8 @@ export async function rejectReimbursement(
     .eq('id', id)
     .single();
 
-  if (!req || (req as any).status !== 'pending') {
-    return { success: false, error: 'Permintaan tidak dalam status pending' };
+  if (!req || !['pending', 'checked'].includes((req as any).status)) {
+    return { success: false, error: 'Permintaan harus dalam status pending atau sudah diperiksa' };
   }
 
   const { error } = await supabase

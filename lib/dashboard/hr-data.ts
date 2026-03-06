@@ -50,6 +50,15 @@ export interface RecentAttendanceCorrection {
   updatedAt: string
 }
 
+export interface OnLeaveEmployee {
+  id: string
+  employeeName: string
+  leaveTypeName: string
+  startDate: string
+  endDate: string
+  totalDays: number
+}
+
 export interface HrDashboardMetrics {
   // Payroll Overview
   totalPayrollThisMonth: number
@@ -78,7 +87,10 @@ export interface HrDashboardMetrics {
   // Recent Activity
   recentLeaveRequests: RecentLeaveRequest[]
   recentAttendanceCorrections: RecentAttendanceCorrection[]
-  
+
+  // Currently on leave
+  currentlyOnLeave: OnLeaveEmployee[]
+
   // Existing metrics (preserved from hr-dashboard-data.ts)
   activeEmployees: number
   inactiveEmployees: number
@@ -198,6 +210,7 @@ export async function getHrDashboardMetrics(
       attendanceTodayResult,
       pendingLeaveRequestsResult,
       approvedLeaveTodayResult,
+      currentlyOnLeaveResult,
       newHiresResult,
       upcomingBirthdaysResult,
       expiringCertificationsResult,
@@ -393,7 +406,23 @@ export async function getHrDashboardMetrics(
         .eq('status', 'approved')
         .lte('start_date', today)
         .gte('end_date', today),
-      
+
+      // Currently on-leave employees (with details)
+      supabase
+        .from('leave_requests')
+        .select(`
+          id,
+          start_date,
+          end_date,
+          total_days,
+          employees!leave_requests_employee_id_fkey(full_name),
+          leave_types(type_name)
+        `)
+        .eq('status', 'approved')
+        .lte('start_date', today)
+        .gte('end_date', today)
+        .order('end_date', { ascending: true }),
+
       // New hires this month
       supabase
         .from('employees')
@@ -606,6 +635,20 @@ export async function getHrDashboardMetrics(
       }
     })
     
+    // Transform currently on-leave employees
+    const currentlyOnLeave: OnLeaveEmployee[] = (currentlyOnLeaveResult.data || []).map(request => {
+      const employees = request.employees as { full_name: string } | null
+      const leaveTypes = request.leave_types as { type_name: string } | null
+      return {
+        id: request.id,
+        employeeName: employees?.full_name || 'Unknown Employee',
+        leaveTypeName: leaveTypes?.type_name || 'Cuti',
+        startDate: formatDate(request.start_date),
+        endDate: formatDate(request.end_date),
+        totalDays: Number(request.total_days) || 0,
+      }
+    })
+
     // Calculate existing metrics (preserved)
     const activeEmployees = activeEmployeesResult.count || 0
     const totalEmployees = totalEmployeesResult.count || 0
@@ -663,7 +706,10 @@ export async function getHrDashboardMetrics(
       // Recent Activity
       recentLeaveRequests,
       recentAttendanceCorrections,
-      
+
+      // Currently on leave
+      currentlyOnLeave,
+
       // Existing metrics (preserved)
       activeEmployees,
       inactiveEmployees,

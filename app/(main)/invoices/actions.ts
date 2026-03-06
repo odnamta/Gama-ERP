@@ -290,6 +290,7 @@ export async function createInvoice(data: InvoiceFormData): Promise<ActionResult
     quantity: item.quantity,
     unit: item.unit,
     unit_price: item.unit_price,
+    ...(item.line_item_type ? { line_item_type: item.line_item_type } : {}),
   }))
 
   const { error: lineItemsError } = await supabase
@@ -1082,4 +1083,116 @@ export async function getRevenueReconciliation(joId: string): Promise<{
     discrepancy,
     discrepancyPct,
   }
+}
+
+/**
+ * Aging bucket for invoice aging summary
+ */
+export interface AgingBucketData {
+  label: string
+  count: number
+  totalAmount: number
+  color: string
+}
+
+/**
+ * Customer-level aging summary
+ */
+export interface CustomerAgingData {
+  customerId: string
+  customerName: string
+  totalOutstanding: number
+  invoiceCount: number
+  oldestDaysOverdue: number
+}
+
+/**
+ * Get invoice aging summary for the invoices list page.
+ * Groups unpaid invoices into 5 aging buckets + top customers by outstanding amount.
+ */
+export async function getInvoiceAgingSummary(): Promise<{
+  buckets: AgingBucketData[]
+  topCustomers: CustomerAgingData[]
+  totalOutstanding: number
+}> {
+  const supabase = await createClient()
+
+  const { data } = await supabase
+    .from('invoices')
+    .select('id, total_amount, due_date, status, customer_id, customers(name)')
+    .eq('is_active', true)
+    .in('status', ['sent', 'partial', 'overdue'])
+
+  const invoices = (data || []) as {
+    id: string
+    total_amount: number
+    due_date: string | null
+    status: string
+    customer_id: string
+    customers: { name: string } | null
+  }[]
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  // Initialize buckets
+  const buckets: AgingBucketData[] = [
+    { label: 'Belum Jatuh Tempo', count: 0, totalAmount: 0, color: 'green' },
+    { label: '1-30 Hari', count: 0, totalAmount: 0, color: 'blue' },
+    { label: '31-60 Hari', count: 0, totalAmount: 0, color: 'yellow' },
+    { label: '61-90 Hari', count: 0, totalAmount: 0, color: 'orange' },
+    { label: '> 90 Hari', count: 0, totalAmount: 0, color: 'red' },
+  ]
+
+  // Customer aggregation
+  const customerMap = new Map<string, CustomerAgingData>()
+
+  for (const inv of invoices) {
+    const amt = Number(inv.total_amount || 0)
+    const dueDate = inv.due_date ? new Date(inv.due_date) : null
+
+    let daysPastDue = 0
+    if (dueDate) {
+      dueDate.setHours(0, 0, 0, 0)
+      daysPastDue = Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24))
+    }
+
+    // Assign to bucket
+    let bucketIdx: number
+    if (daysPastDue <= 0) bucketIdx = 0
+    else if (daysPastDue <= 30) bucketIdx = 1
+    else if (daysPastDue <= 60) bucketIdx = 2
+    else if (daysPastDue <= 90) bucketIdx = 3
+    else bucketIdx = 4
+
+    buckets[bucketIdx].count++
+    buckets[bucketIdx].totalAmount += amt
+
+    // Aggregate by customer
+    const custId = inv.customer_id
+    const custName = inv.customers?.name || 'Unknown'
+    const existing = customerMap.get(custId)
+    if (existing) {
+      existing.totalOutstanding += amt
+      existing.invoiceCount++
+      existing.oldestDaysOverdue = Math.max(existing.oldestDaysOverdue, daysPastDue)
+    } else {
+      customerMap.set(custId, {
+        customerId: custId,
+        customerName: custName,
+        totalOutstanding: amt,
+        invoiceCount: 1,
+        oldestDaysOverdue: daysPastDue,
+      })
+    }
+  }
+
+  // Sort customers by total outstanding descending, take top 5
+  const topCustomers = Array.from(customerMap.values())
+    .sort((a, b) => b.totalOutstanding - a.totalOutstanding)
+    .slice(0, 5)
+
+  const totalOutstanding = invoices.reduce((s, inv) => s + Number(inv.total_amount || 0), 0)
+
+  return { buckets, topCustomers, totalOutstanding }
 }

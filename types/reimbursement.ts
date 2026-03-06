@@ -1,4 +1,4 @@
-export type ReimbursementStatus = 'pending' | 'approved' | 'rejected' | 'paid' | 'cancelled';
+export type ReimbursementStatus = 'pending' | 'checked' | 'approved' | 'rejected' | 'paid' | 'cancelled';
 
 export type ReimbursementCategory =
   | 'transport'
@@ -31,6 +31,8 @@ export interface ReimbursementRequest {
   receipt_date: string;
   receipt_url: string | null;
   status: ReimbursementStatus;
+  checked_by: string | null;
+  checked_at: string | null;
   approved_by: string | null;
   approved_at: string | null;
   rejection_reason: string | null;
@@ -44,6 +46,7 @@ export interface ReimbursementRequest {
   updated_at: string;
   // Relations
   employee?: { id: string; full_name: string; employee_code: string };
+  checker?: { id: string; full_name: string } | null;
   approver?: { id: string; full_name: string } | null;
 }
 

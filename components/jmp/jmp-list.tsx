@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import {
@@ -32,6 +33,7 @@ interface JmpListProps {
 }
 
 export function JmpList({ jmps, customers, onFilterChange }: JmpListProps) {
+  const router = useRouter();
   const [filters, setFilters] = useState<JmpFilters>({
     status: 'all',
     customerId: 'all',
@@ -113,7 +115,11 @@ export function JmpList({ jmps, customers, onFilterChange }: JmpListProps) {
               </TableRow>
             ) : (
               jmps.map((jmp) => (
-                <TableRow key={jmp.id}>
+                <TableRow
+                  key={jmp.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => router.push(`/engineering/jmp/${jmp.id}`)}
+                >
                   <TableCell className="font-medium">{jmp.jmpNumber}</TableCell>
                   <TableCell>{jmp.journeyTitle}</TableCell>
                   <TableCell>{jmp.customer?.name || '-'}</TableCell>

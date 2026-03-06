@@ -5,9 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { InvoiceVirtualTable } from '@/components/invoices/invoice-virtual-table'
 import { InvoiceFilters } from '@/components/invoices/invoice-filters'
 import { InvoiceWithRelations, InvoiceStatus } from '@/types'
-import { getInvoices, InvoiceStats } from './actions'
+import { getInvoices, InvoiceStats, getInvoiceAgingSummary, AgingBucketData, CustomerAgingData } from './actions'
 import { formatCurrency } from '@/lib/utils/format'
-import { Loader2, FileText, Clock, AlertTriangle, CheckCircle, ShieldAlert, TrendingDown, Copy, FileWarning } from 'lucide-react'
+import { Loader2, FileText, Clock, AlertTriangle, CheckCircle, ShieldAlert, TrendingDown, Copy, FileWarning, BarChart3, ChevronDown, ChevronUp, Users } from 'lucide-react'
 import type { RedFlagSummary, InvoiceRedFlag, RedFlagType } from '@/lib/invoice-red-flags'
 import { getRedFlagSummary } from '@/lib/invoice-red-flags'
 import Link from 'next/link'
@@ -46,6 +46,11 @@ export function InvoicesClient({ serverStats }: InvoicesClientProps) {
   const [redFlagsLoading, setRedFlagsLoading] = useState(true)
   const [showRedFlags, setShowRedFlags] = useState(false)
   const [activeRedFlagFilter, setActiveRedFlagFilter] = useState<RedFlagType | null>(null)
+  const [agingBuckets, setAgingBuckets] = useState<AgingBucketData[]>([])
+  const [topCustomers, setTopCustomers] = useState<CustomerAgingData[]>([])
+  const [agingTotal, setAgingTotal] = useState(0)
+  const [showAging, setShowAging] = useState(false)
+  const [agingLoading, setAgingLoading] = useState(true)
 
   const loadInvoices = useCallback(async () => {
     setLoading(true)
@@ -80,6 +85,22 @@ export function InvoicesClient({ serverStats }: InvoicesClientProps) {
       }
     }
     loadRedFlags()
+  }, [])
+
+  // Load aging data on mount
+  useEffect(() => {
+    async function loadAging() {
+      setAgingLoading(true)
+      try {
+        const data = await getInvoiceAgingSummary()
+        setAgingBuckets(data.buckets)
+        setTopCustomers(data.topCustomers)
+        setAgingTotal(data.totalOutstanding)
+      } finally {
+        setAgingLoading(false)
+      }
+    }
+    loadAging()
   }, [])
 
   // Filter displayed flags by type
@@ -135,6 +156,97 @@ export function InvoicesClient({ serverStats }: InvoicesClientProps) {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* Aging Summary */}
+      {!agingLoading && agingTotal > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-blue-600" />
+                <CardTitle className="text-base">
+                  Aging Piutang
+                </CardTitle>
+                <span className="text-sm text-muted-foreground">
+                  — {formatCurrency(agingTotal)} outstanding
+                </span>
+              </div>
+              <button
+                onClick={() => setShowAging(!showAging)}
+                className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1"
+              >
+                {showAging ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                {showAging ? 'Sembunyikan' : 'Detail'}
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {/* Aging Bucket Cards */}
+            <div className="grid grid-cols-5 gap-2">
+              {agingBuckets.map((bucket) => {
+                const colorMap: Record<string, string> = {
+                  green: 'bg-green-50 border-green-200 text-green-800',
+                  blue: 'bg-blue-50 border-blue-200 text-blue-800',
+                  yellow: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+                  orange: 'bg-orange-50 border-orange-200 text-orange-800',
+                  red: 'bg-red-50 border-red-200 text-red-800',
+                }
+                return (
+                  <button
+                    key={bucket.label}
+                    onClick={() => {
+                      // Filter invoices by overdue status when clicking aging buckets
+                      if (bucket.color === 'green') {
+                        setStatus('sent')
+                      } else {
+                        setStatus('overdue')
+                      }
+                    }}
+                    className={`rounded-lg border p-3 text-left transition-colors hover:opacity-80 ${colorMap[bucket.color] || colorMap.blue}`}
+                  >
+                    <div className="text-xs font-medium truncate">{bucket.label}</div>
+                    <div className="text-lg font-bold">{bucket.count}</div>
+                    <div className="text-xs opacity-75">{formatCurrency(bucket.totalAmount)}</div>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Expanded: Top Customers */}
+            {showAging && topCustomers.length > 0 && (
+              <div className="mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Top 5 Customer — Outstanding Terbesar</span>
+                </div>
+                <div className="space-y-2">
+                  {topCustomers.map((cust) => (
+                    <div
+                      key={cust.customerId}
+                      className="flex items-center justify-between p-2 rounded-lg bg-muted/50"
+                    >
+                      <div>
+                        <span className="text-sm font-medium">{cust.customerName}</span>
+                        <span className="text-xs text-muted-foreground ml-2">
+                          {cust.invoiceCount} invoice
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm font-bold">{formatCurrency(cust.totalOutstanding)}</div>
+                        {cust.oldestDaysOverdue > 0 && (
+                          <div className="text-xs text-red-600">
+                            {cust.oldestDaysOverdue} hari tertua
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       {/* Red Flag Summary Banner */}

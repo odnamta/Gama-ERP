@@ -203,35 +203,53 @@ export function InvoiceDetailView({ invoice, userRole = 'viewer', userId, reconc
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {invoice.invoice_line_items.map((item) => (
+                {invoice.invoice_line_items.map((item) => {
+                  const itemType = (item as Record<string, unknown>).line_item_type as string | null
+                  return (
                   <TableRow key={item.id}>
                     <TableCell>{item.line_number}</TableCell>
-                    <TableCell>{item.description}</TableCell>
+                    <TableCell>
+                      {itemType && (
+                        <span className="inline-block text-[10px] font-medium uppercase bg-blue-100 text-blue-700 rounded px-1.5 py-0.5 mr-2">
+                          {itemType}
+                        </span>
+                      )}
+                      {item.description}
+                    </TableCell>
                     <TableCell className="text-right">{item.quantity}</TableCell>
                     <TableCell>{item.unit || '-'}</TableCell>
                     <TableCell className="text-right">{formatIDR(item.unit_price)}</TableCell>
                     <TableCell className="text-right font-medium">{formatIDR(item.subtotal ?? 0)}</TableCell>
                   </TableRow>
-                ))}
+                  )
+                })}
               </TableBody>
             </Table>
           )}
         </CardContent>
       </Card>
 
-      {/* Financial Summary */}
+      {/* Financial Summary — Grand Total Formula */}
       <Card>
         <CardHeader>
-          <CardTitle>Financial Summary</CardTitle>
+          <CardTitle>Ringkasan Keuangan</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            <div className="flex justify-between">
+          <div className="space-y-2 max-w-sm ml-auto">
+            <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-medium">{formatIDR(invoice.subtotal)}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">VAT ({(VAT_RATE * 100).toFixed(0)}%)</span>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Diskon</span>
+              <span className="font-medium">-</span>
+            </div>
+            <div className="flex justify-between text-sm border-t pt-1">
+              <span className="text-muted-foreground">DPP (Dasar Pengenaan Pajak)</span>
+              <span className="font-medium">{formatIDR(invoice.subtotal)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">PPN {(VAT_RATE * 100).toFixed(0)}%</span>
               <span className="font-medium">{formatIDR(invoice.tax_amount)}</span>
             </div>
             <div className="border-t pt-2 flex justify-between">

@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
   Dialog,
@@ -15,32 +13,27 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
-  checkReimbursement,
-  approveReimbursement,
-  rejectReimbursement,
-  markReimbursementPaid,
-} from '@/lib/reimbursement-actions';
-import { ReimbursementStatus } from '@/types/reimbursement';
-import { ClipboardCheck, CheckCircle, XCircle, Banknote, Loader2 } from 'lucide-react';
+  checkEquipmentRequest,
+  approveEquipmentRequest,
+  rejectEquipmentRequest,
+} from '@/lib/equipment-request-actions';
+import { EquipmentRequestStatus } from '@/types/equipment-request';
+import { ClipboardCheck, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 interface Props {
   requestId: string;
-  status: ReimbursementStatus;
-  canApprove: boolean;
-  canPay: boolean;
+  status: EquipmentRequestStatus;
 }
 
-export function ReimbursementActions({ requestId, status, canApprove, canPay }: Props) {
+export function EquipmentRequestActions({ requestId, status }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
-  const [showPayDialog, setShowPayDialog] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
-  const [paymentReference, setPaymentReference] = useState('');
 
   async function handleCheck() {
     setLoading(true);
-    const result = await checkReimbursement(requestId);
+    const result = await checkEquipmentRequest(requestId);
     setLoading(false);
     if (result.success) {
       router.refresh();
@@ -51,7 +44,7 @@ export function ReimbursementActions({ requestId, status, canApprove, canPay }: 
 
   async function handleApprove() {
     setLoading(true);
-    const result = await approveReimbursement(requestId);
+    const result = await approveEquipmentRequest(requestId);
     setLoading(false);
     if (result.success) {
       router.refresh();
@@ -63,7 +56,7 @@ export function ReimbursementActions({ requestId, status, canApprove, canPay }: 
   async function handleReject() {
     if (!rejectReason.trim()) return;
     setLoading(true);
-    const result = await rejectReimbursement(requestId, rejectReason);
+    const result = await rejectEquipmentRequest(requestId, rejectReason);
     setLoading(false);
     if (result.success) {
       setShowRejectDialog(false);
@@ -73,23 +66,11 @@ export function ReimbursementActions({ requestId, status, canApprove, canPay }: 
     }
   }
 
-  async function handlePay() {
-    setLoading(true);
-    const result = await markReimbursementPaid(requestId, paymentReference || undefined);
-    setLoading(false);
-    if (result.success) {
-      setShowPayDialog(false);
-      router.refresh();
-    } else {
-      alert(result.error || 'Gagal memproses pembayaran');
-    }
-  }
-
   return (
     <>
       <Card className="p-4">
         <div className="flex gap-2">
-          {canApprove && status === 'pending' && (
+          {status === 'pending' && (
             <>
               <Button
                 onClick={handleCheck}
@@ -113,7 +94,7 @@ export function ReimbursementActions({ requestId, status, canApprove, canPay }: 
               </Button>
             </>
           )}
-          {canApprove && status === 'checked' && (
+          {status === 'checked' && (
             <>
               <Button
                 onClick={handleApprove}
@@ -137,16 +118,6 @@ export function ReimbursementActions({ requestId, status, canApprove, canPay }: 
               </Button>
             </>
           )}
-          {canPay && status === 'approved' && (
-            <Button
-              onClick={() => setShowPayDialog(true)}
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <Banknote className="mr-2 h-4 w-4" />
-              Proses Pembayaran
-            </Button>
-          )}
         </div>
       </Card>
 
@@ -154,7 +125,7 @@ export function ReimbursementActions({ requestId, status, canApprove, canPay }: 
       <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Tolak Reimbursement</DialogTitle>
+            <DialogTitle>Tolak Permintaan Peralatan</DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
             <Textarea
@@ -175,32 +146,6 @@ export function ReimbursementActions({ requestId, status, canApprove, canPay }: 
             >
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Tolak
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Pay Dialog */}
-      <Dialog open={showPayDialog} onOpenChange={setShowPayDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Proses Pembayaran</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2">
-            <Label>Referensi Pembayaran (opsional)</Label>
-            <Input
-              placeholder="No. transfer / bukti bayar"
-              value={paymentReference}
-              onChange={(e) => setPaymentReference(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPayDialog(false)}>
-              Batal
-            </Button>
-            <Button onClick={handlePay} disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Konfirmasi Pembayaran
             </Button>
           </DialogFooter>
         </DialogContent>

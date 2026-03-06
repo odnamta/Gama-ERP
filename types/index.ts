@@ -132,6 +132,7 @@ export interface InvoiceFormData {
     quantity: number
     unit: string
     unit_price: number
+    line_item_type?: string
   }[]
   notes?: string
   // Invoice term metadata for split invoices
@@ -146,6 +147,7 @@ export interface InvoiceLineItemInput {
   quantity: number
   unit: string
   unit_price: number
+  line_item_type?: string
 }
 
 // Helper to parse invoice_terms from Json to InvoiceTerm[]
