@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { getCurrentUserProfile, guardPage } from '@/lib/auth-utils';
+import type { Vendor } from '@/types/vendors'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -33,8 +34,16 @@ export default async function NewBKKPage({ params }: PageProps) {
     redirect('/job-orders')
   }
 
-  // Get cost items for the dropdown
-  const costItems = await getCostItemsForBKK(jobOrderId)
+  // Get cost items for the dropdown and vendors for auto-fill
+  const [costItems, { data: vendorData }] = await Promise.all([
+    getCostItemsForBKK(jobOrderId),
+    supabase
+      .from('vendors')
+      .select('id, vendor_name, vendor_code, vendor_type, bank_name, bank_branch, bank_account, bank_account_name, is_preferred, is_active')
+      .eq('is_active', true)
+      .order('is_preferred', { ascending: false })
+      .order('vendor_name'),
+  ])
 
   // Generate BKK number
   const bkkNumber = await generateBKKNumberAction()
@@ -55,6 +64,7 @@ export default async function NewBKKPage({ params }: PageProps) {
         joNumber={jobOrder.jo_number}
         costItems={costItems}
         generatedBKKNumber={bkkNumber}
+        vendors={(vendorData || []) as Vendor[]}
       />
     </div>
   )

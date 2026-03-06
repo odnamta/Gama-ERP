@@ -5,24 +5,27 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BKKList } from './bkk-list'
 import { BKKSummary } from './bkk-summary'
+import { BKKAutoGenerate } from './bkk-auto-generate'
 import { calculateBKKSummary } from '@/lib/bkk-utils'
 import type { BKKWithRelations } from '@/types'
 import { Plus, Banknote } from 'lucide-react'
 
 interface BKKSectionProps {
   jobOrderId: string
+  joNumber?: string
   bkks: BKKWithRelations[]
   userRole: string
   currentUserId?: string
   canRequest?: boolean
 }
 
-export function BKKSection({ 
-  jobOrderId, 
-  bkks, 
-  userRole, 
+export function BKKSection({
+  jobOrderId,
+  joNumber,
+  bkks,
+  userRole,
   currentUserId,
-  canRequest = true 
+  canRequest = true
 }: BKKSectionProps) {
   const summary = calculateBKKSummary(bkks)
 
@@ -34,12 +37,18 @@ export function BKKSection({
           Cash Disbursements (BKK)
         </CardTitle>
         {canRequest && (
-          <Button asChild size="sm">
-            <Link href={`/job-orders/${jobOrderId}/bkk/new`}>
-              <Plus className="h-4 w-4 mr-2" />
-              Request BKK
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <BKKAutoGenerate
+              jobOrderId={jobOrderId}
+              joNumber={joNumber || ''}
+            />
+            <Button asChild size="sm">
+              <Link href={`/job-orders/${jobOrderId}/bkk/new`}>
+                <Plus className="h-4 w-4 mr-2" />
+                Request BKK
+              </Link>
+            </Button>
+          </div>
         )}
       </CardHeader>
       <CardContent className="space-y-4">

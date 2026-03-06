@@ -745,6 +745,7 @@ export function JODetailView({ jobOrder, userId, userRole }: JODetailViewProps) 
       {/* BKK (Cash Disbursement) Section */}
       <BKKSection
         jobOrderId={jobOrder.id}
+        joNumber={jobOrder.jo_number}
         bkks={bkks}
         userRole={userRole || 'ops'}
         canRequest={['active', 'in_progress'].includes(jobOrder.status)}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -82,6 +82,13 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
 
   const vendorId = form.watch('vendor_id')
   const selectedVendor = vendors.find(v => v.id === vendorId)
+
+  // Auto-fill: when vendor with bank details is selected, set release_method to transfer
+  useEffect(() => {
+    if (selectedVendor?.bank_account) {
+      form.setValue('release_method', 'transfer')
+    }
+  }, [selectedVendor, form])
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true)
