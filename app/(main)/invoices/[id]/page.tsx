@@ -9,33 +9,31 @@ interface InvoiceDetailPageProps {
 
 export default async function InvoiceDetailPage({ params }: InvoiceDetailPageProps) {
   const { id } = await params
-  const invoice = await getInvoice(id)
+
+  // Parallelize invoice fetch + auth check
+  const supabase = await createClient()
+  const [invoice, authResult] = await Promise.all([
+    getInvoice(id),
+    supabase.auth.getUser(),
+  ])
 
   if (!invoice) {
     notFound()
   }
 
-  // Get current user's role
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  let userRole = 'viewer'
+  const user = authResult.data.user
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single()
+  // Parallelize profile fetch + reconciliation fetch
+  const [profileResult, reconciliation] = await Promise.all([
+    user
+      ? supabase.from('user_profiles').select('role').eq('user_id', user.id).single()
+      : Promise.resolve({ data: null }),
+    invoice.jo_id
+      ? getRevenueReconciliation(invoice.jo_id)
+      : Promise.resolve(null),
+  ])
 
-    if (profile) {
-      userRole = profile.role
-    }
-  }
-
-  // Fetch revenue reconciliation data if linked to a JO
-  const reconciliation = invoice.jo_id
-    ? await getRevenueReconciliation(invoice.jo_id)
-    : null
+  const userRole = profileResult.data?.role || 'viewer'
 
   return (
     <InvoiceDetailView

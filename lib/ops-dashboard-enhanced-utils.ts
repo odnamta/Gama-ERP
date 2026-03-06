@@ -336,37 +336,38 @@ export async function getOperationsManpower(): Promise<ManpowerMember[]> {
     return []
   }
 
-  // For each active member, try to find their current JO assignment
-  const result: ManpowerMember[] = []
+  // Batch fetch recent JO activity for all active members (avoids N+1)
+  const activeMembers = (members || []).filter(m => m.is_active)
+  const memberIds = activeMembers.map(m => m.id)
 
-  for (const member of members || []) {
-    let currentAssignment: string | null = null
+  const activityByMemberId: Record<string, string | null> = {}
 
-    // Check if user has recent activity on any active JO
-    if (member.is_active) {
-      const { data: recentActivity } = await supabase
-        .from('activity_log')
-        .select('document_number')
-        .eq('user_id', member.id)
-        .eq('document_type', 'jo')
-        .order('created_at', { ascending: false })
-        .limit(1)
+  if (memberIds.length > 0) {
+    const { data: recentActivities } = await supabase
+      .from('activity_log')
+      .select('user_id, document_number')
+      .in('user_id', memberIds)
+      .eq('document_type', 'jo')
+      .order('created_at', { ascending: false })
 
-      if (recentActivity && recentActivity.length > 0) {
-        currentAssignment = recentActivity[0].document_number || null
+    // Keep only the most recent activity per member
+    const seen = new Set<string>()
+    recentActivities?.forEach(activity => {
+      const uid = activity.user_id as string | null
+      if (uid && !seen.has(uid)) {
+        activityByMemberId[uid] = activity.document_number || null
+        seen.add(uid)
       }
-    }
-
-    result.push({
-      id: member.id,
-      fullName: member.full_name || 'Unnamed',
-      role: member.role,
-      isActive: member.is_active,
-      currentAssignment,
     })
   }
 
-  return result
+  return (members || []).map(member => ({
+    id: member.id,
+    fullName: member.full_name || 'Unnamed',
+    role: member.role,
+    isActive: member.is_active,
+    currentAssignment: activityByMemberId[member.id] || null,
+  }))
 }
 
 /**

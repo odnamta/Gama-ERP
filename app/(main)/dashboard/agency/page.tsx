@@ -34,18 +34,19 @@ function StatusBadge({ status }: { status: string }) {
 
 export default async function AgencyDashboardPage() {
   const supabase = await createClient()
-  
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role')
-    .eq('user_id', user.id)
-    .single()
+  // Parallelize profile check + metrics fetch
+  const [profileResult, metricsResult] = await Promise.allSettled([
+    supabase.from('user_profiles').select('role').eq('user_id', user.id).single(),
+    getAgencyDashboardMetrics(),
+  ])
 
+  const profile = profileResult.status === 'fulfilled' ? profileResult.value.data : null
   if (!profile) {
     redirect('/login')
   }
@@ -56,8 +57,8 @@ export default async function AgencyDashboardPage() {
     redirect('/dashboard')
   }
 
-  // Fetch real metrics
-  const metrics = await getAgencyDashboardMetrics()
+  if (metricsResult.status === 'rejected') throw metricsResult.reason
+  const metrics = metricsResult.value
 
   return (
     <div className="space-y-6">

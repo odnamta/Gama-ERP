@@ -15,49 +15,46 @@ export default async function PJODetailPage({ params }: PJODetailPageProps) {
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: pjo, error } = await supabase
-    .from('proforma_job_orders')
-    .select(`
-      *,
-      projects (
-        id,
-        name,
-        customers (
+  // Parallelize PJO fetch + auth check
+  const [pjoResult, authResult] = await Promise.all([
+    supabase
+      .from('proforma_job_orders')
+      .select(`
+        *,
+        projects (
           id,
-          name
+          name,
+          customers (
+            id,
+            name
+          )
         )
-      )
-    `)
-    .eq('id', id)
-    .eq('is_active', true)
-    .single()
+      `)
+      .eq('id', id)
+      .eq('is_active', true)
+      .single(),
+    supabase.auth.getUser(),
+  ])
 
+  const { data: pjo, error } = pjoResult
   if (error || !pjo) {
     notFound()
   }
 
-  // Fetch quotation data if this PJO was created from a quotation
-  let quotation = null
-  if (pjo.quotation_id) {
-    const { data: quotationData } = await supabase
-      .from('quotations')
-      .select('id, quotation_number, title')
-      .eq('id', pjo.quotation_id)
-      .single()
-    quotation = quotationData
-  }
+  const user = authResult.data.user
 
-  // Get user profile for permission checks
-  const { data: { user } } = await supabase.auth.getUser()
-  let profile: UserProfile | null = null
-  if (user) {
-    const { data: profileData } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
-    profile = profileData as UserProfile | null
-  }
+  // Parallelize quotation fetch + profile fetch
+  const [quotationResult, profileResult] = await Promise.all([
+    pjo.quotation_id
+      ? supabase.from('quotations').select('id, quotation_number, title').eq('id', pjo.quotation_id).single()
+      : Promise.resolve({ data: null }),
+    user
+      ? supabase.from('user_profiles').select('*').eq('user_id', user.id).single()
+      : Promise.resolve({ data: null }),
+  ])
+
+  const quotation = quotationResult.data
+  const profile = (profileResult.data as UserProfile | null)
 
   const userRole = getUserRole(profile)
   const userId = getUserId(profile)

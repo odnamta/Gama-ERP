@@ -8,18 +8,19 @@ import { ARAgingChart } from '@/components/finance/ar-aging-chart'
 
 export default async function FinanceManagerDashboardPage() {
   const supabase = await createClient()
-  
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role, email')
-    .eq('user_id', user.id)
-    .single()
+  // Parallelize profile check + metrics fetch
+  const [profileResult, metricsResult] = await Promise.allSettled([
+    supabase.from('user_profiles').select('role, email').eq('user_id', user.id).single(),
+    getFinanceManagerMetrics(),
+  ])
 
+  const profile = profileResult.status === 'fulfilled' ? profileResult.value.data : null
   if (!profile) {
     redirect('/login')
   }
@@ -31,7 +32,8 @@ export default async function FinanceManagerDashboardPage() {
     redirect('/dashboard')
   }
 
-  const metrics = await getFinanceManagerMetrics()
+  if (metricsResult.status === 'rejected') throw metricsResult.reason
+  const metrics = metricsResult.value
 
   return (
     <div className="space-y-6">

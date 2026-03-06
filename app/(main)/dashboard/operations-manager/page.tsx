@@ -7,33 +7,33 @@ import { format } from 'date-fns'
 
 export default async function OperationsManagerDashboardPage() {
   const supabase = await createClient()
-  
+
+  // Auth check — getUser is required before profile
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role, email')
-    .eq('user_id', user.id)
-    .single()
+  // Parallelize profile check + dashboard data (dashboard does its own auth internally)
+  const [profileResult, dashboardResult] = await Promise.allSettled([
+    supabase.from('user_profiles').select('role, email').eq('user_id', user.id).single(),
+    getOperationsManagerDashboardData(),
+  ])
 
+  const profile = profileResult.status === 'fulfilled' ? profileResult.value.data : null
   if (!profile) {
     redirect('/login')
   }
 
-  // Check access: operations_manager role or owner/director
   const hasAccess = profileHasRole(profile as any, ['operations_manager', 'owner', 'director'])
-
   if (!hasAccess) {
     redirect('/dashboard')
   }
 
-  // Fetch real dashboard data with error handling
   let data
   try {
-    data = await getOperationsManagerDashboardData()
+    if (dashboardResult.status === 'rejected') throw dashboardResult.reason
+    data = dashboardResult.value
   } catch (error) {
     // Return fallback UI on error
     return (

@@ -32,18 +32,19 @@ import {
  */
 export default async function DirectorDashboardPage() {
   const supabase = await createClient()
-  
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role, full_name')
-    .eq('user_id', user.id)
-    .single()
+  // Parallelize profile check + metrics fetch
+  const [profileResult, metricsResult] = await Promise.allSettled([
+    supabase.from('user_profiles').select('role, full_name').eq('user_id', user.id).single(),
+    getDirectorDashboardMetrics(),
+  ])
 
+  const profile = profileResult.status === 'fulfilled' ? profileResult.value.data : null
   if (!profile) {
     redirect('/login')
   }
@@ -55,7 +56,8 @@ export default async function DirectorDashboardPage() {
     redirect('/dashboard')
   }
 
-  const metrics = await getDirectorDashboardMetrics()
+  if (metricsResult.status === 'rejected') throw metricsResult.reason
+  const metrics = metricsResult.value
 
   // Color coding helpers (Requirement 1.7, 4.5)
   const getMarginColor = (margin: number) => {

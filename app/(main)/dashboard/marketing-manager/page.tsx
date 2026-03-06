@@ -7,18 +7,19 @@ import { formatCurrencyIDRCompact } from '@/lib/utils/format'
 
 export default async function MarketingManagerDashboardPage() {
   const supabase = await createClient()
-  
+
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('user_profiles')
-    .select('role, email')
-    .eq('user_id', user.id)
-    .single()
+  // Parallelize profile check + metrics fetch
+  const [profileResult, metricsResult] = await Promise.allSettled([
+    supabase.from('user_profiles').select('role, email').eq('user_id', user.id).single(),
+    getMarketingManagerMetrics(),
+  ])
 
+  const profile = profileResult.status === 'fulfilled' ? profileResult.value.data : null
   if (!profile) {
     redirect('/login')
   }
@@ -30,9 +31,8 @@ export default async function MarketingManagerDashboardPage() {
     redirect('/dashboard')
   }
 
-  // Fetch real metrics from the data service
-  // Requirements: 8.1
-  const metrics = await getMarketingManagerMetrics()
+  if (metricsResult.status === 'rejected') throw metricsResult.reason
+  const metrics = metricsResult.value
 
   return (
     <div className="space-y-6">
