@@ -140,19 +140,37 @@ export async function getInvoiceDataFromJO(joId: string): Promise<ActionResult<I
       .order('created_at', { ascending: true })
 
     if (!revenueError && revenueItems) {
+      // Batch lookup contract rates for items with source_type = 'contract'
+      const contractSourceIds = revenueItems
+        .map(i => (i as Record<string, unknown>).source_id as string | null)
+        .filter((id): id is string => !!id)
+
+      let contractRatesMap: Record<string, { route_pattern: string | null; description: string }> = {}
+      if (contractSourceIds.length > 0) {
+        const { data: rates } = await supabase
+          .from('customer_contract_rates' as any)
+          .select('id, route_pattern, description')
+          .in('id', contractSourceIds)
+        if (rates) {
+          for (const rate of rates as unknown as { id: string; route_pattern: string | null; description: string }[]) {
+            contractRatesMap[rate.id] = rate
+          }
+        }
+      }
+
       lineItems = revenueItems.map((item) => {
-        // Cast to access source_type field (may not be in generated types)
         const itemAny = item as Record<string, unknown>
         const sourceType = itemAny.source_type as string | null
-        const routePattern = itemAny.route_pattern as string | null
+        const sourceId = itemAny.source_id as string | null
         const notes = itemAny.notes as string | null
 
         // Enhance description with contract rate metadata when source_type is 'contract'
         let description = item.description
         if (sourceType === 'contract') {
           const parts: string[] = [item.description]
-          if (routePattern) {
-            parts.push(`Rute: ${routePattern}`)
+          const contractRate = sourceId ? contractRatesMap[sourceId] : null
+          if (contractRate?.route_pattern) {
+            parts.push(`Rute: ${contractRate.route_pattern}`)
           }
           if (notes) {
             parts.push(notes)

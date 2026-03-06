@@ -48,6 +48,7 @@ interface Vendor {
   vendor_name: string
   vendor_code: string | null
   bank_name: string | null
+  bank_branch: string | null
   bank_account: string | null
   bank_account_name: string | null
 }
@@ -313,7 +314,7 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
                         <p className="text-xs text-muted-foreground">Nama Bank</p>
-                        <p className="font-medium">{selectedVendor.bank_name || '-'}</p>
+                        <p className="font-medium">{selectedVendor.bank_name || '-'}{selectedVendor.bank_branch ? ` — ${selectedVendor.bank_branch}` : ''}</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">No. Rekening</p>

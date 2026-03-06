@@ -30,7 +30,7 @@ export default async function NewDisbursementPage() {
   
   const { data: vendors } = await supabase
     .from('vendors')
-    .select('id, vendor_name, vendor_code, bank_name, bank_account, bank_account_name')
+    .select('id, vendor_name, vendor_code, bank_name, bank_branch, bank_account, bank_account_name')
     .eq('is_active', true)
     .order('vendor_name')
 

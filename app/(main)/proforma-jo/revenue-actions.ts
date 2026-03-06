@@ -13,6 +13,7 @@ const revenueItemSchema = z.object({
   unit: z.string().min(1, 'Unit is required'),
   unit_price: z.number().min(0, 'Unit price cannot be negative'),
   source_type: z.enum(['quotation', 'contract', 'manual']).optional(),
+  source_id: z.string().optional(),
   notes: z.string().optional(),
 })
 
@@ -74,6 +75,7 @@ export async function createRevenueItem(
       unit: data.unit,
       unit_price: data.unit_price,
       source_type: data.source_type || 'manual',
+      source_id: data.source_id || null,
       notes: data.notes || null,
     })
     .select()

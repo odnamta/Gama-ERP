@@ -38,6 +38,7 @@ const schema = z.object({
   unit: z.string().min(1, 'Unit is required'),
   unit_price: z.number().min(0, 'Unit price cannot be negative'),
   source_type: z.enum(['quotation', 'contract', 'manual']).optional(),
+  source_id: z.string().optional(),
   notes: z.string().optional(),
 })
 
@@ -207,8 +208,12 @@ export function RevenueItemForm({ pjoId, item, customerId, open, onOpenChange, o
                       onClick={() => {
                         setValue('unit_price', rate.base_price)
                         setValue('source_type', 'contract')
+                        setValue('source_id', rate.id)
                         if (!watch('description') && rate.description) {
                           setValue('description', rate.description)
+                        }
+                        if (rate.route_pattern) {
+                          setValue('notes', rate.route_pattern)
                         }
                       }}
                       title={`Klik untuk mengisi ${formatCurrency(rate.base_price)} sebagai harga satuan`}
