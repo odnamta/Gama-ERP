@@ -137,6 +137,9 @@ export async function fetchSalesDashboardData(
   customStart?: Date,
   customEnd?: Date
 ): Promise<SalesDashboardData> {
+  const cacheKey = await generateCacheKey('sales-dashboard', periodType)
+
+  return getOrFetch(cacheKey, async () => {
   const supabase = await createClient()
   const currentDate = new Date()
 
@@ -225,6 +228,7 @@ export async function fetchSalesDashboardData(
     topCustomers,
     winLossData,
   }
+  }) // end getOrFetch
 }
 
 /**

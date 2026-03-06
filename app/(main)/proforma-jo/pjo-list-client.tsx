@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useCallback, useDeferredValue } from 'react'
 import Link from 'next/link'
 import { PJOWithRelations } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -40,28 +40,31 @@ export function PJOListClient({ pjos, canSeeRevenue = true, canCreatePJO = true 
   const [pjoToDelete, setPjoToDelete] = useState<PJOWithRelations | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
-  let filteredPJOs = filterPJOs(
-    pjos,
-    statusFilter,
-    dateFrom ?? null,
-    dateTo ?? null
-  )
-  
-  // Apply overrun filter
-  if (overrunFilter) {
-    filteredPJOs = filteredPJOs.filter(pjo => pjo.has_cost_overruns === true)
-  }
-  
-  // Apply market type filter
-  filteredPJOs = filterByMarketType(filteredPJOs, marketTypeFilter)
-  
-  // Calculate market type counts from all PJOs (before filtering)
-  const marketTypeCounts = countByMarketType(pjos)
+  const deferredStatusFilter = useDeferredValue(statusFilter)
+  const deferredMarketTypeFilter = useDeferredValue(marketTypeFilter)
 
-  function handleDeleteClick(pjo: PJOWithRelations) {
+  const filteredPJOs = useMemo(() => {
+    let result = filterPJOs(
+      pjos,
+      deferredStatusFilter,
+      dateFrom ?? null,
+      dateTo ?? null
+    )
+
+    if (overrunFilter) {
+      result = result.filter(pjo => pjo.has_cost_overruns === true)
+    }
+
+    return filterByMarketType(result, deferredMarketTypeFilter)
+  }, [pjos, deferredStatusFilter, dateFrom, dateTo, overrunFilter, deferredMarketTypeFilter])
+
+  // Calculate market type counts from all PJOs (before filtering)
+  const marketTypeCounts = useMemo(() => countByMarketType(pjos), [pjos])
+
+  const handleDeleteClick = useCallback((pjo: PJOWithRelations) => {
     setPjoToDelete(pjo)
     setDeleteDialogOpen(true)
-  }
+  }, [])
 
   async function handleConfirmDelete() {
     if (!pjoToDelete) return
@@ -81,13 +84,13 @@ export function PJOListClient({ pjos, canSeeRevenue = true, canCreatePJO = true 
     }
   }
 
-  function handleClearFilters() {
+  const handleClearFilters = useCallback(() => {
     setStatusFilter('all')
     setDateFrom(undefined)
     setDateTo(undefined)
     setOverrunFilter(false)
     setMarketTypeFilter('all')
-  }
+  }, [])
 
   return (
     <div className="space-y-6">

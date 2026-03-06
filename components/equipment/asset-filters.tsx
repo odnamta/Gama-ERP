@@ -1,5 +1,6 @@
 'use client'
 
+import { memo, useCallback } from 'react'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -19,7 +20,7 @@ interface AssetFiltersProps {
   locations: AssetLocation[]
 }
 
-export function AssetFilters({
+export const AssetFilters = memo(function AssetFilters({
   filters,
   onFiltersChange,
   categories,
@@ -97,4 +98,4 @@ export function AssetFilters({
       </Select>
     </div>
   )
-}
+})

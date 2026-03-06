@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useDeferredValue } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,6 +25,7 @@ import { formatCurrency, formatDate } from '@/lib/utils/format'
 import { Plus, Search, Download, Filter, Wallet, Clock, CheckCircle, AlertCircle, AlertTriangle, TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useIsDesktop } from '@/hooks/use-media-query'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 interface BKKRecord {
   id: string
@@ -95,20 +96,22 @@ export function DisbursementsClient({ initialData, userRole, serverStats }: Disb
   const isDesktop = useIsDesktop()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
+  const deferredSearchTerm = useDeferredValue(searchTerm)
 
   const canCreate = ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'finance', 'administration'].includes(userRole)
 
   const filteredData = useMemo(() => {
     return initialData.filter((bkk) => {
+      const lowerSearch = deferredSearchTerm.toLowerCase()
       const matchesSearch =
-        bkk.bkk_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        bkk.purpose?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        bkk.job_orders?.jo_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        bkk.vendors?.vendor_name?.toLowerCase().includes(searchTerm.toLowerCase())
+        bkk.bkk_number.toLowerCase().includes(lowerSearch) ||
+        bkk.purpose?.toLowerCase().includes(lowerSearch) ||
+        bkk.job_orders?.jo_number?.toLowerCase().includes(lowerSearch) ||
+        bkk.vendors?.vendor_name?.toLowerCase().includes(lowerSearch)
       const matchesStatus = statusFilter === 'all' || bkk.status === statusFilter
       return matchesSearch && matchesStatus
     })
-  }, [initialData, searchTerm, statusFilter])
+  }, [initialData, deferredSearchTerm, statusFilter])
 
   // Calculate summary stats
   const stats = useMemo(() => {
@@ -297,52 +300,89 @@ export function DisbursementsClient({ initialData, userRole, serverStats }: Disb
           ))}
         </div>
       ) : (
-        /* Desktop table view */
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>No. BKK</TableHead>
-                  <TableHead>Tanggal</TableHead>
-                  <TableHead>Job Order</TableHead>
-                  <TableHead>Vendor</TableHead>
-                  <TableHead>Keperluan</TableHead>
-                  <TableHead className="text-right">Jumlah</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Diminta Oleh</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredData.map((bkk) => (
-                  <TableRow
-                    key={bkk.id}
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => router.push(`/disbursements/${bkk.id}`)}
-                  >
-                    <TableCell className="font-medium">{bkk.bkk_number}</TableCell>
-                    <TableCell>{formatDate(bkk.created_at)}</TableCell>
-                    <TableCell>{bkk.job_orders?.jo_number || '-'}</TableCell>
-                    <TableCell>{bkk.vendors?.vendor_name || '-'}</TableCell>
-                    <TableCell className="max-w-[200px] truncate">
-                      {bkk.purpose || '-'}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {formatCurrency(bkk.amount_requested)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={cn('capitalize', statusColors[bkk.status])}>
-                        {statusLabels[bkk.status] || bkk.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{bkk.requested_by_profile?.full_name || '-'}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        /* Desktop table view — virtualized */
+        <VirtualizedBKKTable data={filteredData} onRowClick={(id) => router.push(`/disbursements/${id}`)} />
       )}
     </div>
+  )
+}
+
+const ROW_HEIGHT = 53
+
+function VirtualizedBKKTable({ data, onRowClick }: { data: BKKRecord[]; onRowClick: (id: string) => void }) {
+  const parentRef = useRef<HTMLDivElement>(null)
+
+  const virtualizer = useVirtualizer({
+    count: data.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => ROW_HEIGHT,
+    overscan: 10,
+  })
+
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>No. BKK</TableHead>
+              <TableHead>Tanggal</TableHead>
+              <TableHead>Job Order</TableHead>
+              <TableHead>Vendor</TableHead>
+              <TableHead>Keperluan</TableHead>
+              <TableHead className="text-right">Jumlah</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Diminta Oleh</TableHead>
+            </TableRow>
+          </TableHeader>
+        </Table>
+        <div
+          ref={parentRef}
+          className="max-h-[600px] overflow-auto"
+        >
+          <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}>
+            <Table>
+              <TableBody>
+                {virtualizer.getVirtualItems().map((virtualRow) => {
+                  const bkk = data[virtualRow.index]
+                  return (
+                    <TableRow
+                      key={bkk.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => onRowClick(bkk.id)}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: `${virtualRow.size}px`,
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
+                    >
+                      <TableCell className="font-medium">{bkk.bkk_number}</TableCell>
+                      <TableCell>{formatDate(bkk.created_at)}</TableCell>
+                      <TableCell>{bkk.job_orders?.jo_number || '-'}</TableCell>
+                      <TableCell>{bkk.vendors?.vendor_name || '-'}</TableCell>
+                      <TableCell className="max-w-[200px] truncate">
+                        {bkk.purpose || '-'}
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        {formatCurrency(bkk.amount_requested)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={cn('capitalize', statusColors[bkk.status])}>
+                          {statusLabels[bkk.status] || bkk.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{bkk.requested_by_profile?.full_name || '-'}</TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertTriangle, TrendingUp, FileText, DollarSign } from 'lucide-react'
 import { formatIDR } from '@/lib/pjo-utils'
@@ -97,8 +97,8 @@ function calculateMonthlyVariance(pjos: PJOWithRelations[]): MonthlyVariance[] {
     }))
 }
 
-export function VarianceDashboard({ pjos }: VarianceDashboardProps) {
-  const stats = calculateVarianceStats(pjos)
+export const VarianceDashboard = memo(function VarianceDashboard({ pjos }: VarianceDashboardProps) {
+  const stats = useMemo(() => calculateVarianceStats(pjos), [pjos])
   const monthlyVariance = useMemo(() => calculateMonthlyVariance(pjos), [pjos])
   const maxVariance = Math.max(...monthlyVariance.map(m => m.variance), 1)
   
@@ -198,4 +198,4 @@ export function VarianceDashboard({ pjos }: VarianceDashboardProps) {
     )}
     </div>
   )
-}
+})

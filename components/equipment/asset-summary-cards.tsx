@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Truck, Wrench, PauseCircle, DollarSign, FileWarning } from 'lucide-react'
 import { AssetSummaryStats } from '@/types/assets'
@@ -9,7 +10,7 @@ interface AssetSummaryCardsProps {
   stats: AssetSummaryStats
 }
 
-export function AssetSummaryCards({ stats }: AssetSummaryCardsProps) {
+export const AssetSummaryCards = memo(function AssetSummaryCards({ stats }: AssetSummaryCardsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
       <Card>
@@ -78,4 +79,4 @@ export function AssetSummaryCards({ stats }: AssetSummaryCardsProps) {
       </Card>
     </div>
   )
-}
+})

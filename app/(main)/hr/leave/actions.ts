@@ -94,6 +94,34 @@ export async function getLeaveBalances(
 }
 
 /**
+ * Get leave balances for multiple employees in a single query (batch)
+ */
+export async function getLeaveBalancesBatch(
+  employeeIds: string[],
+  year?: number
+): Promise<LeaveBalance[]> {
+  if (employeeIds.length === 0) return [];
+  const supabase = await createClient();
+  const targetYear = year || new Date().getFullYear();
+
+  const { data, error } = await supabase
+    .from('leave_balances')
+    .select(`
+      *,
+      leave_type:leave_types(*)
+    `)
+    .in('employee_id', employeeIds)
+    .eq('year', targetYear);
+
+  if (error) {
+    console.error('[Leave] getLeaveBalancesBatch failed:', error);
+    return [];
+  }
+
+  return (data ?? []) as LeaveBalance[];
+}
+
+/**
  * Get a specific leave balance
  */
 export async function getLeaveBalance(
