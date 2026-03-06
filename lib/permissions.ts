@@ -445,6 +445,7 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'hse.incidents.investigate': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'hse'].includes(p.role),
   'hse.permits.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'ops', 'hse', 'engineer'].includes(p.role),
   'hse.permits.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'hse'].includes(p.role),
+  'hse.documents.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'hse', 'administration', 'hr'].includes(p.role),
   'hse.training.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'hr', 'hse'].includes(p.role),
   'hse.training.view_own': () => true,
   'hse.training.manage': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'hr', 'hse'].includes(p.role),
@@ -463,6 +464,8 @@ const FEATURE_PERMISSION_MAP: Record<FeatureKey, (profile: UserProfile) => boole
   'engineering.drawings.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'hse', 'marketing'].includes(p.role),
   'engineering.assessments.view': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'hse'].includes(p.role),
   'engineering.assessments.create': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'hse'].includes(p.role),
+  'engineering.resources.create': (p) => ['owner', 'director', 'sysadmin', 'operations_manager', 'engineer', 'hse'].includes(p.role),
+  'engineering.resources.manage': (p) => ['owner', 'director', 'sysadmin', 'operations_manager', 'engineer', 'hse'].includes(p.role),
   'engineering.nav': (p) => ['owner', 'director', 'marketing_manager', 'finance_manager', 'operations_manager', 'engineer', 'ops', 'hse'].includes(p.role),
   
   // System Administration

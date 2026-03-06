@@ -228,6 +228,7 @@ export type FeatureKey =
   | 'hse.incidents.investigate'
   | 'hse.permits.view'
   | 'hse.permits.create'
+  | 'hse.documents.create'
   | 'hse.training.view'
   | 'hse.training.view_own'
   | 'hse.training.manage'
@@ -245,6 +246,8 @@ export type FeatureKey =
   | 'engineering.drawings.create'
   | 'engineering.assessments.view'
   | 'engineering.assessments.create'
+  | 'engineering.resources.create'
+  | 'engineering.resources.manage'
   | 'engineering.nav'
   // System Administration
   | 'admin.users.view'

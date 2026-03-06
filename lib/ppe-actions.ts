@@ -754,12 +754,13 @@ export async function deleteIssuance(id: string): Promise<void> {
 
   const supabase = await createClient();
 
-  const { error } = await supabase
+  const { error, count } = await supabase
     .from('ppe_issuance')
-    .delete()
+    .delete({ count: 'exact' })
     .eq('id', id);
 
   if (error) throw new Error(`Failed to delete PPE issuance: ${error.message}`);
+  if (count === 0) throw new Error('Gagal menghapus: data tidak ditemukan atau tidak memiliki izin');
 
   revalidatePath('/hse/ppe/issuance');
   revalidatePath('/hse/ppe/compliance');

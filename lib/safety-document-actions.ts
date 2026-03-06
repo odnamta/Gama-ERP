@@ -123,7 +123,7 @@ export async function createSafetyDocument(
 ): Promise<{ success: boolean; data?: SafetyDocument; error?: string }> {
   try {
     const profile = await getUserProfile();
-    if (!canAccessFeature(profile, 'hse.permits.create')) {
+    if (!canAccessFeature(profile, 'hse.documents.create')) {
       return { success: false, error: 'Tidak memiliki akses' };
     }
 
@@ -360,7 +360,7 @@ export async function updateSafetyDocument(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const profile = await getUserProfile();
-    if (!canAccessFeature(profile, 'hse.permits.create')) {
+    if (!canAccessFeature(profile, 'hse.documents.create')) {
       return { success: false, error: 'Tidak memiliki akses' };
     }
 
@@ -418,7 +418,7 @@ export async function createNewVersion(
 ): Promise<{ success: boolean; data?: SafetyDocument; error?: string }> {
   try {
     const profile = await getUserProfile();
-    if (!canAccessFeature(profile, 'hse.permits.create')) {
+    if (!canAccessFeature(profile, 'hse.documents.create')) {
       return { success: false, error: 'Tidak memiliki akses' };
     }
 
@@ -523,7 +523,7 @@ export async function submitForReview(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const profile = await getUserProfile();
-    if (!canAccessFeature(profile, 'hse.permits.create')) {
+    if (!canAccessFeature(profile, 'hse.documents.create')) {
       return { success: false, error: 'Tidak memiliki akses' };
     }
 
@@ -560,7 +560,7 @@ export async function approveDocument(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const profile = await getUserProfile();
-    if (!canAccessFeature(profile, 'hse.permits.create')) {
+    if (!canAccessFeature(profile, 'hse.documents.create')) {
       return { success: false, error: 'Tidak memiliki akses' };
     }
 
@@ -620,7 +620,7 @@ export async function rejectDocument(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const profile = await getUserProfile();
-    if (!canAccessFeature(profile, 'hse.permits.create')) {
+    if (!canAccessFeature(profile, 'hse.documents.create')) {
       return { success: false, error: 'Tidak memiliki akses' };
     }
 
@@ -686,7 +686,7 @@ export async function acknowledgeDocument(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const profile = await getUserProfile();
-    if (!canAccessFeature(profile, 'hse.permits.create')) {
+    if (!canAccessFeature(profile, 'hse.documents.create')) {
       return { success: false, error: 'Tidak memiliki akses' };
     }
 
@@ -842,7 +842,7 @@ export async function addJSAHazard(
 ): Promise<{ success: boolean; data?: JSAHazard; error?: string }> {
   try {
     const profile = await getUserProfile();
-    if (!canAccessFeature(profile, 'hse.permits.create')) {
+    if (!canAccessFeature(profile, 'hse.documents.create')) {
       return { success: false, error: 'Tidak memiliki akses' };
     }
 
@@ -894,7 +894,7 @@ export async function updateJSAHazard(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const profile = await getUserProfile();
-    if (!canAccessFeature(profile, 'hse.permits.create')) {
+    if (!canAccessFeature(profile, 'hse.documents.create')) {
       return { success: false, error: 'Tidak memiliki akses' };
     }
 
@@ -941,7 +941,7 @@ export async function deleteJSAHazard(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const profile = await getUserProfile();
-    if (!canAccessFeature(profile, 'hse.permits.create')) {
+    if (!canAccessFeature(profile, 'hse.documents.create')) {
       return { success: false, error: 'Tidak memiliki akses' };
     }
 

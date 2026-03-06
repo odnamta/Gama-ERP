@@ -89,7 +89,8 @@ export async function createDisbursement(input: CreateDisbursementInput) {
     revalidatePath('/disbursements')
     return { data, error: null }
   } catch (error) {
-    return { data: null, error: 'Gagal membuat disbursement' }
+    const message = error instanceof Error ? error.message : 'Gagal membuat disbursement'
+    return { data: null, error: message }
   }
 }
 

@@ -196,7 +196,7 @@ export async function getResourceById(id: string): Promise<ResourceWithDetails |
 
 export async function createResource(input: ResourceInput): Promise<EngineeringResource> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 
@@ -260,7 +260,7 @@ export async function createResource(input: ResourceInput): Promise<EngineeringR
 
 export async function updateResource(id: string, input: ResourceInput): Promise<EngineeringResource> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 
@@ -306,7 +306,7 @@ export async function updateResource(id: string, input: ResourceInput): Promise<
 
 export async function deleteResource(id: string): Promise<void> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 
@@ -452,7 +452,7 @@ export async function createAssignment(
   forceCreate: boolean = false
 ): Promise<{ assignment: ResourceAssignment; conflicts?: ConflictResult }> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 
@@ -539,7 +539,7 @@ export async function createAssignment(
 
 export async function updateAssignment(id: string, input: AssignmentInput): Promise<ResourceAssignment> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 
@@ -592,7 +592,7 @@ export async function updateAssignment(id: string, input: AssignmentInput): Prom
 
 export async function deleteAssignment(id: string): Promise<void> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 
@@ -615,7 +615,7 @@ export async function updateAssignmentStatus(
   status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
 ): Promise<ResourceAssignment> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 
@@ -638,7 +638,7 @@ export async function updateAssignmentStatus(
 
 export async function recordActualHours(id: string, actualHours: number): Promise<ResourceAssignment> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 
@@ -690,7 +690,7 @@ export async function setUnavailability(input: UnavailabilityInput): Promise<{
   conflicts: ResourceAssignment[]
 }> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 
@@ -741,7 +741,7 @@ export async function setUnavailability(input: UnavailabilityInput): Promise<{
 
 export async function removeUnavailability(resourceId: string, date: string): Promise<void> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 
@@ -787,7 +787,7 @@ export async function createSkill(input: {
   skill_category?: string
 }): Promise<ResourceSkill> {
   const profile = await getUserProfile();
-  if (!canAccessFeature(profile, 'admin.settings')) {
+  if (!canAccessFeature(profile, 'engineering.resources.create')) {
     throw new Error('Tidak memiliki akses');
   }
 

@@ -36,6 +36,7 @@ import { CheckpointTable } from './checkpoint-table';
 import { RiskAssessmentTable } from './risk-assessment-table';
 import { JmpDocumentUpload } from './jmp-document-upload';
 import { PDFButtons } from '@/components/pdf/pdf-buttons';
+import { PostJourneyForm } from './post-journey-form';
 
 interface JmpDetailViewProps {
   jmp: JmpWithRelations;
@@ -46,6 +47,7 @@ export function JmpDetailView({ jmp, currentUserId }: JmpDetailViewProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [showPostJourney, setShowPostJourney] = useState(false);
 
   const handleSubmitForReview = async () => {
     setLoading(true);
@@ -90,13 +92,17 @@ export function JmpDetailView({ jmp, currentUserId }: JmpDetailViewProps) {
     setLoading(true);
     const result = await startJourney(jmp.id);
     setLoading(false);
-    
+
     if (result.success) {
       toast({ title: 'Success', description: 'Journey started' });
       router.refresh();
     } else {
       toast({ title: 'Error', description: result.error, variant: 'destructive' });
     }
+  };
+
+  const handleCompleteJourney = () => {
+    setShowPostJourney(true);
   };
 
   return (
@@ -145,6 +151,12 @@ export function JmpDetailView({ jmp, currentUserId }: JmpDetailViewProps) {
             <Button onClick={handleStartJourney} disabled={loading}>
               <Play className="mr-2 h-4 w-4" />
               Start Journey
+            </Button>
+          )}
+          {jmp.status === 'active' && (
+            <Button onClick={handleCompleteJourney} disabled={loading}>
+              <CheckCircle className="mr-2 h-4 w-4" />
+              Complete Journey
             </Button>
           )}
           <PDFButtons
@@ -400,6 +412,13 @@ export function JmpDetailView({ jmp, currentUserId }: JmpDetailViewProps) {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <PostJourneyForm
+        open={showPostJourney}
+        onOpenChange={setShowPostJourney}
+        jmp={jmp}
+        onComplete={() => router.refresh()}
+      />
     </div>
   );
 }
