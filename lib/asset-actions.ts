@@ -510,7 +510,67 @@ export async function createAssetDocument(
 }
 
 /**
- * Delete asset document
+ * Upload a file for an asset document to Supabase Storage
+ * Returns the storage path (not a signed URL)
+ */
+export async function uploadAssetDocumentFile(
+  assetId: string,
+  file: File
+): Promise<ActionResult<string>> {
+  const profile = await getUserProfile()
+  if (!profile || !profileHasRole(profile, [...ASSET_WRITE_ROLES])) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png']
+  if (!allowedTypes.includes(file.type)) {
+    return { success: false, error: 'Format file harus PDF, JPEG, atau PNG' }
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    return { success: false, error: 'Ukuran file maksimal 10MB' }
+  }
+
+  const supabase = await createClient()
+  const fileExt = file.name.split('.').pop()
+  const storagePath = `equipment_documents/${assetId}/${Date.now()}.${fileExt}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('assets')
+    .upload(storagePath, file)
+
+  if (uploadError) {
+    return { success: false, error: uploadError.message }
+  }
+
+  return { success: true, data: storagePath }
+}
+
+/**
+ * Get a signed URL for an asset document file
+ */
+export async function getAssetDocumentSignedUrl(
+  storagePath: string
+): Promise<ActionResult<string>> {
+  const profile = await getUserProfile()
+  if (!profile || !profileHasRole(profile, [...ASSET_READ_ROLES])) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const supabase = await createClient()
+  const { data, error } = await supabase.storage
+    .from('assets')
+    .createSignedUrl(storagePath, 3600) // 1 hour expiry
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  return { success: true, data: data.signedUrl }
+}
+
+/**
+ * Delete asset document (and its file from storage if exists)
  */
 export async function deleteAssetDocument(
   documentId: string
@@ -521,16 +581,32 @@ export async function deleteAssetDocument(
   }
 
   const supabase = await createClient()
-  
+
+  // Get document first to check for file
+  const { data: doc } = await supabase
+    .from('asset_documents')
+    .select('document_url')
+    .eq('id', documentId)
+    .single()
+
   const { error } = await supabase
     .from('asset_documents')
     .delete()
     .eq('id', documentId)
-  
+
   if (error) {
     return { success: false, error: error.message }
   }
-  
+
+  // Clean up storage file if exists
+  if (doc?.document_url) {
+    try {
+      await supabase.storage.from('assets').remove([doc.document_url])
+    } catch {
+      // Storage cleanup failure is non-critical
+    }
+  }
+
   revalidatePath('/equipment')
   return { success: true, data: undefined as void }
 }

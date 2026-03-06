@@ -21,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { FileText, Trash2, ExternalLink, AlertTriangle, Clock, CheckCircle } from 'lucide-react'
+import { FileText, Trash2, Download, AlertTriangle, Clock, CheckCircle, Loader2 } from 'lucide-react'
 import { AssetDocument } from '@/types/assets'
 import {
   getAssetDocumentTypeLabel,
@@ -29,6 +29,8 @@ import {
   getDocumentExpiryStatus,
   calculateDaysUntilExpiry,
 } from '@/lib/asset-utils'
+import { getAssetDocumentSignedUrl } from '@/lib/asset-actions'
+import { useToast } from '@/hooks/use-toast'
 
 interface AssetDocumentListProps {
   documents: AssetDocument[]
@@ -43,6 +45,27 @@ export function AssetDocumentList({
 }: AssetDocumentListProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const { toast } = useToast()
+
+  const handleDownload = async (doc: AssetDocument) => {
+    if (!doc.document_url) return
+    setDownloadingId(doc.id)
+    try {
+      const result = await getAssetDocumentSignedUrl(doc.document_url)
+      if (!result.success) {
+        toast({
+          title: 'Error',
+          description: result.error || 'Gagal mengunduh file',
+          variant: 'destructive',
+        })
+        return
+      }
+      window.open(result.data, '_blank')
+    } finally {
+      setDownloadingId(null)
+    }
+  }
 
   const handleDelete = async () => {
     if (!deleteId || !onDelete) return
@@ -142,15 +165,14 @@ export function AssetDocumentList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      asChild
+                      onClick={() => handleDownload(doc)}
+                      disabled={downloadingId === doc.id}
                     >
-                      <a
-                        href={doc.document_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
+                      {downloadingId === doc.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Download className="h-4 w-4" />
+                      )}
                     </Button>
                   )}
                   {canDelete && onDelete && (

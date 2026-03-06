@@ -171,8 +171,25 @@ export default function AssetDetailPage() {
     loadData()
   }, [assetId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleAddDocument = async (data: AssetDocumentFormData) => {
-    const result = await createAssetDocument(assetId, data)
+  const handleAddDocument = async (data: AssetDocumentFormData, file?: File) => {
+    let documentUrl: string | undefined
+
+    // Upload file first if provided
+    if (file) {
+      const { uploadAssetDocumentFile } = await import('@/lib/asset-actions')
+      const uploadResult = await uploadAssetDocumentFile(assetId, file)
+      if (!uploadResult.success) {
+        toast({
+          title: 'Error',
+          description: uploadResult.error || 'Gagal upload file',
+          variant: 'destructive',
+        })
+        return
+      }
+      documentUrl = uploadResult.data
+    }
+
+    const result = await createAssetDocument(assetId, data, documentUrl)
     if (!result.success) {
       toast({
         title: 'Error',

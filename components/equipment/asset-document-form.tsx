@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,14 +20,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Upload, X } from 'lucide-react'
 import { AssetDocumentFormData, AssetDocumentType } from '@/types/assets'
 import { ASSET_DOCUMENT_TYPES } from '@/lib/asset-utils'
+
+const ALLOWED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 interface AssetDocumentFormProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (data: AssetDocumentFormData) => Promise<void>
+  onSubmit: (data: AssetDocumentFormData, file?: File) => Promise<void>
 }
 
 export function AssetDocumentForm({
@@ -36,6 +39,9 @@ export function AssetDocumentForm({
   onSubmit,
 }: AssetDocumentFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState<AssetDocumentFormData>({
     document_type: 'other',
     document_name: '',
@@ -45,13 +51,37 @@ export function AssetDocumentForm({
     notes: '',
   })
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFileError(null)
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      setFileError('Format file harus PDF, JPEG, atau PNG')
+      return
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      setFileError('Ukuran file maksimal 10MB')
+      return
+    }
+    setSelectedFile(file)
+  }
+
+  const clearFile = () => {
+    setSelectedFile(null)
+    setFileError(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.document_name.trim()) return
 
     setIsSubmitting(true)
     try {
-      await onSubmit(formData)
+      await onSubmit(formData, selectedFile || undefined)
       // Reset form
       setFormData({
         document_type: 'other',
@@ -61,6 +91,7 @@ export function AssetDocumentForm({
         reminder_days: 30,
         notes: '',
       })
+      clearFile()
       onOpenChange(false)
     } finally {
       setIsSubmitting(false)
@@ -167,6 +198,42 @@ export function AssetDocumentForm({
                 placeholder="Additional notes about this document..."
                 rows={3}
               />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="file">Upload File</Label>
+              {selectedFile ? (
+                <div className="flex items-center gap-2 rounded-md border p-2 text-sm">
+                  <Upload className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="truncate flex-1">{selectedFile.name}</span>
+                  <span className="text-muted-foreground shrink-0">
+                    {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 shrink-0"
+                    onClick={clearFile}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <Input
+                  id="file"
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleFileChange}
+                />
+              )}
+              {fileError && (
+                <p className="text-xs text-destructive">{fileError}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                PDF, JPEG, atau PNG. Maksimal 10MB.
+              </p>
             </div>
           </div>
 
