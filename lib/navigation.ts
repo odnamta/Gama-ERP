@@ -26,6 +26,7 @@ import {
   Wallet,
   Sparkles,
   Trophy,
+  BookOpen,
 } from 'lucide-react'
 import { UserRole, UserPermissions, UserProfile, DepartmentScope } from '@/types/permissions'
 import { getInheritedRoles, DEPARTMENT_STAFF_ROLES } from '@/lib/permissions'
@@ -440,6 +441,22 @@ export const NAV_ITEMS: NavItem[] = [
     href: '/finance/vendor-invoices',
     icon: FileStack,
     roles: ['owner', 'director', 'finance_manager', 'operations_manager', 'administration', 'finance'],
+  },
+  {
+    title: 'Accounting',
+    href: '/finance/chart-of-accounts',
+    icon: BookOpen,
+    roles: ['owner', 'director', 'sysadmin', 'finance_manager', 'finance'],
+    children: [
+      {
+        title: 'Chart of Accounts',
+        href: '/finance/chart-of-accounts',
+      },
+      {
+        title: 'Journal Entries',
+        href: '/finance/journal-entries',
+      },
+    ],
   },
   {
     title: 'Reports',
