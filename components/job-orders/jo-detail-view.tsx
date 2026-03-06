@@ -749,6 +749,7 @@ export function JODetailView({ jobOrder, userId, userRole }: JODetailViewProps) 
         bkks={bkks}
         userRole={userRole || 'ops'}
         canRequest={['active', 'in_progress'].includes(jobOrder.status)}
+        budgetAmount={jobOrder.final_cost}
       />
 
       {/* Attachments */}
