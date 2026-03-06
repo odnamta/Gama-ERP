@@ -304,3 +304,141 @@ export async function deleteDisbursement(id: string) {
     return { error: 'Gagal menghapus disbursement' }
   }
 }
+
+/**
+ * Fetch vendor bank details for auto-fill in BKK creation forms
+ */
+export async function getVendorBankDetails(vendorId: string): Promise<{
+  bank_name: string | null
+  bank_branch: string | null
+  bank_account: string | null
+  bank_account_name: string | null
+  vendor_name: string
+} | null> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('vendors')
+    .select('vendor_name, bank_name, bank_branch, bank_account, bank_account_name')
+    .eq('id', vendorId)
+    .single()
+
+  if (error || !data) return null
+
+  return data
+}
+
+export interface BKKDashboardStats {
+  totalCount: number
+  totalAmount: number
+  pendingCount: number
+  pendingAmount: number
+  approvedCount: number
+  approvedAmount: number
+  releasedCount: number
+  releasedAmount: number
+  settledCount: number
+  settledAmount: number
+  overdueCount: number
+  overdueAmount: number
+  budgetUtilization: {
+    totalBudget: number
+    totalDisbursed: number
+    utilizationPercent: number
+  }
+}
+
+/**
+ * Get enhanced BKK dashboard stats including overdue settlement and budget utilization
+ */
+export async function getBKKDashboardStats(): Promise<BKKDashboardStats> {
+  const supabase = await createClient()
+
+  // Fetch all BKK records with status and amounts
+  const { data: allBKKs } = await (supabase
+    .from('bukti_kas_keluar' as any)
+    .select('id, status, amount_requested, released_at, jo_id, budget_amount') as any)
+
+  const records = (allBKKs || []) as {
+    id: string
+    status: string
+    amount_requested: number
+    released_at: string | null
+    jo_id: string
+    budget_amount: number | null
+  }[]
+
+  const aggregate = (statuses: string[]) => {
+    const filtered = records.filter((r) => statuses.includes(r.status))
+    return {
+      count: filtered.length,
+      amount: filtered.reduce((sum, r) => sum + Number(r.amount_requested || 0), 0),
+    }
+  }
+
+  const all = aggregate(['draft', 'pending', 'approved', 'released', 'settled', 'rejected', 'cancelled'])
+  const pending = aggregate(['pending'])
+  const approved = aggregate(['approved'])
+  const released = aggregate(['released'])
+  const settled = aggregate(['settled'])
+
+  // Overdue: released but not settled for >30 days
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  const overdueRecords = records.filter(
+    (r) =>
+      r.status === 'released' &&
+      r.released_at &&
+      new Date(r.released_at) < thirtyDaysAgo
+  )
+  const overdueCount = overdueRecords.length
+  const overdueAmount = overdueRecords.reduce(
+    (sum, r) => sum + Number(r.amount_requested || 0),
+    0
+  )
+
+  // Budget utilization: fetch linked JO final_cost totals for BKKs that are released/settled
+  const activeJoIds = [
+    ...new Set(
+      records
+        .filter((r) => ['released', 'settled'].includes(r.status))
+        .map((r) => r.jo_id)
+    ),
+  ]
+
+  let totalBudget = 0
+  if (activeJoIds.length > 0) {
+    const { data: joData } = await supabase
+      .from('job_orders')
+      .select('id, final_cost')
+      .in('id', activeJoIds)
+
+    totalBudget = (joData || []).reduce(
+      (sum, jo) => sum + Number(jo.final_cost || 0),
+      0
+    )
+  }
+
+  const totalDisbursed = released.amount + settled.amount
+  const utilizationPercent = totalBudget > 0 ? (totalDisbursed / totalBudget) * 100 : 0
+
+  return {
+    totalCount: all.count,
+    totalAmount: all.amount,
+    pendingCount: pending.count,
+    pendingAmount: pending.amount,
+    approvedCount: approved.count,
+    approvedAmount: approved.amount,
+    releasedCount: released.count,
+    releasedAmount: released.amount,
+    settledCount: settled.count,
+    settledAmount: settled.amount,
+    overdueCount,
+    overdueAmount,
+    budgetUtilization: {
+      totalBudget,
+      totalDisbursed,
+      utilizationPercent,
+    },
+  }
+}
