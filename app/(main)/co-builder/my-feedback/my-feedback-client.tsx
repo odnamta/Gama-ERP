@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,6 +17,10 @@ import {
   XCircle,
   AlertTriangle,
   MessageSquare,
+  Shield,
+  Star,
+  Copy,
+  Sparkles,
 } from 'lucide-react'
 import { SupportThread } from '@/components/support/support-thread'
 import type { CompetitionFeedback } from '../actions'
@@ -30,22 +34,36 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: typeof Bug; color: 
 }
 
 const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: typeof Clock }> = {
+  new: { label: 'Menunggu Review', variant: 'secondary', icon: Clock },
   pending_review: { label: 'Menunggu Review', variant: 'secondary', icon: Clock },
-  acknowledged: { label: 'Diterima', variant: 'default', icon: CheckCircle2 },
+  acknowledged: { label: 'Ditinjau', variant: 'default', icon: CheckCircle2 },
   in_progress: { label: 'Diproses', variant: 'default', icon: AlertTriangle },
   fixed: { label: 'Diperbaiki', variant: 'default', icon: CheckCircle2 },
-  implemented: { label: 'Diimplementasi', variant: 'default', icon: CheckCircle2 },
-  wont_fix: { label: 'Tidak Diperbaiki', variant: 'destructive', icon: XCircle },
-  duplicate: { label: 'Duplikat', variant: 'outline', icon: XCircle },
+  implemented: { label: 'Diimplementasi', variant: 'default', icon: Sparkles },
+  wont_fix: { label: 'Ditunda', variant: 'secondary', icon: Clock },
+  duplicate: { label: 'Duplikat', variant: 'outline', icon: Copy },
 }
 
-export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints }: { feedback: CompetitionFeedback[]; currentUserId: string; actualTotalPoints?: number }) {
-  const [filter, setFilter] = useState<string>('all')
+type FilterMode = 'all' | 'category' | 'status'
 
-  const filtered = filter === 'all' ? feedback : feedback.filter(f => f.category === filter)
+export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints }: { feedback: CompetitionFeedback[]; currentUserId: string; actualTotalPoints?: number }) {
+  const [filterMode, setFilterMode] = useState<FilterMode>('all')
+  const [filterValue, setFilterValue] = useState<string>('all')
+
+  const filtered = filterValue === 'all'
+    ? feedback
+    : filterMode === 'category'
+      ? feedback.filter(f => f.category === filterValue)
+      : feedback.filter(f => f.admin_status === filterValue)
 
   const totalPoints = actualTotalPoints ?? feedback.reduce((sum, f) => sum + f.total_points, 0)
-  const reviewedCount = feedback.filter(f => f.admin_status !== 'pending_review').length
+
+  // Status counts
+  const fixedCount = feedback.filter(f => f.admin_status === 'fixed' || f.admin_status === 'implemented').length
+  const duplicateCount = feedback.filter(f => f.admin_status === 'duplicate').length
+  const deferredCount = feedback.filter(f => f.admin_status === 'wont_fix').length
+  const pendingCount = feedback.filter(f => f.admin_status === 'new' || f.admin_status === 'pending_review').length
+  const acknowledgedCount = feedback.filter(f => f.admin_status === 'acknowledged').length
 
   return (
     <div className="space-y-6">
@@ -57,17 +75,56 @@ export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints }:
         <div>
           <h1 className="text-2xl font-bold">Feedback Saya</h1>
           <p className="text-sm text-muted-foreground">
-            {feedback.length} feedback | {totalPoints} total poin | {reviewedCount} sudah direview
+            {feedback.length} feedback | {totalPoints} total poin
           </p>
         </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <Card className="cursor-pointer hover:shadow-sm transition-shadow" onClick={() => { setFilterMode('status'); setFilterValue(fixedCount > 0 ? 'fixed' : 'all') }}>
+          <CardContent className="p-3 text-center">
+            <CheckCircle2 className="h-5 w-5 mx-auto mb-1 text-green-500" />
+            <div className="text-xl font-bold text-green-600">{fixedCount}</div>
+            <div className="text-xs text-muted-foreground">Diperbaiki</div>
+          </CardContent>
+        </Card>
+        <Card className="cursor-pointer hover:shadow-sm transition-shadow" onClick={() => { setFilterMode('status'); setFilterValue('acknowledged') }}>
+          <CardContent className="p-3 text-center">
+            <CheckCircle2 className="h-5 w-5 mx-auto mb-1 text-blue-500" />
+            <div className="text-xl font-bold text-blue-600">{acknowledgedCount}</div>
+            <div className="text-xs text-muted-foreground">Ditinjau</div>
+          </CardContent>
+        </Card>
+        <Card className="cursor-pointer hover:shadow-sm transition-shadow" onClick={() => { setFilterMode('status'); setFilterValue('wont_fix') }}>
+          <CardContent className="p-3 text-center">
+            <Clock className="h-5 w-5 mx-auto mb-1 text-amber-500" />
+            <div className="text-xl font-bold text-amber-600">{deferredCount}</div>
+            <div className="text-xs text-muted-foreground">Ditunda</div>
+          </CardContent>
+        </Card>
+        <Card className="cursor-pointer hover:shadow-sm transition-shadow" onClick={() => { setFilterMode('status'); setFilterValue('duplicate') }}>
+          <CardContent className="p-3 text-center">
+            <Copy className="h-5 w-5 mx-auto mb-1 text-gray-400" />
+            <div className="text-xl font-bold text-gray-500">{duplicateCount}</div>
+            <div className="text-xs text-muted-foreground">Duplikat</div>
+          </CardContent>
+        </Card>
+        <Card className="cursor-pointer hover:shadow-sm transition-shadow" onClick={() => { setFilterMode('status'); setFilterValue('new') }}>
+          <CardContent className="p-3 text-center">
+            <Star className="h-5 w-5 mx-auto mb-1 text-orange-500" />
+            <div className="text-xl font-bold text-orange-600">{pendingCount}</div>
+            <div className="text-xs text-muted-foreground">Menunggu</div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Category Filter */}
       <div className="flex flex-wrap gap-2">
         <Button
-          variant={filter === 'all' ? 'default' : 'outline'}
+          variant={filterValue === 'all' ? 'default' : 'outline'}
           size="sm"
-          onClick={() => setFilter('all')}
+          onClick={() => { setFilterMode('all'); setFilterValue('all') }}
         >
           Semua ({feedback.length})
         </Button>
@@ -78,9 +135,9 @@ export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints }:
           return (
             <Button
               key={key}
-              variant={filter === key ? 'default' : 'outline'}
+              variant={filterMode === 'category' && filterValue === key ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setFilter(key)}
+              onClick={() => { setFilterMode('category'); setFilterValue(key) }}
             >
               <Icon className={`mr-1 h-3 w-3 ${config.color}`} />
               {config.label} ({count})
@@ -108,14 +165,16 @@ export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints }:
               day: 'numeric', month: 'short', year: 'numeric',
             })
 
+            const isDimmed = fb.admin_status === 'duplicate' || fb.admin_status === 'wont_fix'
+
             return (
-              <Card key={fb.id} className="hover:shadow-sm transition-shadow">
+              <Card key={fb.id} className={`hover:shadow-sm transition-shadow ${isDimmed ? 'opacity-60' : ''}`}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <CatIcon className={`h-4 w-4 shrink-0 ${cat.color}`} />
-                        <h3 className="font-medium truncate">{fb.title}</h3>
+                        <h3 className={`font-medium truncate ${fb.admin_status === 'duplicate' ? 'line-through' : ''}`}>{fb.title}</h3>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                         {fb.description}
@@ -133,13 +192,24 @@ export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints }:
                             Impact: {fb.impact_level} (x{fb.impact_multiplier})
                           </Badge>
                         )}
-                        <span className="text-muted-foreground">{createdDate}</span>
-                        {fb.page_url && (
-                          <span className="text-muted-foreground truncate max-w-[200px]">
-                            {fb.page_url}
-                          </span>
+                        {fb.is_ai_suggestion && (
+                          <Badge variant="secondary" className="text-xs">
+                            0.5x — ditunda ke fase AI
+                          </Badge>
                         )}
+                        <span className="text-muted-foreground">{createdDate}</span>
                       </div>
+
+                      {/* Admin Response */}
+                      {fb.admin_response && (
+                        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Shield className="h-3.5 w-3.5 text-blue-600" />
+                            <span className="text-xs font-semibold text-blue-700 dark:text-blue-300">Balasan Admin</span>
+                          </div>
+                          <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">{fb.admin_response}</p>
+                        </div>
+                      )}
 
                       {/* Support Thread */}
                       <div className="mt-3">
@@ -153,8 +223,17 @@ export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints }:
 
                     {/* Points */}
                     <div className="text-right shrink-0">
-                      <div className="text-lg font-bold text-orange-600">+{fb.total_points}</div>
-                      <div className="text-xs text-muted-foreground">poin</div>
+                      {fb.admin_status === 'duplicate' ? (
+                        <>
+                          <div className="text-lg font-bold text-gray-400 line-through">+{fb.base_points}</div>
+                          <div className="text-xs text-muted-foreground">0 poin</div>
+                        </>
+                      ) : (
+                        <>
+                          <div className={`text-lg font-bold ${fb.is_ai_suggestion ? 'text-amber-500' : 'text-orange-600'}`}>+{fb.total_points}</div>
+                          <div className="text-xs text-muted-foreground">poin</div>
+                        </>
+                      )}
                     </div>
                   </div>
                 </CardContent>

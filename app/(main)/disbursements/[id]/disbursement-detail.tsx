@@ -42,6 +42,7 @@ import {
   settleDisbursement,
   deleteDisbursement,
 } from '../actions'
+import { AttachmentsSection } from '@/components/attachments/attachments-section'
 
 interface BKKRecord {
   id: string
@@ -475,6 +476,14 @@ export function DisbursementDetail({ bkk, userRole, userId }: DisbursementDetail
           </CardContent>
         </Card>
       </div>
+
+      {/* Receipt Attachments */}
+      <AttachmentsSection
+        entityType="bkk"
+        entityId={bkk.id}
+        title="Scan Nota / Kwitansi"
+        maxFiles={10}
+      />
 
       {/* Reject Dialog */}
       <AlertDialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>

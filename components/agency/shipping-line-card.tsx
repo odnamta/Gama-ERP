@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { ShippingLine, SERVICE_TYPE_LABELS } from '@/types/agency';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 interface ShippingLineCardProps {
   shippingLine: ShippingLine;
@@ -35,6 +36,8 @@ export function ShippingLineCard({
   onTogglePreferred,
   onDelete,
 }: ShippingLineCardProps) {
+  const router = useRouter();
+
   const formatCurrency = (amount: number | undefined) => {
     if (!amount) return '-';
     return new Intl.NumberFormat('en-US', {
@@ -46,7 +49,10 @@ export function ShippingLineCard({
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card
+      className="hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => router.push(`/agency/shipping-lines/${shippingLine.id}`)}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
@@ -62,11 +68,11 @@ export function ShippingLineCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
               <DropdownMenuItem asChild>
                 <Link href={`/agency/shipping-lines/${shippingLine.id}`}>
                   <Eye className="mr-2 h-4 w-4" />
@@ -121,7 +127,7 @@ export function ShippingLineCard({
         )}
 
         {/* Contact Info */}
-        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground" onClick={(e) => e.stopPropagation()}>
           {shippingLine.localAgentPhone && (
             <a
               href={`tel:${shippingLine.localAgentPhone}`}

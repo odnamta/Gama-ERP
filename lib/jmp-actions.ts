@@ -294,7 +294,7 @@ export async function getJmpById(id: string): Promise<JmpWithRelations | null> {
         project:projects(id, name),
         jobOrder:job_orders(id, jo_number),
         routeSurvey:route_surveys(id, survey_number),
-        convoyCommander:employees!convoy_commander_id(id, full_name, phone)
+        convoyCommander:employees!journey_management_plans_convoy_commander_id_fkey(id, full_name, phone)
       `)
       .eq('id', id)
       .single();
@@ -361,7 +361,7 @@ export async function getJmpList(filters: JmpFilters): Promise<JmpWithRelations[
         customer:customers(id, name),
         project:projects(id, name),
         jobOrder:job_orders(id, jo_number),
-        convoyCommander:employees!convoy_commander_id(id, full_name)
+        convoyCommander:employees!journey_management_plans_convoy_commander_id_fkey(id, full_name)
       `)
       .order('created_at', { ascending: false });
 
@@ -414,7 +414,7 @@ export async function getActiveJourneys(): Promise<JmpWithRelations[]> {
       .select(`
         *,
         customer:customers(id, name),
-        convoyCommander:employees!convoy_commander_id(id, full_name, phone)
+        convoyCommander:employees!journey_management_plans_convoy_commander_id_fkey(id, full_name, phone)
       `)
       .eq('status', 'active')
       .order('actual_departure', { ascending: true });

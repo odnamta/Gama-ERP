@@ -2,16 +2,26 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Edit, Loader2, Star, CheckCircle2, Truck, Plus, FileText } from 'lucide-react';
+import { ArrowLeft, Edit, Loader2, Star, CheckCircle2, Truck, Plus, FileText, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { VendorDetailView } from '@/components/vendors/vendor-detail-view';
 import { EquipmentTable } from '@/components/vendors/equipment-table';
 import { VendorDocuments } from '@/components/vendors/vendor-documents';
 import { VendorRatesSection } from '@/components/vendors/vendor-rates-section';
 import { VendorWithStats, VendorEquipment, VendorDocument } from '@/types/vendors';
 import type { VendorRate } from '@/types/vendor-rate';
-import { getVendorById, verifyVendor, togglePreferredVendor } from '../actions';
+import { getVendorById, verifyVendor, togglePreferredVendor, deleteVendor } from '../actions';
 import { getVendorEquipment, deleteEquipment } from '../equipment-actions';
 import { getVendorDocuments, uploadVendorDocument, deleteVendorDocument } from '../document-actions';
 import { getVendorRates } from '@/lib/vendor-rate-actions';
@@ -31,12 +41,15 @@ export default function VendorDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isTogglingPreferred, setIsTogglingPreferred] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const vendorId = params.id as string;
   const canEdit = canAccess('vendors.edit');
   const canVerify = canAccess('vendors.verify');
   const canSetPreferred = canAccess('vendors.set_preferred');
   const canAddEquipment = canAccess('vendors.add_equipment');
+  const canDelete = canAccess('vendors.delete');
 
   const loadData = async () => {
     const [vendorResult, equipmentResult, documentsResult, ratesResult] = await Promise.all([
@@ -135,6 +148,27 @@ export default function VendorDetailPage() {
     setIsTogglingPreferred(false);
   };
 
+  const handleDelete = async () => {
+    if (!vendor) return;
+    setIsDeleting(true);
+    const result = await deleteVendor(vendorId);
+    if (result.error) {
+      toast({
+        title: 'Error',
+        description: result.error,
+        variant: 'destructive',
+      });
+      setIsDeleting(false);
+    } else {
+      toast({
+        title: 'Success',
+        description: 'Vendor berhasil dinonaktifkan',
+      });
+      router.push('/vendors');
+    }
+    setDeleteDialogOpen(false);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -217,6 +251,16 @@ export default function VendorDetailPage() {
             <Button onClick={() => router.push(`/vendors/${vendorId}/edit`)}>
               <Edit className="mr-2 h-4 w-4" />
               Edit
+            </Button>
+          )}
+
+          {canDelete && vendor.is_active && (
+            <Button
+              variant="destructive"
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Hapus
             </Button>
           )}
         </div>
@@ -326,6 +370,29 @@ export default function VendorDetailPage() {
           />
         </CardContent>
       </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Hapus Vendor</AlertDialogTitle>
+            <AlertDialogDescription>
+              Apakah Anda yakin ingin menonaktifkan vendor &quot;{vendor.vendor_name}&quot;?
+              Vendor akan ditandai sebagai tidak aktif dan tidak akan muncul di daftar default.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Menghapus...' : 'Hapus'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
