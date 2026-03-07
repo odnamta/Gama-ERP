@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import Link from 'next/link'
 import { PJOWithRelations } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -25,7 +26,7 @@ interface PJOTableProps {
   canSeeRevenue?: boolean
 }
 
-export function PJOTable({ pjos, onDelete, canSeeRevenue = true }: PJOTableProps) {
+export const PJOTable = memo(function PJOTable({ pjos, onDelete, canSeeRevenue = true }: PJOTableProps) {
   const isDesktop = useIsDesktop()
 
   if (pjos.length === 0) {
@@ -203,4 +204,4 @@ export function PJOTable({ pjos, onDelete, canSeeRevenue = true }: PJOTableProps
       </Table>
     </div>
   )
-}
+})

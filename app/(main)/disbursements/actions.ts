@@ -5,6 +5,11 @@ import { revalidatePath } from 'next/cache'
 import { getUserProfile } from '@/lib/permissions-server'
 import { canAccessFeature } from '@/lib/permissions'
 import { logActivity } from '@/lib/activity-logger'
+import {
+  checkAdvanceEligibility,
+  buildAdvanceBlockMessage,
+  type AdvanceEligibility,
+} from '@/lib/advance-guard'
 
 interface CreateDisbursementInput {
   jo_id: string
@@ -18,6 +23,16 @@ interface CreateDisbursementInput {
   notes?: string
   advance_recipient_name?: string
   return_deadline?: string
+}
+
+/**
+ * Server action for client-side real-time advance eligibility check.
+ * Called when user types/selects an advance recipient name.
+ */
+export async function checkRecipientEligibility(
+  recipientName: string
+): Promise<AdvanceEligibility> {
+  return checkAdvanceEligibility(recipientName)
 }
 
 export async function generateBKKNumber(): Promise<string> {
@@ -60,6 +75,18 @@ export async function createDisbursement(input: CreateDisbursementInput) {
     }
     const entityType = profile.role === 'agency' ? 'gama_agency' : 'gama_main'
     const requestedBy = profile.id
+
+    // HARD BLOCK: check advance eligibility if this is an advance BKK
+    if (input.advance_recipient_name && input.advance_recipient_name.trim()) {
+      const eligibility = await checkAdvanceEligibility(input.advance_recipient_name)
+      if (!eligibility.eligible) {
+        const blockMessage = buildAdvanceBlockMessage(
+          input.advance_recipient_name,
+          eligibility.overdueAdvances
+        )
+        return { data: null, error: blockMessage }
+      }
+    }
 
     const { data, error } = await (supabase
       .from('bukti_kas_keluar' as any)

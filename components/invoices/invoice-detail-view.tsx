@@ -21,7 +21,7 @@ import { formatIDR, formatDate, formatDateTime } from '@/lib/pjo-utils'
 import { isInvoiceOverdue, VAT_RATE } from '@/lib/invoice-utils'
 import { updateInvoiceStatus, updateCollectionStatus, postInvoiceToJournal, CollectionStatus } from '@/app/(main)/invoices/actions'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, Send, XCircle, AlertTriangle, Loader2, CheckCircle, PhoneCall, CalendarClock, BookOpen } from 'lucide-react'
+import { ArrowLeft, Send, XCircle, AlertTriangle, Loader2, CheckCircle, PhoneCall, CalendarClock, BookOpen, Mail } from 'lucide-react'
 import { Textarea } from '@/components/ui/textarea'
 import { AttachmentsSection } from '@/components/attachments'
 import { PaymentsSection } from '@/components/payments'
@@ -29,6 +29,7 @@ import { canRecordPayment } from '@/lib/payment-utils'
 import { PDFButtons } from '@/components/pdf/pdf-buttons'
 import { BGSection } from '@/components/invoices/bg-section'
 import { RevenueReconciliationCard, type ReconciliationData } from '@/components/invoices/revenue-reconciliation-card'
+import { sendInvoiceReminder } from '@/lib/email-actions'
 
 interface InvoiceDetailViewProps {
   invoice: InvoiceWithRelations
@@ -52,6 +53,7 @@ export function InvoiceDetailView({ invoice, userRole = 'viewer', userId, reconc
     (invoiceAny.next_follow_up_date as string) || ''
   )
   const [isSavingCollection, setIsSavingCollection] = useState(false)
+  const [isSendingReminder, setIsSendingReminder] = useState(false)
 
   const canMarkOverdue = (invoice.status === 'sent' || invoice.status === 'received') && isInvoiceOverdue(invoice.due_date, invoice.status as InvoiceStatus)
   const canManagePayments = canRecordPayment(userRole)
@@ -119,6 +121,28 @@ export function InvoiceDetailView({ invoice, userRole = 'viewer', userId, reconc
             <Button variant="outline" onClick={() => handleStatusChange('overdue')} disabled={isLoading}>
               <AlertTriangle className="mr-2 h-4 w-4" />
               Mark Overdue
+            </Button>
+          )}
+          {['sent', 'received', 'overdue', 'partial'].includes(invoice.status) && canMarkOverdue && (
+            <Button
+              variant="outline"
+              disabled={isSendingReminder}
+              onClick={async () => {
+                setIsSendingReminder(true)
+                try {
+                  const result = await sendInvoiceReminder(invoice.id)
+                  if (result.success) {
+                    toast({ title: 'Berhasil', description: 'Pengingat berhasil dikirim ke tim finance' })
+                  } else {
+                    toast({ title: 'Gagal', description: result.error || 'Gagal mengirim pengingat', variant: 'destructive' })
+                  }
+                } finally {
+                  setIsSendingReminder(false)
+                }
+              }}
+            >
+              {isSendingReminder ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
+              Kirim Pengingat
             </Button>
           )}
           {['sent', 'received', 'partial', 'paid'].includes(invoice.status) && userRole !== 'ops' && (

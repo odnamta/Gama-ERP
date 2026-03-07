@@ -39,6 +39,7 @@ import { RouteHistoryPills } from './route-history-pills'
 import { JO_SUBCATEGORY_OPTIONS, SERVICE_SCOPE_SUBCATEGORIES } from '@/types/jo-category'
 import { checkPJODuplicates, PJODuplicateResult } from '@/lib/duplicate-detection'
 import { getHistoricalEstimation, HistoricalEstimation } from '@/lib/historical-estimation'
+import { RouteDistancePanel } from './route-distance-panel'
 
 const revenueItemSchema = z.object({
   id: z.string().optional(),
@@ -311,6 +312,37 @@ export function PJOForm({ projects, pjo, existingRevenueItems = [], existingCost
     setValue('cost_items', items)
     setCostItemErrors({})
   }, [setValue])
+
+  // Rate application callbacks for RouteDistancePanel
+  const handleApplyRevenue = useCallback((description: string, unitPrice: number, unit: string) => {
+    const newItem: RevenueItemRow = {
+      description,
+      quantity: 1,
+      unit: unit.toUpperCase(),
+      unit_price: unitPrice,
+      subtotal: unitPrice,
+      source_type: 'contract',
+    }
+    const updatedItems = [...revenueItems, newItem]
+    setRevenueItems(updatedItems)
+    setValue('total_revenue', updatedItems.reduce((sum, item) => sum + item.subtotal, 0))
+    setValue('revenue_items', updatedItems)
+    toast({ title: 'Revenue item ditambahkan', description: `${description} - ${formatCurrency(unitPrice)}` })
+  }, [revenueItems, setValue, toast])
+
+  const handleApplyCost = useCallback((description: string, amount: number, category: string) => {
+    const newItem: CostItemRow = {
+      category: (category || 'other') as CostCategory,
+      description,
+      estimated_amount: amount,
+      status: 'estimated',
+    }
+    const updatedItems = [...costItems, newItem]
+    setCostItems(updatedItems)
+    setValue('total_expenses', updatedItems.reduce((sum, item) => sum + item.estimated_amount, 0))
+    setValue('cost_items', updatedItems)
+    toast({ title: 'Cost item ditambahkan', description: `${description} - ${formatCurrency(amount)}` })
+  }, [costItems, setValue, toast])
 
   const validateRevenueItems = useCallback((): boolean => {
     const newErrors: Record<number, { description?: string; unit_price?: string }> = {}
@@ -608,6 +640,20 @@ export function PJOForm({ projects, pjo, existingRevenueItems = [], existingCost
           </div>
         </CardContent>
       </Card>
+
+      {/* Route Distance & Rate Suggestion Panel */}
+      <RouteDistancePanel
+        pol={polValue}
+        pod={podValue}
+        polLat={watch('pol_lat')}
+        polLng={watch('pol_lng')}
+        podLat={watch('pod_lat')}
+        podLng={watch('pod_lng')}
+        customerId={customerId}
+        disabled={isLoading}
+        onApplyRevenue={handleApplyRevenue}
+        onApplyCost={handleApplyCost}
+      />
 
       {/* Duplicate Detection Warning */}
       {pjoDuplicates.length > 0 && !duplicatesDismissed && (

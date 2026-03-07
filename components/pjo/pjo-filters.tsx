@@ -1,5 +1,6 @@
 'use client'
 
+import { memo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
@@ -41,7 +42,7 @@ interface PJOFiltersProps {
   onClearFilters: () => void
 }
 
-export function PJOFilters({
+export const PJOFilters = memo(function PJOFilters({
   statusFilter,
   dateFrom,
   dateTo,
@@ -135,4 +136,4 @@ export function PJOFilters({
       )}
     </div>
   )
-}
+})

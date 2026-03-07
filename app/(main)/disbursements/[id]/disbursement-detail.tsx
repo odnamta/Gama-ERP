@@ -33,6 +33,8 @@ import {
   Briefcase,
   User,
   FileText,
+  Mail,
+  Loader2,
 } from 'lucide-react'
 import {
   submitForApproval,
@@ -43,6 +45,7 @@ import {
   deleteDisbursement,
 } from '../actions'
 import { AttachmentsSection } from '@/components/attachments/attachments-section'
+import { sendAdvanceReturnReminder } from '@/lib/email-actions'
 
 interface BKKRecord {
   id: string
@@ -112,11 +115,19 @@ export function DisbursementDetail({ bkk, userRole, userId }: DisbursementDetail
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [rejectionReason, setRejectionReason] = useState('')
 
+  const [isSendingReminder, setIsSendingReminder] = useState(false)
+
   const canApprove = ['owner', 'director', 'finance_manager'].includes(userRole) && bkk.status === 'pending'
   const canRelease = ['owner', 'director', 'finance_manager', 'finance'].includes(userRole) && bkk.status === 'approved'
   const canSettle = ['owner', 'director', 'finance_manager', 'finance'].includes(userRole) && bkk.status === 'released'
   const canSubmit = bkk.status === 'draft'
   const canDelete = bkk.status === 'draft' && ['owner', 'director', 'finance'].includes(userRole)
+
+  // Advance overdue: has return_deadline, deadline has passed, not yet settled
+  const isAdvanceOverdue = bkk.return_deadline
+    && new Date(bkk.return_deadline) < new Date()
+    && bkk.status !== 'settled'
+    && bkk.status !== 'cancelled'
 
   const handleSubmit = async () => {
     setIsLoading(true)
@@ -253,6 +264,28 @@ export function DisbursementDetail({ bkk, userRole, userId }: DisbursementDetail
             <Button variant="outline" onClick={() => setDeleteDialogOpen(true)} disabled={isLoading}>
               <Trash2 className="mr-2 h-4 w-4" />
               Hapus
+            </Button>
+          )}
+          {isAdvanceOverdue && (
+            <Button
+              variant="outline"
+              disabled={isSendingReminder}
+              onClick={async () => {
+                setIsSendingReminder(true)
+                try {
+                  const result = await sendAdvanceReturnReminder(bkk.id)
+                  if (result.success) {
+                    toast.success('Pengingat berhasil dikirim ke tim finance')
+                  } else {
+                    toast.error(result.error || 'Gagal mengirim pengingat')
+                  }
+                } finally {
+                  setIsSendingReminder(false)
+                }
+              }}
+            >
+              {isSendingReminder ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Mail className="mr-2 h-4 w-4" />}
+              Kirim Pengingat
             </Button>
           )}
         </div>

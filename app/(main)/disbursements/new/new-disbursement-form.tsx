@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -25,9 +25,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { toast } from 'sonner'
-import { ArrowLeft, Loader2, CreditCard } from 'lucide-react'
-import { createDisbursement } from '../actions'
+import { ArrowLeft, Loader2, CreditCard, AlertTriangle } from 'lucide-react'
+import { createDisbursement, checkRecipientEligibility } from '../actions'
+import type { OverdueAdvance } from '@/lib/advance-guard'
 
 const formSchema = z.object({
   jo_id: z.string().min(1, 'Job Order wajib dipilih'),
@@ -70,6 +72,12 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Advance eligibility state
+  const [advanceBlocked, setAdvanceBlocked] = useState(false)
+  const [overdueAdvances, setOverdueAdvances] = useState<OverdueAdvance[]>([])
+  const [checkingEligibility, setCheckingEligibility] = useState(false)
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -88,6 +96,54 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
   const vendorId = form.watch('vendor_id')
   const selectedVendor = vendors.find(v => v.id === vendorId)
 
+  // Watch advance_recipient_name for real-time eligibility check
+  const advanceRecipientName = form.watch('advance_recipient_name')
+
+  const checkEligibility = useCallback(async (name: string) => {
+    if (!name || name.trim().length < 2) {
+      setAdvanceBlocked(false)
+      setOverdueAdvances([])
+      setCheckingEligibility(false)
+      return
+    }
+
+    setCheckingEligibility(true)
+    try {
+      const result = await checkRecipientEligibility(name.trim())
+      setAdvanceBlocked(!result.eligible)
+      setOverdueAdvances(result.overdueAdvances)
+    } catch {
+      // On error, don't block — server-side guard is the hard block
+      setAdvanceBlocked(false)
+      setOverdueAdvances([])
+    } finally {
+      setCheckingEligibility(false)
+    }
+  }, [])
+
+  // Debounced check when recipient name changes
+  useEffect(() => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current)
+    }
+
+    if (!advanceRecipientName || advanceRecipientName.trim().length < 2) {
+      setAdvanceBlocked(false)
+      setOverdueAdvances([])
+      return
+    }
+
+    debounceTimerRef.current = setTimeout(() => {
+      checkEligibility(advanceRecipientName)
+    }, 500)
+
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+    }
+  }, [advanceRecipientName, checkEligibility])
+
   // Auto-fill: when vendor with bank details is selected, set release_method to transfer
   useEffect(() => {
     if (selectedVendor?.bank_account) {
@@ -96,6 +152,21 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
   }, [selectedVendor, form])
 
   const onSubmit = async (values: FormValues) => {
+    // Client-side advance block check (server also enforces this)
+    if (values.advance_recipient_name && values.advance_recipient_name.trim()) {
+      const eligibility = await checkRecipientEligibility(values.advance_recipient_name.trim())
+      if (!eligibility.eligible) {
+        const count = eligibility.overdueAdvances.length
+        toast.error(
+          `Penerima advance "${values.advance_recipient_name}" memiliki ${count} advance yang belum dikembalikan. BKK tidak dapat dibuat.`,
+          { duration: 8000 }
+        )
+        setAdvanceBlocked(true)
+        setOverdueAdvances(eligibility.overdueAdvances)
+        return
+      }
+    }
+
     setIsSubmitting(true)
     try {
       const result = await createDisbursement({
@@ -363,6 +434,60 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
                   />
                 </div>
 
+                {/* Advance Eligibility Check Status */}
+                {checkingEligibility && advanceRecipientName && advanceRecipientName.trim().length >= 2 && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Memeriksa status advance...
+                  </div>
+                )}
+
+                {/* Overdue Advance Block Banner */}
+                {advanceBlocked && overdueAdvances.length > 0 && (
+                  <Alert variant="destructive" className="border-red-300 bg-red-50 dark:bg-red-950/40">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Advance Diblokir</AlertTitle>
+                    <AlertDescription>
+                      <p className="mb-2">
+                        Penerima advance &quot;{advanceRecipientName}&quot; memiliki{' '}
+                        <strong>{overdueAdvances.length} advance</strong> yang belum
+                        dikembalikan dan sudah melewati batas waktu:
+                      </p>
+                      <ul className="space-y-1">
+                        {overdueAdvances.map((adv) => (
+                          <li
+                            key={adv.bkk_number}
+                            className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm"
+                          >
+                            <span className="font-mono font-semibold">{adv.bkk_number}</span>
+                            <span className="text-red-700 dark:text-red-300">
+                              {new Intl.NumberFormat('id-ID', {
+                                style: 'currency',
+                                currency: 'IDR',
+                                minimumFractionDigits: 0,
+                              }).format(adv.amount)}
+                            </span>
+                            <span className="text-red-600 dark:text-red-400">
+                              jatuh tempo{' '}
+                              {new Date(adv.deadline).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                              })}
+                            </span>
+                            <span className="font-semibold text-red-800 dark:text-red-200">
+                              (terlambat {adv.days_overdue} hari)
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="mt-2 text-xs font-medium">
+                        Advance baru tidak dapat dibuat sampai advance sebelumnya diselesaikan.
+                      </p>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <FormField
                   control={form.control}
                   name="notes"
@@ -394,7 +519,7 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
             >
               Batal
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || advanceBlocked}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Buat Disbursement
             </Button>

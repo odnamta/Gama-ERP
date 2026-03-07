@@ -66,7 +66,7 @@ export function PJOListClient({ pjos, canSeeRevenue = true, canCreatePJO = true 
     setDeleteDialogOpen(true)
   }, [])
 
-  async function handleConfirmDelete() {
+  const handleConfirmDelete = useCallback(async () => {
     if (!pjoToDelete) return
 
     setIsDeleting(true)
@@ -82,7 +82,11 @@ export function PJOListClient({ pjos, canSeeRevenue = true, canCreatePJO = true 
       setDeleteDialogOpen(false)
       setPjoToDelete(null)
     }
-  }
+  }, [pjoToDelete, toast])
+
+  const handleOverrunFilterChange = useCallback((checked: boolean) => {
+    setOverrunFilter(checked)
+  }, [])
 
   const handleClearFilters = useCallback(() => {
     setStatusFilter('all')
@@ -122,7 +126,7 @@ export function PJOListClient({ pjos, canSeeRevenue = true, canCreatePJO = true 
         onStatusChange={setStatusFilter}
         onDateFromChange={setDateFrom}
         onDateToChange={setDateTo}
-        onOverrunFilterChange={setOverrunFilter}
+        onOverrunFilterChange={handleOverrunFilterChange}
         onMarketTypeChange={setMarketTypeFilter}
         onClearFilters={handleClearFilters}
       />
