@@ -6,14 +6,23 @@ import { useRouter } from 'next/navigation'
 import { InvoiceWithRelations, InvoiceStatus } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { InvoiceStatusBadge } from '@/components/ui/invoice-status-badge'
 import { formatIDR, formatDate, formatDateTime } from '@/lib/pjo-utils'
 import { isInvoiceOverdue, VAT_RATE } from '@/lib/invoice-utils'
-import { updateInvoiceStatus } from '@/app/(main)/invoices/actions'
+import { updateInvoiceStatus, updateCollectionStatus, postInvoiceToJournal, CollectionStatus } from '@/app/(main)/invoices/actions'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, Send, XCircle, AlertTriangle, Loader2, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Send, XCircle, AlertTriangle, Loader2, CheckCircle, PhoneCall, CalendarClock, BookOpen } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
 import { AttachmentsSection } from '@/components/attachments'
 import { PaymentsSection } from '@/components/payments'
 import { canRecordPayment } from '@/lib/payment-utils'
@@ -32,6 +41,17 @@ export function InvoiceDetailView({ invoice, userRole = 'viewer', userId, reconc
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const invoiceAny = invoice as unknown as Record<string, unknown>
+  const [collectionStatus, setCollectionStatus] = useState<CollectionStatus>(
+    (invoiceAny.collection_status as CollectionStatus) || 'none'
+  )
+  const [collectionNotes, setCollectionNotes] = useState(
+    (invoiceAny.collection_notes as string) || ''
+  )
+  const [followUpDate, setFollowUpDate] = useState(
+    (invoiceAny.next_follow_up_date as string) || ''
+  )
+  const [isSavingCollection, setIsSavingCollection] = useState(false)
 
   const canMarkOverdue = (invoice.status === 'sent' || invoice.status === 'received') && isInvoiceOverdue(invoice.due_date, invoice.status as InvoiceStatus)
   const canManagePayments = canRecordPayment(userRole)
@@ -99,6 +119,29 @@ export function InvoiceDetailView({ invoice, userRole = 'viewer', userId, reconc
             <Button variant="outline" onClick={() => handleStatusChange('overdue')} disabled={isLoading}>
               <AlertTriangle className="mr-2 h-4 w-4" />
               Mark Overdue
+            </Button>
+          )}
+          {['sent', 'received', 'partial', 'paid'].includes(invoice.status) && userRole !== 'ops' && (
+            <Button
+              variant="outline"
+              disabled={isLoading}
+              onClick={async () => {
+                setIsLoading(true)
+                try {
+                  const result = await postInvoiceToJournal(invoice.id)
+                  if (result.success) {
+                    toast({ title: 'Success', description: 'Jurnal berhasil dibuat' })
+                    router.refresh()
+                  } else {
+                    toast({ title: 'Error', description: result.error, variant: 'destructive' })
+                  }
+                } finally {
+                  setIsLoading(false)
+                }
+              }}
+            >
+              <BookOpen className="mr-2 h-4 w-4" />
+              Post Jurnal
             </Button>
           )}
           {['draft', 'sent', 'received', 'overdue', 'partial'].includes(invoice.status) && (
@@ -283,6 +326,95 @@ export function InvoiceDetailView({ invoice, userRole = 'viewer', userId, reconc
           invoiceId={invoice.id}
           invoiceNumber={invoice.invoice_number}
         />
+      )}
+
+      {/* Collection Tracking */}
+      {['sent', 'received', 'overdue', 'partial'].includes(invoice.status) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PhoneCall className="h-5 w-5" />
+              Penagihan
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Status Penagihan</Label>
+                <Select
+                  value={collectionStatus}
+                  onValueChange={(v) => setCollectionStatus(v as CollectionStatus)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Belum Ditindak</SelectItem>
+                    <SelectItem value="contacted">Sudah Dihubungi</SelectItem>
+                    <SelectItem value="promised">Janji Bayar</SelectItem>
+                    <SelectItem value="escalated">Eskalasi</SelectItem>
+                    <SelectItem value="collected">Tertagih</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Follow-up Berikutnya</Label>
+                <div className="flex items-center gap-2">
+                  <CalendarClock className="h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="date"
+                    value={followUpDate}
+                    onChange={(e) => setFollowUpDate(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Kontak Terakhir</Label>
+                <p className="text-sm font-medium pt-2">
+                  {invoiceAny.last_contact_date
+                    ? formatDate(invoiceAny.last_contact_date as string)
+                    : '-'}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Catatan Penagihan</Label>
+              <Textarea
+                value={collectionNotes}
+                onChange={(e) => setCollectionNotes(e.target.value)}
+                placeholder="Catatan komunikasi dengan customer..."
+                rows={2}
+              />
+            </div>
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                disabled={isSavingCollection}
+                onClick={async () => {
+                  setIsSavingCollection(true)
+                  try {
+                    const result = await updateCollectionStatus(invoice.id, {
+                      collection_status: collectionStatus,
+                      collection_notes: collectionNotes || undefined,
+                      next_follow_up_date: followUpDate || undefined,
+                    })
+                    if (result.success) {
+                      toast({ title: 'Success', description: 'Status penagihan diperbarui' })
+                      router.refresh()
+                    } else {
+                      toast({ title: 'Error', description: result.error, variant: 'destructive' })
+                    }
+                  } finally {
+                    setIsSavingCollection(false)
+                  }
+                }}
+              >
+                {isSavingCollection && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Simpan Penagihan
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Timeline */}

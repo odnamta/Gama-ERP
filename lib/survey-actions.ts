@@ -79,6 +79,7 @@ export async function createSurvey(data: SurveyFormData): Promise<{ success: boo
         surveyor_id: data.surveyorId || null,
         survey_date: data.surveyDate || null,
         notes: data.notes || null,
+        survey_type: data.surveyType || 'standard_route',
         status: 'requested',
         requested_by: profileId,
       } as never)
@@ -239,6 +240,7 @@ export async function updateSurvey(
     if (data.destinationCoordinates !== undefined) updateData.destination_coordinates = data.destinationCoordinates;
     if (data.surveyorId !== undefined) updateData.surveyor_id = data.surveyorId || null;
     if (data.surveyDate !== undefined) updateData.survey_date = data.surveyDate || null;
+    if (data.surveyType !== undefined) updateData.survey_type = data.surveyType;
     if (data.notes !== undefined) updateData.notes = data.notes;
 
     const { data: survey, error } = await supabase

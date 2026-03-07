@@ -51,6 +51,7 @@ import {
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { PDFButtons } from '@/components/pdf/pdf-buttons';
+import { AttachmentsSection } from '@/components/attachments';
 
 interface SurveyDetailViewProps {
   survey: RouteSurveyWithRelations;
@@ -232,6 +233,13 @@ export function SurveyDetailView({
           <ReportTab survey={survey} waypoints={waypoints} checklist={checklist} />
         </TabsContent>
       </Tabs>
+
+      {/* Attachments / Documents */}
+      <AttachmentsSection
+        entityType="survey"
+        entityId={survey.id}
+        title="Dokumen & Foto Survey"
+      />
     </div>
   );
 }

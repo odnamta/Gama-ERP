@@ -16,6 +16,8 @@ interface CreateDisbursementInput {
   release_method?: string
   release_reference?: string
   notes?: string
+  advance_recipient_name?: string
+  return_deadline?: string
 }
 
 export async function generateBKKNumber(): Promise<string> {
@@ -72,6 +74,8 @@ export async function createDisbursement(input: CreateDisbursementInput) {
         release_method: input.release_method || null,
         release_reference: input.release_reference || null,
         notes: input.notes || null,
+        advance_recipient_name: input.advance_recipient_name || null,
+        return_deadline: input.return_deadline || null,
         status: 'draft',
         requested_by: requestedBy,
         entity_type: entityType,

@@ -1196,3 +1196,147 @@ export async function getInvoiceAgingSummary(): Promise<{
 
   return { buckets, topCustomers, totalOutstanding }
 }
+
+
+// =====================================================
+// Invoice → Journal Entry Auto-Posting
+// =====================================================
+
+export async function postInvoiceToJournal(
+  invoiceId: string
+): Promise<ActionResult<{ journalEntryId: string }>> {
+  const profile = await getUserProfile()
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const supabase = await createClient()
+
+  // Get invoice data
+  const { data: invoice, error: invError } = await supabase
+    .from('invoices')
+    .select('id, invoice_number, total_amount, tax_amount, subtotal, status, customer_id, customers(name)')
+    .eq('id', invoiceId)
+    .single()
+
+  if (invError || !invoice) {
+    return { success: false, error: 'Invoice tidak ditemukan' }
+  }
+
+  if (!['sent', 'received', 'partial', 'paid'].includes(invoice.status)) {
+    return { success: false, error: 'Invoice harus berstatus sent/received/partial/paid untuk dijurnal' }
+  }
+
+  // Check if journal already exists for this invoice
+  const { data: existingJE } = await (supabase
+    .from('journal_entries' as any)
+    .select('id, entry_number')
+    .eq('source_type', 'invoice')
+    .eq('source_id', invoiceId)
+    .neq('status', 'reversed')
+    .limit(1) as any)
+
+  if (existingJE && existingJE.length > 0) {
+    return { success: false, error: `Jurnal sudah ada: ${existingJE[0].entry_number}` }
+  }
+
+  // Find AR (Piutang Usaha) and Revenue accounts
+  const { data: arAccount } = await (supabase
+    .from('chart_of_accounts' as any)
+    .select('id')
+    .eq('account_type', 'asset')
+    .ilike('account_name', '%piutang%')
+    .eq('is_active', true)
+    .limit(1) as any)
+
+  const { data: revenueAccount } = await (supabase
+    .from('chart_of_accounts' as any)
+    .select('id')
+    .eq('account_type', 'revenue')
+    .eq('is_active', true)
+    .limit(1) as any)
+
+  if (!arAccount?.[0]?.id || !revenueAccount?.[0]?.id) {
+    return { success: false, error: 'Akun Piutang Usaha atau Pendapatan belum diatur di Chart of Accounts' }
+  }
+
+  // Import createJournalEntry dynamically to avoid circular deps
+  const { createJournalEntry } = await import('@/lib/gl-actions')
+
+  const customerName = (invoice.customers as { name: string } | null)?.name || 'Unknown'
+  const result = await createJournalEntry({
+    entry_date: new Date().toISOString().split('T')[0],
+    description: `Pengakuan pendapatan - ${invoice.invoice_number} (${customerName})`,
+    source_type: 'invoice',
+    source_id: invoiceId,
+    lines: [
+      {
+        account_id: arAccount[0].id,
+        debit: invoice.total_amount,
+        credit: 0,
+        description: `Piutang - ${invoice.invoice_number}`,
+      },
+      {
+        account_id: revenueAccount[0].id,
+        debit: 0,
+        credit: invoice.total_amount,
+        description: `Pendapatan - ${invoice.invoice_number}`,
+      },
+    ],
+  })
+
+  if (result.error) {
+    return { success: false, error: result.error }
+  }
+
+  revalidatePath(`/invoices/${invoiceId}`)
+  revalidatePath('/finance/journal-entries')
+  return { success: true, data: { journalEntryId: result.id! } }
+}
+
+// =====================================================
+// Collection Status Tracking
+// =====================================================
+
+export type CollectionStatus = 'none' | 'contacted' | 'promised' | 'escalated' | 'collected'
+
+export async function updateCollectionStatus(
+  invoiceId: string,
+  data: {
+    collection_status: CollectionStatus
+    collection_notes?: string
+    next_follow_up_date?: string
+  }
+): Promise<ActionResult<void>> {
+  const profile = await getUserProfile()
+  if (!profile || !profileHasRole(profile, [...INVOICE_ALLOWED_ROLES])) {
+    return { success: false, error: 'Unauthorized' }
+  }
+
+  const supabase = await createClient()
+
+  const updateData: Record<string, unknown> = {
+    collection_status: data.collection_status,
+    last_contact_date: new Date().toISOString().split('T')[0],
+  }
+
+  if (data.collection_notes !== undefined) {
+    updateData.collection_notes = data.collection_notes
+  }
+  if (data.next_follow_up_date) {
+    updateData.next_follow_up_date = data.next_follow_up_date
+  }
+
+  const { error } = await (supabase
+    .from('invoices')
+    .update(updateData)
+    .eq('id', invoiceId) as any)
+
+  if (error) {
+    return { success: false, error: error.message }
+  }
+
+  revalidatePath('/invoices')
+  revalidatePath(`/invoices/${invoiceId}`)
+  return { success: true, data: undefined as void }
+}

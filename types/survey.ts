@@ -5,6 +5,8 @@
 // Enums
 export type SurveyStatus = 'requested' | 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 
+export type SurveyType = 'standard_route' | 'jetty_port' | 'site_inspection';
+
 export type WaypointType = 
   | 'start' 
   | 'checkpoint' 
@@ -202,6 +204,7 @@ export interface ChecklistTemplate {
 
 // Form Data Interfaces
 export interface SurveyFormData {
+  surveyType?: SurveyType;
   quotationId?: string;
   projectId?: string;
   customerId?: string;

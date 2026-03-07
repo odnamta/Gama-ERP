@@ -58,6 +58,8 @@ interface BKKRecord {
   amount_spent: number | null
   amount_returned: number | null
   notes: string | null
+  advance_recipient_name: string | null
+  return_deadline: string | null
   created_at: string
   updated_at: string
   requested_at: string | null
@@ -287,6 +289,28 @@ export function DisbursementDetail({ bkk, userRole, userId }: DisbursementDetail
               <div>
                 <p className="text-sm text-muted-foreground">Kategori Anggaran</p>
                 <p className="font-medium">{bkk.budget_category}</p>
+              </div>
+            )}
+
+            {(bkk.advance_recipient_name || bkk.return_deadline) && (
+              <div className="grid grid-cols-2 gap-4">
+                {bkk.advance_recipient_name && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Penerima Advance (PIC)</p>
+                    <p className="font-medium">{bkk.advance_recipient_name}</p>
+                  </div>
+                )}
+                {bkk.return_deadline && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Batas Pengembalian</p>
+                    <p className={`font-medium ${new Date(bkk.return_deadline) < new Date() && bkk.status !== 'settled' ? 'text-red-600' : ''}`}>
+                      {new Date(bkk.return_deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
+                      {new Date(bkk.return_deadline) < new Date() && bkk.status !== 'settled' && (
+                        <span className="ml-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Terlambat</span>
+                      )}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

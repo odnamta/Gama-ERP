@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Combobox } from '@/components/forms/combobox';
-import { RouteSurvey, SurveyFormData } from '@/types/survey';
+import { RouteSurvey, SurveyFormData, SurveyType } from '@/types/survey';
 import { createSurvey, updateSurvey } from '@/lib/survey-actions';
 import { Loader2, Package, Truck, MapPin, User } from 'lucide-react';
 import { toast } from 'sonner';
@@ -38,6 +38,7 @@ export function SurveyForm({
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<SurveyFormData>({
+    surveyType: ((survey as Record<string, unknown> | undefined)?.surveyType as SurveyType) || 'standard_route',
     quotationId: survey?.quotationId || '',
     projectId: survey?.projectId || '',
     customerId: survey?.customerId || '',
@@ -99,6 +100,28 @@ export function SurveyForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Survey Type */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Jenis Survey</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Select
+            value={formData.surveyType || 'standard_route'}
+            onValueChange={(v) => handleChange('surveyType', v)}
+          >
+            <SelectTrigger className="w-[280px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="standard_route">Survey Rute Standar</SelectItem>
+              <SelectItem value="jetty_port">Survey Jetty / Pelabuhan</SelectItem>
+              <SelectItem value="site_inspection">Inspeksi Lokasi</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+
       {/* References */}
       <Card>
         <CardHeader>

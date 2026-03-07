@@ -288,9 +288,27 @@ export async function changeAssetStatus(
     .select('id, status, current_location_id')
     .eq('id', assetId)
     .single()
-  
+
   if (fetchError || !asset) {
     return { success: false, error: 'Asset not found' }
+  }
+
+  // Validate status transition
+  const VALID_TRANSITIONS: Record<string, string[]> = {
+    active: ['maintenance', 'repair', 'idle', 'disposed', 'sold'],
+    maintenance: ['active', 'repair', 'idle', 'disposed'],
+    repair: ['active', 'maintenance', 'idle', 'disposed'],
+    idle: ['active', 'maintenance', 'disposed', 'sold'],
+    disposed: [], // terminal
+    sold: [], // terminal
+  }
+
+  const allowed = VALID_TRANSITIONS[asset.status as string] || []
+  if (!allowed.includes(data.new_status)) {
+    return {
+      success: false,
+      error: `Tidak dapat mengubah status dari "${asset.status}" ke "${data.new_status}". Status "${asset.status === 'disposed' || asset.status === 'sold' ? 'sudah final' : 'hanya bisa ke: ' + allowed.join(', ')}"`
+    }
   }
   
   // Get current user and profile

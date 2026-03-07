@@ -95,6 +95,58 @@ const COMMON_VARIABLES: Record<DocumentType, string[]> = {
   ],
 }
 
+// Variable descriptions for user guidance
+const VARIABLE_DESCRIPTIONS: Record<string, string> = {
+  invoice_number: 'Nomor invoice (auto-generated)',
+  invoice_date: 'Tanggal invoice (format: DD/MM/YYYY)',
+  due_date: 'Tanggal jatuh tempo',
+  customer_name: 'Nama customer/perusahaan',
+  customer_address: 'Alamat lengkap customer',
+  customer_email: 'Email customer',
+  items: 'Loop: daftar line item (gunakan {{#items}}...{{/items}})',
+  subtotal: 'Subtotal sebelum pajak (IDR)',
+  tax_amount: 'Jumlah PPN',
+  total_amount: 'Grand total (IDR)',
+  notes: 'Catatan tambahan',
+  letterhead: 'Kop surat perusahaan (HTML)',
+  styles: 'CSS stylesheet untuk template',
+  quotation_number: 'Nomor penawaran',
+  quotation_date: 'Tanggal penawaran',
+  valid_until: 'Berlaku sampai tanggal',
+  project_name: 'Nama proyek',
+  scope: 'Ruang lingkup pekerjaan',
+  terms: 'Syarat dan ketentuan',
+  dn_number: 'Nomor surat jalan',
+  jo_number: 'Nomor job order',
+  delivery_date: 'Tanggal pengiriman',
+  origin: 'Lokasi asal',
+  destination: 'Lokasi tujuan',
+  receiver_name: 'Nama penerima barang',
+  contract_number: 'Nomor kontrak',
+  contract_date: 'Tanggal kontrak',
+  party_a: 'Pihak pertama',
+  party_b: 'Pihak kedua',
+  effective_date: 'Tanggal berlaku',
+  expiry_date: 'Tanggal berakhir',
+  certificate_number: 'Nomor sertifikat',
+  certificate_date: 'Tanggal sertifikat',
+  recipient_name: 'Nama penerima',
+  description: 'Deskripsi',
+  issued_by: 'Dikeluarkan oleh',
+  report_number: 'Nomor laporan',
+  report_date: 'Tanggal laporan',
+  title: 'Judul laporan',
+  summary: 'Ringkasan',
+  content: 'Isi laporan',
+  prepared_by: 'Disiapkan oleh',
+  packing_list_number: 'Nomor packing list',
+  date: 'Tanggal',
+  shipper: 'Pengirim',
+  consignee: 'Penerima',
+  total_packages: 'Total paket',
+  total_weight: 'Total berat',
+}
+
 interface TemplateEditorProps {
   template?: DocumentTemplate | null
   onSave: (data: CreateTemplateInput | UpdateTemplateInput) => Promise<void>
@@ -397,7 +449,9 @@ export function TemplateEditor({
                                 {`{{${variable}}}`}
                               </Badge>
                             </TooltipTrigger>
-                            <TooltipContent>Click to copy</TooltipContent>
+                            <TooltipContent>
+                              {VARIABLE_DESCRIPTIONS[variable] || 'Click to copy'}
+                            </TooltipContent>
                           </Tooltip>
                         ))}
                       </TooltipProvider>
@@ -410,7 +464,7 @@ export function TemplateEditor({
                   <div>
                     <Label className="text-sm font-medium">Suggested Variables</Label>
                     <p className="text-xs text-muted-foreground mb-2">
-                      Common variables for {DOCUMENT_TYPE_LABELS[form.document_type]} templates
+                      Common variables for {DOCUMENT_TYPE_LABELS[form.document_type]} templates. Hover untuk melihat deskripsi.
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <TooltipProvider>
@@ -426,7 +480,9 @@ export function TemplateEditor({
                                 {variable}
                               </Badge>
                             </TooltipTrigger>
-                            <TooltipContent>Click to insert</TooltipContent>
+                            <TooltipContent>
+                              <p>{VARIABLE_DESCRIPTIONS[variable] || 'Click to insert'}</p>
+                            </TooltipContent>
                           </Tooltip>
                         ))}
                       </TooltipProvider>

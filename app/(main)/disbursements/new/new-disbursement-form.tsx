@@ -39,6 +39,8 @@ const formSchema = z.object({
   release_method: z.enum(['cash', 'transfer', 'check']).optional(),
   release_reference: z.string().optional(),
   notes: z.string().optional(),
+  advance_recipient_name: z.string().optional(),
+  return_deadline: z.string().optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -78,6 +80,8 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
       release_method: 'transfer',
       release_reference: '',
       notes: '',
+      advance_recipient_name: '',
+      return_deadline: '',
     },
   })
 
@@ -104,6 +108,8 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
         release_method: values.release_method || undefined,
         release_reference: values.release_reference || undefined,
         notes: values.notes || undefined,
+        advance_recipient_name: values.advance_recipient_name || undefined,
+        return_deadline: values.return_deadline || undefined,
       })
 
       if (result.error) {
@@ -327,6 +333,35 @@ export function NewDisbursementForm({ vendors, jobOrders, userId }: NewDisbursem
                     </div>
                   </div>
                 )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="advance_recipient_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Penerima Advance (PIC)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Nama penerima advance..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="return_deadline"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Batas Pengembalian</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
