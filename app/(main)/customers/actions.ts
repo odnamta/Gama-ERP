@@ -134,7 +134,7 @@ export async function deleteCustomer(id: string): Promise<{ error?: string }> {
   }
 
   if (activeProjects && activeProjects.length > 0) {
-    return { error: 'Cannot delete customer with active projects. Please deactivate or reassign projects first.' }
+    return { error: 'Tidak dapat menghapus customer yang masih memiliki project aktif. Nonaktifkan atau pindahkan project terlebih dahulu.' }
   }
 
   // Soft delete - set is_active to false

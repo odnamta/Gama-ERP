@@ -21,7 +21,7 @@ import {
   AcknowledgmentStatsCard,
 } from '@/components/safety-documents';
 import { submitForReview, approveDocument } from '@/lib/safety-document-actions';
-import { formatDate } from '@/lib/pjo-utils';
+import { formatDate } from '@/lib/utils/format';
 import { useToast } from '@/hooks/use-toast';
 import { PDFButtons } from '@/components/pdf/pdf-buttons';
 

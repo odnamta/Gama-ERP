@@ -244,8 +244,8 @@ export async function updateQuotation(
 export async function deleteQuotation(id: string): Promise<ActionResult> {
   try {
     const profile = await getUserProfile()
-    if (!canAccessFeature(profile, 'quotations.create')) {
-      return { success: false, error: 'Tidak memiliki akses' }
+    if (!canAccessFeature(profile, 'quotations.edit')) {
+      return { success: false, error: 'Tidak memiliki akses untuk menghapus quotation' }
     }
 
     const supabase = await createClient()

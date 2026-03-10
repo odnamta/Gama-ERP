@@ -104,7 +104,7 @@ export async function GET(
     const filename = `${audit.audit_number || `audit-${id.slice(0, 8)}`}.pdf`
     const disposition = download ? `attachment; filename="${filename}"` : `inline; filename="${filename}"`
 
-    return new Response(buffer as BodyInit, {
+    return new Response(new Uint8Array(buffer), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': disposition,

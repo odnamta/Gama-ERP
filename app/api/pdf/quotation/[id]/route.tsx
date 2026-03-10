@@ -12,13 +12,18 @@ export async function GET(
 ) {
   try {
     // Rate limiting for expensive PDF generation
-    const clientIp = getClientIp(request)
-    const rateCheck = await checkRateLimit(clientIp, '/api/pdf/quotation')
-    if (!rateCheck.allowed) {
-      return new Response(JSON.stringify({ error: 'Too many requests. Please try again later.' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json', 'Retry-After': String(Math.ceil((rateCheck.resetAt.getTime() - Date.now()) / 1000)) },
-      })
+    try {
+      const clientIp = getClientIp(request)
+      const rateCheck = await checkRateLimit(clientIp, '/api/pdf/quotation')
+      if (!rateCheck.allowed) {
+        return new Response(JSON.stringify({ error: 'Too many requests. Please try again later.' }), {
+          status: 429,
+          headers: { 'Content-Type': 'application/json', 'Retry-After': String(Math.ceil((rateCheck.resetAt.getTime() - Date.now()) / 1000)) },
+        })
+      }
+    } catch (rateLimitError) {
+      // Don't block PDF generation if rate limiting fails
+      console.error('Rate limit check failed, proceeding:', rateLimitError)
     }
 
     const { id } = await params

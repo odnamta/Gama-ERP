@@ -71,6 +71,8 @@ export async function getVendors(filters?: Partial<VendorFilterState>): Promise<
 }> {
   const supabase = await createClient();
 
+  // Build primary query with aggregate counts
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = supabase
     .from('vendors')
     .select(`
@@ -78,29 +80,42 @@ export async function getVendors(filters?: Partial<VendorFilterState>): Promise<
       vendor_equipment(count),
       vendor_ratings(count)
     `)
-    .order('vendor_name');
+    .order('vendor_name') as any;
 
-  // Apply filters
   if (filters?.type && filters.type !== 'all') {
     query = query.eq('vendor_type', filters.type);
   }
-
   if (filters?.status === 'active') {
     query = query.eq('is_active', true);
   } else if (filters?.status === 'inactive') {
     query = query.eq('is_active', false);
   }
-
   if (filters?.preferredOnly) {
     query = query.eq('is_preferred', true);
   }
-
   if (filters?.search) {
     const search = sanitizeSearchInput(filters.search);
     query = query.or(`vendor_name.ilike.%${search}%,vendor_code.ilike.%${search}%`);
   }
 
-  const { data, error } = await query.limit(1000);
+  let { data, error } = await query.limit(1000);
+
+  // If aggregate query fails (tables/FK don't exist), fallback to basic query
+  if (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let fallback = supabase.from('vendors').select('*').order('vendor_name') as any;
+    if (filters?.type && filters.type !== 'all') fallback = fallback.eq('vendor_type', filters.type);
+    if (filters?.status === 'active') fallback = fallback.eq('is_active', true);
+    else if (filters?.status === 'inactive') fallback = fallback.eq('is_active', false);
+    if (filters?.preferredOnly) fallback = fallback.eq('is_preferred', true);
+    if (filters?.search) {
+      const search = sanitizeSearchInput(filters.search);
+      fallback = fallback.or(`vendor_name.ilike.%${search}%,vendor_code.ilike.%${search}%`);
+    }
+    const fallbackResult = await fallback.limit(1000);
+    data = fallbackResult.data;
+    error = fallbackResult.error;
+  }
 
   if (error) {
     return { data: [], error: error.message };
@@ -108,7 +123,8 @@ export async function getVendors(filters?: Partial<VendorFilterState>): Promise<
 
   // Transform the data to include counts
   // Cast vendor_type from string to VendorType since database returns string
-  const vendors = (data || []).map((v) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const vendors = (data || []).map((v: any) => ({
     ...v,
     vendor_type: v.vendor_type as VendorType,
     equipment_count: v.vendor_equipment?.[0]?.count || 0,

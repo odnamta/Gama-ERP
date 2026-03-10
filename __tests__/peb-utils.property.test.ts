@@ -375,8 +375,8 @@ describe('Property 11: Role-Based Permission Consistency', () => {
    * Validates: Requirements 8.1, 8.2, 8.4
    */
   it('should grant view access to correct roles', () => {
-    const viewAllowedRoles: UserRole[] = ['owner', 'director', 'sysadmin', 'customs', 'finance', 'finance_manager'];
-    const viewDeniedRoles: UserRole[] = ['ops', 'marketing', 'hr', 'hse', 'engineer'];
+    const viewAllowedRoles: UserRole[] = ['owner', 'director', 'sysadmin', 'customs', 'finance', 'finance_manager', 'marketing_manager', 'operations_manager', 'ops', 'administration', 'marketing'];
+    const viewDeniedRoles: UserRole[] = ['hr', 'hse', 'engineer', 'agency'];
 
     viewAllowedRoles.forEach(role => {
       expect(canViewPEB(role)).toBe(true);

@@ -28,7 +28,7 @@ export async function getMedicalCheckups(
     .from('employee_medical_checkups' as any)
     .select(`
       *,
-      employees!inner(employee_code, full_name, departments(department_name))
+      employees(employee_code, full_name, departments(department_name))
     `)
     .eq('is_active', true)
     .order('checkup_date', { ascending: false });
@@ -78,7 +78,7 @@ export async function getMedicalCheckup(
     .from('employee_medical_checkups' as any)
     .select(`
       *,
-      employees!inner(employee_code, full_name, departments(department_name))
+      employees(employee_code, full_name, departments(department_name))
     `)
     .eq('id', id)
     .eq('is_active', true)

@@ -42,6 +42,10 @@ export default async function AssetDocumentsPage() {
         <p className="text-muted-foreground">
           Kelola seluruh dokumen di semua aset perusahaan
         </p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Untuk menambahkan dokumen, buka halaman detail aset masing-masing dari{' '}
+          <a href="/equipment" className="text-primary hover:underline font-medium">Daftar Aset</a>.
+        </p>
       </div>
 
       {/* Stats Cards */}

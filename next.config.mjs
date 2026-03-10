@@ -8,6 +8,9 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig = {
   poweredByHeader: false,
 
+  // Transpile @gama/erp-core (TypeScript source, no build step)
+  transpilePackages: ['@gama/erp-core'],
+
   // Skip ESLint during Vercel builds — hundreds of pre-existing unused-var
   // warnings are treated as errors by Next.js production linting.
   // TypeScript type-checking still runs.

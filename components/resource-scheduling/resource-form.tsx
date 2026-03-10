@@ -93,7 +93,8 @@ export function ResourceForm({ resource, employees = [], assets = [] }: Resource
       router.push('/engineering/resources')
       router.refresh()
     } catch (error) {
-      toast.error(resource ? 'Failed to update resource' : 'Failed to create resource')
+      const message = error instanceof Error ? error.message : (resource ? 'Failed to update resource' : 'Failed to create resource')
+      toast.error(message)
     } finally {
       setLoading(false)
     }

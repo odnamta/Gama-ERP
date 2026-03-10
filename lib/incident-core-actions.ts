@@ -152,45 +152,57 @@ export async function reportIncident(
     }
 
     // Get employee ID for the user
-    // Try by profile PK first (employees.user_id may reference user_profiles.id)
+    // Try by auth UUID first (employees.user_id typically stores auth.uid())
     let employeeId: string | null = null;
-    const { data: employee } = await supabase
+    const { data: employeeByAuth } = await supabase
       .from('employees')
       .select('id')
-      .eq('user_id', userProfile.id)
+      .eq('user_id', user.id)
       .single();
 
-    if (employee) {
-      employeeId = employee.id;
+    if (employeeByAuth) {
+      employeeId = employeeByAuth.id;
     } else {
-      // Fallback: try by auth UUID (some records may use auth.uid() directly)
-      const { data: employeeByAuth } = await supabase
+      // Fallback: try by profile PK (some schemas use user_profiles.id)
+      const { data: employee } = await supabase
         .from('employees')
         .select('id')
-        .eq('user_id', user.id)
+        .eq('user_id', userProfile.id)
         .single();
 
-      if (employeeByAuth) {
-        employeeId = employeeByAuth.id;
+      if (employee) {
+        employeeId = employee.id;
       } else {
-        // Auto-create minimal employee record from user_profiles
-        const { data: newEmployee, error: empError } = await supabase
+        // Last resort: try matching by email
+        const { data: employeeByEmail } = await supabase
           .from('employees')
-          .insert({
-            user_id: userProfile.id,
-            full_name: userProfile.full_name || user.email || 'Unknown',
-            employee_code: `AUTO-${user.id.substring(0, 6).toUpperCase()}`,
-            status: 'active',
-            join_date: new Date().toISOString().split('T')[0],
-          })
           .select('id')
+          .eq('email', user.email || '')
           .single();
 
-        if (empError || !newEmployee) {
-          return { success: false, error: 'Unable to create employee profile for incident reporting. Please contact HR or administrator.' };
-        }
+        if (employeeByEmail) {
+          employeeId = employeeByEmail.id;
+        } else {
+          // Auto-create minimal employee record from user_profiles
+          const { data: newEmployee, error: empError } = await supabase
+            .from('employees')
+            .insert({
+              user_id: user.id,
+              full_name: userProfile.full_name || user.email || 'Unknown',
+              employee_code: `EMP-${Date.now().toString(36).toUpperCase()}`,
+              status: 'active',
+              join_date: new Date().toISOString().split('T')[0],
+            })
+            .select('id')
+            .single();
 
-        employeeId = newEmployee.id;
+          if (empError || !newEmployee) {
+            console.error('[Incident] Auto-create employee failed:', empError?.code, empError?.message);
+            return { success: false, error: 'Gagal membuat profil karyawan untuk pelaporan insiden. Hubungi HR atau administrator.' };
+          }
+
+          employeeId = newEmployee.id;
+        }
       }
     }
 

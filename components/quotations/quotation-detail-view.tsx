@@ -235,6 +235,9 @@ export function QuotationDetailView({ quotation, userRole, userId }: QuotationDe
         toast({ title: 'Success', description: 'Quotation berhasil dihapus' })
         router.push('/quotations')
       }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Gagal menghapus quotation. Coba lagi.'
+      toast({ title: 'Error', description: message, variant: 'destructive' })
     } finally {
       setIsDeleting(false)
       setDeleteDialogOpen(false)

@@ -37,9 +37,9 @@ export default async function NewDisbursementPage() {
   const { data: jobOrders } = await supabase
     .from('job_orders')
     .select('id, jo_number')
-    .in('status', ['active', 'in_progress', 'pending', 'completed'])
+    .in('status', ['draft', 'pending_check', 'checked', 'approved'])
     .order('created_at', { ascending: false })
-    .limit(100)
+    .limit(500)
 
   return (
     <NewDisbursementForm

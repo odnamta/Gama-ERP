@@ -320,7 +320,7 @@ export function calculatePEBStatistics(documents: PEBDocument[]): PEBStatistics 
  * Property 11: Role-Based Permission Consistency
  */
 export function canViewPEB(role: UserRole): boolean {
-  const allowedRoles: UserRole[] = ['owner', 'director', 'sysadmin', 'customs', 'finance', 'finance_manager'];
+  const allowedRoles: UserRole[] = ['owner', 'director', 'sysadmin', 'customs', 'finance', 'finance_manager', 'marketing_manager', 'operations_manager', 'ops', 'administration', 'marketing'];
   return allowedRoles.includes(role);
 }
 
