@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getUserProfile } from '@/lib/permissions-server';
-import { canAccessFeature } from '@/lib/permissions';
+import { canAccessFeature, ADMIN_ROLES } from '@/lib/permissions';
 import { getCurrentProfileId } from '@/lib/auth-helpers';
 import { revalidatePath } from 'next/cache';
 import {
@@ -303,6 +303,55 @@ export async function cancelTrainingRequest(
   if (error) {
     console.error('[TrainingRequest] cancel failed:', error);
     return { success: false, error: 'Gagal membatalkan permintaan' };
+  }
+
+  revalidatePath('/hse/training/requests');
+  revalidatePath(`/hse/training/requests/${id}`);
+  return { success: true };
+}
+
+export async function deleteTrainingRequest(
+  id: string
+): Promise<{ success: boolean; error?: string }> {
+  const profile = await getUserProfile();
+  if (!profile) return { success: false, error: 'Tidak terautentikasi' };
+
+  const supabase = await createClient();
+
+  // Fetch the request to check status and ownership
+  const { data: req } = await supabase
+    .from('training_requests' as any)
+    .select('status, created_by')
+    .eq('id', id)
+    .single();
+
+  if (!req) {
+    return { success: false, error: 'Permintaan training tidak ditemukan' };
+  }
+
+  const reqData = req as any;
+
+  // Only pending or draft requests can be deleted
+  if (reqData.status !== 'pending' && reqData.status !== 'draft') {
+    return { success: false, error: 'Hanya permintaan dengan status pending atau draft yang bisa dihapus' };
+  }
+
+  // Only the original requester or admin roles can delete
+  const isRequester = reqData.created_by === profile.id;
+  const isAdmin = (ADMIN_ROLES as readonly string[]).includes(profile.role);
+  if (!isRequester && !isAdmin) {
+    return { success: false, error: 'Tidak memiliki akses untuk menghapus permintaan ini' };
+  }
+
+  // Soft delete
+  const { error } = await supabase
+    .from('training_requests' as any)
+    .update({ is_active: false, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) {
+    console.error('[TrainingRequest] delete failed:', error);
+    return { success: false, error: 'Gagal menghapus permintaan training' };
   }
 
   revalidatePath('/hse/training/requests');

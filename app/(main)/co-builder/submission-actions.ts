@@ -10,6 +10,7 @@ import { getUserProfile } from '@/lib/permissions-server'
 import { ADMIN_ROLES } from '@/lib/permissions'
 import { revalidatePath } from 'next/cache'
 import { calculateEffortLevel } from '@/lib/co-builder-utils'
+import { sendThreadMessage } from '@/lib/support-thread-actions'
 
 // ============================================================
 // COMPETITION DATES (private)
@@ -474,6 +475,20 @@ export async function reviewFeedback(data: {
         updated_at: new Date().toISOString(),
       } as Record<string, unknown>)
       .eq('id', data.feedbackId)
+
+    // Sync admin response to support thread so contestant sees it in chat
+    if (data.adminResponse && data.adminResponse.trim()) {
+      try {
+        await sendThreadMessage({
+          entityType: 'competition_feedback',
+          entityId: data.feedbackId,
+          message: data.adminResponse.trim(),
+          senderType: 'admin',
+        })
+      } catch {
+        // Non-blocking: thread message is supplementary
+      }
+    }
 
     // Create point event for the multiplier difference
     if (pointsDiff !== 0) {

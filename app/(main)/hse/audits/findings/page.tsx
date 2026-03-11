@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { FindingSummaryCards } from '@/components/hse/audits/finding-summary-cards';
 import { FindingList } from '@/components/hse/audits/finding-list';
 import { FindingClosureDialog } from '@/components/hse/audits/finding-closure-dialog';
 import { FindingVerification } from '@/components/hse/audits/finding-verification';
@@ -83,6 +84,8 @@ export default function FindingsPage() {
           </p>
         </div>
       </div>
+
+      <FindingSummaryCards findings={findings} />
 
       <FindingList
         findings={findings}

@@ -46,7 +46,7 @@ const STATUS_CONFIG: Record<string, { label: string; variant: 'default' | 'secon
 
 type FilterMode = 'all' | 'category' | 'status'
 
-export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints }: { feedback: CompetitionFeedback[]; currentUserId: string; actualTotalPoints?: number }) {
+export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints, unreadCounts = {} }: { feedback: CompetitionFeedback[]; currentUserId: string; actualTotalPoints?: number; unreadCounts?: Record<string, number> }) {
   const [filterMode, setFilterMode] = useState<FilterMode>('all')
   const [filterValue, setFilterValue] = useState<string>('all')
 
@@ -175,6 +175,11 @@ export function MyFeedbackClient({ feedback, currentUserId, actualTotalPoints }:
                       <div className="flex items-center gap-2 mb-1">
                         <CatIcon className={`h-4 w-4 shrink-0 ${cat.color}`} />
                         <h3 className={`font-medium truncate ${fb.admin_status === 'duplicate' ? 'line-through' : ''}`}>{fb.title}</h3>
+                        {unreadCounts[fb.id] > 0 && (
+                          <Badge variant="destructive" className="text-[10px] px-1.5 py-0 shrink-0">
+                            {unreadCounts[fb.id]} baru
+                          </Badge>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
                         {fb.description}

@@ -40,6 +40,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from '@/hooks/use-toast'
+import { AttachmentsSection } from '@/components/attachments/attachments-section'
 import Link from 'next/link'
 
 interface VendorInvoiceDetailViewProps {
@@ -288,6 +289,13 @@ export function VendorInvoiceDetailView({ invoiceId, userRole }: VendorInvoiceDe
             payments={payments}
             canDelete={canDeleteVendorInvoices(userRole)}
             onPaymentDeleted={loadData}
+          />
+
+          {/* Dokumen Invoice */}
+          <AttachmentsSection
+            entityType="vendor_invoice"
+            entityId={invoice.id}
+            title="Dokumen Invoice"
           />
         </div>
 

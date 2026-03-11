@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Loader2 } from 'lucide-react'
 import { Customer } from '@/types'
@@ -106,12 +107,13 @@ export function CustomerForm({ customer, onSubmit, isLoading }: CustomerFormProp
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="address">Address</Label>
-        <Input
+        <Label htmlFor="address">Alamat Perusahaan</Label>
+        <Textarea
           id="address"
           {...register('address')}
-          placeholder="Customer address"
+          placeholder="Alamat lengkap perusahaan"
           disabled={isLoading}
+          rows={3}
         />
       </div>
 

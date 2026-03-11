@@ -66,16 +66,17 @@ export function validateFile(
       .join(', ');
     return {
       valid: false,
-      error: `File type not allowed. Please upload ${allowedExtensions} files.`,
+      error: `Format file tidak didukung. Gunakan format: ${allowedExtensions}.`,
     };
   }
 
   // Check file size
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   if (file.size > maxSizeBytes) {
+    const actualSizeMB = (file.size / (1024 * 1024)).toFixed(1);
     return {
       valid: false,
-      error: `File exceeds ${maxSizeMB}MB limit. Please choose a smaller file.`,
+      error: `Ukuran file ${actualSizeMB}MB melebihi batas maksimum ${maxSizeMB}MB. Pilih file yang lebih kecil.`,
     };
   }
 

@@ -59,12 +59,14 @@ export async function uploadAttachment(
 
     // Validate file type
     if (!ALLOWED_MIME_TYPES.includes(file.type as typeof ALLOWED_MIME_TYPES[number])) {
-      return { data: null, error: 'File type not allowed. Please upload PDF, JPEG, or PNG files.' };
+      return { data: null, error: 'Format file tidak didukung. Gunakan format: PDF, JPEG, atau PNG.' };
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      return { data: null, error: 'File exceeds 10MB limit. Please choose a smaller file.' };
+      const actualMB = (file.size / (1024 * 1024)).toFixed(1);
+      const maxMB = MAX_FILE_SIZE_BYTES / (1024 * 1024);
+      return { data: null, error: `Ukuran file ${actualMB}MB melebihi batas maksimum ${maxMB}MB. Pilih file yang lebih kecil.` };
     }
 
     // Generate unique storage path

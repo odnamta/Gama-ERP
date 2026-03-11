@@ -208,8 +208,7 @@ export function SupportThread({
         )
         if (hasConfirmation) setUserConfirmedResolution(true)
 
-        // Mark as read
-        await markThreadMessagesRead(loadedThread.id)
+        // Don't auto-mark-read on mount — let user see unread badge first
       } catch {
         if (!cancelled) {
           setError('Terjadi kesalahan saat memuat pesan')
@@ -272,6 +271,11 @@ export function SupportThread({
             m.id === optimisticMessage.id ? result.message! : m
           )
         )
+
+        // Mark all messages as read since user is actively engaged
+        if (thread) {
+          markThreadMessagesRead(thread.id).catch(() => {})
+        }
 
         // If thread was just created, refresh it
         if (!thread) {

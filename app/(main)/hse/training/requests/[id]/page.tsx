@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { getTrainingRequestById } from '@/lib/training-request-actions';
 import { getUserProfile } from '@/lib/permissions-server';
-import { canAccessFeature } from '@/lib/permissions';
+import { canAccessFeature, ADMIN_ROLES } from '@/lib/permissions';
 import { formatDate, formatCurrency } from '@/lib/utils/format';
 import { TrainingRequestStatus } from '@/types/training-request';
 import { ArrowLeft } from 'lucide-react';
@@ -142,9 +142,25 @@ export default async function TrainingRequestDetailPage({
       </div>
 
       {/* Action buttons */}
-      {canManage && request.status === 'pending' && (
-        <TrainingRequestActions requestId={request.id} />
-      )}
+      {(() => {
+        if (!profile) return null;
+        const isRequester = request.created_by === profile.id;
+        const isAdmin = (ADMIN_ROLES as readonly string[]).includes(profile.role);
+        const canDelete = (isRequester || isAdmin) && (request.status === 'pending' || (request.status as string) === 'draft');
+        const showActions = canManage && request.status === 'pending';
+
+        if (showActions || canDelete) {
+          return (
+            <TrainingRequestActions
+              requestId={request.id}
+              requestNumber={request.request_number}
+              showApproveReject={showActions}
+              showDelete={canDelete}
+            />
+          );
+        }
+        return null;
+      })()}
     </div>
   );
 }
