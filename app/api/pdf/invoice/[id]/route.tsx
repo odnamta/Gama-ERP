@@ -86,15 +86,17 @@ export async function GET(
 
     // Generate PDF
     const buffer = await renderToBuffer(<InvoicePDF {...pdfProps} />)
+    const pdfBuffer = Buffer.from(buffer)
 
     // Set headers
     const filename = `${invoice.invoice_number}.pdf`
     const disposition = download ? `attachment; filename="${filename}"` : `inline; filename="${filename}"`
 
-    return new Response(buffer as BodyInit, {
+    return new Response(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': disposition,
+        'Content-Length': String(pdfBuffer.length),
       },
     })
   } catch (error) {

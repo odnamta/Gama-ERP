@@ -100,8 +100,8 @@ export async function getVendors(filters?: Partial<VendorFilterState>): Promise<
 
   let { data, error } = await query.limit(1000);
 
-  // If aggregate query fails (tables/FK don't exist), fallback to basic query
-  if (error) {
+  // If aggregate query fails (tables/FK don't exist) or returns null data, fallback to basic query
+  if (error || !data) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let fallback = supabase.from('vendors').select('*').order('vendor_name') as any;
     if (filters?.type && filters.type !== 'all') fallback = fallback.eq('vendor_type', filters.type);

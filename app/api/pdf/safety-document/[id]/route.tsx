@@ -131,25 +131,17 @@ export async function GET(
       company,
     }
 
-    let buffer: Buffer
-    try {
-      buffer = await renderToBuffer(<SafetyDocumentPDF {...pdfProps} />)
-    } catch (renderError) {
-      console.error('[PDF Safety Document] renderToBuffer failed:', renderError)
-      const msg = renderError instanceof Error ? renderError.message : 'Unknown render error'
-      return new Response(JSON.stringify({ error: 'PDF rendering failed', details: msg }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
+    const buffer = await renderToBuffer(<SafetyDocumentPDF {...pdfProps} />)
+    const pdfBuffer = Buffer.from(buffer)
 
     const filename = `${doc.document_number}.pdf`
     const disposition = download ? `attachment; filename="${filename}"` : `inline; filename="${filename}"`
 
-    return new Response(new Uint8Array(buffer), {
+    return new Response(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': disposition,
+        'Content-Length': String(pdfBuffer.length),
       },
     })
   } catch (error) {

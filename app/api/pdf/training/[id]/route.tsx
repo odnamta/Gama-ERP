@@ -86,14 +86,16 @@ export async function GET(
     }
 
     const buffer = await renderToBuffer(<TrainingPDF {...pdfProps} />)
+    const pdfBuffer = Buffer.from(buffer)
 
     const filename = `${record.certificate_number || `training-${id.slice(0, 8)}`}.pdf`
     const disposition = download ? `attachment; filename="${filename}"` : `inline; filename="${filename}"`
 
-    return new Response(buffer as BodyInit, {
+    return new Response(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': disposition,
+        'Content-Length': String(pdfBuffer.length),
       },
     })
   } catch (error) {
