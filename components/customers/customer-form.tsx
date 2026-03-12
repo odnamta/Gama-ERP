@@ -19,6 +19,7 @@ export const customerSchema = z.object({
   address: z.string().optional(),
   established_date: z.string().optional(),
   payment_terms_days: z.string().optional(),
+  eprocurement_url: z.string().url('URL tidak valid').or(z.literal('')).optional(),
 })
 
 export type CustomerFormData = z.infer<typeof customerSchema>
@@ -51,6 +52,7 @@ export function CustomerForm({ customer, onSubmit, isLoading }: CustomerFormProp
       payment_terms_days: (customer as Record<string, unknown>)?.payment_terms_days
         ? String((customer as Record<string, unknown>).payment_terms_days)
         : '',
+      eprocurement_url: (customer as Record<string, unknown>)?.eprocurement_url as string || '',
     },
   })
 
@@ -130,6 +132,23 @@ export function CustomerForm({ customer, onSubmit, isLoading }: CustomerFormProp
         />
         <p className="text-xs text-muted-foreground">
           Jika diisi, due date invoice akan dihitung dari termin ini
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="eprocurement_url">Link E-Procurement</Label>
+        <Input
+          id="eprocurement_url"
+          type="url"
+          {...register('eprocurement_url')}
+          placeholder="https://eproc.customer.co.id"
+          disabled={isLoading}
+        />
+        {errors.eprocurement_url && (
+          <p className="text-sm text-destructive">{errors.eprocurement_url.message}</p>
+        )}
+        <p className="text-xs text-muted-foreground">
+          URL portal e-procurement customer (Ariba, Coupa, dll)
         </p>
       </div>
 

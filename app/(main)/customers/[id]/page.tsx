@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { StatusBadge } from '@/components/ui/status-badge'
 import { AttachmentsSection } from '@/components/attachments'
 import { CustomerRatesSection } from '@/components/customers/customer-rates-section'
-import { ArrowLeft, Plus, Building2, Mail, Phone, MapPin, Calendar, Cake, FileText, Receipt, Clock } from 'lucide-react'
+import { ArrowLeft, Plus, Building2, Mail, Phone, MapPin, Calendar, Cake, FileText, Receipt, Clock, Globe } from 'lucide-react'
 import { formatDate, formatCurrency } from '@/lib/utils/format'
 
 interface CustomerDetailPageProps {
@@ -107,6 +107,26 @@ export default async function CustomerDetailPage({ params }: CustomerDetailPageP
                 </p>
               </div>
             </div>
+            {(() => {
+              const eprocUrl = (customer as Record<string, unknown>).eprocurement_url as string | null
+              if (!eprocUrl) return null
+              return (
+                <div className="flex items-center gap-3">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">E-Procurement</p>
+                    <a
+                      href={eprocUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-blue-600 hover:underline"
+                    >
+                      {eprocUrl}
+                    </a>
+                  </div>
+                </div>
+              )
+            })()}
             <div className="flex items-center gap-3">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <div>
