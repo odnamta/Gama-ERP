@@ -24,6 +24,7 @@ import { getSignedUrl, deleteAttachment } from '@/lib/attachments/actions';
 import { getFileIcon, formatFileSize, isImageType, isPdfType } from '@/lib/attachments/attachment-utils';
 import type { AttachmentListProps, DocumentAttachment } from '@/types/attachments';
 import { PreviewModal } from './preview-modal';
+import { useToast } from '@/hooks/use-toast';
 
 export function AttachmentList({
   entityType: _entityType,
@@ -32,6 +33,7 @@ export function AttachmentList({
   onDelete,
   isLoading = false,
 }: AttachmentListProps) {
+  const { toast } = useToast();
   const [previewAttachment, setPreviewAttachment] = useState<DocumentAttachment | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DocumentAttachment | null>(null);
@@ -40,30 +42,39 @@ export function AttachmentList({
 
   const handlePreview = async (attachment: DocumentAttachment) => {
     setLoadingAction(`preview-${attachment.id}`);
-    
+
     const result = await getSignedUrl(attachment.storage_path);
-    
+
+    if (result.error) {
+      toast({ title: 'Gagal membuka file', description: result.error, variant: 'destructive' });
+      setLoadingAction(null);
+      return;
+    }
+
     if (result.url) {
       if (isPdfType(attachment.file_type)) {
-        // Open PDF in new tab
         window.open(result.url, '_blank');
       } else if (isImageType(attachment.file_type)) {
-        // Show image in modal
         setPreviewUrl(result.url);
         setPreviewAttachment(attachment);
       }
     }
-    
+
     setLoadingAction(null);
   };
 
   const handleDownload = async (attachment: DocumentAttachment) => {
     setLoadingAction(`download-${attachment.id}`);
-    
+
     const result = await getSignedUrl(attachment.storage_path);
-    
+
+    if (result.error) {
+      toast({ title: 'Gagal mengunduh file', description: result.error, variant: 'destructive' });
+      setLoadingAction(null);
+      return;
+    }
+
     if (result.url) {
-      // Create a temporary link and trigger download
       const link = document.createElement('a');
       link.href = result.url;
       link.download = attachment.file_name;
@@ -71,21 +82,23 @@ export function AttachmentList({
       link.click();
       document.body.removeChild(link);
     }
-    
+
     setLoadingAction(null);
   };
 
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
-    
+
     setIsDeleting(true);
-    
+
     const result = await deleteAttachment(deleteTarget.id);
-    
+
     if (result.success) {
       onDelete?.(deleteTarget.id);
+    } else {
+      toast({ title: 'Gagal menghapus file', description: result.error || 'Terjadi kesalahan', variant: 'destructive' });
     }
-    
+
     setIsDeleting(false);
     setDeleteTarget(null);
   };

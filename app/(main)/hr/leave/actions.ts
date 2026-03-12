@@ -708,7 +708,7 @@ export async function getLeaveRequests(
     .from('leave_requests')
     .select(`
       *,
-      employee:employees(id, full_name, department_id, user_id, department:departments(id, department_name)),
+      employee:employees!leave_requests_employee_id_fkey(id, full_name, department_id, user_id, department:departments(id, department_name)),
       leave_type:leave_types(*),
       handover_employee:employees!leave_requests_handover_to_fkey(id, full_name)
     `)

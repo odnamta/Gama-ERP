@@ -82,6 +82,12 @@ export function MedicalCheckupForm({ record, employees }: MedicalCheckupFormProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!record && !formData.employee_id) {
+      toast.error('Karyawan harus dipilih');
+      return;
+    }
+
     setLoading(true);
 
     try {

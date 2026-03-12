@@ -110,13 +110,16 @@ export async function GET(
 
     const buffer = await renderToBuffer(<SurveyPDF {...pdfProps} />)
 
+    const pdfBuffer = Buffer.from(buffer)
+
     const filename = `${survey.survey_number}.pdf`
     const disposition = download ? `attachment; filename="${filename}"` : `inline; filename="${filename}"`
 
-    return new Response(buffer as BodyInit, {
+    return new Response(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': disposition,
+        'Content-Length': String(pdfBuffer.length),
       },
     })
   } catch (error) {
