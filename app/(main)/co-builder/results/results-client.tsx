@@ -103,6 +103,30 @@ export function ResultsClient({ results }: { results: CompetitionResults }) {
         </div>
       </div>
 
+      {/* Congratulations Banner (when competition is over) */}
+      {results.isCompetitionOver && results.entries.length > 0 && (
+        <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+          <CardContent className="p-6">
+            <div className="text-center space-y-3">
+              <h2 className="text-xl font-bold text-green-800">
+                Selamat kepada {results.entries[0]?.user_name.trim()}!
+              </h2>
+              <p className="text-green-700">
+                Pemenang GAMA ERP Co-Builder Program dengan <strong>{results.entries[0]?.total_points.toLocaleString('id-ID')} poin</strong>.
+              </p>
+              <p className="text-sm text-green-600">
+                Terima kasih kepada seluruh peserta yang telah berkontribusi aktif selama program berlangsung.
+                Total <strong>{results.totalFeedback} feedback</strong> dari <strong>{results.totalParticipants} peserta</strong> telah
+                membantu menyempurnakan sistem ERP GAMA. Kontribusi kalian sangat berharga!
+              </p>
+              <p className="text-sm text-green-600 italic">
+                Program Co-Builder akan berlanjut sebagai channel feedback permanen. Terus kirim masukan untuk pengembangan sistem yang lebih baik.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Quick Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <Card>
@@ -192,7 +216,9 @@ export function ResultsClient({ results }: { results: CompetitionResults }) {
               className={`rounded-lg border p-4 ${
                 entry.prize_eligible
                   ? 'border-green-200 bg-green-50/50'
-                  : 'border-border'
+                  : entry.participation_bonus > 0
+                    ? 'border-blue-200 bg-blue-50/30'
+                    : 'border-border'
               }`}
             >
               <div className="flex items-start gap-4">
@@ -253,7 +279,7 @@ export function ResultsClient({ results }: { results: CompetitionResults }) {
                       </Badge>
                     </div>
                   )}
-                  {entry.prize_eligible && (
+                  {entry.participation_bonus > 0 && (
                     <div className="text-xs text-green-600 mt-1">
                       + {formatCurrency(entry.participation_bonus)}
                     </div>
@@ -296,6 +322,10 @@ export function ResultsClient({ results }: { results: CompetitionResults }) {
               <span>Bonus Partisipasi (memenuhi syarat)</span>
               <span className="font-medium">Rp 250.000</span>
             </div>
+            <div className="flex justify-between py-2 border-b text-muted-foreground">
+              <span>Bonus Partisipasi Aktif</span>
+              <span className="font-medium">Rp 250.000</span>
+            </div>
             <div className="flex justify-between py-2 text-muted-foreground">
               <span>Perfect Attendance</span>
               <span className="font-medium">+ Rp 150.000</span>
@@ -334,7 +364,8 @@ export function ResultsClient({ results }: { results: CompetitionResults }) {
             <span>Submit Top 5 Perubahan Terbesar</span>
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Peserta yang tidak memenuhi semua syarat tidak berhak atas hadiah, terlepas dari posisi di leaderboard.
+            Peserta yang memenuhi semua syarat berhak atas hadiah utama. Peserta aktif (minimal 5 feedback &amp; 3 hari aktif)
+            tetap mendapat bonus partisipasi sebagai apresiasi kontribusi.
           </p>
         </CardContent>
       </Card>

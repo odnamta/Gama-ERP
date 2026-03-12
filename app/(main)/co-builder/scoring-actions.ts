@@ -576,6 +576,9 @@ export async function getCompetitionResults(): Promise<CompetitionResults> {
       }
       participationBonus = PARTICIPATION_BONUS
       prizeRank++
+    } else if (entry.feedback_count >= 5 && entry.active_days >= 3) {
+      // Active participant bonus — contributed meaningfully but didn't meet all requirements
+      participationBonus = PARTICIPATION_BONUS
     }
 
     return {
