@@ -9,16 +9,6 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 // ============================================================
-// COMPETITION DATES (private)
-// ============================================================
-
-const COMPETITION_END = new Date('2026-03-12T23:59:59+07:00')
-
-function isCompetitionOver(): boolean {
-  return new Date() > COMPETITION_END
-}
-
-// ============================================================
 // TYPES
 // ============================================================
 
@@ -127,9 +117,7 @@ export async function completeScenario(data: {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Not authenticated' }
 
-    if (isCompetitionOver()) {
-      return { success: false, error: 'Kompetisi Co-Builder sudah berakhir (12 Maret 2026)' }
-    }
+    // Competition ended but scenarios still accepted under permanent programme
 
     // Validate rating range (1-5)
     if (!data.overallRating || data.overallRating < 1 || data.overallRating > 5 || !Number.isInteger(data.overallRating)) {

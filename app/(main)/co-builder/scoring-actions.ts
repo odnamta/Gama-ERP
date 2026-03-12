@@ -9,11 +9,10 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 // ============================================================
-// COMPETITION DATES (private)
+// COMPETITION DATES (shared)
 // ============================================================
 
-const COMPETITION_END = new Date('2026-03-12T23:59:59+07:00')
-const PERFECT_ATTENDANCE_START = new Date('2026-02-23T00:00:00+07:00')
+import { COMPETITION_END, PERFECT_ATTENDANCE_START, isCompetitionOver } from './constants'
 
 /** Get all weekdays (Mon-Fri) between start and end dates in WIB */
 function getRequiredWeekdays(): string[] {
@@ -32,9 +31,6 @@ function getRequiredWeekdays(): string[] {
   return days
 }
 
-function isCompetitionOver(): boolean {
-  return new Date() > COMPETITION_END
-}
 
 /** Get today's date string in WIB (UTC+7) */
 function getTodayWIB(): string {
@@ -447,9 +443,7 @@ export async function submitTop5(data: {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Not authenticated' }
 
-    if (isCompetitionOver()) {
-      return { success: false, error: 'Kompetisi Co-Builder sudah berakhir (12 Maret 2026)' }
-    }
+    // Top 5 submissions still accepted under permanent programme
 
     // Check if already submitted
     const { count } = await supabase

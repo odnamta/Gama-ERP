@@ -14,9 +14,7 @@ import {
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import type { LeaderboardEntry, UserCompetitionStats } from './actions'
-
-const COMPETITION_END = new Date('2026-03-12T23:59:59+07:00')
-const COMPETITION_START = new Date('2026-02-12T00:00:00+07:00')
+import { COMPETITION_END, COMPETITION_START, isCompetitionOver } from './constants'
 
 const WEEK_PHASES = [
   { week: 1, start: '12 Feb', end: '18 Feb', label: 'Guided Exploration', desc: 'Ikuti test scenario' },
@@ -69,6 +67,7 @@ interface Props {
 export function LeaderboardClient({ leaderboard, stats, activity }: Props) {
   const [countdown, setCountdown] = useState('')
   const currentWeek = getCurrentWeek()
+  const competitionOver = isCompetitionOver()
 
   useEffect(() => {
     function updateCountdown() {
@@ -89,45 +88,100 @@ export function LeaderboardClient({ leaderboard, stats, activity }: Props) {
 
   return (
     <div className="space-y-6">
+      {/* Post-Competition Banner */}
+      {competitionOver && (
+        <div className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 p-6 text-white">
+          <div className="flex items-start gap-3">
+            <Trophy className="h-8 w-8 shrink-0 mt-0.5" />
+            <div>
+              <h2 className="text-xl font-bold">Kompetisi Co-Builder Telah Berakhir!</h2>
+              <p className="mt-1 text-white/90">
+                Terima kasih kepada semua peserta atas kontribusinya. Ranking kompetisi sudah dibekukan per 12 Maret 2026, 23:59 WIB.
+              </p>
+              <p className="mt-2 text-white/80 text-sm">
+                Co-Builder berlanjut sebagai program permanen — feedback dan poin tetap berjalan, tapi hadiah kompetisi sudah final.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Link
+                  href="/co-builder/results"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 px-4 py-1.5 text-sm font-medium transition-colors"
+                >
+                  <Award className="h-4 w-4" />
+                  Lihat Hasil Akhir & Hadiah
+                </Link>
+                <Link
+                  href="/co-builder/my-feedback"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 px-4 py-1.5 text-sm font-medium transition-colors"
+                >
+                  <Star className="h-4 w-4" />
+                  Kirim Feedback (Program Permanen)
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 p-6 text-white">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <Trophy className="h-7 w-7" />
-              GAMA ERP Co-Builder Program
+              GAMA ERP Co-Builder {competitionOver ? 'Program Permanen' : 'Program'}
             </h1>
-            <p className="mt-1 text-white/80">Jelajahi, temukan bug, kasih saran — dapatkan hadiah!</p>
+            <p className="mt-1 text-white/80">
+              {competitionOver
+                ? 'Terus bantu tingkatkan ERP — feedback kamu tetap berharga!'
+                : 'Jelajahi, temukan bug, kasih saran — dapatkan hadiah!'}
+            </p>
           </div>
           <div className="text-right">
             <div className="flex items-center gap-2 text-white/90">
               <Clock className="h-4 w-4" />
               <span className="font-medium">{countdown}</span>
             </div>
-            <p className="text-sm text-white/70 mt-1">Berakhir 12 Maret 2026</p>
+            {!competitionOver && (
+              <p className="text-sm text-white/70 mt-1">Berakhir 12 Maret 2026</p>
+            )}
           </div>
         </div>
 
-        {/* Prize Tiers */}
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Badge className="bg-yellow-400/20 text-white border-yellow-400/40 text-sm">🥇 Rp 3.000.000</Badge>
-          <Badge className="bg-gray-300/20 text-white border-gray-300/40 text-sm">🥈 Rp 2.000.000</Badge>
-          <Badge className="bg-amber-600/20 text-white border-amber-600/40 text-sm">🥉 Rp 1.500.000</Badge>
-          <Badge className="bg-white/10 text-white border-white/20 text-sm">4th Rp 1.000.000</Badge>
-          <Badge className="bg-white/10 text-white border-white/20 text-sm">5th Rp 750.000</Badge>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <p className="text-sm text-white/70">
-            Semua peserta yang memenuhi syarat: Rp 250.000 &bull; Perfect Attendance: +Rp 150.000
-          </p>
-          <Link
-            href="/co-builder/results"
-            className="inline-flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 px-3 py-1 text-sm font-medium transition-colors"
-          >
-            <Award className="h-3.5 w-3.5" />
-            Lihat Hasil & Hadiah
-          </Link>
-        </div>
+        {/* Prize Tiers — only show during competition */}
+        {!competitionOver && (
+          <>
+            <div className="mt-4 flex flex-wrap gap-3">
+              <Badge className="bg-yellow-400/20 text-white border-yellow-400/40 text-sm">🥇 Rp 3.000.000</Badge>
+              <Badge className="bg-gray-300/20 text-white border-gray-300/40 text-sm">🥈 Rp 2.000.000</Badge>
+              <Badge className="bg-amber-600/20 text-white border-amber-600/40 text-sm">🥉 Rp 1.500.000</Badge>
+              <Badge className="bg-white/10 text-white border-white/20 text-sm">4th Rp 1.000.000</Badge>
+              <Badge className="bg-white/10 text-white border-white/20 text-sm">5th Rp 750.000</Badge>
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <p className="text-sm text-white/70">
+                Semua peserta yang memenuhi syarat: Rp 250.000 &bull; Perfect Attendance: +Rp 150.000
+              </p>
+              <Link
+                href="/co-builder/results"
+                className="inline-flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 px-3 py-1 text-sm font-medium transition-colors"
+              >
+                <Award className="h-3.5 w-3.5" />
+                Lihat Hasil & Hadiah
+              </Link>
+            </div>
+          </>
+        )}
+        {competitionOver && (
+          <div className="mt-3">
+            <Link
+              href="/co-builder/results"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 px-3 py-1 text-sm font-medium transition-colors"
+            >
+              <Award className="h-3.5 w-3.5" />
+              Lihat Hasil Akhir Kompetisi
+            </Link>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -137,7 +191,7 @@ export function LeaderboardClient({ leaderboard, stats, activity }: Props) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Medal className="h-5 w-5 text-orange-500" />
-                Leaderboard
+                {competitionOver ? 'Ranking Akhir Kompetisi' : 'Leaderboard'}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -201,7 +255,7 @@ export function LeaderboardClient({ leaderboard, stats, activity }: Props) {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                Timeline Kompetisi
+                Timeline Kompetisi {competitionOver && <Badge variant="secondary" className="text-xs">Selesai</Badge>}
               </CardTitle>
             </CardHeader>
             <CardContent>

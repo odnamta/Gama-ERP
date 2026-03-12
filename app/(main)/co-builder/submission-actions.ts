@@ -12,15 +12,6 @@ import { revalidatePath } from 'next/cache'
 import { calculateEffortLevel } from '@/lib/co-builder-utils'
 import { sendThreadMessage } from '@/lib/support-thread-actions'
 
-// ============================================================
-// COMPETITION DATES (private)
-// ============================================================
-
-const COMPETITION_END = new Date('2026-03-12T23:59:59+07:00')
-
-function isCompetitionOver(): boolean {
-  return new Date() > COMPETITION_END
-}
 
 /** Get today's date string in WIB (UTC+7) */
 function getTodayWIB(): string {
@@ -136,9 +127,8 @@ export async function submitCompetitionFeedback(data: {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { success: false, error: 'Not authenticated' }
 
-    if (isCompetitionOver()) {
-      return { success: false, error: 'Kompetisi Co-Builder sudah berakhir (12 Maret 2026)' }
-    }
+    // Competition ended but submissions still accepted under permanent programme
+    // Points continue accumulating but competition ranking is frozen
 
     // Validate description length (except praise)
     if (data.category !== 'praise' && (data.description?.length || 0) < 20) {
