@@ -251,7 +251,7 @@ export function GlobalSearch() {
                   </button>
                   <button
                     onClick={() => {
-                      router.push('/customers/new');
+                      router.push('/customers');
                       setOpen(false);
                     }}
                     className="flex items-center justify-between w-full px-2 py-1.5 text-sm rounded hover:bg-muted"
